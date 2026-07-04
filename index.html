@@ -446,6 +446,55 @@ const BENCHMARKS=[
   {key:'gpa',   name:'GPA',          unit:'',  lower:false, tiers:{P4:3.0,G5:3.0,FCS:3.2,D2:3.0}}
 ];
 
+/* ============ WAYPOINTS — stage-gated targets (owner request + review M5) ============
+   Compare a freshman to END-OF-FRESHMAN targets, not to seniors. Senior tiers stay as the
+   destination; waypoints are the next checkpoint. Numbers = informed expert judgment from
+   current maxes + realistic annual gains for a growing 15yo; recalibrated at each annual review.
+   forty/vert/broad are RELATIVE to his baseline test (can't target speed you've never measured). */
+const WAYPOINTS=[
+  {until:'2027-07-31',label:'FRESHMAN · by Jun 2027',
+   targets:{squat:315,bench:225,dead:405,clean:165,wt:174,gpa:3.5},
+   rel:{forty:-0.15,vert:3,broad:6}},
+  {until:'2028-07-31',label:'SOPHOMORE · by Jun 2028',
+   targets:{squat:365,bench:255,dead:445,clean:195,wt:186,gpa:3.5},
+   rel:{forty:-0.28,vert:6,broad:12}},
+  {until:'2029-07-31',label:'JUNIOR · by Jun 2029',
+   targets:{squat:405,bench:285,dead:495,clean:225,wt:195,gpa:3.5},
+   rel:{forty:-0.40,vert:9,broad:16}}
+];
+function currentWaypoint(iso=null){ const d=iso||todayISO(); return WAYPOINTS.find(w=>d<=w.until)||WAYPOINTS.at(-1); }
+
+/* ============ FOCUS BLOCKS — one bounded extra block targeting the biggest gap ============
+   Never added in-season (maintain is law) or on recovery days. One block, not a new program. */
+const FOCUS_BLOCKS={
+  squat:{on:'lower',n:'FOCUS · Pause squat',s:'2×5 @ 70% — 2s dead-stop in the hole. Your squat is the gap; this closes it.'},
+  bench:{on:'upper',n:'FOCUS · Bench back-off',s:'2×8 @ 70% — extra pressing volume. Bench is your biggest gap right now.'},
+  dead:{on:'lower',n:'FOCUS · Trap-bar heavy double',s:'2×2 @ 90% — pull gap work, crisp reps only.'},
+  clean:{on:'lower',n:'FOCUS · Hang clean technique',s:'4×2 @ 70% — speed under the bar. Power gap: your clean lags your squat badly.'},
+  forty:{on:'speed',n:'FOCUS · Extra accel block',s:'+3×15yd from a lying start — first-step gap work, full recovery.'},
+  vert:{on:'speed',n:'FOCUS · Extra jump set',s:'+2×4 approach jumps at a target, completely fresh.'},
+  wt:{on:'note',n:'FOCUS · The plate is the workout',s:'Weight is your #1 gap. Nothing in the gym outworks a missed meal — hit today\'s kcal target.'},
+  gpa:{on:'note',n:'FOCUS · Grades gate everything',s:'GPA is your biggest gap vs plan. One assignment tonight before any screen time.'}
+};
+
+/* ============ PLATEAU BREAKER — when the focus lift stalls, the stimulus rotates ============
+   Trigger: e1RM flat over 21d with real exposure (≥6 sets). Variants rotate weekly, each a
+   different stimulus class: position strength → volume → overload. Deterministic, explained. */
+const FOCUS_VARIANTS={
+  squat:[{n:'FOCUS · Pause squat',s:'2×5 @ 70% — 2s dead-stop in the hole.'},
+         {n:'FOCUS · Squat volume wave',s:'3×8 @ 65% — plateau says: more practice, less grinding.'},
+         {n:'FOCUS · Heavy walkout + back-off',s:'EOS DAYS ONLY (spotter required): 10s walkout @ 105%, then 2×5 @ 72%. Solo at the apartment gym? Do the pause variant instead.'}],
+  bench:[{n:'FOCUS · Bench back-off',s:'2×8 @ 70% — extra pressing volume.'},
+         {n:'FOCUS · Close-grip 4×6',s:'@ 65% — triceps move the sticking point.'},
+         {n:'FOCUS · Paused bench',s:'3×4 @ 75% — 2s on the chest, explode.'}],
+  dead:[{n:'FOCUS · Trap-bar heavy double',s:'2×2 @ 90% — crisp only.'},
+        {n:'FOCUS · Deficit pulls',s:'3×5 @ 70% off a 45 plate — longer range, stronger floor.'},
+        {n:'FOCUS · Speed pulls',s:'6×2 @ 65% — move it violently.'}],
+  clean:[{n:'FOCUS · Hang clean technique',s:'4×2 @ 70% — speed under the bar.'},
+         {n:'FOCUS · Clean pulls heavy',s:'4×3 @ 95% of clean — pull power without the catch.'},
+         {n:'FOCUS · Clean from blocks',s:'4×2 @ 75% — position strength at the knee.'}]
+};
+
 /* ============ TRAINING TEMPLATES BY PHASE ============
    Evidence basis (Jul 2026 research pass): in-season 2×/wk high-intensity low-volume,
    heavy session ≥96h and power session ≥48h before games; adolescent accel work =
@@ -477,7 +526,7 @@ function fuelPlan(bw,adj=0){
   const cal=Math.round((bw*20+400+adj)/50)*50;       // active-teen maintenance + surplus
   const pro=Math.round(bw*0.9/5)*5;              // g/day
   return {cal, pro, water:'1 gallon',
-    day:['Breakfast: 3-4 eggs + oats w/ whole milk + banana','School lunch + PB sandwich from home','Post-school: chocolate milk + granola or PB sandwich #2','Dinner: family meal, double the protein + rice/potatoes','Before 10:00: Greek yogurt or casein shake w/ milk'],
+    day:['Breakfast: 3-4 eggs + oats w/ whole milk + banana','Lunch at Basic: school lunch (take the protein option + milk + fruit, skip nothing) PLUS a packed PB sandwich + banana — small pack, big surplus','Post-school: chocolate milk + granola or PB sandwich #2','Dinner: family meal, double the protein + rice/potatoes','Before 10:00: Greek yogurt or casein shake w/ milk'],
     groceries:['Eggs (5 doz) ~$12','Oats 5 lb ~$5','Rice 10 lb ~$8','Whole milk 3 gal ~$11','Chocolate milk ~$4','Peanut butter 40oz ~$6','Chicken leg quarters 10 lb ~$10','Ground beef 80/20 3 lb ~$12','Greek yogurt tub ×2 ~$10','Bananas/apples ~$8','Bread 2 loaves ~$5','Sweet potatoes 5 lb ~$4'],
     note:'~$95-110/wk covers YOUR add-ons within the family budget. Cheap mass: eggs, oats, rice, milk, PB — the classics work.'};
 }
@@ -614,7 +663,7 @@ const TEMPLATES={
   ],
   recoveryTemplate:{day:-1,title:'RECOVERY (engine call)',recovery:true,blocks:[
       {n:'Full mobility circuit',s:'25 min — this is the session today'},
-      {n:'Easy walk or bike',s:'20 min easy — blood flow, not work'},
+      {n:'Easy walk, bike, or pool',s:'20 min easy — apartment pool walk/swim counts and beats both in summer heat'},
       {n:'EOS recovery suite',s:'Cold plunge is GOOD today (rest day). Rule: never within ~6h AFTER lifting — ice right after lifting blunts the muscle-growth signal (meta-analysis). Recovery days + post-game: green light.'},
       {n:'Film',s:'One 5-question set (PUSH)'}]},
   restDay:{day:-2,title:'REST',recovery:true,blocks:[
@@ -670,7 +719,8 @@ const SETUP_TASKS=[
   {id:'env:kitchen',title:'Kitchen talk with mom: the grocery list becomes the default',why:'The surplus has to be the path of least resistance. Show her the TRACK fuel list — it fits the budget.'},
   {id:'env:phone',title:'Phone parks outside the bedroom at 10:15 — starting tonight',why:'One environmental decision worth more than any sleep feature. The 10pm alarm is the warning shot.'},
   {id:'env:film',title:'Name the film owner for every game before the opener',why:'Program films JV, or cousin does — decided in advance, never improvised. Film is the recruiting currency.'},
-  {id:'env:team',title:'Team talk: mom (food+rides) · step-dad (camp fund) · cousin (spot/time/film)',why:'Four people, four jobs. The Sunday Dispatch will keep everyone honest — including you.'}
+  {id:'env:team',title:'Team talk: mom (food+rides) · step-dad (camp fund) · cousin (spot/time/film)',why:'Four people, four jobs. The Sunday Dispatch will keep everyone honest — including you.'},
+  {id:'env:bell',title:'Get Basic\'s bell schedule the moment it publishes',why:'Your morning routine takes 1.5h. If first bell is ~7am, that\'s a ~5am wake — and 10:30 lights-out gives you 6.5h sleep, which breaks the #1 rule. We solve this with real numbers: earlier lights-out on school nights or a compressed game-day-style morning. Can\'t solve it without the bell time.'}
 ];
 
 /* ============ NCAA TIMELINE · CLASS OF 2030 ============ */
@@ -700,7 +750,8 @@ const DEFAULTS={
     maxConsec:   {v:5,  basis:'default'},   // recovery override threshold, days
     followupDays:{v:35, basis:'default'}    // pipeline staleness window
   },
-  reviews:[]     // {d, worked, broke, fix} — Sunday journal, the qualitative memory
+  reviews:[],    // {d, worked, broke, fix} — Sunday journal, the qualitative memory
+  sessions:{}    // {ISO:[bool per block]} — set-by-set execution, feeds adherence-by-block
 };
 let S=loadS();
 function loadS(){
@@ -830,6 +881,17 @@ const Model={
     if(g<45) return .80;              // 3–6 weeks → 80%
     return .70;                       // longer → 70%, rebuild honestly
   },
+  /* plateau: 21d of exposure with no e1RM progress. Honest thresholds: needs ≥6 sets in window. */
+  plateau(s=S,ex,today=todayISO()){
+    const win=s.lifts.filter(l=>l.ex===ex&&daysBetween(l.d,today)<=21);
+    if(win.length<6) return {plateaued:false,weeks:0};
+    const best=Math.max(...win.map(l=>epley(l.wt,l.reps)));
+    const before=s.lifts.filter(l=>l.ex===ex&&daysBetween(l.d,today)>21);
+    if(!before.length) return {plateaued:false,weeks:0};
+    const prior=Math.max(...before.map(l=>epley(l.wt,l.reps)));
+    const stuck=best<=prior;
+    return {plateaued:stuck, weeks:stuck?Math.floor(daysBetween(before.at(-1).d,today)/7):0};
+  },
   iq(s=S,today=todayISO()){
     const wk=s.pushLog.filter(p=>daysBetween(p.d,today)<7);
     return {reps7:wk.length, lastType:s.pushLog.at(-1)?.type||null};
@@ -855,6 +917,24 @@ const Model={
     return {flags, contacted, responded,
             responseRate:contacted?responded/contacted:null,
             avgDaysToResponse:rts.length?Math.round(rts.reduce((a,b)=>a+b)/rts.length):null};
+  },
+  /* stage-gated: progress vs the CURRENT YEAR's waypoint; biggest deficit = the flaw the engine attacks */
+  waypointGaps(s=S,today=todayISO()){
+    const wp=currentWaypoint(today), g=this.gaps(s), mom=this.momentum(s,today);
+    const cur=k=>{ if(['squat','bench','dead','clean'].includes(k)) return Math.max(s.prs[k]||0,mom.bestE1rm[k]||0)||null;
+      return g.latest(k); };
+    const baseline=k=>{ const m=s.metrics.filter(x=>x.key===k).sort((a,b)=>a.d<b.d?-1:1)[0]; return m?m.val:null; };
+    const rows=[];
+    for(const k in wp.targets){ const c=cur(k), t=wp.targets[k];
+      rows.push({key:k,cur:c,target:t,progress:c==null?null:Math.min(1,c/t),rel:false}); }
+    for(const k in wp.rel){ const b=baseline(k), c=g.latest(k);
+      const t=b==null?null:+(b+wp.rel[k]).toFixed(2);
+      const lower=k==='forty';
+      rows.push({key:k,cur:c,target:t,rel:true,
+        progress:(t==null||c==null)?null:Math.min(1,lower?(c<=t?1:t/c):(c/t))}); }
+    const scored=rows.filter(r=>r.progress!=null);
+    const primary=scored.length?scored.reduce((a,b)=>a.progress<=b.progress?a:b):null;
+    return {label:wp.label, rows, primary};
   },
   gaps(s=S){
     const latest=k=>{ const m=s.metrics.filter(x=>x.key===k).sort((a,b)=>a.d<b.d?1:-1)[0];
@@ -911,10 +991,14 @@ function decide(s=S,dateISO=todayISO()){
         iq=Model.iq(s,dateISO), rec=Model.recruiting(s,dateISO), aca=Model.academic(s,dateISO);
   const deload=Model.deloadFactor(s,dateISO);
   const P=s.params;
-  const plan={date:dateISO, phase:ph, deload, tasks:[]};
+  const wg=Model.waypointGaps(s,dateISO);
+  const plan={date:dateISO, phase:ph, deload, tasks:[], focus:wg.primary};
 
-  // 1 · PRIORITY (comeback-aware; calm, factual, zero guilt)
-  if(con.everComplete && con.gapDays!=null && con.gapDays>=2){
+  // 1 · PRIORITY (game day outranks everything; then comeback; then recovery; then phase)
+  if(ph==='inseason'&&dow===(s.settings.gameDay??5)){
+    plan.priority={title:'Game day. Empty the tank.',
+      why:'Everything this week pointed here. Eat real food, run your pre-game script, and play fast — the film gets made today.'};
+  } else if(con.everComplete && con.gapDays!=null && con.gapDays>=2){
     plan.priority={title:'Back to work',
       why:`${con.gapDays} days off the board. That's done — today counts. Loads are adjusted; just execute.`};
   } else if(mom.consecDays>=P.maxConsec.v){
@@ -936,6 +1020,26 @@ function decide(s=S,dateISO=todayISO()){
     : {...(week.find(w=>w.day===dow)||TEMPLATES.restDay),
        why:ph+' plan for '+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dow]+
            (deload<1?` · loads at ${Math.round(deload*100)}% while you ramp back`:'')};
+
+  // 2b · FLAW FOCUS — one bounded block attacking the biggest waypoint gap
+  if(wg.primary&&FOCUS_BLOCKS[wg.primary.key]&&ph!=='inseason'&&!plan.workout.recovery){
+    let f=FOCUS_BLOCKS[wg.primary.key];
+    // plateau breaker: stalled focus lift rotates through stimulus variants weekly
+    if(FOCUS_VARIANTS[wg.primary.key]){
+      const pl=Model.plateau(s,wg.primary.key,dateISO);
+      if(pl.plateaued){
+        const v=FOCUS_VARIANTS[wg.primary.key][pl.weeks%FOCUS_VARIANTS[wg.primary.key].length];
+        f={...FOCUS_BLOCKS[wg.primary.key],n:v.n,s:v.s+' (plateau breaker — stimulus rotated, week '+(pl.weeks+1)+')'};
+      }
+    }
+    const isLower=/LOWER|CONTRAST|FULL BODY/.test(plan.workout.title);
+    const isUpper=/UPPER|BENCH/.test(plan.workout.title);
+    const isSpeed=/SPEED|ATHLETICISM/.test(plan.workout.title);
+    if(f.on==='note'||(f.on==='lower'&&isLower)||(f.on==='upper'&&isUpper)||(f.on==='speed'&&isSpeed)){
+      plan.workout={...plan.workout, blocks:[...plan.workout.blocks,{n:f.n,s:f.s}],
+        why:plan.workout.why+' · Focus added: '+wg.primary.key+' is your biggest gap vs the '+wg.label.split('·')[0].trim()+' waypoint.'};
+    }
+  }
 
   // 3 · ONE-TIME SETUP (until each is done)
   for(const t of SETUP_TASKS) if(!taskDone(t.id))
@@ -983,6 +1087,15 @@ function decide(s=S,dateISO=todayISO()){
     plan.tasks.push({kind:'academic',id:'gpa:'+dateISO.slice(0,7),title:'Log current GPA in TRACK',
       why:aca.daysSince==null?'No GPA on record. Grades are a D1 gate, not a detail.':`GPA last logged ${aca.daysSince} days ago.`});
   }
+  // 9b · FILM RITUAL (in-season, day after game): mark your best plays while fresh
+  if(ph==='inseason'){
+    const gd=s.settings.gameDay??5, dayAfter=((gd+1)%7);
+    const filmId='clips:'+dateISO;
+    if(dow===dayAfter&&!taskDone(filmId))
+      plan.tasks.push({kind:'film',id:filmId,title:'Mark your 3 best plays from yesterday',
+        why:'Clips picked while the game is fresh become the Hudl reel. This 10-minute habit IS your recruiting file.'});
+  }
+
   // 10 · WEEKLY DISPATCH (Sundays — the family accountability loop)
   const wkId='dispatch:'+dateISO;
   if(dow===0&&!taskDone(wkId))
@@ -1023,7 +1136,7 @@ function rToday(){
   }
   const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊'};
   $('#v-today').innerHTML=`
-  <div class="prio"><div class="k">TODAY'S PRIORITY</div>
+  <div class="prio"><div class="k">TODAY'S PRIORITY${plan.focus?` · ATTACKING: ${esc(plan.focus.key.toUpperCase())}`:''}</div>
     <div class="t">${esc(plan.priority.title)}</div><div class="w">${esc(plan.priority.why)}</div></div>
   <div class="card">
     <h3>Session <span class="r">${plan.phase.toUpperCase()} · ${['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date().getDay()]}</span></h3>
@@ -1123,13 +1236,21 @@ function rTrain(){
     <h3>${esc(w.title)} ${w.day===new Date().getDay()?'<span class="r" style="color:var(--amber)">TODAY</span>':''}</h3>
     ${w.recovery?'':`<details style="border-top:none;border-bottom:1px solid var(--line)"><summary style="color:var(--cyan)">WARM-UP FIRST <span class="pill cyan">6-8 min · cuts injuries 30-46%</span></summary>
       <div class="bd">${WARMUP[/SPEED|ATHLETICISM|TEMPO/.test(w.title)?'field':'lift'].map(x=>'• '+esc(x)).join('<br>')}</div></details>`}
-    ${w.blocks.map(b=>{
+    ${(()=>{const isToday=w.day===new Date().getDay();const sess=isToday?(S.sessions[todayISO()]||(S.sessions[todayISO()]=w.blocks.map(()=>false))):null;
+    return w.blocks.map((b,i)=>{
       let load='';
       if(b.pct&&b.lift&&S.prs[b.lift]){ const t=Math.round((S.prs[b.lift]*b.pct*dl)/5)*5;
         load=`<div class="note mono">→ <b style="color:var(--cyan)">${t} lb</b> (${Math.round(b.pct*100)}%${dl<1?' ×'+Math.round(dl*100)+'%':''} of ${S.prs[b.lift]}) · ${plates(t)}</div>`; }
-      return `<div style="padding:10px 0;border-bottom:1px solid var(--line)">
-        <div style="font-weight:700;font-size:14px">${esc(b.n)}</div>
-        <div style="font-size:13px;color:var(--dim);margin-top:2px">${esc(b.s)}</div>${load}</div>`;}).join('')}
+      const done=sess&&sess[i];
+      return `<div style="padding:10px 0;border-bottom:1px solid var(--line);${done?'opacity:.45':''}" ${isToday?`onclick="tglBlock(${i})"`:''}>
+        <div class="row"><div class="grow">
+        <div style="font-weight:700;font-size:14px">${done?'✓ ':''}${esc(b.n)}</div>
+        <div style="font-size:13px;color:var(--dim);margin-top:2px">${esc(b.s)}</div>${load}</div>
+        ${isToday?`<div class="box" style="width:22px;height:22px;border:2px solid ${done?'var(--amber)':'var(--line)'};border-radius:6px;background:${done?'var(--amber)':'transparent'};flex-shrink:0"></div>`:''}</div></div>`;}).join('');})()}
+    ${!w.recovery?`<div class="row" style="margin-top:12px">
+      <button class="btn grow" id="restBtn" onclick="restTimer(150)">⏱ REST 2:30</button>
+      <button class="btn ghost" onclick="restTimer(15)">CONTRAST 0:15</button>
+    </div><div class="note">Contrast pairs: jump within ~15s of racking. Between full sets: 2–3 min. The timing IS the method.<br>Solo at the apartment gym today? Skip anything marked SPOTTER/EOS — swap in the pause variant or DB work. Max attempts happen at EOS only, cousin present.</div>`:''}
   </div>
   <div class="card">
     <h3>Log a Lift</h3>
@@ -1172,6 +1293,15 @@ function rTrain(){
   </div>`;
 }
 let pendingLift=null;
+function tglBlock(i){ const k=todayISO(); if(!S.sessions[k]) return; S.sessions[k][i]=!S.sessions[k][i]; save();
+  if(S.sessions[k].every(Boolean)){ const c=ckToday(); if(!c[0]){c[0]=true; save();} toast('Session complete — Train box checked ✓'); }
+  rTrain(); }
+let _rt=null;
+function restTimer(sec){ clearInterval(_rt); const b=$('#restBtn'); if(!b) return; let n=sec;
+  _rt=setInterval(()=>{ n--; const m=Math.floor(n/60), s2=String(n%60).padStart(2,'0');
+    if(b) b.textContent='⏱ '+m+':'+s2;
+    if(n<=0){ clearInterval(_rt); if(b) b.textContent='⏱ GO — next set'; if(navigator.vibrate) navigator.vibrate([200,100,200]); toast('Rest over. Move.'); }
+  },1000); }
 function logLift(){
   const ex=$('#lgEx').value, wt=+$('#lgWt').value, reps=+$('#lgRp').value;
   if(!wt||!reps||reps>15||wt<5||wt>700){ toast('Enter a real weight + reps (≤15)'); return; }
@@ -1264,17 +1394,24 @@ function rTrack(){
   const g=Model.gaps(), sr=Model.systemRead(), DOWN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   $('#v-track').innerHTML=`
   <div class="card">
-    <h3>Gap Analysis <span class="r">vs senior-year targets</span></h3>
-    <table><tr><th></th><th>Now</th><th>D2</th><th>FCS</th><th>G5</th><th>P4</th></tr>
-    ${g.rows.map(b=>{
-      const cell=t=>{ const hit=b.hit[t];
-        return `<td class="mono" style="color:${hit?'var(--green)':'var(--faint)'}">${b.tiers[t]}${hit?' ✓':''}</td>`;};
-      return `<tr><td style="font-weight:700">${b.name}</td>
-        <td class="mono" style="color:var(--amber);font-weight:800">${b.val??'—'}</td>
-        ${cell('D2')}${cell('FCS')}${cell('G5')}${cell('P4')}</tr>`;}).join('')}
+    <h3>Your Waypoints <span class="r">${esc(Model.waypointGaps().label)}</span></h3>
+    ${(wg=>`
+    ${wg.primary?`<div class="flag">🎯 Biggest gap: <b>${esc(wg.primary.key.toUpperCase())}</b> — ${Math.round((wg.primary.progress||0)*100)}% of your waypoint. The engine is adding focus work for this automatically.</div>`:''}
+    <table><tr><th></th><th>Now</th><th>Target</th><th>There</th></tr>
+    ${wg.rows.map(r=>{
+      const names={squat:'Squat',bench:'Bench',dead:'Deadlift',clean:'Hang clean',wt:'Body weight',gpa:'GPA',forty:'40-yd',vert:'Vertical',broad:'Broad jump'};
+      const pct=r.progress==null?null:Math.round(r.progress*100);
+      return `<tr><td style="font-weight:700">${names[r.key]||r.key}</td>
+        <td class="mono" style="color:var(--amber);font-weight:800">${r.cur??'—'}</td>
+        <td class="mono">${r.target??'baseline sets this'}</td>
+        <td class="mono" style="color:${pct==null?'var(--faint)':pct>=100?'var(--green)':pct>=85?'var(--cyan)':'var(--dim)'}">${pct==null?'—':pct+'%'}${pct>=100?' ✓':''}</td></tr>`;}).join('')}
     </table>
-    <div class="note">Targets = typical committed-recruit ranges at RB by senior year. You're entering freshman year — the gap is the plan, not the verdict. Weight is gap #1: every number gets easier at 190.</div>
-  </div>
+    <div class="note">These are YOUR next checkpoints — end of this school year, not senior year. Hit a waypoint early and the annual review moves it up.</div>
+    <details><summary>The destination: senior-year D1 ranges</summary><div class="bd">
+      <table><tr><th></th><th>D2</th><th>FCS</th><th>G5</th><th>P4</th></tr>
+      ${g.rows.map(b=>`<tr><td style="font-weight:700">${b.name}</td><td class="mono">${b.tiers.D2}</td><td class="mono">${b.tiers.FCS}</td><td class="mono">${b.tiers.G5}</td><td class="mono">${b.tiers.P4}</td></tr>`).join('')}
+      </table><br>Four years away. The waypoints above are how you get there.</div></details>
+  </div>`)(Model.waypointGaps())}
   <div class="card">
     <h3>System Read <span class="r">what your own data says</span></h3>
     ${sr.days30<7?'<div class="empty">Needs ≥7 days of check-ins before the mirror is useful.</div>':`
@@ -1365,6 +1502,12 @@ function rPush(){
       <button class="btn" style="width:100%" onclick="drawDR()">DRAW A SCENARIO</button>`}
   </div>
   <div class="card">
+    <h3>Scout Sheet <span class="r">coach-trust builder</span></h3>
+    <div class="note" style="margin:0 0 10px">Fill this from one film session and hand it to your position coach each week. Almost no high schooler does this — it converts film habit into playing time and advocacy.</div>
+    ${Object.entries(FILM_SYSTEM.opponent_scout_template).map(([k,v])=>`<div style="padding:6px 0;border-bottom:1px solid var(--line);font-size:13px"><b>${esc(k.replace(/_/g,' ').toUpperCase())}:</b> <span style="color:var(--dim)">${esc(v)}</span></div>`).join('')}
+    <button class="btn sm" style="margin-top:10px" onclick="copyScout()">COPY BLANK SHEET</button>
+  </div>
+  <div class="card">
     <h3>Visualization Scripts</h3>
     ${Object.entries(VISUALIZATION).filter(([k])=>k!=='audio_guide_text').map(([k,v])=>`
       <details><summary>${k.replace(/_/g,' ').toUpperCase()} <span class="pill">${esc(v.duration)}</span></summary>
@@ -1378,6 +1521,10 @@ function rPush(){
       ${INJURY_PROTOCOLS.map(p=>`<b style="color:${/CRITICAL/.test(p.grade)?'var(--red)':'var(--txt)'}">${esc(p.name)}</b> — ${esc(p.signs)}<br><span style="color:var(--faint)">RTP ${esc(p.rtn)} · Prevent: ${esc(p.prevention)}</span><br><br>`).join('')}
     </div></details>
   </div>`;
+}
+function copyScout(){
+  const t=Object.entries(FILM_SYSTEM.opponent_scout_template).map(([k,v])=>k.replace(/_/g,' ').toUpperCase()+': ').join('\n');
+  navigator.clipboard?.writeText('SCOUT SHEET — '+fmtD(todayISO())+'\n'+t).then(()=>toast('Blank sheet copied — fill it in Notes'));
 }
 function drawDR(){ drIdx=Math.floor(Math.random()*DARK_ROOM.length); rPush(); }
 function logPush(type){ S.pushLog.push({d:todayISO(),type}); const c=ckToday(); if(!c[2]) c[2]=true; completeTask('iq:'+todayISO()); save(); rPush(); toast('IQ rep logged ✓'); }
