@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#0a0e14">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-180.png">
+<title>D1 OS</title>
+<style>
+:root{
+  --bg:#0a0e14; --bg2:#111826; --card:#151d2e; --card2:#1a2438;
+  --line:#243049; --txt:#e8edf5; --dim:#8b98ad; --faint:#5a6478;
+  --amber:#ffb020; --amber-dim:#8a6212; --cyan:#4dd0e1; --cyan-dim:#1e5f6b;
+  --green:#4caf7d; --red:#e05555; --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
+  padding-bottom:calc(72px + env(safe-area-inset-bottom));min-height:100vh}
+h1,h2,h3{font-weight:800;letter-spacing:.02em}
+.mono{font-variant-numeric:tabular-nums}
+#hdr{position:sticky;top:0;z-index:50;background:rgba(10,14,20,.92);backdrop-filter:blur(12px);
+  border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
+  display:flex;justify-content:space-between;align-items:center}
+#hdr .brand{font-size:15px;font-weight:900;letter-spacing:.12em;color:var(--amber)}
+#hdr .cd{font-size:12px;color:var(--dim);text-align:right;line-height:1.35}
+#hdr .cd b{color:var(--cyan);font-weight:800}
+main{padding:16px;max-width:560px;margin:0 auto}
+.view{display:none}.view.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.card h3{font-size:12px;letter-spacing:.14em;color:var(--dim);margin-bottom:12px;text-transform:uppercase}
+.card h3 .r{float:right;color:var(--faint);font-weight:600;letter-spacing:0}
+.big{font-size:34px;font-weight:900}
+.row{display:flex;gap:10px;align-items:center}
+.grow{flex:1}
+.btn{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;
+  padding:11px 14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
+.btn.amber{background:var(--amber);border-color:var(--amber);color:#14100a}
+.btn.ghost{background:transparent}
+.btn.sm{padding:7px 10px;font-size:12px;border-radius:8px}
+.btn:active{transform:scale(.97)}
+input,select,textarea{background:var(--bg2);border:1px solid var(--line);color:var(--txt);border-radius:10px;
+  padding:11px 12px;font-size:16px;font-family:inherit;width:100%}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan-dim)}
+label{font-size:11px;letter-spacing:.08em;color:var(--dim);text-transform:uppercase;display:block;margin:10px 0 5px}
+.pill{display:inline-block;font-size:11px;font-weight:800;letter-spacing:.06em;padding:3px 9px;border-radius:99px;
+  background:var(--bg2);border:1px solid var(--line);color:var(--dim)}
+.pill.amber{color:var(--amber);border-color:var(--amber-dim)}
+.pill.cyan{color:var(--cyan);border-color:var(--cyan-dim)}
+.pill.green{color:var(--green);border-color:#2b5c44}
+.pill.red{color:var(--red);border-color:#6b2b2b}
+#nav{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;background:rgba(13,18,28,.96);
+  backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+#nav button{flex:1;background:none;border:none;color:var(--faint);font-family:inherit;font-size:10px;
+  font-weight:800;letter-spacing:.08em;padding:10px 0 12px;cursor:pointer;display:flex;flex-direction:column;gap:3px;align-items:center}
+#nav button .ic{font-size:19px;line-height:1}
+#nav button.on{color:var(--amber)}
+.dots{display:grid;grid-template-columns:repeat(15,1fr);gap:5px}
+.dots i{aspect-ratio:1;border-radius:3px;background:var(--bg2);border:1px solid var(--line)}
+.dots i.hit{background:var(--amber);border-color:var(--amber)}
+.dots i.part{background:var(--amber-dim);border-color:var(--amber-dim)}
+.chk{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
+.chk:last-child{border-bottom:none}
+.chk .box{width:24px;height:24px;border-radius:7px;border:2px solid var(--line);flex-shrink:0;display:grid;place-items:center;font-size:14px;color:#14100a;font-weight:900}
+.chk.done .box{background:var(--amber);border-color:var(--amber)}
+.chk.done .t{color:var(--dim);text-decoration:line-through}
+.chk .t{font-size:15px;font-weight:600}
+.chk .s{font-size:12px;color:var(--faint)}
+.bar{height:8px;background:var(--bg2);border-radius:99px;overflow:hidden;margin-top:6px}
+.bar i{display:block;height:100%;background:var(--amber);border-radius:99px;transition:width .3s}
+.bar i.cyan{background:var(--cyan)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;color:var(--faint);font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:6px 8px 6px 0}
+td{padding:8px 8px 8px 0;border-top:1px solid var(--line)}
+.seg{display:flex;background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:3px;margin-bottom:12px}
+.seg button{flex:1;background:none;border:none;color:var(--dim);font-family:inherit;font-size:12px;font-weight:800;
+  padding:8px 4px;border-radius:8px;cursor:pointer;letter-spacing:.04em}
+.seg button.on{background:var(--card2);color:var(--amber)}
+details{border-top:1px solid var(--line);padding:10px 0}
+details summary{cursor:pointer;font-size:14px;font-weight:700;list-style:none;display:flex;justify-content:space-between;align-items:center}
+details summary::after{content:'+';color:var(--faint);font-size:18px}
+details[open] summary::after{content:'–'}
+details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
+.note{font-size:12px;color:var(--faint);line-height:1.5;margin-top:8px}
+.flag{background:#2a1a10;border:1px solid #6b4a1e;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:10px}
+.toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--amber-dim);
+  color:var(--txt);padding:11px 18px;border-radius:12px;font-size:14px;font-weight:700;z-index:99;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
+.toast.on{opacity:1}
+.statgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.stat{background:var(--bg2);border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat .v{font-size:22px;font-weight:900}
+.stat .k{font-size:10px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-top:2px}
+.empty{text-align:center;color:var(--faint);font-size:13px;padding:24px 0}
+.prio{background:linear-gradient(135deg,#1a1206,#151d2e);border:1px solid var(--amber-dim);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+.prio .k{font-size:10px;letter-spacing:.14em;color:var(--amber);font-weight:900}
+.prio .t{font-size:16px;font-weight:800;margin-top:3px}
+.prio .w{font-size:12px;color:var(--dim);margin-top:4px;font-style:italic}
+</style>
+</head>
+<body>
+<header id="hdr">
+  <div class="brand">D1 OS</div>
+  <div class="cd" id="hdrCd"></div>
+</header>
+<main>
+  <section class="view" id="v-today"></section>
+  <section class="view" id="v-train"></section>
+  <section class="view" id="v-path"></section>
+  <section class="view" id="v-track"></section>
+  <section class="view" id="v-push"></section>
+</main>
+<nav id="nav">
+  <button data-v="today"><span class="ic">◉</span>TODAY</button>
+  <button data-v="train"><span class="ic">▲</span>TRAIN</button>
+  <button data-v="path"><span class="ic">➤</span>PATH</button>
+  <button data-v="track"><span class="ic">▌▌</span>TRACK</button>
+  <button data-v="push"><span class="ic">✦</span>PUSH</button>
+</nav>
+<div class="toast" id="toast"></div>
+<script>
+const PLAYBOOK = [
+  {"n": 1, "cat": "coach", "name": "Stack Arizona", "formation": "10 pers 2x2 with stack left Z motion across", "concept": "Outside zone weak-to-strong off motion", "job": "Press C-gap outside playside tackle. Read EMOL. Widens equals BANG inside. Squeezes equals BOUNCE around him. One cut, get vertical fast.", "tags": "OZ motion read"},
+  {"n": 2, "cat": "coach", "name": "Alabama", "formation": "20 pers 2 backs 2 WR power concept", "concept": "Backside G pulls F-back kick-out", "job": "Jab step playside. PRESS the hole behind pulling guard. Run through pulls outside hip. Find MIKE pre-snap equals pull target.", "tags": "power 2-back"},
+  {"n": 3, "cat": "coach", "name": "Gumbo Counter Right", "formation": "10 pers 2x2 counter with 2 pullers", "concept": "Counter with double pull", "job": "JAB LEFT (sell it) plant cut HARD right behind pullers. Read G kick-out first, then wrap from second puller.", "tags": "counter misdirection"},
+  {"n": 4, "cat": "coach", "name": "Course Left", "formation": "10 pers 2x2 outside zone stretch left", "concept": "OZ stretch with read", "job": "Aim OUTSIDE playside tackle. 3 reads: BANG (DE crashes inside cut up), BEND (whole D overpursues cut back weak A), BOUNCE (EMOL disciplined WR seals corner take outside). ONE CUT GET NORTH.", "tags": "OZ 3-way read"},
+  {"n": 5, "cat": "base", "name": "Inside Zone IZ", "formation": "11 pers standard", "concept": "Line zone-blocks playside", "job": "Aim OG outside hip. Single cut. Read first DL over playside G. Reached equals bang. Blown back equals cut behind. No bounce no dance.", "tags": "IZ downhill"},
+  {"n": 6, "cat": "base", "name": "Outside Zone OZ", "formation": "11 pers standard", "concept": "Line zone-blocks wide", "job": "Aim outside hip of TE/last man. BANG BEND BOUNCE based on DE/OLB. Single cut.", "tags": "OZ perimeter"},
+  {"n": 7, "cat": "base", "name": "Power", "formation": "21 pers 2 backs", "concept": "Backside G pulls FB kicks out", "job": "Backside G pulls FB/H kicks out. Run through pulls outside hip. Do not outrun the pull.", "tags": "gap scheme downhill"},
+  {"n": 8, "cat": "base", "name": "Counter", "formation": "21 pers 2 backs", "concept": "Two pullers", "job": "Open hips opposite play direction. Plant outside foot. Cut back hard behind 2 pullers. Read kickout first, then wrap.", "tags": "counter trap"},
+  {"n": 9, "cat": "base", "name": "Trap", "formation": "21 pers 2 backs", "concept": "Let playside DT shoot upfield backside G traps", "job": "SLOW PLAY to let trap block develop. Stutter step, then explode through trap lane.", "tags": "interior trap"},
+  {"n": 10, "cat": "base", "name": "Draw", "formation": "11 pers", "concept": "OL pass-sets RB delays 1 count", "job": "Pass-set look from line. Delay 1 count. LBs drop to coverage. Hole opens. Sprint NORTH through B-gap. Longer LBs drop equals bigger play.", "tags": "draw delayed"},
+  {"n": 11, "cat": "base", "name": "Toss Sweep", "formation": "21 pers 2 backs", "concept": "RB catches toss wide", "job": "Get depth first (2 steps back and wide). Sell width. Force EMOL outside. Turn upfield AT the seal.", "tags": "toss sweep"},
+  {"n": 12, "cat": "base", "name": "Wham", "formation": "12 pers", "concept": "TE/H blocks backside DT interior trap", "job": "Run IZ aim. Backside DT thinks he is free then gets blasted by H-back. You hit B-gap fast.", "tags": "wham surprise"},
+  {"n": 13, "cat": "base", "name": "Jet Sweep", "formation": "11 pers WR in motion", "concept": "WR motion takes handoff", "job": "As RB you lead-block for motioning WR. Find C-gap defender and seal him outside.", "tags": "jet motion fake"},
+  {"n": 14, "cat": "base", "name": "Screen", "formation": "11 pers RB screen", "concept": "OL releases downfield", "job": "Sell pass-pro 2 counts. RELEASE behind the line. Catch on the move. Follow your 3 blockers. NEVER stop feet.", "tags": "RB screen"},
+  {"n": 15, "cat": "base", "name": "Wheel", "formation": "11 pers", "concept": "RB runs deep route from backfield", "job": "Sell flat 3 steps. Bend toward sideline. SPRINT deep. Catch over outside shoulder.", "tags": "wheel route"},
+  {"n": 16, "cat": "gap", "name": "Buck Sweep", "formation": "21 pers 2 backs power sweep", "concept": "Two pulling guards lead to edge", "job": "Catch handoff at full speed. 2-step depth. Sprint behind both pullers. First puller kicks EMOL. Second wraps LB. Run off wrappers outside hip.", "tags": "buck sweep perimeter"},
+  {"n": 17, "cat": "gap", "name": "GT Counter", "formation": "11 pers guard + tackle pull", "concept": "Counter with G kick + T wrap", "job": "Same as counter - jab fake, plant, cut back. But T is the wrap equals more devastating block.", "tags": "heavy counter"},
+  {"n": 18, "cat": "gap", "name": "Pin and Pull", "formation": "10 pers OZ with pull", "concept": "Playside G pins DT inside backside G pulls", "job": "Aim for pulling G outside hip. He is leading you. Pin block creates vertical seam. One cut, get vertical fast.", "tags": "pin pull perimeter"},
+  {"n": 19, "cat": "gap", "name": "Power Read", "formation": "11 pers option power", "concept": "QB reads EMOL on power look", "job": "Run normal power read EVERY rep, even if QB pulls. You are a decoy that has to look REAL. Sells the play.", "tags": "option fake"},
+  {"n": 20, "cat": "gap", "name": "Super Power", "formation": "21 pers 2 backs + TE double pull", "concept": "Power + 2nd puller (H-back)", "job": "Jab playside. Run through TWO pullers outside hips. Read first kick, then second wrap. Goal line money.", "tags": "super short yardage"},
+  {"n": 21, "cat": "gap", "name": "Pin Pull Toss", "formation": "21 pers toss with kick-out", "concept": "QB tosses to RB FB kicks EMOL pulling G wraps corner", "job": "Catch toss in stride. Aim outside FB hip. Read his kick. Run off pulling G hip. Beat corner to edge.", "tags": "toss pin pull"},
+  {"n": 22, "cat": "zone", "name": "Mid Zone", "formation": "11 pers zone between IZ and OZ", "concept": "Mix IZ aim + OZ blocking", "job": "Aim playside G outside hip. Read first DL over playside G (IZ rule) BUT step laterally first (OZ rule). One cut, get north.", "tags": "mid zone 3-4 beater"},
+  {"n": 23, "cat": "zone", "name": "Split Zone", "formation": "11 pers IZ with H-back cutoff", "concept": "H-back/TE crosses formation to cut off backside DE", "job": "Run IZ normally. Cut-off block on backside DE means BEND read (cut back) is open ALL the time.", "tags": "split zone IZ"},
+  {"n": 24, "cat": "zone", "name": "Pin Zone", "formation": "11 pers OZ with pin", "concept": "OZ with TE pinning EMOL", "job": "EMOL is pinned equals free outside cut. BANG is rare — usually BOUNCE.", "tags": "pin zone free edge"},
+  {"n": 25, "cat": "zone", "name": "Crack Toss", "formation": "11 pers toss with WR crack", "concept": "Speed sweep tossed wide WR cracks down", "job": "Catch toss with momentum. WR cracks inside equals free edge. Sprint outside the crack.", "tags": "crack toss perimeter"},
+  {"n": 26, "cat": "motion", "name": "Fly Motion Sweep", "formation": "10 pers WR speed motion", "concept": "WR motion toss", "job": "As RB: lead block for motioning WR. Find C-gap defender and seal him outside.", "tags": "fly motion lead block"},
+  {"n": 27, "cat": "motion", "name": "End Around", "formation": "11 pers WR reverse", "concept": "Backside WR takes handoff reverse direction", "job": "As RB: fake the run forward, sell the play. Lead block for WR if possible.", "tags": "end around decoy"},
+  {"n": 28, "cat": "motion", "name": "Jet RPO", "formation": "11 pers jet motion + read", "concept": "WR jets across QB reads SAM or NCKL", "job": "Full speed mesh. Read QB hand. If ball given: hit B-gap fast. If not: lead block.", "tags": "jet rpo read"},
+  {"n": 29, "cat": "motion", "name": "Fake Toss Waggle Bootleg", "formation": "11 pers fake run + QB rollout", "concept": "QB fakes toss rolls opposite throws to TE crossing or WR comeback", "job": "As RB: fake the toss catch, hand on hip like you have ball. Become check-down for QB.", "tags": "waggle bootleg"},
+  {"n": 30, "cat": "motion", "name": "Halfback Pass", "formation": "11 pers RB throws deep", "concept": "Toss to RB RB throws deep", "job": "Catch toss, 2 steps, set feet, throw to deep WR. Practice 100x before using in game.", "tags": "halfback pass trick"},
+  {"n": 31, "cat": "motion", "name": "Statue of Liberty", "formation": "11 pers QB fake pass RB sneaks behind", "concept": "QB pump fake RB sneaks ball", "job": "Sell pass pro 1 count. On QB pump fake, sprint past him and pluck the ball. Hit pre-determined hole.", "tags": "statue of liberty"},
+  {"n": 32, "cat": "rpo", "name": "IZ Bubble RPO", "formation": "10 pers IZ + bubble screen option", "concept": "QB reads WILL or NCKL", "job": "Run IZ at full speed EVERY rep. Decoy on the pull. Sell it like ball is yours.", "tags": "rpo iz bubble"},
+  {"n": 33, "cat": "rpo", "name": "IZ Slant RPO", "formation": "11 pers IZ + slant route read", "concept": "QB reads MIKE LB", "job": "Run IZ aim. Sell hard EVERY rep. If given: standard IZ. If pulled: decoy run path.", "tags": "rpo iz slant"},
+  {"n": 34, "cat": "rpo", "name": "OZ Smoke RPO", "formation": "10 pers OZ + WR screen", "concept": "QB reads OLB", "job": "Run OZ rules. Decoy if pulled. Press the line. BANG BEND BOUNCE if given.", "tags": "rpo oz smoke"},
+  {"n": 35, "cat": "rpo", "name": "Power Glance RPO", "formation": "11 pers power + deep glance", "concept": "QB reads SS rotation", "job": "Run Power rules. Sell every rep. Glance route opens behind SS.", "tags": "rpo power glance"},
+  {"n": 36, "cat": "route", "name": "Flat", "formation": "any", "concept": "Quick 5-yd out", "job": "Release outside foot first. Sprint 5 yds to sideline. Look over outside shoulder for ball. Catch + sprint upfield.", "tags": "flat hot"},
+  {"n": 37, "cat": "route", "name": "Angle Texas", "formation": "any", "concept": "Sell flat then break inside", "job": "Release like flat. After 4 yds, plant outside foot. Break sharply BACK inside under LBs. Easy 6-yard catch vs man coverage.", "tags": "angle man-beater"},
+  {"n": 38, "cat": "route", "name": "Wheel", "formation": "any", "concept": "Sell flat then deep sideline", "job": "Release flat, sell 3 steps. Then bend toward sideline and SPRINT deep.", "tags": "wheel deep"},
+  {"n": 39, "cat": "route", "name": "Swing", "formation": "any", "concept": "Sprint flat outside formation", "job": "Sprint at full speed wide. Stay outside OT. Look back early — QB throws fast.", "tags": "swing hot"},
+  {"n": 40, "cat": "route", "name": "Check-Down", "formation": "any", "concept": "Stay near QB outlet", "job": "Pass pro for 2 counts. If no rusher equals release into open underneath zone. Look at QB at all times.", "tags": "checkdown safety valve"},
+  {"n": 41, "cat": "route", "name": "RB Screen", "formation": "any", "concept": "OL releases downfield", "job": "Sell pass pro HARD. Slip into screen area. Catch with eyes downfield. Follow OL. NEVER stop feet.", "tags": "rb screen"},
+  {"n": 42, "cat": "route", "name": "Seam Sweep", "formation": "any", "concept": "Sprint up the seam from backfield", "job": "Sprint straight up field at OT. Look back over inside shoulder at 12-15 yds. Get vertical fast.", "tags": "seam vertical"},
+  {"n": 43, "cat": "route", "name": "Option", "formation": "any", "concept": "Sit in soft spot or break inside", "job": "Release 6-8 yds. Plant. Read LB depth. If LB shallow equals break BACK inside. If deep equals settle in front.", "tags": "option route"},
+  {"n": 44, "cat": "route", "name": "Hitch and Go", "formation": "any", "concept": "Fake hitch explode deep", "job": "Hard 3-yd hitch route. Stop, sell stop with body. Then EXPLODE deep. CB bites equals open deep.", "tags": "hitch go burn"},
+  {"n": 45, "cat": "screen", "name": "Jailbreak Screen", "formation": "11 pers", "concept": "All 5 OL release instantly RB quick screen", "job": "Catch IMMEDIATELY post-snap. Follow wave of 5 OL. They clear EVERYTHING.", "tags": "jailbreak mass screen"},
+];
+
+const SCHOOLS = [
+  {"tier": 1, "school": "UNLV", "conf": "MW", "city": "Las Vegas, NV", "dist": "30 min from home", "coach": "Barry Odom (HC) · UNLV RB coach TBD", "why": "Home school · Vegas pipeline · they take Henderson kids"},
+  {"tier": 1, "school": "Nevada (Reno)", "conf": "MW", "city": "Reno, NV", "dist": "7 hr", "coach": "Jeff Choate (HC) · Nevada RB coach TBD", "why": "NV flagship · run-heavy scheme · good RB history"},
+  {"tier": 1, "school": "Boise State", "conf": "MW", "city": "Boise, ID", "dist": "9 hr", "coach": "Spencer Danielson (HC) · Boise RB coach TBD", "why": "Best MW program · RB-friendly scheme · Las Vegas satellite camps"},
+  {"tier": 1, "school": "Northern Arizona", "conf": "BSC", "city": "Flagstaff, AZ", "dist": "4 hr", "coach": "Brent Brennan (HC) · NAU RB coach TBD", "why": "FCS · D1 · great academic fit · walk-on path possible"},
+  {"tier": 1, "school": "Utah State", "conf": "MW", "city": "Logan, UT", "dist": "8 hr", "coach": "Bronco Mendenhall (HC) · USU RB coach TBD", "why": "Mountain West · dual-position RB/LB fits scheme"},
+  {"tier": 1, "school": "Idaho State", "conf": "BSC", "city": "Pocatello, ID", "dist": "11 hr", "coach": "Nathan Pinegar (HC) · ISU RB coach TBD", "why": "FCS · D1 · good for wrestlers who want D1 football"},
+  {"tier": 2, "school": "San Diego State", "conf": "MW", "city": "San Diego, CA", "dist": "5 hr", "coach": "Sean Lewis (HC) · SDSU RB coach TBD", "why": "MW contender · dual-position recruited kids well"},
+  {"tier": 2, "school": "Fresno State", "conf": "MW", "city": "Fresno, CA", "dist": "6 hr", "coach": "Matt Entz (HC) · Fresno RB coach TBD", "why": "Built for tough RBs · wrestling pipeline exists"},
+  {"tier": 2, "school": "San Jose State", "conf": "MW", "city": "San Jose, CA", "dist": "9 hr", "coach": "Ken Niumatalolo (HC) · SJSU RB coach TBD", "why": "MW · service-academy discipline fits your profile"},
+  {"tier": 2, "school": "Air Force", "conf": "MW", "city": "Colorado Springs, CO", "dist": "14 hr", "coach": "Troy Calhoun (HC) · AFA RB coach TBD", "why": "Service academy · academics + D1 football · dual-sport athlete valued"},
+  {"tier": 2, "school": "Colorado State", "conf": "MW", "city": "Fort Collins, CO", "dist": "13 hr", "coach": "Jay Norvell (HC) · CSU RB coach TBD", "why": "MW · known RB pipeline · western fit"},
+  {"tier": 2, "school": "Wyoming", "conf": "MW", "city": "Laramie, WY", "dist": "13 hr", "coach": "Jay Sawvel (HC) · Wyo RB coach TBD", "why": "MW · toughness + academics · walk-on friendly"},
+  {"tier": 2, "school": "New Mexico", "conf": "MW", "city": "Albuquerque, NM", "dist": "10 hr", "coach": "Bronco Mendenhall era ended — new HC TBD", "why": "MW · triple-option friendly · undersized RBs succeed here"},
+  {"tier": 2, "school": "Hawaii", "conf": "MW", "city": "Honolulu, HI", "dist": "air", "coach": "Timmy Chang (HC) · UH RB coach TBD", "why": "MW · run-heavy · Vegas kids recruited hard"},
+  {"tier": 3, "school": "Oregon", "conf": "P12", "city": "Eugene, OR", "dist": "16 hr", "coach": "Dan Lanning (HC) · UO RB coach TBD", "why": "P4 elite · undersized speed RBs (Achane, Irving) fit · Vegas pipeline"},
+  {"tier": 3, "school": "Stanford", "conf": "P12", "city": "Stanford, CA", "dist": "11 hr", "coach": "Frank Reich era — new HC TBD", "why": "P4 · academic prestige · 5'7 walk-on path · 3.7+ GPA required"},
+  {"tier": 3, "school": "Cal", "conf": "P12", "city": "Berkeley, CA", "dist": "10 hr", "coach": "Justin Wilcox (HC) · Cal RB coach TBD", "why": "P4 · academic prestige · dual-position RB/LB recruit"},
+  {"tier": 3, "school": "Washington State", "conf": "P12", "city": "Pullman, WA", "dist": "17 hr", "coach": "Jake Dickert (HC) · WSU RB coach TBD", "why": "P4 · walk-on path known · academic support strong"},
+  {"tier": 3, "school": "Oregon State", "conf": "P12", "city": "Corvallis, OR", "dist": "15 hr", "coach": "Trent Bray era — new HC TBD", "why": "P4 · known undersized RB pipeline · academic strong"},
+  {"tier": 3, "school": "Utah", "conf": "P12", "city": "Salt Lake City, UT", "dist": "7 hr", "coach": "Kyle Whittingham (HC) · Utah RB coach TBD", "why": "P4 · run-heavy scheme · recruit from NV often"},
+  {"tier": 3, "school": "Arizona", "conf": "P12", "city": "Tucson, AZ", "dist": "7 hr", "coach": "Brent Brennan (HC) · Zona RB coach TBD", "why": "P4 · western · RV/travel lifestyle common · RB recruits here"},
+  {"tier": 3, "school": "Arizona State", "conf": "P12", "city": "Tempe, AZ", "dist": "6 hr", "coach": "Kenny Dillingham (HC) · ASU RB coach TBD", "why": "P4 · Vegas pipeline (close to home) · competitive roster"},
+  {"tier": 3, "school": "USC", "conf": "P12", "city": "Los Angeles, CA", "dist": "5 hr", "coach": "Lincoln Riley (HC) · USC RB coach TBD", "why": "P4 dream · if walk-on path works · dual-sport = RB/LB asset"},
+  {"tier": 3, "school": "UCLA", "conf": "P12", "city": "Los Angeles, CA", "dist": "5 hr", "coach": "DeShaun Foster era — new HC TBD", "why": "P4 · walk-on path real · dual-position known"},
+  {"tier": 3, "school": "Colorado", "conf": "P12", "city": "Boulder, CO", "dist": "14 hr", "coach": "Deion Sanders (HC) · CU RB coach TBD", "why": "P4 · transfer-portal friendly · 'Prime Time' values athletes"},
+  {"tier": 4, "school": "Texas Tech", "conf": "B12", "city": "Lubbock, TX", "dist": "air", "coach": "Joey McGuire (HC) · TTU RB coach TBD", "why": "Big 12 · 5'7+ RBs succeed in air raid · dual-position valued"},
+  {"tier": 4, "school": "TCU", "conf": "B12", "city": "Fort Worth, TX", "dist": "air", "coach": "Sonny Dykes (HC) · TCU RB coach TBD", "why": "Big 12 · undersized speed RBs (Achane) fit · western recruit"},
+  {"tier": 4, "school": "Baylor", "conf": "B12", "city": "Waco, TX", "dist": "air", "coach": "Dave Aranda (HC) · BU RB coach TBD", "why": "Big 12 · RB pipeline exists · academic strong"},
+  {"tier": 4, "school": "Houston", "conf": "B12", "city": "Houston, TX", "dist": "air", "coach": "Willie Fritz era — new HC TBD", "why": "Big 12 · Vegas pipeline · dual-sport athlete"},
+  {"tier": 4, "school": "BYU", "conf": "B12", "city": "Provo, UT", "dist": "6 hr", "coach": "Kalani Sitake (HC) · BYU RB coach TBD", "why": "Big 12 · academic fit · values character · LDS pipeline (open to all)"},
+  {"tier": 4, "school": "Kansas", "conf": "B12", "city": "Lawrence, KS", "dist": "air", "coach": "Lance Leipold (HC) · KU RB coach TBD", "why": "Big 12 · Lance took over Jayhawk rebuild · needs talent"},
+  {"tier": 4, "school": "Kansas State", "conf": "B12", "city": "Manhattan, KS", "dist": "air", "coach": "Chris Klieman (HC) · KSU RB coach TBD", "why": "Big 12 · run-heavy · tough program fits wrestler mentality"},
+  {"tier": 4, "school": "Iowa State", "conf": "B12", "city": "Ames, IA", "dist": "air", "coach": "Matt Campbell (HC) · ISU RB coach TBD", "why": "Big 12 · Matt Campbell origin = Toledo · love walk-ons · defensive scheme needs dual-position"},
+  {"tier": 4, "school": "Oklahoma State", "conf": "B12", "city": "Stillwater, OK", "dist": "air", "coach": "Mike Gundy era — new HC TBD", "why": "Big 12 · Mike Gundy built on walk-ons · wrestling tradition"},
+  {"tier": 5, "school": "Texas", "conf": "SEC", "city": "Austin, TX", "dist": "air", "coach": "Steve Sarkisian (HC) · UT RB coach TBD", "why": "SEC dream · 5'7 walk-on story (Whittington era exists) · reach but try"},
+  {"tier": 5, "school": "Texas A&M", "conf": "SEC", "city": "College Station, TX", "dist": "air", "coach": "Mike Elko (HC) · TAMU RB coach TBD", "why": "SEC · run-heavy · recruit from TX/NV/CA"},
+  {"tier": 5, "school": "Arkansas", "conf": "SEC", "city": "Fayetteville, AR", "dist": "air", "coach": "Sam Pittman (HC) · Ark RB coach TBD", "why": "SEC · wrestling program strong · 5'7+ RBs in scheme"},
+  {"tier": 5, "school": "LSU", "conf": "SEC", "city": "Baton Rouge, LA", "dist": "air", "coach": "Brian Kelly (HC) · LSU RB coach TBD", "why": "SEC · walk-on path real · RB dreams"},
+  {"tier": 5, "school": "Alabama", "conf": "SEC", "city": "Tuscaloosa, AL", "dist": "air", "coach": "Kalen DeBoer (HC) · UA RB coach TBD", "why": "SEC dream · walk-on at Bama is a real path (Madden, etc)"},
+  {"tier": 5, "school": "Auburn", "conf": "SEC", "city": "Auburn, AL", "dist": "air", "coach": "Hugh Freeze (HC) · AU RB coach TBD", "why": "SEC · walk-on path exists · wrestling tradition"},
+  {"tier": 5, "school": "Nebraska", "conf": "B1G", "city": "Lincoln, NE", "dist": "air", "coach": "Matt Rhule (HC) · NU RB coach TBD", "why": "B1G · walk-on path famous (Watt family) · wrestling tradition"},
+  {"tier": 5, "school": "Wisconsin", "conf": "B1G", "city": "Madison, WI", "dist": "air", "coach": "Luke Fickell (HC) · UW RB coach TBD", "why": "B1G · walk-on pipeline famous · toughness program"},
+  {"tier": 5, "school": "Notre Dame", "conf": "Ind", "city": "South Bend, IN", "dist": "air", "coach": "Marcus Freeman (HC) · ND RB coach TBD", "why": "Independent · academic prestige · walk-on path real"},
+  {"tier": 5, "school": "SMU", "conf": "ACC", "city": "Dallas, TX", "dist": "air", "coach": "Rhett Lashlee (HC) · SMU RB coach TBD", "why": "ACC · fast-rising · 5'7+ RBs in slot role · RB dream"},
+  {"tier": 6, "school": "James Madison", "conf": "SB", "city": "Harrisonburg, VA", "dist": "air", "coach": "Mike Houston era — new HC TBD", "why": "Sun Belt · top FCS-now-G5 · RB dream school · Vegas-NV kids"},
+  {"tier": 6, "school": "Liberty", "conf": "CUSA", "city": "Lynchburg, VA", "dist": "air", "coach": "Jamey Chadwell (HC) · LU RB coach TBD", "why": "CUSA · fast-rising · academic + football balance"},
+  {"tier": 6, "school": "Memphis", "conf": "AAC", "city": "Memphis, TN", "dist": "air", "coach": "Ryan Silverfield (HC) · Mem RB coach TBD", "why": "AAC · RB history (Dillon) · walk-on path exists"},
+  {"tier": 6, "school": "Tulane", "conf": "AAC", "city": "New Orleans, LA", "dist": "air", "coach": "Jon Sumrall (HC) · Tul RB coach TBD", "why": "AAC · wrestling strong · undersized RBs succeed"},
+  {"tier": 6, "school": "UTSA", "conf": "AAC", "city": "San Antonio, TX", "dist": "air", "coach": "Jeff Traylor era — new HC TBD", "why": "AAC · Texas pipeline · RB dream"},
+  {"tier": 6, "school": "North Texas", "conf": "AAC", "city": "Denton, TX", "dist": "air", "coach": "Eric Morris (HC) · UNT RB coach TBD", "why": "AAC · run-heavy Air Raid · undersized RBs shine"},
+  {"tier": 6, "school": "Sam Houston", "conf": "CUSA", "city": "Huntsville, TX", "dist": "air", "coach": "KC Keeler (HC) · SHSU RB coach TBD", "why": "CUSA · FCS-to-G5 pipeline · academic strong"},
+  {"tier": 6, "school": "Jacksonville State", "conf": "CUSA", "city": "Jacksonville, AL", "dist": "air", "coach": "Rich Rodriguez (HC) · JSU RB coach TBD", "why": "CUSA · Rich Rod offense = RB heaven · walk-on path"},
+  {"tier": 6, "school": "Montana", "conf": "BSC", "city": "Missoula, MT", "dist": "air", "coach": "Bobby Hauck (HC) · UM RB coach TBD", "why": "FCS · D1 · western · wrestlers at Montana RB tradition"},
+  {"tier": 6, "school": "Montana State", "conf": "BSC", "city": "Bozeman, MT", "dist": "air", "coach": "Brent Vigen (HC) · MSU RB coach TBD", "why": "FCS · D1 · national champ contender · walk-on friendly"},
+  {"tier": 6, "school": "Weber State", "conf": "BSC", "city": "Ogden, UT", "dist": "7 hr", "coach": "Mick McBride (HC) · Weber RB coach TBD", "why": "FCS · D1 · close to NV · RB pipeline (Buster Davis era)"},
+  {"tier": 6, "school": "Idaho", "conf": "BSC", "city": "Moscow, ID", "dist": "air", "coach": "Jason Eck (HC) · Idaho RB coach TBD", "why": "FCS · D1 · western · walk-on path well-known"},
+  {"tier": 6, "school": "Sacramento State", "conf": "BSC", "city": "Sacramento, CA", "dist": "9 hr", "coach": "Brock Turner (HC) · Sac State RB coach TBD", "why": "FCS · D1 · close to NV · walk-on path real"},
+  {"tier": 6, "school": "UC Davis", "conf": "BSC", "city": "Davis, CA", "dist": "10 hr", "coach": "Tim Plough (HC) · UCD RB coach TBD", "why": "FCS · D1 · academic prestige · walk-on path"},
+  {"tier": 6, "school": "Cal Poly", "conf": "BSC", "city": "San Luis Obispo, CA", "dist": "7 hr", "coach": "Sione Tau (HC) · Cal Poly RB coach TBD", "why": "FCS · D1 · walk-on path · academic strong"},
+];
+
+const DARK_ROOM = [
+  {"n": 1, "cat": "START", "title": "You're on scout team. Starter is a senior.", "do": "Scout team is NOT punishment. It's your audition. Every scout team rep is a chance to show varsity coaches you hit harder, run faster, pursue better than the player they are starting. Give the varsity offense a better look than they see on Friday night. Make the starting RB dread going against you. If the varsity RB tells his coach 'that freshman won't stop hitting me' you moved up the depth chart.", "why": "Scout team reps are evaluated just like game reps. Coaches notice who gives maximum effort regardless of jersey."},
+  {"n": 2, "cat": "START", "title": "You made a mistake in a game and the coach is screaming.", "do": "BOUNCE (5 sec): Get up. Don't touch helmet. Don't look at sideline. Don't show frustration. FIX (next rep): Coach corrects you on sideline. Eye contact. 'Yes coach.' Visualize the correction. Execute on next snap. FLUSH (after game): Only AFTER the game do you review the mistake on film. Understand WHY. Physical error means reps fix it. Mental error means film fixes it. Write it down.", "why": "Coaches grade body language between plays more than the play itself. The kid who sulks gets buried. The kid who fixes next rep earns PT."},
+  {"n": 3, "cat": "START", "title": "You're dressing varsity but not playing.", "do": "You are ONE PLAY AWAY. That is not a cliche. If the starting LB goes down, you are in. Stand with your position group (not with friends). Watch the starter EVERY series. Pre-snap checks. Drops. Alignment. When he comes off the field ask 'What are you seeing out there?' Stay warm for 4 quarters. Jog the sideline. Light shuffles. If you get called in cold, you will pull something.", "why": "Most freshmen who never play varsity are the ones who weren't mentally ready when called. The ones who get in and play well are remembered."},
+  {"n": 4, "cat": "START", "title": "You got beat on a play and gave up a TD.", "do": "1. Play is over in 5 sec. Breathe. 'Next play.' 2. Don't avoid your coach. Make eye contact. Nod when he corrects. Fix it next rep. 3. Don't apologize to teammates. Don't make excuses. They have been beat before too. They don't care that you got beat. They care whether you give up or keep fighting. 4. After game: watch play on film. Why did you get beat? Wrong gap? Wrong angle? Bad tackle technique? Identify cause. Fix before Monday practice. 5. Next time same situation: ready.", "why": "Every D1 player has been beat for a TD. How they respond is what separates starters from backups."},
+  {"n": 5, "cat": "START", "title": "An upperclassman is messing with you.", "do": "1. Do not react emotionally. Upperclassmen test freshmen to see who can handle pressure. If you get angry, cry, or complain to coaches, you fail the test. 2. Kill them with effort. The best response is to outwork them on the field. Be first in every line. Hit harder than they do. Never complain. Let your play talk. 3. If it crosses into bullying, harassment, or anything physical/dangerous: tell your parents. Tell your position coach. You do NOT have to tolerate abuse. 4. Build relationships with helpful upperclassmen. Ask questions. Learn.", "why": "Hazing is a real thing but the worst version dies in college programs. Coaches grade who handles adversity."},
+  {"n": 6, "cat": "INJURY", "title": "You're injured and can't practice.", "do": "1. Communicate with athletic trainer daily. Know diagnosis. Know timeline. Follow rehab EXACTLY. 2. Attend every practice. Even if you can't participate. Stand with position group. Watch drills. Take mental reps. Visualize executing. 3. Increase film study to 30 min/day. You have extra time. Use it. Watch your own game film. Watch the opponent. Watch college LBs. 4. Do what you CAN do. Upper body injury means lower body work. Lower body injury means upper body work. If you can move ANY part of your body, train that part. 5. Do NOT rush your return. Coming back 2 weeks early and re-injuring equals 6 more weeks. Trust trainer's timeline.", "why": "Injured athletes who stay engaged come back stronger. Athletes who disappear come back rusty AND risk re-injury."},
+  {"n": 7, "cat": "START", "title": "You're thinking about quitting.", "do": "1. This feeling is normal. It does not mean you don't love football. It means you're human and the season is grinding. 2. Do NOT make the decision on a bad day. Wait 48 hours. Sleep on it. Eat a good meal. Then decide. Most 'I want to quit' feelings pass after a good night's sleep and a good practice. 3. Talk to someone who has been there. Your dad. Your wrestling coach. An older athlete you respect. They have all wanted to quit at some point. 4. Remember why you started. D1 linebacker. December 17, 2030. Every rep between now and then matters. Quitting today means you gave up on that goal. 5. If you truly, deeply do not want to play football: that's okay. Make the decision from CLARITY not exhaustion. Finish the season. Then decide.", "why": "Every athlete has wanted to quit. The ones who finished won more than they realized at the time."},
+  {"n": 8, "cat": "INJURY", "title": "Coach screams at you in practice.", "do": "Response: 'Yes coach.' Eye contact. That's it. Do NOT: explain, defend, argue, roll your eyes, look at teammates, mumble. Next rep: execute the correction VISIBLY. Coaches scream because they care. The kid who absorbs correction equals the kid who plays.", "why": "This is a test. Every kid in the program watches how you respond. Respond right and you earn respect from teammates AND coaches."},
+  {"n": 9, "cat": "INJURY", "title": "You get subbed out mid-drive.", "do": "Helmet stays ON. Walk to sideline with shoulders BACK. Stand near position coach. Watch the field, NOT the bench. When the kid who replaced you makes a play: CHEER for him. Visibly. When position coach is free: 'Coach, what do I need to do better?' Get the answer. Memorize. Execute on next snap. Body language coaches notice: kid who pouts gets pulled LONGER. Kid who supports gets put back in FASTER.", "why": "The bench is a visible test. Your teammates are watching. The coach is watching."},
+  {"n": 10, "cat": "HEAT", "title": "It's 100F and two-a-days week 1.", "do": "Pre (T-3hr): 24oz water + real meal (chicken rice greens). Pre (T-1hr): 16oz water + electrolytes (LMNT or quarter tsp salt + lemon + Gatorade). During: sip 6-8oz every 15-20 min. Between (2hr break): 32oz water + protein shake + real meal. Lie down in AC for 20 min. After PM: weigh yourself. 16-24oz water per lb lost. Heat exhaustion signs: cold/clammy skin, weak pulse, dizziness, cramps means TELL TRAINER NOW. Heat stroke: hot DRY skin, confusion, body temp 104+ means CALL 911 + cold immersion immediately.", "why": "Heat illness kills HS players every summer. Henderson NV gets 100-115F. This isn't Texas, this is dry heat that masks dehydration until it's too late."},
+  {"n": 11, "cat": "HEAT", "title": "Friday night 1-3 record mid-season.", "do": "Mental: season is NOT over. Reset weekly. Each game is its own season. Team meeting: stand up. Be vocal. 'We're 1-3 because of X, Y, Z. Here's what we fix this week.' Even as a freshman. Practice: show up Monday like it's game day. Energy fixes a losing locker room faster than scheme changes. Game time: play for the LB next to you, not the scoreboard. Effort + execution equals your only job.", "why": "Half the league goes through this every year. Teams that recover equals playoff teams. Teams that don't equals season's over by Week 6."},
+  {"n": 12, "cat": "INJURY", "title": "You sprain an ankle week 3.", "do": "Day 1: RICE protocol. Ice 20 min on / 20 min off. Compression wrap. Elevation above heart. Tell trainer. Day 2-3: continue RICE. Alphabet drill 3x daily (trace letters with big toe). Calf raises (seated) 3x15. Day 4-7: single-leg balance 30s x 5. Resistance band 4-directions (inversion, eversion, dorsi, plantar) 2x15 each. Week 2: return to running. Tape ankle for first 2 weeks back. Re-sprain rate equals 3x if you skip tape. Communication: stay engaged with team. Sit in on film. Help younger LBs with reads.", "why": "Ankle sprains are the most common football injury. Re-sprain rate is 3x without tape. Easy prevention."},
+  {"n": 13, "cat": "HEAT", "title": "Wrestling season starts and football peers pressure you to quit it.", "do": "Reality check: wrestling IS your football superpower. Hand-fighting. Leverage. Mat awareness. Contact comfort. You do NOT quit wrestling for football. Multi-sport athletes get recruited at HIGHER rates than single-sport. College coaches prefer them. Adjust football maintenance: 1 lift/wk during wrestling season. 3x3 squat + bench at 80%. Hip mobility daily (wrestling shortens hips). Tell football coach: 'I will be on the mat Dec-Feb. I will do football maintenance lifts on Sundays. I will be back at 100% for spring ball.' That's a pro answer.", "why": "D1 coaches LOVE multi-sport athletes. Walking away from wrestling equals walking away from your recruiting advantage."},
+  {"n": 14, "cat": "PEER", "title": "Teammate offers you weed at a party.", "do": "Answer: 'Nah I'm good.' Then walk away. Don't lecture. Don't moralize. Don't make a scene. Just decline and leave. Truth: THC degrades REM sleep by 30-40% for 24+ hours after use. REM is when growth hormone releases. One weekend of weed equals a week of stunted recovery. Compounds over a season. NCAA testing: THC IS tested. Positive equals suspension at most programs. Your D1 dream ends. Bigger truth: the kids who say no consistently end up at the parties of the kids who said yes, except they're celebrating signing day.", "why": "Single moment. Permanent consequence. Don't risk 1,500 days of work for one weekend."},
+  {"n": 15, "cat": "PEER", "title": "Girlfriend drama is destroying your focus.", "do": "Direct truth: any relationship that drains your focus during HS football season costs you reps coaches notice. Decision matrix: Does she support your training schedule? Keep. Does she complain when you can't hang out 6 days/week? Talk it out. Does drama from her affect your sleep/film/lifting? Reset boundaries. Does it require you to skip workouts/film/camps? End it. This is not romantic advice. This is PERFORMANCE advice. The right partner accelerates your path. The wrong one ends it.", "why": "Distraction compounds. A bad week of sleep + missed film + missed lift session equals measurable performance drop. Coaches grade it."},
+  {"n": 16, "cat": "RECRUIT", "title": "No offers by Thanksgiving senior year.", "do": "Don't panic. 60% of D1 commitments happen in SPRING of senior year. Phase 1 (Nov): Email blitz. 50 coaches across all 4 levels. Subject line: '2030 LB Update [Last Name]'. Phase 2 (Dec): Early Signing Day passes without you. NOT THE END. Many programs save scholarships for Feb. Phase 3 (Jan): Open conversations with FCS + D2 hard. Multiple offers usually emerge. Phase 4 (Feb): National Signing Day target equals PWO at G5 + JUCO backup. Both produce D1 careers. The work isn't done. Senior film keeps producing. Combine retesting matters. Window stays open until April.", "why": "The NCAA signing window stays open for months after Thanksgiving. Most signings happen in Feb-March."},
+  {"n": 17, "cat": "RECRUIT", "title": "Coach gets fired mid-recruiting.", "do": "Reality: coaching changes happen. Position coach who recruited you may leave. HC who offered you may get fired. Immediate: reach out to recruiting coordinator (different person than position coach). 'Coach, what's my status with the program going forward?' Get the answer IN WRITING. Re-evaluate: the new staff may not recruit your position the same way. They may want a different body type. Verbal commitments are not binding. You can de-commit if the fit changes. Inform the new staff respectfully. Stay in the portal mindset even before college. Programs change. Be ready.", "why": "Verbal commits evaporate when staff changes. This is rare but happens. Don't tie your identity to one staff."},
+  {"n": 18, "cat": "PEER", "title": "A friend who's better than you gets an offer before you.", "do": "Normal. Doesn't mean anything about your ceiling. They played a different role on their team. They got seen by the right coach at the right time. They had a better highlight film. They got lucky on a measurables day. You will have your moment. Don't compare timelines. Don't hate. Be happy for them, that energy comes back. Keep stacking days. The offer you get in 2029-2030 will be THE offer. Not theirs.", "why": "D1 offers are timing-dependent. Your timeline is yours. Stay locked in."},
+  {"n": 19, "cat": "PEER", "title": "Friend quits the team.", "do": "1. Don't follow. Their reasons are theirs. Yours are yours. 2. Don't trash-talk them to other teammates. That ages badly. 3. Don't feel guilty for staying. You're not responsible for their choice. 4. Notice if other teammates seem shaken. Be the steady one. Talk to your HC: 'How do we want to handle this as a team?' Show leadership. 5. If you feel your own motivation wobbling because of it, re-read the North Star and talk to your sponsor or coach.", "why": "Quits ripple through teams. Be the steady one. The coach notices who doesn't waver."},
+  {"n": 20, "cat": "PEER", "title": "You get cut from a camp.", "do": "Normal. Common. Camp rosters are limited. Coaches have favorites already. Email another school. Apply to 2 more camps that week. Rejection is normal. Reach out MORE, sit back LESS.", "why": "D1 camps reject 80% of applicants. It means nothing about your ceiling."},
+  {"n": 21, "cat": "RECRUIT", "title": "Sponsor pulls funding.", "do": "Stay grateful. Don't beg. Ask 'what would change your mind?' If permanent: keep going. JUCO is real. Walk-on is real. You're not done. The plan isn't dependent on one person's money. Your work ethic is independent. Your body is independent. Your film is independent. Most D1 players DON'T have family money backing them. The dream survives without sponsor.", "why": "Half the D1 roster is walk-ons or partial-scholarship. Money doesn't make you a D1 athlete. Your work does."},
+  {"n": 22, "cat": "PEER", "title": "Coach says you're not ready for varsity.", "do": "Ask 'What do I need to work on to be ready?' Get specific. 'You need to add 10 lb, drop your 40 by 0.2s, and learn the full LB playbook.' That's actionable. Work it. Re-ask in 4 weeks. Show progress. Earn the spot. JV is a TEMPORARY stop, not a permanent label. Most multi-year D1 starters spent JV time. Don't sulk, train.", "why": "JV year builds depth. Many D1 LBs were 2-way starters who spent freshman year on JV."},
+  {"n": 23, "cat": "PEER", "title": "Negative press / drama at school.", "do": "Stay off social media for 48 hours. Talk to parents. Wait it out. Don't post anything until calm. Coaches notice who handles public attention with maturity. One bad social post equals lost offers. This is not the moment to defend yourself publicly. Let it die.", "why": "Every D1 program monitors social media. One bad post equals lost offer."},
+  {"n": 24, "cat": "RECRUIT", "title": "You get an offer from a D1 school you didn't expect.", "do": "Don't commit on the spot. Thank coach. Tell parents + sponsor + head coach. Take 1 week to decide. Visit campus first. Ask 5-7 of the questions from Coach Interview Q&A. Talk to current players. Sleep on it. The offer is real. But a rushed decision at 15 on something you will live with for 4 years equals bad idea.", "why": "Decisions made in 24 hours are decisions you will regret for 4 years."},
+  {"n": 25, "cat": "INJURY", "title": "Concussion symptoms after a hit.", "do": "Tell coach + parents IMMEDIATELY. See doctor within 48 hrs. NEVER play through suspected concussion. RICE protocol + sponsor-paid PT if needed. Use SCAT6 checklist (in SAFETY tab). 6-step Return-to-Play protocol. No same-day return. Period.", "why": "Second-impact syndrome equals catastrophic. CTE is real. One game isn't worth your brain."},
+  {"n": 26, "cat": "HEAT", "title": "Cramping in summer practice.", "do": "Stop. Sit. Stretch the cramped muscle. Sip water with electrolytes (NOT plain water, need Na). Tell trainer. 5-10 min rest. If cramping is severe equals day off. Cramping is your body saying sodium is low + you pushed too hard. Tomorrow: salt-load breakfast (eggs + LMNT).", "why": "Cramping is preventable. Coaches grade who manages it."},
+  {"n": 27, "cat": "START", "title": "You score your first varsity TD.", "do": "Celebrate with your teammates. Spike the ball sparingly. Hand it to the ref. Run back to the huddle. Don't draw attention. Coaches grade who celebrates the team vs who celebrates themselves. The team that scores often is the team that prepares quietly. After game: 'Thanks to the OL who blocked for me.' Credit them every single time.", "why": "First TD equals memorable moment. How you celebrate equals grades your character."},
+  {"n": 28, "cat": "RECRUIT", "title": "Coach Cahill praises you in front of the team.", "do": "Say 'Thank you coach.' Keep working. Don't get comfortable. Praise from your HC means: he's noticed. Now he expects consistency. The trap is reading your own press. Same thing NFL rookies fall into. Stay the same person. Same work. Next day.", "why": "Praise is feedback. The response determines whether more comes."},
+  {"n": 29, "cat": "RECRUIT", "title": "A D1 coach you emailed personally responds.", "do": "Reply within 24 hours. Polite. Short. Professional. Full sentences. 'Thank you Coach [Last Name]. I would love to be on your board at [School]. Here is my updated Hudl: [link]. My coach contact: Coach Cahill, [email], [phone]. When would be a good time to call?' Ask: 'What is the next step?' Camp invite? Questionnaire? Phone call? Don't promise anything. Don't commit. Just engage and gather info.", "why": "Coach responsiveness is a recruiting signal. Quick professional reply equals serious recruit."},
+  {"n": 30, "cat": "HEAT", "title": "Last play of the game. You're exhausted. Tie score.", "do": "This is what you trained for. 4-7-8 breath. Cue word: 'FINISH.' Lower pads. One play. Execute. After: walk off the field with shoulders back regardless of outcome. You earned this moment. Post-game: shake hands. Find parents in stands. Tell sponsor. Journal: 'What did I learn about myself tonight?' Carry it forward.", "why": "The biggest moments come when you're most tired. How you respond equals who you are."},
+];
+
+const MENTAL_PROTOCOLS = [
+  {"n": 1, "name": "Visualization", "how": "5 min daily. Eyes closed. See yourself executing 3 plays successfully.", "freq": "Daily pre-practice", "research": "PMC studies show visualization activates same neural pathways as physical practice."},
+  {"n": 2, "name": "4-7-8 Breathing", "how": "Inhale 4 sec. Hold 7. Exhale 8. 3 rounds. Used pre-game and pre-bed.", "freq": "Daily 3x", "research": "Dr Andrew Weil. Activates parasympathetic. Lowers HR. Sharpens focus."},
+  {"n": 3, "name": "Box Breathing", "how": "4 in, 4 hold, 4 out, 4 hold. 4 cycles. Used in-game between drives.", "freq": "In-game between drives", "research": "Navy SEALs standard. Resets nervous system in 60 sec."},
+  {"n": 4, "name": "Self-Talk instructional", "how": "Replace 'don't fumble' with '5 points of pressure'. Brain hears last word.", "freq": "Pre-snap every play", "research": "Gabriele Wulf. Instructional cues improve motor performance by 25%."},
+  {"n": 5, "name": "Self-Talk motivational", "how": "'I built this. I own this. I am ready.' Use sparingly. Too much equals anxiety.", "freq": "Pre-game + after big plays", "research": "Performance peaks with right mix of instructional + motivational."},
+  {"n": 6, "name": "Pre-Performance Routine", "how": "Same sequence every game. Breath + cue word + visualization + physical activation.", "freq": "Every game pre-kickoff", "research": "NLP model. Reduces anxiety. Sharpens focus. Builds consistency."},
+  {"n": 7, "name": "Eraser Rep", "how": "One play today cleaning up a teammate's mistake. Log it.", "freq": "Daily", "research": "Brian Cain. Defines leadership. Builds trust."},
+  {"n": 8, "name": "Identity Anchoring", "how": "Repeat weekly: 'I am a Division 1 athlete. I am training for December 17, 2030.'", "freq": "Sunday", "research": "Neuroplasticity. Repeated affirmations reshape neural pathways."},
+  {"n": 9, "name": "WOOP Goals", "how": "Wish Outcome Obstacle Plan. 4-part framework.", "freq": "Monthly + pre-game", "research": "Gabriele Oettingen. WOOP outperforms SMART goals in 94% of studies."},
+  {"n": 10, "name": "Gratitude 3 Daily", "how": "3 specific gratitudes at end of day. Not generic. Specific.", "freq": "Daily", "research": "UC Davis study. Gratitude journaling improves sleep, mood, performance."},
+  {"n": 11, "name": "Cold Exposure", "how": "60 sec cold shower end. Or cold plunge 10-15C for 10-15 min.", "freq": "3-5x/wk not post-lift", "research": "Wim Hof method. Activates brown fat. Reduces inflammation."},
+  {"n": 12, "name": "Box Breathing Coach variant", "how": "4-4-4-4 cycle. Use before lifting PR attempt.", "freq": "Pre-PR", "research": "Dr Andrew Huberman. Quiets mind. Raises HRV for performance."},
+  {"n": 13, "name": "Mental Rehearsal Script", "how": "Pre-recorded voice memo of your own voice walking through the script.", "freq": "Pre-game", "research": "Top performers mentally rehearse with their own voice for highest fidelity."},
+  {"n": 14, "name": "Eraser Rep Reverse", "how": "After a teammate's bad play, YOU take responsibility mentally. Coach your teammate.", "freq": "Daily", "research": "Captain behavior. Build culture."},
+  {"n": 15, "name": "Mirror Work", "how": "Eye contact with yourself. Say the promise out loud every morning.", "freq": "Daily", "research": "Self-talk in front of mirror increases retention by 40%."},
+  {"n": 16, "name": "Journal 5 Min", "how": "Stream of consciousness. Don't edit. Process the day.", "freq": "Nightly", "research": "Pennebaker studies. Journaling improves immune function and performance."},
+  {"n": 17, "name": "Visualization Worst Play", "how": "Mentally rehearse the worst play of last game. Then visualize the correction.", "freq": "Weekly", "research": "Elite athletes rehearse failures to prevent them."},
+  {"n": 18, "name": "Breath Protocol Sideline", "how": "Inhale 4, hold 4, out 6. 3 cycles. After every defensive series.", "freq": "In-game", "research": "Reset HR. Restore focus. 30 sec recovery."},
+  {"n": 19, "name": "MILD Lucid Dream", "how": "Reality checks during day + intention at sleep to become lucid in dreams.", "freq": "Nightly", "research": "Stephen LaBerge. Increases motor learning through dream rehearsal."},
+  {"n": 20, "name": "Power Pose Pre-Game", "how": "2 min standing tall, arms wide, chin up. Pre-game.", "freq": "Pre-game", "research": "Amy Cuddy. Affects testosterone/cortisol. Perceived confidence boost."},
+  {"n": 21, "name": "Coachability Self-Check", "how": "Daily 3-question: Did I take coaching well? Repeat a mistake? Effort 10/10?", "freq": "Daily", "research": "Self-monitoring equals fastest growth path."},
+  {"n": 22, "name": "Adversity Re-frame", "how": "Every setback equals data. Every failure equals lesson. Reframe before reacting.", "freq": "As needed", "research": "Carol Dweck. Growth mindset improves resilience + performance."},
+  {"n": 23, "name": "Mantra Daily", "how": "Pick one mantra/week. Repeat in workouts. 'One cut, get north.'", "freq": "Daily", "research": "Mantras reduce cognitive load under pressure."},
+  {"n": 24, "name": "Recovery Sleep Score", "how": "Track sleep quality 1-10 daily. Use as readiness input.", "freq": "Daily", "research": "Sleep is the #1 recovery tool. Measurable impact on performance."},
+  {"n": 25, "name": "Visualization Audio", "how": "Record yourself describing 3 plays in detail. Play back before sleep.", "freq": "Weekly", "research": "PMC. Auditory rehearsal reinforces visual."},
+  {"n": 26, "name": "Pre-Bed Gratitude", "how": "3 specific gratitudes. Write them down. Sleep.", "freq": "Nightly", "research": "Gratitude before sleep improves sleep quality + mood next day."},
+  {"n": 27, "name": "Morning Intention", "how": "Set 1 intention for the day. Specific. Achievable.", "freq": "Daily", "research": "Intentionality equals direction. Without it, drift."},
+  {"n": 28, "name": "Post-Practice Review", "how": "3 wins. 3 fixes. 60 sec. Verbal or written.", "freq": "After every practice", "research": "Reflective practice equals 10x faster skill acquisition."},
+  {"n": 29, "name": "Sunday Reset", "how": "30 min Sunday. Review week. Plan week. Gratitude. Family.", "freq": "Weekly", "research": "Reflection + planning equals compounding weekly improvement."},
+];
+
+const RB_DRILLS = [
+  {"cat": "BALL_SEC", "name": "5 Points of Pressure Drill", "focus": "Eagle claw + 5 points contact", "reps": "3 sets × 10 reps", "progression": "Static → walking → jog → contact", "key": "Fumble = job loss", "level": "ALL"},
+  {"cat": "BALL_SEC", "name": "Gauntlet Drill", "focus": "Bags + slaps + spin", "reps": "5 reps through", "progression": "Walk → jog → sprint", "key": "The ultimate test", "level": "ALL"},
+  {"cat": "BALL_SEC", "name": "Zig-Zag Cuts with Ball", "focus": "45° cuts · switch arm", "reps": "6 reps × 4 sets", "progression": "Static → 70% → 100%", "key": "Switch arm mid-cut", "level": "ALL"},
+  {"cat": "BALL_SEC", "name": "Po-Go Drill", "focus": "Switch arm mid-air", "reps": "3 sets × 8 reps", "progression": "Knee height → waist height", "key": "Simulates trip", "level": "ALL"},
+  {"cat": "BALL_SEC", "name": "Ball Wrestling", "focus": "Partner rips from behind", "reps": "3 sets × 20 sec", "progression": "Slow → fast", "key": "Surprise strip", "level": "ALL"},
+  {"cat": "BALL_SEC", "name": "Up-Downs with Ball", "focus": "Fall + recover ball", "reps": "3 sets × 10", "progression": "Knees → belly → chest", "key": "Most fumbles happen falling", "level": "ALL"},
+  {"cat": "BALL_SEC", "name": "Stiff-Arm Sled", "focus": "Sled push + stiff arm", "reps": "5 × 15yd", "progression": "Light sled → heavy", "key": "Upper body finish", "level": "INT"},
+  {"cat": "BALL_SEC", "name": "Reception+Turn", "focus": "Catch + tuck in 1 motion", "reps": "5 sets × 8", "progression": "Stationary → jog", "key": "3-down back skill", "level": "ALL"},
+  {"cat": "BALL_SEC", "name": "Wheel Route + Ball", "focus": "Sell flat → wheel deep + secure", "reps": "4 sets × 5", "progression": "Walk → full speed", "key": "Modern RB skill", "level": "ADV"},
+  {"cat": "BALL_SEC", "name": "Pressure Cook Drill", "focus": "Carry ball with defenders swiping", "reps": "5 reps × 30 sec", "progression": "1 def → 4 defs", "key": "Game-like pressure", "level": "INT"},
+  {"cat": "VISION", "name": "3-Window Read Drill", "focus": "Playside / mid / backside reads", "reps": "20 reps daily", "progression": "Paper → cones → live", "key": "See all 3 holes", "level": "ALL"},
+  {"cat": "VISION", "name": "Cone Lane Drill", "focus": "Coach calls 1-2-3 mid-run", "reps": "5 sets × 10", "progression": "Slow → full speed", "key": "React to call", "level": "ALL"},
+  {"cat": "VISION", "name": "Color Cone (Box Drill)", "focus": "Read OZ vs Power from colors", "reps": "4 sets × 8", "progression": "Walk → 100%", "key": "Defensive tell recognition", "level": "ALL"},
+  {"cat": "VISION", "name": "Backside Cutback", "focus": "Flow strong, cut back weak", "reps": "6 reps × 3 sets", "progression": "Told → untold", "key": "Patience reward", "level": "INT"},
+  {"cat": "VISION", "name": "Triangle Read (LB view)", "focus": "Read Mike + Will + SS", "reps": "3 sets × 10", "progression": "Picture → live", "key": "Pre-snap tells", "level": "INT"},
+  {"cat": "VISION", "name": "Press Look Drill", "focus": "Watch QB eyes vs RB eyes", "reps": "3 sets × 10", "progression": "Slow-mo → game speed", "key": "QB tells = RB tells", "level": "ADV"},
+  {"cat": "VISION", "name": "Bowl Cuts (3-lane)", "focus": "3 holes - cut to most open", "reps": "5 sets × 6", "progression": "Static → 80%", "key": "Always 1-cut", "level": "ALL"},
+  {"cat": "VISION", "name": "RPO Sell Drill", "focus": "Run IZ hard even on pass", "reps": "5 reps × 4 sets", "progression": "No QB → with QB", "key": "Decoy sells play", "level": "ADV"},
+  {"cat": "CUTS", "name": "5-Cone Drill", "focus": "Sharp cuts only", "reps": "6 reps", "progression": "7.0s → 6.5s", "key": "Time goal", "level": "ALL"},
+  {"cat": "CUTS", "name": "Pro Agility (5-10-5)", "focus": "Lateral COD", "reps": "6 reps", "progression": "4.5s → 4.0s", "key": "Lateral speed", "level": "ALL"},
+  {"cat": "CUTS", "name": "L-Drill (3-cone)", "focus": "3 cones in L", "reps": "6 reps", "progression": "8.0s → 7.1s", "key": "Combine standard", "level": "ALL"},
+  {"cat": "CUTS", "name": "Jump Cut Drill", "focus": "Plant outside, push hip", "reps": "6 reps × 4 sets", "progression": "Walk → 100%", "key": "Bijan signature", "level": "INT"},
+  {"cat": "CUTS", "name": "Hesitation Cut", "focus": "Pause + cut based on LB", "reps": "5 reps × 3 sets", "progression": "Slow → game speed", "key": "Freeze + explode", "level": "INT"},
+  {"cat": "CUTS", "name": "Spin Move Drill", "focus": "360° spin after contact", "reps": "3 sets × 8", "progression": "Static → live", "key": "After 1st contact", "level": "INT"},
+  {"cat": "CUTS", "name": "Dead Leg Cut", "focus": "Stiff plant + cut other way", "reps": "5 sets × 6", "progression": "Walk → 80%", "key": "Sets up jump cut", "level": "ADV"},
+  {"cat": "CUTS", "name": "Box Cut + Burst", "focus": "Cut at box then 10yd burst", "reps": "6 reps × 4 sets", "progression": "50% → 100%", "key": "Cut + finish speed", "level": "INT"},
+  {"cat": "PAD_LEVEL", "name": "Squat Hold + Walk", "focus": "Hip below knees", "reps": "3 sets × 20yd", "progression": "Walk → jog → sprint", "key": "Low man wins", "level": "ALL"},
+  {"cat": "PAD_LEVEL", "name": "Bucket Pad Walk", "focus": "Pad level with contact", "reps": "5 sets × 10", "progression": "Walk → live contact", "key": "Wrestler base", "level": "ALL"},
+  {"cat": "PAD_LEVEL", "name": "Power Skip", "focus": "Power position + drive", "reps": "4 sets × 20yd", "progression": "Half → full", "key": "First step explosion", "level": "INT"},
+  {"cat": "PAD_LEVEL", "name": "Y-Drill Pad Level", "focus": "Y-pattern with low pads", "reps": "3 sets × 5", "progression": "Walk → sprint", "key": "Cut at low pads", "level": "INT"},
+  {"cat": "SPEED", "name": "10x10 Sprints", "focus": "Acceleration 10yd", "reps": "10 × 10yd · 60s rest", "progression": "Slower → faster", "key": "Builds RB-specific base", "level": "ALL"},
+  {"cat": "SPEED", "name": "Flying 20s", "focus": "Top-end speed", "reps": "6 × 20yd from 10yd run-in", "progression": "Build to 6 reps", "key": "Max velocity", "level": "INT"},
+  {"cat": "SPEED", "name": "A-Skips", "focus": "Hip flexion + knee drive", "reps": "3 × 30yd", "progression": "Slow → full", "key": "Form speed", "level": "ALL"},
+  {"cat": "SPEED", "name": "B-Skips", "focus": "Leg extension + toe-up", "reps": "3 × 30yd", "progression": "Slow → full", "key": "Stride extension", "level": "ALL"},
+  {"cat": "SPEED", "name": "Wall Drives", "focus": "Single-leg drive against wall", "reps": "3 sets × 10/leg", "progression": "Hold 3s → hold 5s", "key": "First-step explosion", "level": "ALL"},
+  {"cat": "SPEED", "name": "Sled Sprints (light)", "focus": "Resisted acceleration", "reps": "6 × 20yd", "progression": "Light → heavy", "key": "Power output", "level": "INT"},
+  {"cat": "SPEED", "name": "Hill Sprints", "focus": "Sprint uphill", "reps": "8 × 15yd", "progression": "Build to 8 reps", "key": "Power + cardio", "level": "INT"},
+  {"cat": "SPEED", "name": "Falling Start", "focus": "Fall forward + sprint", "reps": "6 × 20yd", "progression": "Build fall angle", "key": "Reaction start", "level": "INT"},
+  {"cat": "SPEED", "name": "Resisted Sprints (sled)", "focus": "Heavy load short sprint", "reps": "5 × 10yd @ heavy", "progression": "Add weight weekly", "key": "Power", "level": "ADV"},
+  {"cat": "FINISHING", "name": "Sled Finish", "focus": "Push sled 5yd + drive feet", "reps": "5 reps", "progression": "Light → heavy", "key": "Drive feet after contact", "level": "INT"},
+  {"cat": "FINISHING", "name": "Tackle Wheel", "focus": "Hit pad at full speed", "reps": "5 reps", "progression": "Half → full", "key": "Contact + drive", "level": "INT"},
+  {"cat": "FINISHING", "name": "Stiff-Arm Pad", "focus": "Hit pad + stiff arm", "reps": "5 reps", "progression": "Half → full", "key": "Levar + Marshawn", "level": "INT"},
+  {"cat": "FINISHING", "name": "5-Yard After Contact", "focus": "Contact + run 5 more", "reps": "5 reps", "progression": "Walk → full", "key": "YAC culture", "level": "ALL"},
+  {"cat": "FINISHING", "name": "Goal Line Drive", "focus": "Short yardage + max effort", "reps": "8 reps × 3 sets", "progression": "Half → full", "key": "Goal line toughness", "level": "INT"},
+  {"cat": "PASS_PRO", "name": "Mike ID Drill", "focus": "Read QB - find Mike LB", "reps": "3 sets × 10", "progression": "Static → live", "key": "Pass pro starts here", "level": "INT"},
+  {"cat": "PASS_PRO", "name": "Kick-Slide Drill", "focus": "Square up + cushion", "reps": "4 sets × 6", "progression": "Walk → full", "key": "Anchor vs rusher", "level": "INT"},
+  {"cat": "PASS_PRO", "name": "Punch Technique", "focus": "2 hands to chest + drive", "reps": "4 sets × 6", "progression": "Bag → live", "key": "Hands inside", "level": "INT"},
+  {"cat": "PASS_PRO", "name": "Hit & Sit Drill", "focus": "Punch + drop hips", "reps": "4 sets × 6", "progression": "Bag → live", "key": "Recover + anchor", "level": "INT"},
+  {"cat": "PASS_PRO", "name": "Dual Read", "focus": "Find LB to block first", "reps": "4 sets × 6", "progression": "Picture → live", "key": "Pick up the right one", "level": "ADV"},
+  {"cat": "PASS_PRO", "name": "Chip + Release", "focus": "Chip DE + run route", "reps": "4 sets × 6", "progression": "Walk → live", "key": "3-down skill", "level": "ADV"},
+  {"cat": "PASS_PRO", "name": "Scan (Pick up #6)", "focus": "OL takes 5 - RB finds #6", "reps": "3 sets × 6", "progression": "Picture → live", "key": "Protection responsibility", "level": "ADV"},
+  {"cat": "ROUTES", "name": "Flat Route", "focus": "5yd out to sideline", "reps": "5 reps", "progression": "Walk → full", "key": "Hot route", "level": "INT"},
+  {"cat": "ROUTES", "name": "Angle Route", "focus": "Sell flat → break inside", "reps": "5 reps", "progression": "Walk → full", "key": "Man-beater", "level": "INT"},
+  {"cat": "ROUTES", "name": "Wheel Route", "focus": "Sell flat → wheel deep", "reps": "5 reps", "progression": "Walk → full", "key": "Big play", "level": "INT"},
+  {"cat": "ROUTES", "name": "Check-Down", "focus": "Stay near QB", "reps": "3 reps", "progression": "Walk → live", "key": "Safety valve", "level": "INT"},
+  {"cat": "ROUTES", "name": "Option Route", "focus": "Read LB depth", "reps": "5 reps", "progression": "Picture → live", "key": "Smart route", "level": "ADV"},
+];
+
+const LB_DRILLS = [
+  {"cat": "TACKLE", "name": "Hawk Tackle", "focus": "Track near hip · shoot · wrap · drive", "reps": "5 reps", "progression": "Walk → live", "key": "Open field tackle", "level": "ALL"},
+  {"cat": "TACKLE", "name": "Thud Tackle", "focus": "Chest-up wrap + lift", "reps": "5 reps", "progression": "Bag → live", "key": "Form tackle", "level": "ALL"},
+  {"cat": "TACKLE", "name": "Angle Tackle", "focus": "Leverage sideline", "reps": "5 reps", "progression": "Walk → live", "key": "Sideline pursuit", "level": "INT"},
+  {"cat": "TACKLE", "name": "Goal-Line Tackle", "focus": "Low pad + drive", "reps": "5 reps", "progression": "Bag → live", "key": "Goal line toughness", "level": "INT"},
+  {"cat": "TACKLE", "name": "Punch-Out Drill", "focus": "2nd man in chop ball", "reps": "5 reps", "progression": "Bag → live", "key": "Strip fumble", "level": "INT"},
+  {"cat": "TACKLE", "name": "Space Tackle", "focus": "Mirror hips + break down", "reps": "5 reps", "progression": "Bag → live", "key": "vs shifty RB", "level": "ADV"},
+  {"cat": "TACKLE", "name": "Open Field Form", "focus": "Approach + chop + wrap", "reps": "5 reps × 3 sets", "progression": "Walk → full speed", "key": "D1 staple", "level": "INT"},
+  {"cat": "TACKLE", "name": "Cut-Back Tackle", "focus": "React to RB cut", "reps": "5 reps × 3 sets", "progression": "Walk → live", "key": "Cutting RB", "level": "INT"},
+  {"cat": "TACKLE", "name": "Drag Tackle", "focus": "Drag ball carrier back", "reps": "4 reps", "progression": "Bag → live", "key": "Last-effort tackle", "level": "INT"},
+  {"cat": "TACKLE", "name": "Pile Tackle", "focus": "5+ players · push pile", "reps": "5 reps", "progression": "Live only", "key": "Goal line", "level": "INT"},
+  {"cat": "READS", "name": "Triangle Read", "focus": "Find Mike + Will + SS", "reps": "20 reps", "progression": "Picture → live", "key": "Pre-snap tells", "level": "ALL"},
+  {"cat": "READS", "name": "OG Key Read", "focus": "OG pull = power/counter", "reps": "3 sets × 10", "progression": "Picture → live", "key": "Guards tell truth", "level": "INT"},
+  {"cat": "READS", "name": "Hat Height Read", "focus": "High hat = pass · low = run", "reps": "3 sets × 10", "progression": "Picture → live", "key": "OL body language", "level": "INT"},
+  {"cat": "READS", "name": "Safety Rotation", "focus": "Watch safety depth", "reps": "3 sets × 10", "progression": "Picture → live", "key": "Coverage tells", "level": "INT"},
+  {"cat": "READS", "name": "Blitz Tell", "focus": "LB cheating up = blitz", "reps": "3 sets × 10", "progression": "Picture → live", "key": "Pre-snap ID", "level": "INT"},
+  {"cat": "READS", "name": "RPO Read", "focus": "Read QB post-snap", "reps": "3 sets × 10", "progression": "Picture → live", "key": "Modern defense", "level": "ADV"},
+  {"cat": "SHED", "name": "Rip & Swim", "focus": "Hand strike + rip", "reps": "5 sets × 8", "progression": "Bag → live", "key": "Block shed", "level": "ALL"},
+  {"cat": "SHED", "name": "Stack & Shed", "focus": "Stack + lateral", "reps": "5 sets × 8", "progression": "Bag → live", "key": "Run fit discipline", "level": "INT"},
+  {"cat": "SHED", "name": "Hand-Fight to Shed", "focus": "Hands inside + shed", "reps": "5 sets × 8", "progression": "Bag → live", "key": "Wrestler translates", "level": "INT"},
+  {"cat": "SHED", "name": "Shoot the Gap", "focus": "Low pad + through gap", "reps": "5 sets × 6", "progression": "Bag → live", "key": "TFL opportunity", "level": "INT"},
+  {"cat": "SHED", "name": "Press + Shuck", "focus": "Press blocker + lateral", "reps": "5 reps", "progression": "Bag → live", "key": "Contain edge", "level": "INT"},
+  {"cat": "COVERAGE", "name": "Hook Drop", "focus": "12yd hook zone", "reps": "5 reps", "progression": "Walk → live", "key": "Cover 3 LB", "level": "INT"},
+  {"cat": "COVERAGE", "name": "Curl Drop", "focus": "12yd curl zone", "reps": "5 reps", "progression": "Walk → live", "key": "Cover 3 LB", "level": "INT"},
+  {"cat": "COVERAGE", "name": "Flat Drop", "focus": "5yd flat", "reps": "5 reps", "progression": "Walk → live", "key": "Cover 4 / Match", "level": "INT"},
+  {"cat": "COVERAGE", "name": "Man vs RB", "focus": "Trail technique", "reps": "5 reps", "progression": "Walk → live", "key": "Wheel coverage", "level": "INT"},
+  {"cat": "COVERAGE", "name": "Man vs TE", "focus": "Inside leverage", "reps": "5 reps", "progression": "Walk → live", "key": "TE coverage", "level": "INT"},
+  {"cat": "COVERAGE", "name": "Match Zone", "focus": "Carry vertical + pass off", "reps": "5 reps", "progression": "Walk → live", "key": "Modern coverage", "level": "ADV"},
+  {"cat": "COVERAGE", "name": "Green Dog Read", "focus": "If RB stays in - blitz", "reps": "5 reps", "progression": "Walk → live", "key": "Blitz trigger", "level": "INT"},
+  {"cat": "COVERAGE", "name": "Poach Read", "focus": "Cross face + intercept", "reps": "5 reps", "progression": "Walk → live", "key": "Ball-hawk", "level": "ADV"},
+  {"cat": "BLITZ", "name": "A-Gap Timing", "focus": "Snap count + shoot A", "reps": "5 reps", "progression": "Picture → live", "key": "Make the play", "level": "INT"},
+  {"cat": "BLITZ", "name": "Edge Rush", "focus": "Dip + rip + flatten", "reps": "5 reps", "progression": "Bag → live", "key": "Edge pressure", "level": "INT"},
+  {"cat": "BLITZ", "name": "Green Dog Blitz", "focus": "RB stays in → LB blitzes", "reps": "5 reps", "progression": "Walk → live", "key": "Free rusher", "level": "INT"},
+  {"cat": "BLITZ", "name": "Cross Dog", "focus": "2 LBs cross paths", "reps": "3 reps", "progression": "Walk → live", "key": "Confuse OL", "level": "ADV"},
+  {"cat": "BLITZ", "name": "Delayed Blitz", "focus": "Drop then rush", "reps": "5 reps", "progression": "Walk → live", "key": "Pressure timing", "level": "ADV"},
+  {"cat": "CONDITIONING", "name": "10x110s", "focus": "10 × 110yd @ 16s", "reps": "10 reps · 45s rest", "progression": "Build to 10", "key": "College conditioning test", "level": "INT"},
+  {"cat": "CONDITIONING", "name": "Half-Gassers", "focus": "53yd × 2 in 12s", "reps": "8 reps", "progression": "Build to 8", "key": "Off-day conditioning", "level": "ALL"},
+  {"cat": "CONDITIONING", "name": "300s", "focus": "300yd shuttle @ 60s", "reps": "5 reps", "progression": "Build to 5", "key": "Old-school standard", "level": "INT"},
+];
+
+const WRESTLING_DRILLS = [
+  {"cat": "HAND_FIGHT", "name": "Tie-Up Drill", "focus": "Inside hand control", "reps": "3 sets × 30 sec", "progression": "Static → live", "key": "Football contact starts here", "level": "ALL"},
+  {"cat": "HAND_FIGHT", "name": "Hand Fighting in Space", "focus": "No grip · hand position only", "reps": "3 sets × 30 sec", "progression": "Static → live", "key": "Stiff arm foundation", "level": "ALL"},
+  {"cat": "HAND_FIGHT", "name": "Underhook Drill", "focus": "Get under + control", "reps": "3 sets × 30 sec", "progression": "Static → live", "key": "Football pad level", "level": "INT"},
+  {"cat": "HAND_FIGHT", "name": "2-on-1 (Wrist Control)", "focus": "2 hands on 1 wrist", "reps": "3 sets × 30 sec", "progression": "Static → live", "key": "Hand fighting advantage", "level": "INT"},
+  {"cat": "HAND_FIGHT", "name": "Sprawl + Hands", "focus": "Sprawl + clear hands", "reps": "5 reps × 3 sets", "progression": "Walk → live", "key": "Football block shed", "level": "INT"},
+  {"cat": "STANCE", "name": "Stance Hold (30 sec)", "focus": "Athletic stance + balance", "reps": "3 × 30 sec", "progression": "Build to 60 sec", "key": "Football contact base", "level": "ALL"},
+  {"cat": "STANCE", "name": "90/90 Hip Switch", "focus": "Hip mobility", "reps": "3 sets × 10/side", "progression": "Build to 20", "key": "Cutting power", "level": "ALL"},
+  {"cat": "STANCE", "name": "Sprawl Series", "focus": "Drop + sprawl + recover", "reps": "5 reps × 3 sets", "progression": "Walk → live", "key": "First-step explosion", "level": "INT"},
+  {"cat": "TAKEDOWNS", "name": "Double Leg Setup", "focus": "Penetration step + level change", "reps": "5 reps", "progression": "Slow → live", "key": "Goal line power", "level": "INT"},
+  {"cat": "TAKEDOWNS", "name": "Single Leg Finish", "focus": "Lift + trip", "reps": "5 reps", "progression": "Slow → live", "key": "Sideline tackle", "level": "INT"},
+  {"cat": "TAKEDOWNS", "name": "Snap Down + Go Behind", "focus": "Snap + circle", "reps": "5 reps", "progression": "Slow → live", "key": "Counter move", "level": "INT"},
+  {"cat": "TAKEDOWNS", "name": "High Crotch", "focus": "Angle + finish", "reps": "5 reps", "progression": "Slow → live", "key": "Edge pursuit", "level": "ADV"},
+  {"cat": "ESCAPE", "name": "Granby Roll", "focus": "Hip heist + roll", "reps": "5 reps", "progression": "Mat only", "key": "Bottom escape", "level": "INT"},
+  {"cat": "ESCAPE", "name": "Switch", "focus": "Offense ↔ defense", "reps": "5 reps", "progression": "Slow → live", "key": "Reversal", "level": "INT"},
+  {"cat": "ESCAPE", "name": "Sit Out + Turn", "focus": "Bottom → turn to top", "reps": "5 reps", "progression": "Slow → live", "key": "Bottom escape", "level": "INT"},
+];
+
+const EMAIL_TEMPLATES = {"first_intro": {"subject": "2030 RB/LB Zayden Bowen — Basic HS (Henderson, NV) — Film", "body": "Coach [Last Name],\n\nMy name is Zayden Bowen. I'm a Class of 2030 RB/LB at Basic HS in Henderson, NV. 5'7, 155 lbs. Bench 205 / Squat 275 / DL 365. 4.0 GPA goal. I also wrestle (15-4 this season).\n\nMy Hudl: [link]\nMy Twitter: @ZaydenBowen2030\nCoach contact: Coach Jeff Cahill, [email], [phone]\n\nI'd love to be on your board at [School]. Let me know any camps I should attend.\n\nThank you for your time.\nZayden Bowen · [your phone] · [your email]", "notes": ["Send to 50+ coaches across all tiers", "Personalize school name", "Include actual Hudl link", "Send on a Monday morning (coaches check email early)"]}, "followup_2wk": {"subject": "Update — 2030 Zayden Bowen · [position] · [School] tracker", "body": "Coach [Last Name],\n\nFollowing up on my email from [date]. Quick update:\n- [Recent PR or game stat]\n- [New film link if added]\n- [Upcoming camp I'll attend]\n\nStill very interested in [School]. When would be a good time for a quick call?\n\nZayden Bowen\n[phone] · [email] · Hudl: [link]", "notes": ["Send 2 weeks after first intro", "Include ONE specific update (PR, stat, or film)", "Always propose a call or visit"]}, "after_camp": {"subject": "Thanks Coach [Last Name] — [School] camp takeaways", "body": "Coach [Last Name],\n\nThank you for having me at [School]'s camp on [date]. Three things I took away:\n1. [Specific drill or technique learned]\n2. [Position coach feedback]\n3. [One thing I'll work on this week]\n\nLoved the energy and the culture at [School]. Would love to visit campus for an unofficial if that works for you.\n\nZayden Bowen\n[phone] · [email] · Hudl: [link]", "notes": ["Send within 24 hours of camp", "Mention specific coach by name", "Show you learned something", "Ask for visit"]}, "after_visit": {"subject": "Thank you Coach [Last Name] — [School] visit recap", "body": "Coach [Last Name] + [DC, RB Coach, etc.],\n\nThank you for the visit to [School] on [date]. Three things that stood out:\n1. [Specific program detail — strength program, film room, nutrition]\n2. [Coach interaction that impressed me]\n3. [Academic / culture fit point]\n\n[School] is now in my top [X]. I'll be in touch after [next milestone — combine, film drop, etc.].\n\nZayden Bowen\n[phone] · [email]", "notes": ["Send within 24 hours of visit", "Tag every coach you met", "Show genuine interest + specific knowledge", "Update your top-X list"]}, "after_offer": {"subject": "Thank you Coach [Last Name] — [School] offer received", "body": "Coach [Last Name],\n\nThank you for the offer from [School]. I am honored and grateful. I want to take a week to:\n1. Talk to my family\n2. Talk to my sponsor ([name])\n3. Talk to Coach Cahill at Basic\n4. Visit campus one more time if possible\n\nI'll have my answer by [date]. Thank you for believing in me.\n\nZayden Bowen\n[phone] · [email]", "notes": ["NEVER commit on the spot", "Always take 1 week minimum", "Loop parents + sponsor + HS coach in", "Get answer in writing"]}, "after_commit": {"subject": "COMMITTED — [School] · Class of 2030", "body": "[School] family + fans,\n\nI am 100% committed to continuing my academic and athletic career at [School]. Thank you to my family, Coach Cahill, [sponsor name], and everyone who helped me get here. Go [Mascot]!\n\nZayden Bowen · Class of 2030", "notes": ["Biggest post of your HS career", "Photo wearing school hat", "Family in background", "Tag the school + coaches"]}, "generic_update": {"subject": "2030 ZB Update · Week [X] · [stat highlight]", "body": "Coach [Last Name],\n\nWeek [X] update:\n- BW: [X]\n- Bench/Sq/DL: [X/X/X]\n- Last game: [X car / X yds / X TD]\n- Hudl film: [link]\n\nContinuing to grind. Next milestone: [upcoming camp or combine]. Thank you for the support.\n\nZayden Bowen", "notes": ["Send every 4-6 weeks to coaches you've contacted", "Keep stats updated", "Show progression"]}};
+
+const FILM_SYSTEM = {"5_question_framework": ["1. WHAT IS THE FRONT? (4-3, 3-4, Bear, Tite, etc.) — read pre-snap OL count + DL alignment", "2. WHAT IS THE COVERAGE? (Cover 1, 2, 3, 4, 0) — count safeties pre-snap + depth", "3. WHERE IS THE MIKE LB? — always identify pre-snap — QB points at him", "4. WHAT IS THE PLAY DESIGN? (run, pass, RPO, screen) — read backfield + WR splits", "5. WHAT DID THE WINNING PLAY DEPEND ON? (block, read, missed tackle) — pause the play"], "weekly_play_to_study": [{"week_range": "1-12", "play": "Bijan Robinson outside zone cut", "where": "YouTube: Bijan Robinson vs Texas Tech 2022", "why": "Master the 3-window read"}, {"week_range": "13-24", "play": "CMC wheel route", "where": "YouTube: CMC highlights 2022", "why": "Modern 3-down back skill"}, {"week_range": "25-40", "play": "Derrick Henry stiff arm", "where": "YouTube: Derrick Henry stiff arm comp", "why": "Pad level + leverage"}, {"week_range": "41-50", "play": "Bucky Irving contact balance", "where": "YouTube: Bucky Irving broken tackles", "why": "Wrestler-style finish"}, {"week_range": "51-100", "play": "Devon Achane jump cut", "where": "YouTube: Devon Achane jump cut", "why": "Speed + cutting"}, {"week_range": "101-150", "play": "Marshawn Lynch Beast Quake", "where": "YouTube: Beast Quake run", "why": "Wrestling mentality"}, {"week_range": "151-200", "play": "Warrick Dunn 12-year career", "where": "YouTube: Warrick Dunn highlights", "why": "Longevity + consistency"}], "opponent_scout_template": {"team": "[Opponent name]", "date": "[Game date]", "formation_base": "4-3 / 3-4 / Bear / Tite (their base look)", "run_tendency": "% run vs pass · favorite plays · run direction tendencies", "pass_tendency": "favorite concepts · QB tendencies · WR splits", "blitz_package": "which LB/S blitzes most · favorite timing", "weak_gap": "smallest DL · slowest LB · 1v1 mismatch", "best_player": "their #1 player · avoid him on key plays", "cb_matchups": "which WR vs which CB · exploit mismatches", "our_gameplan": "attack weak side · exploit blitz gaps · protect vs best rusher"}};
+
+const INJURY_PROTOCOLS = [{"n": 1, "name": "Hamstring Strain", "grade": "1-3", "signs": "Sharp pain in back of thigh", "rehab": "RICE · isometric contractions · progressive eccentric loading", "rtn": "2-6 weeks", "prevention": "Nordic curls 3×6 daily · hamstring strengthening"}, {"n": 2, "name": "ACL Tear", "grade": "Full or Partial", "signs": "Pop + immediate swelling + instability", "rehab": "Surgery + 9-12 mo PT", "rtn": "9-12 months post-op", "prevention": "Nordic curls · single-leg squats · proprioception work"}, {"n": 3, "name": "MCL Sprain", "grade": "1-3", "signs": "Inner knee pain after lateral hit", "rehab": "RICE · brace · quad strengthening", "rtn": "2-6 weeks", "prevention": "Hip strengthening · proper footwork on cuts"}, {"n": 4, "name": "Ankle Sprain", "grade": "1-3", "signs": "Roll + lateral pain + swelling", "rehab": "RICE · alphabet drill · balance training", "rtn": "1-4 weeks", "prevention": "Single-leg balance · ankle proprioception · tape ankles"}, {"n": 5, "name": "Shoulder Dislocation", "grade": "Acute", "signs": "Pop + visible deformity", "rehab": "Reduction + sling + PT", "rtn": "6-12 weeks", "prevention": "Rotator cuff strengthening · tackling technique"}, {"n": 6, "name": "AC Joint Sprain", "grade": "1-6", "signs": "Top of shoulder pain after contact", "rehab": "Ice + rest + progressive loading", "rtn": "2-8 weeks", "prevention": "Shoulder pad fit · tackling technique"}, {"n": 7, "name": "Concussion", "grade": "Mild-Moderate-Severe", "signs": "Dizzy · foggy · nausea · memory blank", "rehab": "SCAT6 → 6-step RTP", "rtn": "24-hr steps × 6 days minimum", "prevention": "Neck strengthening · Hawk tackle · report ALL hits"}, {"n": 8, "name": "Concussion - Second Impact", "grade": "CRITICAL", "signs": "Second head injury before first heals", "rehab": "EMERGENCY - 911", "rtn": "Months - season over", "prevention": "Never return before cleared"}, {"n": 9, "name": "AC Sprain (Shoulder Separation)", "grade": "1-6", "signs": "Step deformity · pain at AC joint", "rehab": "Sling + PT for grade 4-6", "rtn": "2-12 weeks", "prevention": "Strengthen deltoid + trap"}, {"n": 10, "name": "High Ankle Sprain", "grade": "1-3", "signs": "Syndesmotic pain · between tibia/fibula", "rehab": "Boot + progressive loading", "rtn": "4-8 weeks", "prevention": "Strengthen calf + peroneals"}, {"n": 11, "name": "Quad Strain", "grade": "1-3", "signs": "Front of thigh pain after sprint", "rehab": "RICE · progressive loading", "rtn": "2-6 weeks", "prevention": "Eccentric quad work · proper warm-up"}, {"n": 12, "name": "Hip Flexor Strain", "grade": "1-3", "signs": "Groin/hip pain with sprinting", "rehab": "RICE + stretching + strengthening", "rtn": "2-6 weeks", "prevention": "Hip mobility daily · 90/90 holds"}, {"n": 13, "name": "Adductor Strain", "grade": "1-3", "signs": "Inner groin pain", "rehab": "RICE + adductor strengthening", "rtn": "2-6 weeks", "prevention": "Adductor squeezes · Copenhagen planks"}, {"n": 14, "name": "Lower Back Strain", "grade": "1-3", "signs": "Lower back pain after lift", "rehab": "RICE + core work", "rtn": "1-4 weeks", "prevention": "Dead bug · glute bridge · proper hip hinge"}, {"n": 15, "name": "Neck Strain", "grade": "1-3", "signs": "Neck pain after head hit", "rehab": "RICE + gentle ROM", "rtn": "1-2 weeks", "prevention": "Neck strengthening (4-way) · Hawk tackle"}, {"n": 16, "name": "Wrist Sprain", "grade": "1-3", "signs": "Wrist pain after fall", "rehab": "RICE + brace", "rtn": "1-3 weeks", "prevention": "Wrist taping · break-fall technique"}, {"n": 17, "name": "Thumb Sprain (UCL)", "grade": "1-3", "signs": "Thumb pain after grip", "rehab": "RICE + taping", "rtn": "2-6 weeks", "prevention": "Thumb taping during contact"}, {"n": 18, "name": "Rib Contusion", "grade": "Mild-Severe", "signs": "Rib pain after direct hit", "rehab": "RICE + rest", "rtn": "1-6 weeks", "prevention": "Rib pads · proper tackling"}, {"n": 19, "name": "Pneumothorax (collapsed lung)", "grade": "CRITICAL", "signs": "Sharp chest pain + breathing trouble", "rehab": "EMERGENCY - 911", "rtn": "Weeks - months", "prevention": "Avoid direct chest contact"}, {"n": 20, "name": "Heat Exhaustion", "grade": "Mild-Moderate", "signs": "Cold/clammy skin · weak pulse · cramps", "rehab": "Cool + hydrate + electrolytes", "rtn": "24-48 hours", "prevention": "Hydrate 24oz/2hr pre · electrolytes"}, {"n": 21, "name": "Heat Stroke", "grade": "CRITICAL - DEADLY", "signs": "Hot DRY skin · confusion · 104+ temp", "rehab": "EMERGENCY - 911 - cold immersion", "rtn": "Weeks if survive", "prevention": "Heat acclim · hydration · rest breaks"}, {"n": 22, "name": "Rhabdo (Rhabdomyolysis)", "grade": "CRITICAL", "signs": "Severe muscle pain + cola urine", "rehab": "EMERGENCY - IV fluids", "rtn": "Weeks - months", "prevention": "Gradual volume · hydration · avoid max-effort layoff"}, {"n": 23, "name": "Tennis Elbow", "grade": "Mild-Severe", "signs": "Lateral elbow pain", "rehab": "Rest + eccentric strengthening", "rtn": "2-12 weeks", "prevention": "Forearm strengthening"}, {"n": 24, "name": "Shin Splints", "grade": "Mild-Moderate", "signs": "Shin pain during/after running", "rehab": "RICE + calf raises + gradual volume", "rtn": "2-6 weeks", "prevention": "Calf strengthening · gradual mileage increase"}, {"n": 25, "name": "Stress Fracture (Tibia)", "grade": "CRITICAL", "signs": "Localized bone pain · worsens with run", "rehab": "Boot + 6-8 wk no-impact", "rtn": "6-12 weeks", "prevention": "Gradual mileage · adequate calcium + D3"}, {"n": 26, "name": "Plantar Fasciitis", "grade": "Mild-Severe", "signs": "Heel pain worst first step", "rehab": "Stretch + ice + supportive shoes", "rtn": "2-12 weeks", "prevention": "Calf stretch · supportive footwear"}, {"n": 27, "name": "Achilles Tendonitis", "grade": "Mild-Severe", "signs": "Heel cord pain · stiffness", "rehab": "Eccentric heel drops + rest", "rtn": "2-12 weeks", "prevention": "Eccentric calf strengthening"}, {"n": 28, "name": "Stinger (Burner)", "grade": "Mild-Severe", "signs": "Neck/shoulder/arm burning · temporary", "rehab": "RICE + return protocol", "rtn": "Minutes to days", "prevention": "Neck strengthening · Hawk tackle"}, {"n": 29, "name": "Patellar Tendonitis", "grade": "Mild-Severe", "signs": "Knee pain below kneecap", "rehab": "Eccentric squats + rest", "rtn": "2-12 weeks", "prevention": "Eccentric quad work · gradual volume"}, {"n": 30, "name": "IT Band Syndrome", "grade": "Mild-Severe", "signs": "Lateral knee pain during run", "rehab": "Foam roll + hip strengthening", "rtn": "2-6 weeks", "prevention": "Hip abduction strengthening"}, {"n": 31, "name": "Calf Strain", "grade": "1-3", "signs": "Sudden calf pain during sprint", "rehab": "RICE + progressive loading", "rtn": "2-6 weeks", "prevention": "Calf eccentric work"}, {"n": 32, "name": "Finger Dislocation", "grade": "Acute", "signs": "Visible deformity", "rehab": "Reduction + buddy tape", "rtn": "1-4 weeks", "prevention": "Finger taping during ball-handling"}, {"n": 33, "name": "Knee Contusion", "grade": "Mild-Severe", "signs": "Knee pain after direct hit", "rehab": "RICE + gentle ROM", "rtn": "1-3 weeks", "prevention": "Knee braces during contact"}, {"n": 34, "name": "Cervical Strain", "grade": "Mild-Severe", "signs": "Neck pain + ROM loss", "rehab": "RICE + gentle ROM + PT", "rtn": "1-4 weeks", "prevention": "Neck strengthening + Hawk tackle"}, {"n": 35, "name": "Eye Contusion (Black Eye)", "grade": "Mild-Severe", "signs": "Periorbital swelling/bruising", "rehab": "Cold + vision check + ophthalmology if vision changes", "rtn": "1-2 weeks", "prevention": "Proper visor use"}, {"n": 36, "name": "Cardiac Arrest (Commotio Cordis)", "grade": "CRITICAL - DEADLY", "signs": "Sudden collapse after chest impact", "rehab": "EMERGENCY - CPR + AED", "rtn": "N/A - prevent", "prevention": "Avoid direct chest impact · proper technique"}];
+
+const VISUALIZATION = {"pre_snap_15s": {"duration": "15 seconds", "use": "Before every snap in-game", "script": "1. Eyes closed. One breath. In 4. Out 4.\n2. See YOUR stance. See YOUR eyes on the MIKE.\n3. See the play. ONE CUT. GET NORTH.\n4. Eyes open. Snap. EXECUTE."}, "pre_game_5min": {"duration": "5 minutes", "use": "In the locker room before kickoff", "script": "1. (1 min) Close eyes. Visualize the stadium. Hear the crowd. Feel the pads.\n2. (1 min) Run the first 5 plays of YOUR script. First-person. Feel the ball. See the hole.\n3. (1 min) Visualize the bad play. How you fix it. Next play.\n4. (1 min) See yourself making the big play. Touchdown. Big hit. Big stop.\n5. (1 min) Cue word: FINISH. One breath. Open eyes. Locked in."}, "pre_bed_5min": {"duration": "5 minutes", "use": "Before sleep (10:00 PM)", "script": "1. (1 min) Body scan. Toes to head. Release tension.\n2. (1 min) Replay today's BEST rep. In your body. Feel it.\n3. (1 min) See tomorrow's morning. Wake up. Stretch. Fuel. Train.\n4. (1 min) Visualize 3 plays you'll execute tomorrow. First-person.\n5. (1 min) Gratitude. 3 specific. Sleep."}, "audio_guide_text": "Welcome to visualization. Close your eyes. Breathe in... 4... hold... 7... out... 8. Again. Good. Now see yourself in stance. Hear the cadence. Feel the handoff. See the hole open. Hit it at full speed. Break the arm tackle. Fall forward. Extra 4 yards. Again -- second play -- different look -- you read it instantly -- cut back -- explode. Third play. You feel strong. You feel fast. You built this. You own this. Breathe. Open your eyes when ready."};
+
+/* ============ STRUCTURAL DATES (verified Jul 2026) ============ */
+const GATE_D1_CONTACT='2028-06-15';  // Jun 15 after sophomore year: D1 contact opens
+const GATE_SEPT1='2028-09-01';       // Sept 1 junior year: all communication open
+
+/* ============ SEASON PHASE CALENDAR — first-class, date-derived (DISCOVERY.md A1) ============
+   One edit per school year. Dates are 2026-27 actuals; wrestling/track are NIAA-typical,
+   confirm when schedules publish. Anything outside a range = offseason. */
+const PHASES=[
+  {from:'2026-07-01',to:'2026-08-09',phase:'preseason'},
+  {from:'2026-08-10',to:'2026-10-31',phase:'inseason'},   // JV season; opener wk of Aug 21
+  {from:'2026-11-09',to:'2027-02-13',phase:'wrestling'},  // casual — NO cutting; mass defended
+  {from:'2027-02-22',to:'2027-05-15',phase:'track'},      // 100m/sprints — track owns speed work
+];
+function phaseFor(iso){ const p=PHASES.find(p=>iso>=p.from&&iso<=p.to); return p?p.phase:'offseason'; }
+
+/* ============ BENCHMARKS — typical committed-recruit ranges, RB, senior yr ============ */
+const BENCHMARKS=[
+  {key:'forty', name:'40-yard dash', unit:'s', lower:true,  tiers:{P4:4.5,G5:4.6,FCS:4.65,D2:4.7}},
+  {key:'vert',  name:'Vertical jump',unit:'in',lower:false, tiers:{P4:34,G5:32,FCS:31,D2:29}},
+  {key:'squat', name:'Squat 1RM',    unit:'lb',lower:false, tiers:{P4:450,G5:420,FCS:400,D2:365}, pr:'squat'},
+  {key:'bench', name:'Bench 1RM',    unit:'lb',lower:false, tiers:{P4:315,G5:290,FCS:275,D2:250}, pr:'bench'},
+  {key:'wt',    name:'Body weight',  unit:'lb',lower:false, tiers:{P4:200,G5:195,FCS:190,D2:185}},
+  {key:'gpa',   name:'GPA',          unit:'',  lower:false, tiers:{P4:3.0,G5:3.0,FCS:3.2,D2:3.0}}
+];
+
+/* ============ TRAINING TEMPLATES BY PHASE ============
+   Evidence basis (Jul 2026 research pass): in-season 2×/wk high-intensity low-volume,
+   heavy session ≥96h and power session ≥48h before games; adolescent accel work =
+   short sprints 10-30yd, full recovery, 2×/wk; outdoor work early-AM (desert heat, NATA). */
+const AM_HEAT='Outdoors: before 9am. Vegas heat is a real injury risk, not a toughness test.';
+/* ============ WARM-UP — RAMP structure w/ FIFA-11+ elements (30-46%% injury reduction in youth) ============ */
+const WARMUP={lift:[
+    'RAISE · 3 min bike/row or jump rope — break a light sweat',
+    'ACTIVATE · glute bridge ×10 · side plank 20s/side · band pull-apart ×15',
+    'MOBILIZE · hip 90/90 ×5/side · ankle rocks ×8 · arm circles',
+    'POTENTIATE · empty bar ×8 → ~50% ×5 → ~70% ×3 on your first main lift, then work sets'],
+  field:[
+    'RAISE · 2 min easy jog + high knees / butt kicks 2×15yd',
+    'ACTIVATE · glute bridge ×10 · lateral band walk ×10/side',
+    'MOBILIZE · leg swings ×10 each way · walking lunge w/ twist ×6/side',
+    'POTENTIATE · A-skip 2×15yd → 2 build-up runs at 70%, 85% — THEN sprint work']};
+
+/* ============ TECHNIQUE CUES — the reps only count if they look like this ============ */
+const TECHNIQUE={
+  'Back squat':['Big air into the belt line, brace like a punch is coming','Knees track over toes; spread the floor','Hit depth (hip crease below knee) — high squats build high egos, not legs','Drive UP through mid-foot, chest proud'],
+  'Bench press':['Shoulder blades pinched and DOWN into the bench','Feet planted; leg drive into the press','Bar touches chest at nipple line, elbows ~45°','Press back toward the rack, not straight up'],
+  'Trap-bar deadlift':['Hips back, chest tall, lats locked','Push the floor away — it\'s a leg press, not a back lift','Stand ALL the way up; no lean-back','Lower under control — that eccentric builds you'],
+  'Hang clean':['Bar at mid-thigh, shoulders over bar','JUMP + shrug — the bar rides up, elbows whip around','Catch tall on full feet, elbows high','If you\'re curling it, it\'s too heavy'],
+  '40-yd start':['Crowd the line: front foot close, weight forward','First 3 steps LOW and punching back — like a plane taking off','Arms drive violently; face and hands stay loose','Don\'t pop up until ~15 yards'],
+  'Vertical jump':['Last two steps: long-short, plant heel-to-toe','Arms sweep down THEN rip up together','Jump THROUGH the target, not at it','Quiet landings every rep — loud knees end seasons']};
+
+/* ============ FUEL PLAN — mass mission math (350-500 kcal surplus, ~0.8-1 g/lb protein) ============ */
+function fuelPlan(bw,adj=0){
+  const cal=Math.round((bw*20+400+adj)/50)*50;       // active-teen maintenance + surplus
+  const pro=Math.round(bw*0.9/5)*5;              // g/day
+  return {cal, pro, water:'1 gallon',
+    day:['Breakfast: 3-4 eggs + oats w/ whole milk + banana','School lunch + PB sandwich from home','Post-school: chocolate milk + granola or PB sandwich #2','Dinner: family meal, double the protein + rice/potatoes','Before 10:00: Greek yogurt or casein shake w/ milk'],
+    groceries:['Eggs (5 doz) ~$12','Oats 5 lb ~$5','Rice 10 lb ~$8','Whole milk 3 gal ~$11','Chocolate milk ~$4','Peanut butter 40oz ~$6','Chicken leg quarters 10 lb ~$10','Ground beef 80/20 3 lb ~$12','Greek yogurt tub ×2 ~$10','Bananas/apples ~$8','Bread 2 loaves ~$5','Sweet potatoes 5 lb ~$4'],
+    note:'~$95-110/wk covers YOUR add-ons within the family budget. Cheap mass: eggs, oats, rice, milk, PB — the classics work.'};
+}
+
+const TEMPLATES={
+  preseason:[ // complete sessions, gap-targeted: 40 (accel+mechanics), vert (plyo progression), bench (contrast+builders)
+    {day:1,title:'SPEED + LOWER · 40/VERT DAY',blocks:[
+      {n:'A · Sprint mechanics',s:'Wall drill 3×5/side · A-skip 3×20yd — positions first, speed follows · '+AM_HEAT},
+      {n:'A · Acceleration sprints',s:'6×20yd from 2-point stance · FULL walk-back recovery — speed work half-rested is slow practice'},
+      {n:'A · Heavy sled option',s:'If EOS turf sled is free: swap 3 accels for 4×15yd sled pushes @ ~40-50% BW (~65-80 lb) — proven accelerator for teen sprinters'},
+      {n:'B · Back squat',s:'4×3 @ 85% — pair each set with box jumps',pct:.85,lift:'squat'},
+      {n:'B · Box jump (after each squat set)',s:'4×4 · max intent, step down — this contrast pair is your vert builder #1'},
+      {n:'C · Barbell hip thrust',s:'3×8 — sprint power lives in the glutes'},
+      {n:'C · Nordic curl (negatives)',s:'3×6 — hamstring armor for sprint season'},
+      {n:'D · Copenhagen plank + hip 90/90',s:'3×20s/side'}]},
+    {day:2,title:'UPPER · BENCH BUILDER A',blocks:[
+      {n:'A · Bench press',s:'4×4 @ 82% — pair each set with plyo push-ups',pct:.82,lift:'bench'},
+      {n:'A · Plyo push-up (after each bench set)',s:'4×5 · hands leave the floor — upper-body contrast'},
+      {n:'B · Close-grip bench',s:'3×8 — triceps move the sticking point'},
+      {n:'B · Weighted pull-up',s:'4×6'},
+      {n:'C · DB overhead press',s:'3×8'},
+      {n:'C · Chest-supported row',s:'3×10'},
+      {n:'D · Face pull + neck 4-way',s:'3×15 · 2×15 each'}]},
+    {day:3,title:'TEMPO + CORE + FILM',recovery:true,blocks:[
+      {n:'Tempo runs',s:'8×40yd at 75% · 45s walk between — builds the engine without stealing from speed days · '+AM_HEAT},
+      {n:'Core circuit',s:'Dead bug 3×10 · Pallof 3×12/side · suitcase carry 3×40yd'},
+      {n:'Mobility',s:'15 min — hips, ankles, T-spine'},
+      {n:'Film',s:'One 5-question set (PUSH)'}]},
+    {day:4,title:'SPEED + LOWER · VERT DAY',blocks:[
+      {n:'A · Plyo progression',s:'Pogo hops 3×10 + depth drop landings 3×5 (12-18in box) — landings before takeoffs. Your squat is past 1.5×BW, so full depth JUMPS unlock next cycle if landings are quiet · '+AM_HEAT},
+      {n:'A · Sprint build-ups',s:'4×30yd building to ~95% · full recovery'},
+      {n:'B · Trap-bar deadlift',s:'4×3 @ 82% — pair with jump squats',pct:.82,lift:'dead'},
+      {n:'B · Trap-bar jump squat (after each set)',s:'4×3 @ ~40 lb — peak-power load, verified'},
+      {n:'C · Bulgarian split squat',s:'3×8/leg'},
+      {n:'C · Single-leg calf raise + tib raise',s:'3×15 each — ankle stiffness = free inches on the vert'},
+      {n:'D · Pallof press',s:'3×12/side'}]},
+    {day:5,title:'UPPER · BENCH BUILDER B',blocks:[
+      {n:'A · Bench press (speed)',s:'6×3 @ 65% — move it violently; bar speed today builds bar weight next month',pct:.65,lift:'bench'},
+      {n:'B · Incline DB press',s:'3×10'},
+      {n:'B · Chin-up',s:'3×AMRAP'},
+      {n:'C · Dips',s:'3×8-12'},
+      {n:'C · Lateral raise + face pull',s:'3×12 each'},
+      {n:'D · Neck 4-way + farmer carry',s:'2×15 · 3×40yd — grip and neck play on Fridays too'}]},
+    {day:6,title:'ATHLETICISM + POSITION',blocks:[
+      {n:'A · Approach jumps',s:'5×3 at a rim or target — vert is a skill; practice the actual jump · '+AM_HEAT},
+      {n:'A · 5-10-5 shuttle practice',s:'4 reps timed by cousin — change of direction is testable, so test it'},
+      {n:'B · Position drills',s:'Pick 3 from the drill library — quality over volume'},
+      {n:'B · Ball security circuit',s:'5 points of pressure — every rep'},
+      {n:'C · Easy strides',s:'4×20yd smooth'}]},
+    {day:0,title:'REST + REVIEW',recovery:true,blocks:[
+      {n:'Full rest',s:'The week above only works if today is real. Growth happens now.'},
+      {n:'Weekly review',s:'TRACK gaps · PATH board · System Read'},
+      {n:'Prep',s:'Clothes + food ready for Monday'}]}
+  ],
+  /* in-season is built dynamically around game day — see inseasonWeek().
+     SHORT BY DESIGN: 2×/wk high-intensity low-volume maintains strength in-season (meta-analysis
+     PMC8363540); volume added in-season is paid for on Friday film. Do not fatten these days. */
+  wrestling:[
+    {day:1,title:'FULL BODY HEAVY A',blocks:[
+      {n:'Back squat',s:'3×3 @ 85% — strength stays, season or not',pct:.85,lift:'squat'},
+      {n:'Bench press',s:'3×4 @ 80%',pct:.80,lift:'bench'},
+      {n:'Chin-up',s:'3×6 weighted if possible'},
+      {n:'Hip 90/90 + Copenhagen',s:'3×20s/side — wrestling hammers your hips; armor them'}]},
+    {day:4,title:'FULL BODY HEAVY B',blocks:[
+      {n:'Trap-bar deadlift',s:'3×3 @ 82%',pct:.82,lift:'dead'},
+      {n:'DB overhead press',s:'3×8'},
+      {n:'Row',s:'3×10'},
+      {n:'Neck 4-way',s:'2×15 — non-negotiable in a contact winter'}]},
+    {day:6,title:'EAT + RECOVER',recovery:true,blocks:[
+      {n:'Recovery session',s:'EOS recovery suite — cold plunge fine today (no lift). Never within ~6h after lifting: it blunts growth.'},
+      {n:'Fuel check',s:'Wrestling burns mass. The mission is 175+. Eat like it.'},
+      {n:'Film',s:'One 5-question set (PUSH)'}]},
+    {day:0,title:'REST + REVIEW',recovery:true,blocks:[
+      {n:'Full rest',s:'Practice + matches + lifts is plenty. Recover.'},
+      {n:'Weekly review',s:'TRACK weight trend — if bodyweight drops 2 weeks straight, we talk.'}]}
+  ],
+  track:[
+    {day:1,title:'LOWER STRENGTH',blocks:[
+      {n:'Back squat',s:'4×4 @ 80% — track owns your speed work; we own your strength',pct:.80,lift:'squat'},
+      {n:'Barbell hip thrust',s:'3×8'},
+      {n:'Nordic curl',s:'3×6 — sprint season = hamstring season'},
+      {n:'Copenhagen plank',s:'3×20s/side'}]},
+    {day:3,title:'UPPER STRENGTH',blocks:[
+      {n:'Bench press',s:'4×4 @ 82%',pct:.82,lift:'bench'},
+      {n:'Close-grip bench',s:'3×8'},
+      {n:'Weighted pull-up',s:'4×6'},
+      {n:'Neck 4-way',s:'2×15'}]},
+    {day:5,title:'POWER + UPPER B',blocks:[
+      {n:'Trap-bar jump squat',s:'4×3 @ ~40 lb — only if legs are fresh after the practice week'},
+      {n:'Bench press (speed)',s:'5×3 @ 65%',pct:.65,lift:'bench'},
+      {n:'Row + face pull',s:'3×10 each'}]},
+    {day:0,title:'REST + REVIEW',recovery:true,blocks:[
+      {n:'Full rest',s:'Meets + practice + lifts. Recover.'},
+      {n:'Weekly review',s:'Log meet times in TRACK — official 100m times are gold for football recruiting.'}]}
+  ],
+  offseason:[ // May–July: the build phase — full sessions, same gap-targeting as preseason, more volume
+    {day:1,title:'LOWER · CONTRAST A + SPEED',blocks:[
+      {n:'A · Sprint mechanics + accel',s:'A-skip 3×20yd · 6×20yd accels, full recovery · '+AM_HEAT},
+      {n:'B · Back squat',s:'4×3 @ 85% — pair each set with jumps',pct:.85,lift:'squat'},
+      {n:'B · Box jump (after each squat set)',s:'4×4 · max intent, step down'},
+      {n:'C · Barbell hip thrust',s:'3×8'},
+      {n:'C · RDL',s:'3×8 — control the eccentric'},
+      {n:'D · Nordic curl + Copenhagen',s:'3×6 · 3×20s/side'}]},
+    {day:2,title:'UPPER · BENCH BUILDER A',blocks:[
+      {n:'A · Bench press',s:'4×4 @ 82% — pair with plyo push-ups',pct:.82,lift:'bench'},
+      {n:'A · Plyo push-up',s:'4×5'},
+      {n:'B · Close-grip bench',s:'3×8'},
+      {n:'B · Weighted pull-up',s:'4×6'},
+      {n:'C · DB overhead press + row',s:'3×8 · 3×10'},
+      {n:'D · Face pull + neck 4-way',s:'3×15 · 2×15'}]},
+    {day:3,title:'SPEED + CORE + FILM',blocks:[
+      {n:'A · Plyo progression',s:'Pogos 3×10 + depth drops 3×5 · '+AM_HEAT},
+      {n:'B · Tempo runs',s:'8×40yd @ 75%'},
+      {n:'C · Core circuit',s:'Dead bug · Pallof · suitcase carry — 3 rounds'},
+      {n:'D · Film study',s:'One 5-question set (PUSH)'}]},
+    {day:4,title:'LOWER · CONTRAST B',blocks:[
+      {n:'A · Trap-bar deadlift',s:'4×3 @ 85% — pair with jump squats',pct:.85,lift:'dead'},
+      {n:'A · Trap-bar jump squat (after each set)',s:'4×3 @ ~40 lb — peak power load'},
+      {n:'B · Bulgarian split squat',s:'3×8/leg'},
+      {n:'C · Single-leg calf + tib raise',s:'3×15 each'},
+      {n:'D · Pallof press',s:'3×12/side'}]},
+    {day:5,title:'UPPER · BENCH BUILDER B',blocks:[
+      {n:'A · Bench press (speed)',s:'6×3 @ 65% — move it fast',pct:.65,lift:'bench'},
+      {n:'B · Incline DB press + chin-up',s:'3×10 · 3×AMRAP'},
+      {n:'C · Dips',s:'3×8-12'},
+      {n:'D · Neck 4-way + farmer carry',s:'2×15 · 3×40yd'}]},
+    {day:6,title:'ATHLETICISM + POSITION',blocks:[
+      {n:'A · Approach jumps + 5-10-5',s:'5×3 at a target · 4 timed shuttles · '+AM_HEAT},
+      {n:'B · Jump matrix',s:'Broad ×5 · single-leg bound 3×10yd · lateral bound 3×8'},
+      {n:'C · Position drills + ball security',s:'Pick 3 from the library · 5 points of pressure'}]},
+    {day:0,title:'REST + REVIEW',recovery:true,blocks:[
+      {n:'Full rest',s:'Sleep in. Eat. Recover.'},
+      {n:'Weekly review',s:'TRACK gaps · PATH board · System Read'}]}
+  ],
+  recoveryTemplate:{day:-1,title:'RECOVERY (engine call)',recovery:true,blocks:[
+      {n:'Full mobility circuit',s:'25 min — this is the session today'},
+      {n:'Easy walk or bike',s:'20 min easy — blood flow, not work'},
+      {n:'EOS recovery suite',s:'Cold plunge is GOOD today (rest day). Rule: never within ~6h AFTER lifting — ice right after lifting blunts the muscle-growth signal (meta-analysis). Recovery days + post-game: green light.'},
+      {n:'Film',s:'One 5-question set (PUSH)'}]},
+  restDay:{day:-2,title:'REST',recovery:true,blocks:[
+      {n:'Rest',s:'Practice load is enough today. Eat, hydrate, lights out 10:30.'}]}
+};
+
+/* In-season week is computed around game day (settings.gameDay, default Fri=5).
+   Heavy ≥96h pre-game, power ≥48h pre-game (research: maintain with 2×/wk high-int low-vol). */
+function inseasonWeek(gameDay){
+  const g=gameDay??5, wrap=n=>((n%7)+7)%7;
+  const days={};
+  days[wrap(g-4)]={title:'IN-SEASON HEAVY',blocks:[
+    {n:'Back squat',s:'3×3 @ 85% — 45 min, in and out',pct:.85,lift:'squat'},
+    {n:'Bench press',s:'3×3 @ 85%',pct:.85,lift:'bench'},
+    {n:'RDL',s:'2×6'},
+    {n:'Neck 4-way',s:'2×15 — every week of contact season'}]};
+  days[wrap(g-2)]={title:'IN-SEASON POWER',blocks:[
+    {n:'Why this day is short',s:'2×/wk heavy-but-brief KEEPS strength in-season (research-backed). Volume today = slow Friday = worse film. The discipline is leaving.'},
+    {n:'Box jump',s:'4×3 · max intent, fully fresh — vert work continues all season at low dose'},
+    {n:'Bench press (speed)',s:'4×2 @ 65% — bar speed only',pct:.65,lift:'bench'},
+    {n:'Chin-up',s:'2×6'},
+    {n:'Neck 4-way',s:'2×15 · 30 minutes total, out the door'}]};
+  days[g]={title:'GAME DAY',recovery:true,blocks:[
+    {n:'Pre-game visualization',s:'5-min script (PUSH) — locker room'},
+    {n:'Fuel',s:'Real breakfast + lunch · water all day · no experiments'},
+    {n:'After',s:'Log carries/tackles in TRACK notes while it\'s fresh'}]};
+  days[wrap(g+1)]={title:'POST-GAME RECOVERY',recovery:true,blocks:[
+    {n:'EOS recovery suite or easy walk',s:'30 min'},
+    {n:'Watch your own game film',s:'5-question framework on YOUR plays — this is how film habits start'}]};
+  return [0,1,2,3,4,5,6].map(d=>({day:d,...(days[d]||{title:'PRACTICE DAY',recovery:true,blocks:[
+    {n:'Team practice is the work today',s:'Show up early. Effort shows on film even in practice.'},
+    {n:'Mobility 10 min at night',s:'Hips + ankles while watching TV'}]})}));
+}
+
+/* ============ DAILY FOUR ============ */
+const CHECKS=[
+  {t:'Train / move',      s:'Complete today\'s session (or practice/active recovery)'},
+  {t:'Fuel',              s:'3 real meals + protein · water all day'},
+  {t:'Football IQ rep',   s:'One film set, dark-room scenario, or viz script'},
+  {t:'Lights out by 10:30',s:'Your commitment. Growth happens asleep.'}
+];
+
+/* ============ PIPELINE ============ */
+const STAGES=['RESEARCH','CONTACTED','RESPONDED','CAMP/VISIT','OFFER','COMMITTED'];
+const FOLLOWUP_DAYS=35;
+
+/* ============ SETUP (one-time, engine-tracked) ============ */
+const SETUP_TASKS=[
+  {id:'setup:install',title:'Install to home screen',why:'Safari deletes browser data after 7 days unused. Installed apps are exempt. Share button → Add to Home Screen. This protects everything.'},
+  {id:'setup:alarm',title:'Set a 10:00pm iPhone alarm named "SHUT DOWN"',why:'Lights out 10:30 was your commitment. The alarm is the 30-minute warning. This app can\'t send notifications — your clock can.'},
+  {id:'setup:export',title:'Do one practice backup (TRACK → Data → Export)',why:'Prove the escape hatch works before you need it.'},
+  {id:'setup:verify',title:'At practice: confirm JV game day, film coverage, and who\'s coaching',why:'Three facts the whole plan depends on. Ask a coach, update here.'},
+  {id:'env:kitchen',title:'Kitchen talk with mom: the grocery list becomes the default',why:'The surplus has to be the path of least resistance. Show her the TRACK fuel list — it fits the budget.'},
+  {id:'env:phone',title:'Phone parks outside the bedroom at 10:15 — starting tonight',why:'One environmental decision worth more than any sleep feature. The 10pm alarm is the warning shot.'},
+  {id:'env:film',title:'Name the film owner for every game before the opener',why:'Program films JV, or cousin does — decided in advance, never improvised. Film is the recruiting currency.'},
+  {id:'env:team',title:'Team talk: mom (food+rides) · step-dad (camp fund) · cousin (spot/time/film)',why:'Four people, four jobs. The Sunday Dispatch will keep everyone honest — including you.'}
+];
+
+/* ============ NCAA TIMELINE · CLASS OF 2030 ============ */
+const TIMELINE=[
+  {g:'Freshman (2026–27)',from:'2026-08-01',to:'2027-07-31',items:['JV impact year — film starts NOW, even practice film','Build the body: eat, lift, sleep — weight is gap #1','GPA ≥3.5 from day one — NCAA counts every semester','Hudl current + first X posts (measurables, lifts, film clips)','Camps: local/regional — get evaluated, learn','No D1 contact allowed yet — build the case file']},
+  {g:'Sophomore (2027–28)',from:'2027-08-01',to:'2028-07-31',items:['Production year — stats + film are the product','Winter: intro emails to the full board (50+ schools)','JUN 15, 2028: D1 coaches CAN contact you — gate opens','Sophomore film review = position decision gate (RB vs LB, market evidence)','Camps at target schools — be seen in person']},
+  {g:'Junior (2028–29)',from:'2028-08-01',to:'2029-07-31',items:['SEPT 1, 2028: all communication fully open','THE recruiting year — respond fast, visit, build relationships','Official visits allowed — use all five wisely','Junior film = most important film of your life','NCAA Eligibility Center registration + core-course audit']},
+  {g:'Senior (2029–30)',from:'2029-08-01',to:'2030-07-31',items:['Early signing period — most spots gone by December','Keep grades up — offers get pulled over eligibility','Board ranked: dream / realistic / safety','Sign. Enroll. Start over at the bottom — and climb.']}
+];
+/* ============ STATE — facts and events only; anything computable is computed ============ */
+const DB='d1os_v7';
+const DEFAULTS={
+  v:7,
+  profile:{name:'Zayden',classOf:2030,pos:'RB/LB'},
+  prs:{squat:275,dead:365,bench:205,clean:135}, // user-APPROVED working 1RMs
+  lifts:[],      // {d,ex,wt,reps}                     append-only
+  metrics:[],    // {d,key,val,src:'manual'}           append-only (src: wearable door)
+  checkins:{},   // {ISO:[b,b,b,b]}                    daily facts
+  pushLog:[],    // {d,type}                           append-only
+  pipeline:[],   // {id,school,coach,stage,notes}      entities (stage = current truth)
+  events:[],     // {d,type,meta}                      append-only: contact|stage|pr|task
+  settings:{gameDay:5}, // gameDay: user-set fact (verify at practice); phase is COMPUTED, never stored
+  /* engine parameters with provenance — the learning surface. Changed ONLY by
+     approved calibration (suggest-and-approve, like PRs). basis records why. */
+  params:{
+    kcalAdj:     {v:0,  basis:'default'},   // personal surplus correction, ±kcal
+    maxConsec:   {v:5,  basis:'default'},   // recovery override threshold, days
+    followupDays:{v:35, basis:'default'}    // pipeline staleness window
+  },
+  reviews:[]     // {d, worked, broke, fix} — Sunday journal, the qualitative memory
+};
+let S=loadS();
+function loadS(){
+  try{
+    const r=localStorage.getItem(DB);
+    if(!r) return structuredClone(DEFAULTS);
+    return migrate(JSON.parse(r));
+  }catch(e){ return structuredClone(DEFAULTS); }
+}
+function migrate(p){
+  const s=structuredClone(DEFAULTS);
+  for(const k in p) if(k in s) s[k]=p[k];
+  // v7.0 → v7.1: phase is computed now; last lives in events
+  if(s.settings){ delete s.settings.phase; if(s.settings.gameDay===undefined) s.settings.gameDay=5; }
+  for(const k in DEFAULTS.params) if(!s.params[k]) s.params[k]=structuredClone(DEFAULTS.params[k]);
+  for(const pl of s.pipeline||[]){
+    if(pl.last){ // migrate legacy last-contact into an event if none exists
+      if(!(s.events||[]).some(e=>e.type==='contact'&&e.meta&&e.meta.id===pl.id))
+        s.events.push({d:pl.last,type:'contact',meta:{id:pl.id,school:pl.school}});
+      delete pl.last;
+    }
+  }
+  return s;
+}
+function save(){ try{localStorage.setItem(DB,JSON.stringify(S));}catch(e){toast('⚠ Save failed — export your data now (TRACK → Data)');} }
+function logEvent(type,meta){ S.events.push({d:todayISO(),type,meta}); }
+
+/* ---- export / import (DISCOVERY.md A4 — the data's escape hatch) ---- */
+function exportS(){
+  const blob=new Blob([JSON.stringify({app:'d1os',v:S.v,exported:todayISO(),data:S},null,1)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='d1os-backup-'+todayISO()+'.json';
+  document.body.appendChild(a); a.click(); a.remove();
+  logEvent('task',{id:'backup:'+todayISO().slice(0,7)}); save();
+  toast('Backup exported — save it to iCloud Files');
+}
+function importS(file){
+  const rd=new FileReader();
+  rd.onload=()=>{
+    try{
+      const p=JSON.parse(rd.result);
+      if(p.app!=='d1os'||!p.data||typeof p.data.v!=='number') throw new Error('Not a D1 OS backup');
+      exportS(); // safety: current state exported before it is replaced
+      S=migrate(p.data); save();
+      toast('Import complete ✓'); go('today');
+    }catch(e){ toast('Import failed: '+e.message); }
+  };
+  rd.readAsText(file);
+}
+
+/* ---- undo last entry (review C3 — fat-finger recovery) ---- */
+function undoLast(kind){
+  const arr=kind==='lift'?S.lifts:S.metrics;
+  if(!arr.length){ toast('Nothing to undo'); return; }
+  const x=arr.pop(); save();
+  toast('Removed: '+(kind==='lift'?`${x.ex} ${x.wt}×${x.reps}`:`${x.key} ${x.val}`));
+  kind==='lift'?rTrain():rTrack();
+}
+
+/* ============ UTIL ============ */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function todayISO(d=new Date()){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function daysBetween(a,b){ return Math.round((new Date(b)-new Date(a))/864e5); }
+function addDays(iso,n){ const d=new Date(iso+'T12:00'); d.setDate(d.getDate()+n); return todayISO(d); }
+function fmtD(iso){ return new Date(iso+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
+function toast(m){ const t=$('#toast'); if(!t) return; t.textContent=m; t.classList.add('on'); clearTimeout(t._x); t._x=setTimeout(()=>t.classList.remove('on'),2400); }
+function epley(w,r){ return r<=1? w : Math.round(w*(1+r/30)); }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
+function ckToday(){ const k=todayISO(); if(!S.checkins[k]) S.checkins[k]=[false,false,false,false]; return S.checkins[k]; }
+function taskDone(id){ return S.events.some(e=>e.type==='task'&&e.meta&&e.meta.id===id); }
+function completeTask(id){ if(!taskDone(id)){ logEvent('task',{id}); save(); } }
+/* ============ ATHLETE STATE MODEL — pure derived views. Never stored. ============
+   Only dimensions the logged data can support (ARCHITECTURE.md). */
+const Model={
+  /* streak with one shield per rolling 7 days: a single 3/4 day doesn't break the chain (A2) */
+  consistency(s=S,today=todayISO()){
+    const day=iso=>s.checkins[iso]||null;
+    const full=iso=>{ const c=day(iso); return !!c&&c.every(Boolean); };
+    const three=iso=>{ const c=day(iso); return !!c&&c.filter(Boolean).length===3; };
+    let streak=0, shields=[], d=today;
+    if(!full(d)&&!three(d)) d=addDays(d,-1); // today in progress doesn't count against you
+    while(true){
+      if(full(d)){ streak++; }
+      else if(three(d) && !shields.some(x=>daysBetween(d,x)<7)){ shields.push(d); streak++; }
+      else break;
+      d=addDays(d,-1);
+    }
+    const first=Object.keys(s.checkins).sort()[0]||today;
+    const span=n=>{ let hit=0,tot=0,skips=[0,0,0,0];
+      for(let i=0;i<n;i++){ const iso=addDays(today,-i); if(iso<first) break;
+        tot++; const c=day(iso)||[false,false,false,false];
+        if(c.every(Boolean)) hit++;
+        c.forEach((b,j)=>{ if(!b) skips[j]++; }); }
+      return {rate:tot?hit/tot:0,skips,tot}; };
+    const s7=span(7), s30=span(30);
+    // gap = days since last day that counted (for comeback rule)
+    const dates=Object.keys(s.checkins).filter(k=>full(k)||three(k)).sort();
+    const lastGood=dates.at(-1)||null;
+    return {streak, shieldsUsed:shields.length, rate7:s7.rate, rate30:s30.rate,
+            skips30:s30.skips, days30:s30.tot,
+            gapDays:lastGood?Math.max(0,daysBetween(lastGood,today)-1):null,
+            everComplete:dates.length>0};
+  },
+  momentum(s=S,today=todayISO()){
+    const sets7=s.lifts.filter(l=>daysBetween(l.d,today)<7).length;
+    const days=[...new Set(s.lifts.map(l=>l.d))].sort();
+    let consec=0, d=today;
+    if(!days.includes(d)) d=addDays(d,-1);
+    while(days.includes(d)){ consec++; d=addDays(d,-1); }
+    // gap since last logged training day (for comeback deload)
+    const lastLift=days.at(-1)||null;
+    const bestE1rm={};
+    for(const ex of ['squat','dead','bench','clean']){
+      const l=s.lifts.filter(x=>x.ex===ex);
+      if(l.length) bestE1rm[ex]=Math.max(...l.map(x=>epley(x.wt,x.reps)));
+    }
+    return {sets7, consecDays:consec, bestE1rm,
+            trainGap:lastLift?Math.max(0,daysBetween(lastLift,today)):null};
+  },
+  /* comeback deload factor (DISCOVERY policy 9): scaled to layoff, never punitive */
+  deloadFactor(s=S,today=todayISO()){
+    const g=this.momentum(s,today).trainGap;
+    if(g==null||g<10) return 1;       // normal life
+    if(g<21) return .90;              // 10–20 days out → 90% loads this week
+    if(g<45) return .80;              // 3–6 weeks → 80%
+    return .70;                       // longer → 70%, rebuild honestly
+  },
+  iq(s=S,today=todayISO()){
+    const wk=s.pushLog.filter(p=>daysBetween(p.d,today)<7);
+    return {reps7:wk.length, lastType:s.pushLog.at(-1)?.type||null};
+  },
+  lastContact(s,id){
+    const ev=(s||S).events.filter(e=>e.type==='contact'&&e.meta&&e.meta.id===id).map(e=>e.d).sort();
+    return ev.at(-1)||null;
+  },
+  recruiting(s=S,today=todayISO()){
+    const flags=s.pipeline.filter(p=>{
+      if(p.stage<1||p.stage>=5) return false;
+      const lc=this.lastContact(s,p.id);
+      return lc&&daysBetween(lc,today)>=(s.params?.followupDays?.v??FOLLOWUP_DAYS);
+    });
+    const contacted=s.pipeline.filter(p=>p.stage>=1).length;
+    const responded=s.pipeline.filter(p=>p.stage>=2).length;
+    const rts=[];
+    for(const p of s.pipeline.filter(p=>p.stage>=2)){
+      const c=s.events.find(e=>e.type==='contact'&&e.meta.id===p.id);
+      const r=s.events.find(e=>e.type==='stage'&&e.meta.id===p.id&&e.meta.to===2);
+      if(c&&r) rts.push(daysBetween(c.d,r.d));
+    }
+    return {flags, contacted, responded,
+            responseRate:contacted?responded/contacted:null,
+            avgDaysToResponse:rts.length?Math.round(rts.reduce((a,b)=>a+b)/rts.length):null};
+  },
+  gaps(s=S){
+    const latest=k=>{ const m=s.metrics.filter(x=>x.key===k).sort((a,b)=>a.d<b.d?1:-1)[0];
+      if(m) return m.val;
+      const b=BENCHMARKS.find(x=>x.key===k);
+      return b&&b.pr? s.prs[b.pr]??null : null; };
+    const rows=BENCHMARKS.map(b=>{
+      const v=latest(b.key);
+      const hit={}; for(const t in b.tiers) hit[t]=v==null?null:(b.lower?v<=b.tiers[t]:v>=b.tiers[t]);
+      return {...b,val:v,hit};
+    });
+    return {rows, latest};
+  },
+  weightTrend(s=S,today=todayISO()){
+    const wts=s.metrics.filter(m=>m.key==='wt').sort((a,b)=>a.d<b.d?-1:1);
+    if(wts.length<2) return {latest:wts.at(-1)?.val??null, stalled:false, enough:false};
+    const latest=wts.at(-1);
+    const ref=wts.filter(w=>daysBetween(w.d,latest.d)>=21).at(-1);
+    if(!ref) return {latest:latest.val, stalled:false, enough:false};
+    return {latest:latest.val, ref:ref.val, delta:+(latest.val-ref.val).toFixed(1),
+            stalled:(latest.val-ref.val)<1, enough:true};
+  },
+  academic(s=S,today=todayISO()){
+    const g=s.metrics.filter(m=>m.key==='gpa').sort((a,b)=>a.d<b.d?1:-1)[0];
+    return {gpa:g?.val??null, daysSince:g?daysBetween(g.d,today):null};
+  },
+  baselineDone(s=S){
+    return ['forty','vert','broad'].every(k=>s.metrics.some(m=>m.key===k));
+  },
+  /* descriptive instrumentation — mirrors, not oracles */
+  systemRead(s=S,today=todayISO()){
+    const c=this.consistency(s,today);
+    const names=['Train','Fuel','IQ rep','Sleep'];
+    let worst=null;
+    if(c.days30>=7){ const i=c.skips30.indexOf(Math.max(...c.skips30));
+      if(c.skips30[i]>0) worst={name:names[i],pct:Math.round(100*c.skips30[i]/c.days30)}; }
+    const prDays=s.events.filter(e=>e.type==='pr').map(e=>e.meta.dow);
+    const prByDay=prDays.length?[...new Set(prDays)].map(d=>({day:d,n:prDays.filter(x=>x===d).length})).sort((a,b)=>b.n-a.n):[];
+    const r=this.recruiting(s,today);
+    return {worstSkip:worst, prByDay,
+            responseRate:r.responseRate, avgDaysToResponse:r.avgDaysToResponse,
+            trendUp:c.rate7>=c.rate30, rate7:c.rate7, rate30:c.rate30, days30:c.days30};
+  }
+};
+/* ============ DECISION ENGINE — decide(S,date) → plan. Deterministic. Every item has a why. ============ */
+function weekFor(s,dateISO){
+  const ph=phaseFor(dateISO);
+  return ph==='inseason'? inseasonWeek(s.settings.gameDay) : TEMPLATES[ph];
+}
+function decide(s=S,dateISO=todayISO()){
+  const date=new Date(dateISO+'T12:00'), dow=date.getDay();
+  const ph=phaseFor(dateISO);
+  const con=Model.consistency(s,dateISO), mom=Model.momentum(s,dateISO),
+        iq=Model.iq(s,dateISO), rec=Model.recruiting(s,dateISO), aca=Model.academic(s,dateISO);
+  const deload=Model.deloadFactor(s,dateISO);
+  const P=s.params;
+  const plan={date:dateISO, phase:ph, deload, tasks:[]};
+
+  // 1 · PRIORITY (comeback-aware; calm, factual, zero guilt)
+  if(con.everComplete && con.gapDays!=null && con.gapDays>=2){
+    plan.priority={title:'Back to work',
+      why:`${con.gapDays} days off the board. That's done — today counts. Loads are adjusted; just execute.`};
+  } else if(mom.consecDays>=P.maxConsec.v){
+    plan.priority={title:'Recover on purpose',
+      why:`${mom.consecDays} straight training days logged. Adaptation happens in recovery — backing off IS the work today.`};
+  } else {
+    const focus={preseason:'Season is coming — build speed, keep strength',
+      inseason:'Fresh for film — everything serves Friday',
+      wrestling:'Defend the mass, stay strong',
+      track:'Track builds your 40 — we hold the strength',
+      offseason:'Strength converts to speed'}[ph];
+    plan.priority={title:focus, why:'Phase plan: '+ph+'. The work is chosen — execute it.'};
+  }
+
+  // 2 · WORKOUT (recovery override beats template; deload scales loads)
+  const week=weekFor(s,dateISO);
+  plan.workout = mom.consecDays>=P.maxConsec.v ? {...TEMPLATES.recoveryTemplate,
+      why:`Override: ${mom.consecDays} consecutive training days. Earned, not optional.`}
+    : {...(week.find(w=>w.day===dow)||TEMPLATES.restDay),
+       why:ph+' plan for '+['Sun','Mon','Tue','Wed','Thu','Fri','Sat'][dow]+
+           (deload<1?` · loads at ${Math.round(deload*100)}% while you ramp back`:'')};
+
+  // 3 · ONE-TIME SETUP (until each is done)
+  for(const t of SETUP_TASKS) if(!taskDone(t.id))
+    plan.tasks.push({kind:'setup',id:t.id,title:t.title,why:t.why});
+
+  // 4 · BASELINE TEST DAY (until forty+vert+broad exist)
+  if(!Model.baselineDone(s) && !taskDone('baseline:scheduled'))
+    plan.tasks.push({kind:'test',id:'baseline:scheduled',title:'Baseline test day: 40yd (hand-timed), vertical, broad jump',
+      why:'Every goal you have is a guess until there\'s a starting number. Cousin times, you run. Log all three in TRACK.'});
+
+  // 5 · FOOTBALL IQ (rotation; urgency note if behind; clears when a rep is logged)
+  const iqId='iq:'+dateISO;
+  if(!taskDone(iqId)){
+    const rot=['film','darkroom','viz'][Math.floor(daysBetween('2026-01-01',dateISO))%3];
+    const iqTitles={film:'Run the 5 questions on one play set',darkroom:'Draw one dark-room scenario',viz:'One 5-minute visualization script'};
+    plan.tasks.push({kind:'iq',id:iqId,type:rot,title:iqTitles[rot],
+      why:iq.reps7<2?`${iq.reps7} IQ rep${iq.reps7===1?'':'s'} this week. Undersized players win with their head — this is that work.`:'Daily rotation.'});
+  }
+
+  // 6 · RECRUITING (NCAA-gated; flags always surface)
+  for(const p of rec.flags) plan.tasks.push({kind:'recruit',id:'recruit:'+p.id,title:`Update email to ${p.school}`,
+    why:`${daysBetween(Model.lastContact(s,p.id),dateISO)} days since contact — past the ${FOLLOWUP_DAYS}-day window. GENERIC UPDATE template, one real stat.`});
+  const pulseId='pulse:'+dateISO.slice(0,7);
+  if(!rec.flags.length && !taskDone(pulseId) && date.getDate()>=1 && dow===0){
+    plan.tasks.push({kind:'recruit',id:pulseId,title:'Monthly recruiting pulse',
+      why:dateISO<GATE_D1_CONTACT?'Pre-gate: update Hudl + measurables, one X post, add one school to the board.':'Gate is open: updates to the full active board.'});
+  }
+
+  // 7 · MONTHLY BACKUP (keyed to completion, not calendar luck)
+  const bkId='backup:'+dateISO.slice(0,7);
+  if(!taskDone(bkId) && taskDone('setup:export'))
+    plan.tasks.push({kind:'backup',id:bkId,title:'Monthly backup: export + save to iCloud Files',
+      why:'15 seconds. Protects everything you\'ve logged. TRACK → Data → Export.'});
+
+  // 8 · FUEL — the mass mission watches itself (350-500 kcal surplus evidence)
+  const wtr=Model.weightTrend(s,dateISO);
+  const fuelId='fuel:'+dateISO.slice(0,7);
+  if(wtr.enough&&wtr.stalled&&!taskDone(fuelId)&&ph!=='wrestling'){
+    plan.tasks.push({kind:'fuel',id:fuelId,title:'Weight stalled — add ~300 kcal/day',apply:'kcal300',
+      why:`${wtr.ref}→${wtr.latest} lb over 3+ weeks. The lifting is working; the surplus isn't there. One extra PB sandwich + glass of whole milk daily. Plan in TRACK.`});
+  }
+
+  // 9 · ACADEMIC (60-day pulse)
+  if(aca.daysSince==null||aca.daysSince>60){
+    plan.tasks.push({kind:'academic',id:'gpa:'+dateISO.slice(0,7),title:'Log current GPA in TRACK',
+      why:aca.daysSince==null?'No GPA on record. Grades are a D1 gate, not a detail.':`GPA last logged ${aca.daysSince} days ago.`});
+  }
+  // 10 · WEEKLY DISPATCH (Sundays — the family accountability loop)
+  const wkId='dispatch:'+dateISO;
+  if(dow===0&&!taskDone(wkId))
+    plan.tasks.push({kind:'dispatch',id:wkId,title:'Send the Weekly Dispatch to the family chat',
+      why:'Receipts + asks, one page. TODAY → Sunday Review card → COPY DISPATCH. Accountability is a team sport.'});
+
+  // 11 · REPORTS — Day-7 first pulse, Day-30 full mirror (EXPERIMENT.md H1/H4)
+  const firstDay=Object.keys(s.checkins).sort()[0];
+  if(firstDay){
+    const age=daysBetween(firstDay,dateISO);
+    if(age>=7&&!taskDone('day7'))
+      plan.tasks.push({kind:'report',id:'day7',title:'Day-7 report: open System Read in TRACK, screenshot it, send it',
+        why:'One week of evidence — enough for a first honest read on adoption. Send the screenshot to the family chat with your Sunday Dispatch.'});
+    if(age>=30&&!taskDone('day30'))
+      plan.tasks.push({kind:'report',id:'day30',title:'Day-30 review: open System Read in TRACK',
+        why:'30 days of evidence. The verdict is in your own data — read it, then we calibrate.'});
+  }
+
+  return plan;
+}
+/* one plan-summary event per day — closes the prescribed-vs-done loop (meta-architecture #3) */
+function logPlanOnce(plan){
+  if(S.events.some(e=>e.type==='plan'&&e.d===plan.date)) return;
+  S.events.push({d:plan.date,type:'plan',meta:{ph:plan.phase,wo:plan.workout.title,dl:plan.deload,tk:plan.tasks.map(t=>t.kind)}});
+  save();
+}
+/* ============ VIEWS — render model + plan, capture events. No business logic. ============ */
+
+/* ---- TODAY ---- */
+function rToday(){
+  const plan=decide(), ck=ckToday(), done=ck.filter(Boolean).length, con=Model.consistency();
+  logPlanOnce(plan);
+  let dots='';
+  for(let i=29;i>=0;i--){
+    const c=S.checkins[addDays(todayISO(),-i)]||[];
+    const n=c.filter(Boolean).length;
+    dots+=`<i class="${n===4?'hit':n>0?'part':''}"></i>`;
+  }
+  const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊'};
+  $('#v-today').innerHTML=`
+  <div class="prio"><div class="k">TODAY'S PRIORITY</div>
+    <div class="t">${esc(plan.priority.title)}</div><div class="w">${esc(plan.priority.why)}</div></div>
+  <div class="card">
+    <h3>Session <span class="r">${plan.phase.toUpperCase()} · ${['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date().getDay()]}</span></h3>
+    <div style="font-size:18px;font-weight:900;color:var(--cyan);margin-bottom:6px">${esc(plan.workout.title)}</div>
+    <div style="font-size:13px;color:var(--dim);line-height:1.6">${plan.workout.blocks.map(b=>'• '+esc(b.n)).join('<br>')}</div>
+    <div class="note">${esc(plan.workout.why)}</div>
+    <button class="btn amber" style="width:100%;margin-top:12px" onclick="go('train')">OPEN SESSION →</button>
+  </div>
+  ${plan.tasks.length?`<div class="card"><h3>Also Today <span class="r">${plan.tasks.length}</span></h3>
+    ${plan.tasks.map(t=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)">
+      <div class="row"><div class="grow">
+        <div style="font-weight:700;font-size:14px">${taskIc[t.kind]||'•'} ${esc(t.title)}</div>
+        <div class="note" style="margin-top:3px">${esc(t.why)}</div></div>
+      ${t.kind!=='iq'?`<button class="btn sm" onclick="doneTask('${t.id}','${t.apply||''}')">DONE</button>`:''}</div></div>`).join('')}</div>`:''}
+  <div class="card">
+    <h3>Daily Four <span class="r">${done}/4</span></h3>
+    ${CHECKS.map((c,i)=>`<div class="chk ${ck[i]?'done':''}" onclick="tglCk(${i})">
+      <div class="box">${ck[i]?'✓':''}</div>
+      <div><div class="t">${c.t}</div><div class="s">${c.s}</div></div></div>`).join('')}
+  </div>
+  <div class="card">
+    <h3>Streak <span class="r">last 30 days</span></h3>
+    <div class="row" style="margin-bottom:10px">
+      <div class="big mono" style="color:${con.streak>0?'var(--amber)':'var(--faint)'}">${con.streak}</div>
+      <div class="grow" style="font-size:13px;color:var(--dim)">day${con.streak===1?'':'s'} of all four in a row.<br>Consistency is the separator.</div>
+    </div>
+    <div class="dots">${dots}</div>
+  </div>
+  ${new Date().getDay()===0&&!S.reviews.some(r=>r.d===todayISO())?`<div class="card">
+    <h3>Sunday Review <span class="r">3 lines · your coaching manual</span></h3>
+    <label>What worked this week</label><input id="rvW" placeholder="one line">
+    <label>What broke</label><input id="rvB" placeholder="one line">
+    <label>One fix for next week</label><input id="rvF" placeholder="one line">
+    <button class="btn amber" style="width:100%;margin-top:12px" onclick="saveReview()">SAVE</button>
+    <button class="btn" style="width:100%;margin-top:8px" onclick="copyDispatch()">📨 COPY DISPATCH FOR FAMILY CHAT</button>
+  </div>`:''}`;
+}
+/* Weekly Dispatch — receipts + asks, generated from live state (LAST-REDESIGN.md #4) */
+function buildDispatch(){
+  const con=Model.consistency(), mom=Model.momentum(), wtr=Model.weightTrend(), plan=decide();
+  const prs=S.events.filter(e=>e.type==='pr'&&daysBetween(e.d,todayISO())<7);
+  const asks=[];
+  if(plan.tasks.some(t=>t.kind==='fuel')) asks.push('Mom: weight stalled — extra PB + whole milk in the rotation this week');
+  if(!taskDone('env:film')&&phaseFor(todayISO())!=='offseason') asks.push('Cousin: confirm who films this week\'s game');
+  if(!Model.baselineDone()) asks.push('Cousin: 20 min Saturday — time my 40 + measure vert/broad');
+  if(!taskDone('setup:verify')) asks.push('Me: get game day + film + coach answers at practice');
+  if(!asks.length) asks.push('Nothing needed this week — machine is running');
+  return `ZAYDEN · WEEK OF ${fmtD(todayISO())}
+━━━━━━━━━━━━━━
+DONE: Daily Four ${Math.round(con.rate7*100)}% · ${mom.sets7} sets logged${prs.length?' · PR: '+prs.map(e=>e.meta.ex+' '+e.meta.val).join(', '):''}${wtr.latest?` · weight ${wtr.latest}`:''}
+PHASE: ${plan.phase.toUpperCase()}${wtr.enough?` · 3wk trend ${wtr.delta>=0?'+':''}${wtr.delta} lb`:''}
+THIS WEEK: ${plan.workout.title} + the plan runs itself
+NEEDS:
+${asks.map(a=>'• '+a).join('\n')}
+━━━━━━━━━━━━━━
+2030 · RB/LB · the gap is the plan`;
+}
+function copyDispatch(){
+  const txt=buildDispatch();
+  completeTask('dispatch:'+todayISO());
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(()=>toast('Dispatch copied — paste it in the chat'));
+  else toast('Copy manually:'), console.log(txt);
+  rToday();
+}
+function saveReview(){
+  S.reviews.push({d:todayISO(),worked:$('#rvW').value.trim(),broke:$('#rvB').value.trim(),fix:$('#rvF').value.trim()});
+  save(); rToday(); toast('Logged. Next week starts informed.');
+}
+function tglCk(i){ const c=ckToday(); c[i]=!c[i]; save(); rToday(); if(c.every(Boolean)) toast('Daily Four complete ✓'); }
+function doneTask(id,apply){
+  completeTask(id);
+  if(apply==='kcal300'){ S.params.kcalAdj.v+=300; S.params.kcalAdj.basis='stall response '+todayISO(); save();
+    toast('Done ✓ — daily target is now '+fuelPlan(Model.gaps().latest('wt')||160,S.params.kcalAdj.v).cal+' kcal'); }
+  else toast('Done ✓');
+  rToday();
+}
+
+/* ---- TRAIN ---- */
+let trainDay=null;
+function plates(t){ let s=(t-45)/2; if(s<=0) return 'bar only';
+  const o=[]; for(const p of [45,25,10,5,2.5]){ while(s>=p){o.push(p);s-=p;} } return o.join(' + ')+' /side'; }
+function rTrain(){
+  const plan=decide();
+  const week=weekFor(S,todayISO());
+  const w=trainDay===null?plan.workout:(week.find(x=>x.day===trainDay)||TEMPLATES.restDay);
+  const recent=S.lifts.slice(-5).reverse();
+  const dl=plan.deload;
+  $('#v-train').innerHTML=`
+  <div class="seg">${[1,2,3,4,5,6,0].map(d=>`<button class="${w.day===d?'on':''}" onclick="trainDay=${d};rTrain()">${['S','M','T','W','T','F','S'][d]}</button>`).join('')}</div>
+  ${plan.phase==='inseason'?`<div class="note" style="margin-bottom:10px">In-season week built around game day:
+    <select style="width:auto;display:inline-block;padding:4px 8px" onchange="setGameDay(this.value)">
+      ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((n,i)=>`<option value="${i}" ${S.settings.gameDay===i?'selected':''}>${n}</option>`).join('')}
+    </select> — verify at practice.</div>`:''}
+  ${dl<1?`<div class="flag">⚙ Comeback mode: loads at ${Math.round(dl*100)}% while you ramp back. Not a punishment — a runway.</div>`:''}
+  ${w.day<0?`<div class="flag">⚙ ${esc(w.why||'')}</div>`:''}
+  <div class="card">
+    <h3>${esc(w.title)} ${w.day===new Date().getDay()?'<span class="r" style="color:var(--amber)">TODAY</span>':''}</h3>
+    ${w.recovery?'':`<details style="border-top:none;border-bottom:1px solid var(--line)"><summary style="color:var(--cyan)">WARM-UP FIRST <span class="pill cyan">6-8 min · cuts injuries 30-46%</span></summary>
+      <div class="bd">${WARMUP[/SPEED|ATHLETICISM|TEMPO/.test(w.title)?'field':'lift'].map(x=>'• '+esc(x)).join('<br>')}</div></details>`}
+    ${w.blocks.map(b=>{
+      let load='';
+      if(b.pct&&b.lift&&S.prs[b.lift]){ const t=Math.round((S.prs[b.lift]*b.pct*dl)/5)*5;
+        load=`<div class="note mono">→ <b style="color:var(--cyan)">${t} lb</b> (${Math.round(b.pct*100)}%${dl<1?' ×'+Math.round(dl*100)+'%':''} of ${S.prs[b.lift]}) · ${plates(t)}</div>`; }
+      return `<div style="padding:10px 0;border-bottom:1px solid var(--line)">
+        <div style="font-weight:700;font-size:14px">${esc(b.n)}</div>
+        <div style="font-size:13px;color:var(--dim);margin-top:2px">${esc(b.s)}</div>${load}</div>`;}).join('')}
+  </div>
+  <div class="card">
+    <h3>Log a Lift</h3>
+    <div class="row">
+      <div class="grow"><label>Lift</label><select id="lgEx"><option value="squat">Squat</option><option value="dead">Deadlift</option><option value="bench">Bench</option><option value="clean">Hang clean</option><option value="other">Other</option></select></div>
+      <div style="width:86px"><label>Weight</label><input id="lgWt" type="number" inputmode="numeric" placeholder="lb"></div>
+      <div style="width:70px"><label>Reps</label><input id="lgRp" type="number" inputmode="numeric" placeholder="#"></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn amber grow" onclick="logLift()">LOG SET</button>
+      <button class="btn ghost sm" onclick="undoLast('lift')">UNDO</button>
+    </div>
+    <div id="prSuggest"></div>
+    ${recent.length?`<table style="margin-top:12px"><tr><th>Date</th><th>Lift</th><th>Set</th><th>e1RM</th></tr>
+      ${recent.map(l=>`<tr><td>${fmtD(l.d)}</td><td>${esc(l.ex)}</td><td class="mono">${l.wt}×${l.reps}</td><td class="mono">${epley(l.wt,l.reps)}</td></tr>`).join('')}</table>`:''}
+  </div>
+  <div class="card">
+    <h3>Drill Library <span class="r">${RB_DRILLS.length+LB_DRILLS.length+WRESTLING_DRILLS.length} drills</span></h3>
+    ${[['RB',RB_DRILLS],['LB',LB_DRILLS],['WRESTLING',WRESTLING_DRILLS]].map(([k,arr])=>`
+      <details><summary>${k} <span class="pill">${arr.length}</span></summary><div class="bd">
+      ${arr.map(d=>`<div style="margin-bottom:10px"><b style="color:var(--txt)">${esc(d.name)}</b> <span class="pill cyan">${esc(d.cat)}</span><br>
+        ${esc(d.focus)} · <span class="mono">${esc(d.reps)}</span><br><span style="color:var(--faint)">Key: ${esc(d.key)}</span></div>`).join('')}
+      </div></details>`).join('')}
+  </div>
+  <div class="card">
+    <h3>Technique <span class="r">reps only count if they look like this</span></h3>
+    ${Object.entries(TECHNIQUE).map(([k,cues])=>`<details><summary>${esc(k)}</summary>
+      <div class="bd">${cues.map(c=>'• '+esc(c)).join('<br>')}</div></details>`).join('')}
+  </div>
+  <div class="card">
+    <h3>Why This Program <span class="r">receipts</span></h3>
+    <div class="note" style="margin:0;line-height:1.7">
+    • Contrast training (heavy + explosive pairs): strongest evidence for strength→power transfer<br>
+    • Neuromuscular warm-ups: 30–46% injury reduction in youth (FIFA 11+ meta-analyses)<br>
+    • In-season 2×/wk heavy-brief: maintains strength without slowing Fridays (meta-analysis)<br>
+    • Heavy sled @ 40–50% BW: proven acceleration gains in adolescent sprinters<br>
+    • Landings before depth jumps · contacts capped ~60/session: adolescent plyo guidelines<br>
+    • Cold plunge ≥6h after lifting only: post-lift icing blunts growth signaling (meta-analysis)<br>
+    • 350–500 kcal surplus + ~0.9 g/lb protein: sports-nutrition consensus for lean gain</div>
+  </div>`;
+}
+let pendingLift=null;
+function logLift(){
+  const ex=$('#lgEx').value, wt=+$('#lgWt').value, reps=+$('#lgRp').value;
+  if(!wt||!reps||reps>15||wt<5||wt>700){ toast('Enter a real weight + reps (≤15)'); return; }
+  const ref=Math.max(S.prs[ex]||0, Model.momentum().bestE1rm[ex]||0);
+  if(ref&&epley(wt,reps)>ref*1.5&&pendingLift!==ex+wt+'x'+reps){
+    pendingLift=ex+wt+'x'+reps;
+    toast('That\'s '+Math.round(100*epley(wt,reps)/ref)+'% of your best — tap LOG SET again if it\'s real');
+    return;
+  }
+  pendingLift=null;
+  S.lifts.push({d:todayISO(),ex,wt,reps}); save();
+  const e=epley(wt,reps), cur=S.prs[ex];
+  if(cur&&e>cur){
+    $('#prSuggest').innerHTML=`<div class="flag">⬆ Estimated 1RM <b class="mono">${e}</b> beats your ${esc(ex)} PR (<span class="mono">${cur}</span>).
+      <button class="btn sm amber" style="margin-left:8px" onclick="acceptPR('${ex}',${e})">UPDATE PR</button></div>`;
+    toast('Set logged — possible PR');
+  } else { toast('Set logged ✓'); rTrain(); }
+}
+function acceptPR(ex,e){
+  S.prs[ex]=e;
+  logEvent('pr',{ex,val:e,dow:new Date().getDay()});
+  save(); toast(ex.toUpperCase()+' PR → '+e+' lb'); rTrain();
+}
+
+/* ---- PATH ---- */
+function rPath(){
+  const rec=Model.recruiting();
+  $('#v-path').innerHTML=`
+  ${rec.flags.map(p=>`<div class="flag">⚑ <b>${esc(p.school)}</b> — ${daysBetween(Model.lastContact(S,p.id),todayISO())} days since contact. Send an update email.</div>`).join('')}
+  <div class="card">
+    <h3>The Board <span class="r">${S.pipeline.length} schools</span></h3>
+    ${S.pipeline.length?[...S.pipeline].sort((a,b)=>b.stage-a.stage).map(p=>`
+      <div style="padding:11px 0;border-bottom:1px solid var(--line)">
+        <div class="row"><div class="grow"><b>${esc(p.school)}</b> ${p.coach?`<span style="color:var(--faint);font-size:12px">· ${esc(p.coach)}</span>`:''}</div>
+        <span class="pill ${p.stage>=4?'green':p.stage>=1?'cyan':''}">${STAGES[p.stage]}</span></div>
+        <div class="row" style="margin-top:7px">
+          <span class="note grow">${(lc=>lc?'Last contact '+fmtD(lc):'No contact yet')(Model.lastContact(S,p.id))}</span>
+          <button class="btn sm" onclick="touchP('${p.id}')">CONTACTED TODAY</button>
+          ${p.stage<5?`<button class="btn sm ghost" onclick="advP('${p.id}')">STAGE +</button>`:''}
+        </div>${p.notes?`<div class="note">${esc(p.notes)}</div>`:''}
+      </div>`).join(''):'<div class="empty">No schools on the board yet. Add your first target below.</div>'}
+    <div class="row" style="margin-top:12px">
+      <input id="npSchool" placeholder="School" class="grow">
+      <input id="npCoach" placeholder="Coach (verify current staff)" class="grow">
+    </div>
+    <button class="btn" style="width:100%;margin-top:10px" onclick="addP()">+ ADD TO BOARD</button>
+    ${rec.responseRate!=null?`<div class="note">Response rate ${Math.round(rec.responseRate*100)}% (${rec.responded}/${rec.contacted})${rec.avgDaysToResponse!=null?' · avg '+rec.avgDaysToResponse+'d to respond':''}</div>`:''}
+  </div>
+  <div class="card">
+    <h3>Target Schools <span class="r">reference · verify staff</span></h3>
+    ${[1,2,3].map(t=>{const arr=SCHOOLS.filter(s=>s.tier===t);return `
+      <details><summary>Tier ${t} <span class="pill">${arr.length}</span></summary><div class="bd">
+      ${arr.map(s=>`<div style="margin-bottom:9px"><b style="color:var(--txt)">${esc(s.school)}</b> <span class="pill cyan">${esc(s.conf)}</span><br>${esc(s.why)}
+        <button class="btn sm ghost" style="margin-top:4px" onclick="quickAdd('${esc(s.school).replace(/'/g,"\\'")}')">+ board</button></div>`).join('')}
+      </div></details>`;}).join('')}
+    <div class="note">Tiers 4–6 (${SCHOOLS.filter(s=>s.tier>3).length} more) — work the closest circles first. Coach names in this list go stale; always verify current staff before contacting.</div>
+  </div>
+  <div class="card">
+    <h3>NCAA Timeline · Class of 2030</h3>
+    ${TIMELINE.map(t=>`<details ${t.now?'open':''}><summary>${t.g} ${t.now?'<span class="pill amber">NOW</span>':''}</summary>
+      <div class="bd">${t.items.map(i=>'• '+i).join('<br>')}</div></details>`).join('')}
+  </div>
+  <div class="card">
+    <h3>Email Templates</h3>
+    ${Object.entries(EMAIL_TEMPLATES).map(([k,t])=>`<details><summary>${k.replace(/_/g,' ').toUpperCase()}</summary>
+      <div class="bd"><b>Subject:</b> ${esc(t.subject)}<br><br>${esc(t.body).replace(/\n/g,'<br>')}
+      <br><br><i style="color:var(--faint)">${t.notes.map(esc).join(' · ')}</i>
+      <button class="btn sm" style="margin-top:8px" onclick="copyTpl('${k}')">COPY</button></div></details>`).join('')}
+  </div>`;
+}
+function addP(){ const s=$('#npSchool').value.trim(); if(!s){toast('School name required');return;}
+  const id=uid();
+  S.pipeline.push({id,school:s,coach:$('#npCoach').value.trim(),stage:0,notes:''});
+  logEvent('stage',{id,school:s,to:0}); save(); rPath(); toast(s+' added'); }
+function quickAdd(s){ if(S.pipeline.some(p=>p.school===s)){toast('Already on board');return;}
+  const id=uid();
+  S.pipeline.push({id,school:s,coach:'',stage:0,notes:''});
+  logEvent('stage',{id,school:s,to:0}); save(); rPath(); toast(s+' added'); }
+function touchP(id){ const p=S.pipeline.find(x=>x.id===id);
+  logEvent('contact',{id,school:p.school});
+  if(p.stage===0){ p.stage=1; logEvent('stage',{id,school:p.school,to:1}); }
+  save(); rPath(); }
+function advP(id){ const p=S.pipeline.find(x=>x.id===id); p.stage=Math.min(5,p.stage+1);
+  logEvent('stage',{id,school:p.school,to:p.stage});
+  save(); rPath(); if(p.stage===5) toast('COMMITTED. That\'s the whole game.'); }
+function copyTpl(k){ const t=EMAIL_TEMPLATES[k]; navigator.clipboard?.writeText('Subject: '+t.subject+'\n\n'+t.body).then(()=>toast('Copied ✓')); }
+
+/* ---- TRACK ---- */
+function rTrack(){
+  const g=Model.gaps(), sr=Model.systemRead(), DOWN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  $('#v-track').innerHTML=`
+  <div class="card">
+    <h3>Gap Analysis <span class="r">vs senior-year targets</span></h3>
+    <table><tr><th></th><th>Now</th><th>D2</th><th>FCS</th><th>G5</th><th>P4</th></tr>
+    ${g.rows.map(b=>{
+      const cell=t=>{ const hit=b.hit[t];
+        return `<td class="mono" style="color:${hit?'var(--green)':'var(--faint)'}">${b.tiers[t]}${hit?' ✓':''}</td>`;};
+      return `<tr><td style="font-weight:700">${b.name}</td>
+        <td class="mono" style="color:var(--amber);font-weight:800">${b.val??'—'}</td>
+        ${cell('D2')}${cell('FCS')}${cell('G5')}${cell('P4')}</tr>`;}).join('')}
+    </table>
+    <div class="note">Targets = typical committed-recruit ranges at RB by senior year. You're entering freshman year — the gap is the plan, not the verdict. Weight is gap #1: every number gets easier at 190.</div>
+  </div>
+  <div class="card">
+    <h3>System Read <span class="r">what your own data says</span></h3>
+    ${sr.days30<7?'<div class="empty">Needs ≥7 days of check-ins before the mirror is useful.</div>':`
+    <div style="font-size:13px;line-height:1.7;color:var(--dim)">
+      ${sr.worstSkip?`• Most-skipped box (30d): <b style="color:var(--txt)">${sr.worstSkip.name}</b> — missed ${sr.worstSkip.pct}% of days<br>`:'• No box stands out as weak — keep it that way<br>'}
+      • Adherence: <b style="color:${sr.trendUp?'var(--green)':'var(--red)'}">${Math.round(sr.rate7*100)}%</b> this week vs ${Math.round(sr.rate30*100)}% over 30d — ${sr.trendUp?'trending up':'trending down'}<br>
+      ${sr.prByDay.length?`• Accepted PRs have come on: <b style="color:var(--txt)">${sr.prByDay.map(x=>DOWN[x.day]+' ×'+x.n).join(', ')}</b><br>`:''}
+      ${sr.responseRate!=null?`• Coach response rate: <b style="color:var(--txt)">${Math.round(sr.responseRate*100)}%</b>${sr.avgDaysToResponse!=null?' · avg '+sr.avgDaysToResponse+' days':''}<br>`:''}
+    </div>
+    <div class="note">Descriptive only — this mirror reports, it doesn't predict.</div>`}
+  </div>
+  <div class="card">
+    <h3>Working 1RMs</h3>
+    <div class="statgrid">
+      ${Object.entries(S.prs).map(([k,v])=>`<div class="stat"><div class="v mono">${v}</div><div class="k">${k} (lb)</div></div>`).join('')}
+      <div class="stat"><div class="v mono">${g.latest('wt')??'—'}</div><div class="k">bodyweight</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Log a Measurable</h3>
+    <div class="row">
+      <div class="grow"><label>Metric</label><select id="mKey">
+        <option value="wt">Body weight (lb)</option><option value="forty">40-yd (s)</option>
+        <option value="vert">Vertical (in)</option><option value="broad">Broad jump (in)</option>
+        <option value="gpa">GPA</option></select></div>
+      <div style="width:100px"><label>Value</label><input id="mVal" type="number" step="0.01" inputmode="decimal"></div>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn amber grow" onclick="logMetric()">LOG</button>
+      <button class="btn ghost sm" onclick="undoLast('metric')">UNDO</button>
+    </div>
+    ${S.metrics.length?`<table style="margin-top:12px"><tr><th>Date</th><th>Metric</th><th>Value</th></tr>
+      ${S.metrics.slice(-8).reverse().map(m=>`<tr><td>${fmtD(m.d)}</td><td>${esc(m.key)}</td><td class="mono">${m.val}</td></tr>`).join('')}</table>`:''}
+  </div>
+  <div class="card">
+    <h3>Fuel Plan <span class="r">the mass mission</span></h3>
+    ${(fp=>{const wtr=Model.weightTrend();return `
+    <div class="statgrid">
+      <div class="stat"><div class="v mono">${fp.cal}</div><div class="k">kcal / day</div></div>
+      <div class="stat"><div class="v mono">${fp.pro}g</div><div class="k">protein / day</div></div>
+    </div>
+    ${wtr.enough?`<div class="note">3-week trend: ${wtr.ref} → ${wtr.latest} lb (${wtr.delta>=0?'+':''}${wtr.delta}). ${wtr.stalled?'Stalled — the surplus isn\'t real yet.':'Climbing — keep the plate full.'}</div>`:'<div class="note">Log bodyweight weekly — the trend drives the plan.</div>'}
+    <details><summary>The daily template</summary><div class="bd">${fp.day.map(x=>'• '+esc(x)).join('<br>')}<br><br>Water: ${fp.water} — desert rules.</div></details>
+    <details><summary>Budget grocery list</summary><div class="bd">${fp.groceries.map(x=>'• '+esc(x)).join('<br>')}<br><br>${esc(fp.note)}</div></details>`;})(fuelPlan(Model.gaps().latest('wt')||160,S.params.kcalAdj.v))}
+  </div>
+  <div class="card">
+    <h3>Data <span class="r">yours, protected</span></h3>
+    <div class="row">
+      <button class="btn grow" onclick="exportS()">⬇ EXPORT BACKUP</button>
+      <button class="btn ghost grow" onclick="pickImport()">⬆ IMPORT</button>
+    </div>
+    <input type="file" id="impFile" accept=".json" style="display:none" onchange="if(this.files[0])importS(this.files[0])">
+    <div class="note">Export monthly, save to iCloud Files. Import replaces everything on this phone (a safety export runs first).</div>
+  </div>`;
+}
+function logMetric(){ const v=+$('#mVal').value; if(!v){toast('Enter a value');return;}
+  S.metrics.push({d:todayISO(),key:$('#mKey').value,val:v,src:'manual'}); save(); rTrack(); toast('Logged ✓'); }
+function setGameDay(v){ S.settings.gameDay=+v; save(); trainDay=null; rTrain(); toast('Game day set — schedule rebuilt'); }
+function pickImport(){ $('#impFile').click(); }
+
+/* ---- PUSH ---- */
+let drIdx=null;
+function rPush(){
+  const iq=Model.iq(), plan=decide(), dr=drIdx===null?null:DARK_ROOM[drIdx];
+  const engIq=plan.tasks.find(t=>t.kind==='iq');
+  $('#v-push').innerHTML=`
+  <div class="card">
+    <h3>IQ Reps This Week <span class="r">${iq.reps7}</span></h3>
+    <div class="note" style="margin:0">Engine says today: <b style="color:var(--amber)">${esc(engIq?.title||'—')}</b><br>Any rep logged here also checks box 3 on TODAY.</div>
+  </div>
+  <div class="card">
+    <h3>The 5 Questions <span class="r">every play you watch</span></h3>
+    ${FILM_SYSTEM['5_question_framework'].map(q=>`<div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5">${esc(q)}</div>`).join('')}
+    <button class="btn amber" style="width:100%;margin-top:12px" onclick="logPush('film')">RAN THE 5 QUESTIONS ✓</button>
+    <details style="margin-top:10px"><summary>Play study queue</summary><div class="bd">
+      ${FILM_SYSTEM.weekly_play_to_study.map(w=>`<b style="color:var(--txt)">Wk ${w.week_range}:</b> ${esc(w.play)} — <i>${esc(w.why)}</i><br><span style="color:var(--faint)">${esc(w.where)}</span><br><br>`).join('')}
+    </div></details>
+  </div>
+  <div class="card">
+    <h3>Dark Room <span class="r">${DARK_ROOM.length} scenarios</span></h3>
+    ${dr?`<div class="pill amber">${esc(dr.cat)}</div>
+      <div style="font-size:16px;font-weight:800;margin:10px 0 8px">${esc(dr.title)}</div>
+      <div style="font-size:14px;color:var(--dim);line-height:1.6">${esc(dr.do)}</div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn amber grow" onclick="logPush('darkroom');drIdx=null;">GOT IT ✓</button>
+        <button class="btn ghost" onclick="drawDR()">NEXT</button></div>`
+      :`<div class="note" style="margin:0 0 12px">30 adversity scenarios — scout team, benched, blown assignment, trash talk. Read one, absorb the response, move on.</div>
+      <button class="btn" style="width:100%" onclick="drawDR()">DRAW A SCENARIO</button>`}
+  </div>
+  <div class="card">
+    <h3>Visualization Scripts</h3>
+    ${Object.entries(VISUALIZATION).filter(([k])=>k!=='audio_guide_text').map(([k,v])=>`
+      <details><summary>${k.replace(/_/g,' ').toUpperCase()} <span class="pill">${esc(v.duration)}</span></summary>
+      <div class="bd"><i>${esc(v.use)}</i><br><br>${esc(v.script).replace(/\n/g,'<br>')}
+      <button class="btn sm amber" style="margin-top:10px" onclick="logPush('viz')">COMPLETED ✓</button></div></details>`).join('')}
+  </div>
+  <div class="card">
+    <h3>Injury Red Flags <span class="r">know these cold</span></h3>
+    <div class="note" style="margin:0 0 8px">🚨 911 now: heat stroke (hot DRY skin + confusion) · second-impact concussion · collapse after chest hit · cola-colored urine. Never hide a head hit.</div>
+    <details><summary>Full protocol reference <span class="pill">${INJURY_PROTOCOLS.length}</span></summary><div class="bd">
+      ${INJURY_PROTOCOLS.map(p=>`<b style="color:${/CRITICAL/.test(p.grade)?'var(--red)':'var(--txt)'}">${esc(p.name)}</b> — ${esc(p.signs)}<br><span style="color:var(--faint)">RTP ${esc(p.rtn)} · Prevent: ${esc(p.prevention)}</span><br><br>`).join('')}
+    </div></details>
+  </div>`;
+}
+function drawDR(){ drIdx=Math.floor(Math.random()*DARK_ROOM.length); rPush(); }
+function logPush(type){ S.pushLog.push({d:todayISO(),type}); const c=ckToday(); if(!c[2]) c[2]=true; completeTask('iq:'+todayISO()); save(); rPush(); toast('IQ rep logged ✓'); }
+/* ============ NAV + BOOT ============ */
+const RENDER={today:rToday,train:rTrain,path:rPath,track:rTrack,push:rPush};
+function go(v){
+  document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
+  $('#v-'+v).classList.add('on');
+  document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
+  RENDER[v]();
+  window.scrollTo(0,0);
+}
+document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
+$('#hdrCd').innerHTML=`<b class="mono">${daysBetween(todayISO(),GATE_D1_CONTACT)}</b> days to Jun 15 gate<br>Class of 2030 · RB/LB`;
+go('today');
+
+/* offline support — guarded so non-browser test environments ignore it */
+if(typeof navigator!=='undefined'&&'serviceWorker'in navigator){
+  try{ navigator.serviceWorker.register('sw.js'); }catch(e){}
+}
+</script></body></html>
