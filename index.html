@@ -11,15 +11,16 @@
 <title>D1 OS</title>
 <style>
 :root{
-  --bg:#0a0e14; --bg2:#111826; --card:#151d2e; --card2:#1a2438;
-  --line:#243049; --txt:#e8edf5; --dim:#8b98ad; --faint:#5a6478;
-  --amber:#ffb020; --amber-dim:#8a6212; --cyan:#4dd0e1; --cyan-dim:#1e5f6b;
-  --green:#4caf7d; --red:#e05555; --radius:14px;
+  --bg:#08090c; --bg2:#0d0f14; --card:#111419; --card2:#171b22;
+  --line:#1e222b; --txt:#f5f7fa; --dim:#98a2b1; --faint:#5b6472;
+  --amber:#c9f24e; --amber-dim:#3f4a1f; --cyan:#74b4c6; --cyan-dim:#294551;
+  --green:#5fd39a; --red:#ff5d5d; --radius:18px;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{font-size:16px}
 body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  padding-bottom:calc(72px + env(safe-area-inset-bottom));min-height:100vh}
+  padding-bottom:calc(72px + env(safe-area-inset-bottom));min-height:100vh;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
 h1,h2,h3{font-weight:800;letter-spacing:.02em}
 .mono{font-variant-numeric:tabular-nums}
 #hdr{position:sticky;top:0;z-index:50;background:rgba(10,14,20,.92);backdrop-filter:blur(12px);
@@ -30,7 +31,7 @@ h1,h2,h3{font-weight:800;letter-spacing:.02em}
 #hdr .cd b{color:var(--cyan);font-weight:800}
 main{padding:16px;max-width:560px;margin:0 auto}
 .view{display:none}.view.on{display:block}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:0 1px 0 rgba(255,255,255,.03) inset}
 .card h3{font-size:12px;letter-spacing:.14em;color:var(--dim);margin-bottom:12px;text-transform:uppercase}
 .card h3 .r{float:right;color:var(--faint);font-weight:600;letter-spacing:0}
 .big{font-size:34px;font-weight:900}
@@ -38,7 +39,7 @@ main{padding:16px;max-width:560px;margin:0 auto}
 .grow{flex:1}
 .btn{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;
   padding:11px 14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
-.btn.amber{background:var(--amber);border-color:var(--amber);color:#14100a}
+.btn.amber{background:var(--amber);border-color:var(--amber);color:#0b1000}
 .btn.ghost{background:transparent}
 .btn.sm{padding:7px 10px;font-size:12px;border-radius:8px}
 .btn:active{transform:scale(.97)}
@@ -56,15 +57,16 @@ label{font-size:11px;letter-spacing:.08em;color:var(--dim);text-transform:upperc
   backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
 #nav button{flex:1;background:none;border:none;color:var(--faint);font-family:inherit;font-size:10px;
   font-weight:800;letter-spacing:.08em;padding:10px 0 12px;cursor:pointer;display:flex;flex-direction:column;gap:3px;align-items:center}
-#nav button .ic{font-size:19px;line-height:1}
+#nav button .ic{line-height:0}
+#nav button .ic svg{width:23px;height:23px}
 #nav button.on{color:var(--amber)}
 .dots{display:grid;grid-template-columns:repeat(15,1fr);gap:5px}
 .dots i{aspect-ratio:1;border-radius:3px;background:var(--bg2);border:1px solid var(--line)}
-.dots i.hit{background:var(--amber);border-color:var(--amber)}
+.dots i.hit{background:var(--amber);border-color:var(--amber);box-shadow:0 0 8px -2px var(--amber)}
 .dots i.part{background:var(--amber-dim);border-color:var(--amber-dim)}
 .chk{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
 .chk:last-child{border-bottom:none}
-.chk .box{width:24px;height:24px;border-radius:7px;border:2px solid var(--line);flex-shrink:0;display:grid;place-items:center;font-size:14px;color:#14100a;font-weight:900}
+.chk .box{width:24px;height:24px;border-radius:7px;border:2px solid var(--line);flex-shrink:0;display:grid;place-items:center;font-size:14px;color:#0b1000;font-weight:900}
 .chk.done .box{background:var(--amber);border-color:var(--amber)}
 .chk.done .t{color:var(--dim);text-decoration:line-through}
 .chk .t{font-size:15px;font-weight:600}
@@ -85,7 +87,7 @@ details summary::after{content:'+';color:var(--faint);font-size:18px}
 details[open] summary::after{content:'–'}
 details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
 .note{font-size:12px;color:var(--faint);line-height:1.5;margin-top:8px}
-.flag{background:#2a1a10;border:1px solid #6b4a1e;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:10px}
+.flag{background:#14180f;border:1px solid #33401d;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:10px}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--amber-dim);
   color:var(--txt);padding:11px 18px;border-radius:12px;font-size:14px;font-weight:700;z-index:99;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
 .toast.on{opacity:1}
@@ -94,7 +96,8 @@ details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
 .stat .v{font-size:22px;font-weight:900}
 .stat .k{font-size:10px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-top:2px}
 .empty{text-align:center;color:var(--faint);font-size:13px;padding:24px 0}
-.prio{background:linear-gradient(135deg,#1a1206,#151d2e);border:1px solid var(--amber-dim);border-radius:var(--radius);padding:14px 16px;margin-bottom:14px}
+.prio{background:linear-gradient(150deg,rgba(201,242,78,.10),var(--card) 46%);border:1px solid var(--amber-dim);border-radius:var(--radius);padding:16px 16px 16px 18px;margin-bottom:14px;position:relative;overflow:hidden}
+.prio::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--amber)}
 .prio .k{font-size:10px;letter-spacing:.14em;color:var(--amber);font-weight:900}
 .prio .t{font-size:16px;font-weight:800;margin-top:3px}
 .prio .w{font-size:12px;color:var(--dim);margin-top:4px;font-style:italic}
@@ -113,11 +116,11 @@ details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
   <section class="view" id="v-push"></section>
 </main>
 <nav id="nav">
-  <button data-v="today"><span class="ic">◉</span>TODAY</button>
-  <button data-v="train"><span class="ic">▲</span>TRAIN</button>
-  <button data-v="path"><span class="ic">➤</span>PATH</button>
-  <button data-v="track"><span class="ic">▌▌</span>TRACK</button>
-  <button data-v="push"><span class="ic">✦</span>PUSH</button>
+  <button data-v="today"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg></span>TODAY</button>
+  <button data-v="train"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg></span>TRAIN</button>
+  <button data-v="path"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4l9 3-3 4 8 2"/></svg></span>PATH</button>
+  <button data-v="track"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span>TRACK</button>
+  <button data-v="push"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 6.2L21 12l-6.8 2.8L12 21l-2.2-6.2L3 12l6.8-2.8z"/></svg></span>PUSH</button>
 </nav>
 <div class="toast" id="toast"></div>
 <script>
@@ -430,7 +433,7 @@ const GATE_SEPT1='2028-09-01';       // Sept 1 junior year: all communication op
    confirm when schedules publish. Anything outside a range = offseason. */
 const PHASES=[
   {from:'2026-07-01',to:'2026-08-09',phase:'preseason'},
-  {from:'2026-08-10',to:'2026-10-31',phase:'inseason'},   // JV season; opener wk of Aug 21
+  {from:'2026-08-10',to:'2026-10-31',phase:'inseason'},   // JV season; NV 2026 opener ~Aug 13-14 (verified); JV game day TBD
   {from:'2026-11-09',to:'2027-02-13',phase:'wrestling'},  // casual — NO cutting; mass defended
   {from:'2027-02-22',to:'2027-05-15',phase:'track'},      // 100m/sprints — track owns speed work
 ];
@@ -454,13 +457,13 @@ const BENCHMARKS=[
 const WAYPOINTS=[
   {until:'2027-07-31',label:'FRESHMAN · by Jun 2027',
    targets:{squat:315,bench:225,dead:405,clean:165,wt:174,gpa:3.5},
-   rel:{forty:-0.15,vert:3,broad:6}},
+   rel:{forty:-0.20,vert:3,broad:6}},
   {until:'2028-07-31',label:'SOPHOMORE · by Jun 2028',
    targets:{squat:365,bench:255,dead:445,clean:195,wt:186,gpa:3.5},
-   rel:{forty:-0.28,vert:6,broad:12}},
+   rel:{forty:-0.40,vert:6,broad:12}},
   {until:'2029-07-31',label:'JUNIOR · by Jun 2029',
    targets:{squat:405,bench:285,dead:495,clean:225,wt:195,gpa:3.5},
-   rel:{forty:-0.40,vert:9,broad:16}}
+   rel:{forty:-0.55,vert:9,broad:16}}
 ];
 function currentWaypoint(iso=null){ const d=iso||todayISO(); return WAYPOINTS.find(w=>d<=w.until)||WAYPOINTS.at(-1); }
 
@@ -519,7 +522,20 @@ const TECHNIQUE={
   'Trap-bar deadlift':['Hips back, chest tall, lats locked','Push the floor away — it\'s a leg press, not a back lift','Stand ALL the way up; no lean-back','Lower under control — that eccentric builds you'],
   'Hang clean':['Bar at mid-thigh, shoulders over bar','JUMP + shrug — the bar rides up, elbows whip around','Catch tall on full feet, elbows high','If you\'re curling it, it\'s too heavy'],
   '40-yd start':['Crowd the line: front foot close, weight forward','First 3 steps LOW and punching back — like a plane taking off','Arms drive violently; face and hands stay loose','Don\'t pop up until ~15 yards'],
-  'Vertical jump':['Last two steps: long-short, plant heel-to-toe','Arms sweep down THEN rip up together','Jump THROUGH the target, not at it','Quiet landings every rep — loud knees end seasons']};
+  'Vertical jump':['Last two steps: long-short, plant heel-to-toe','Arms sweep down THEN rip up together','Jump THROUGH the target, not at it','Quiet landings every rep — loud knees end seasons'],
+  'Cutting (one-cut)':['Plant foot OUTSIDE your frame, nose over toes','Drop your hips INTO the cut — speed through, not around','Eyes up field BEFORE the plant — know where you\'re going','First step out of the cut is a sprint step, not a balance step'],
+  'Ball security (5 points)':['Eagle claw over the nose of the ball','Forearm bar — ball locked to the ribs','Elbow TIGHT — daylight between elbow and body is a fumble invitation','High and tight through traffic; switch arms in open field only'],
+  'Stiff arm':['Timing beats strength — strike as the tackler lunges','Lock the elbow, press through his helmet or shoulder','Same-side knee drives — run THROUGH the contact','Eyes stay up field; the stiff arm is a speed move, not a wrestling match'],
+  'Punt catch':['Track it to a window above your eyes — drift so it falls into your chest','Elbows in, pinkies together, catch ABOVE the eyes','Look it ALL the way into the tuck — then burst north','Judgment: any doubt or coverage inside 10 yards = fair catch. Possession is the job'],
+  'Hawk tackle':['Track the near HIP, not the ball — hips don\'t lie','Shoot the same-side shoulder, wrap high through the thighs','Head ACROSS the body, never in front of the knee','Leg drive until the whistle — finish on top'],
+  'Route release (slot)':['Stem at game speed — a lazy stem tells the DB everything','Snap the break in ONE step, hips down','Hands show LATE — at the last moment','Every route sells vertical first'],
+  'Read keys (LB)':['Pre-snap: set the front, find the back, know your gap','Read the triangle — near back to guard: high hat = pass, low hat = run','Flow with the near back but stay square — don\'t overrun the cutback','First clean read = trigger downhill; a step late is a step buried'],
+  'Block destruction (LB shed)':['Attack the blocker\'s half — never catch a block, always strike first','Hands INSIDE, thumbs up, strike the near number and lock out','Separate: press him off, find the ball, then shed to it','Keep your outside arm free vs a reach — spill or box by your fit'],
+  'Run fit / gap fill':['Know your gap every call — A, B, C, or contain','Fill downhill and square; drifting sideways gets you reached','Wrong-arm the kickout to spill, or box it — one job, commit to it','Stuff your gap FIRST, then pursue — never chase before you fit'],
+  'Zone drop (LB)':['Open your hips and gain depth — carry #3 vertical','Eyes on the QB, feel receivers cross your face','Settle in the window, don\'t chase — throttle under the dig','Break on the throw, close downhill, tackle through the catch'],
+  'Pursuit angle':['Never trail the ball — take the angle that beats it to the sideline','Aim for a point in FRONT of the ballcarrier, not at him','Expect the cutback: the backside defender keeps inside leverage','Run through the hip, wrap, finish — gang-tackle to the whistle'],
+  'Blitz timing (edge / A-gap)':['Time the ball, not the cadence — go on the first flinch of the center','Pick your move pre-snap: rip, swim, or bull — never decide late','Dip the edge or knife the gap low — small target, full speed','Close to the near hip, break down, wrap the QB — don\'t run past him'],
+  'Press / re-route (nickel)':['Patient feet — mirror the release, don\'t lunge or open early','Jam the near number to break the timing, then trail his hip','Stay in phase: eyes on his hips, not the ball, until he looks back','Find the ball late over the top shoulder — high-point or rake it out']};
 
 /* ============ FUEL PLAN — mass mission math (350-500 kcal surplus, ~0.8-1 g/lb protein) ============ */
 function fuelPlan(bw,adj=0){
@@ -533,7 +549,7 @@ function fuelPlan(bw,adj=0){
 
 const TEMPLATES={
   preseason:[ // complete sessions, gap-targeted: 40 (accel+mechanics), vert (plyo progression), bench (contrast+builders)
-    {day:1,title:'SPEED + LOWER · 40/VERT DAY',blocks:[
+    {day:2,title:'SPEED + LOWER · 40/VERT DAY',blocks:[
       {n:'A · Sprint mechanics',s:'Wall drill 3×5/side · A-skip 3×20yd — positions first, speed follows · '+AM_HEAT},
       {n:'A · Acceleration sprints',s:'6×20yd from 2-point stance · FULL walk-back recovery — speed work half-rested is slow practice'},
       {n:'A · Heavy sled option',s:'If EOS turf sled is free: swap 3 accels for 4×15yd sled pushes @ ~40-50% BW (~65-80 lb) — proven accelerator for teen sprinters'},
@@ -542,7 +558,7 @@ const TEMPLATES={
       {n:'C · Barbell hip thrust',s:'3×8 — sprint power lives in the glutes'},
       {n:'C · Nordic curl (negatives)',s:'3×6 — hamstring armor for sprint season'},
       {n:'D · Copenhagen plank + hip 90/90',s:'3×20s/side'}]},
-    {day:2,title:'UPPER · BENCH BUILDER A',blocks:[
+    {day:1,title:'UPPER · BENCH BUILDER A',blocks:[
       {n:'A · Bench press',s:'4×4 @ 82% — pair each set with plyo push-ups',pct:.82,lift:'bench'},
       {n:'A · Plyo push-up (after each bench set)',s:'4×5 · hands leave the floor — upper-body contrast'},
       {n:'B · Close-grip bench',s:'3×8 — triceps move the sticking point'},
@@ -555,7 +571,7 @@ const TEMPLATES={
       {n:'Core circuit',s:'Dead bug 3×10 · Pallof 3×12/side · suitcase carry 3×40yd'},
       {n:'Mobility',s:'15 min — hips, ankles, T-spine'},
       {n:'Film',s:'One 5-question set (PUSH)'}]},
-    {day:4,title:'SPEED + LOWER · VERT DAY',blocks:[
+    {day:5,title:'SPEED + LOWER · VERT DAY',blocks:[
       {n:'A · Plyo progression',s:'Pogo hops 3×10 + depth drop landings 3×5 (12-18in box) — landings before takeoffs. Your squat is past 1.5×BW, so full depth JUMPS unlock next cycle if landings are quiet · '+AM_HEAT},
       {n:'A · Sprint build-ups',s:'4×30yd building to ~95% · full recovery'},
       {n:'B · Trap-bar deadlift',s:'4×3 @ 82% — pair with jump squats',pct:.82,lift:'dead'},
@@ -563,7 +579,7 @@ const TEMPLATES={
       {n:'C · Bulgarian split squat',s:'3×8/leg'},
       {n:'C · Single-leg calf raise + tib raise',s:'3×15 each — ankle stiffness = free inches on the vert'},
       {n:'D · Pallof press',s:'3×12/side'}]},
-    {day:5,title:'UPPER · BENCH BUILDER B',blocks:[
+    {day:4,title:'UPPER · BENCH BUILDER B',blocks:[
       {n:'A · Bench press (speed)',s:'6×3 @ 65% — move it violently; bar speed today builds bar weight next month',pct:.65,lift:'bench'},
       {n:'B · Incline DB press',s:'3×10'},
       {n:'B · Chin-up',s:'3×AMRAP'},
@@ -623,14 +639,14 @@ const TEMPLATES={
       {n:'Weekly review',s:'Log meet times in TRACK — official 100m times are gold for football recruiting.'}]}
   ],
   offseason:[ // May–July: the build phase — full sessions, same gap-targeting as preseason, more volume
-    {day:1,title:'LOWER · CONTRAST A + SPEED',blocks:[
+    {day:2,title:'LOWER · CONTRAST A + SPEED',blocks:[
       {n:'A · Sprint mechanics + accel',s:'A-skip 3×20yd · 6×20yd accels, full recovery · '+AM_HEAT},
       {n:'B · Back squat',s:'4×3 @ 85% — pair each set with jumps',pct:.85,lift:'squat'},
       {n:'B · Box jump (after each squat set)',s:'4×4 · max intent, step down'},
       {n:'C · Barbell hip thrust',s:'3×8'},
       {n:'C · RDL',s:'3×8 — control the eccentric'},
       {n:'D · Nordic curl + Copenhagen',s:'3×6 · 3×20s/side'}]},
-    {day:2,title:'UPPER · BENCH BUILDER A',blocks:[
+    {day:1,title:'UPPER · BENCH BUILDER A',blocks:[
       {n:'A · Bench press',s:'4×4 @ 82% — pair with plyo push-ups',pct:.82,lift:'bench'},
       {n:'A · Plyo push-up',s:'4×5'},
       {n:'B · Close-grip bench',s:'3×8'},
@@ -642,13 +658,13 @@ const TEMPLATES={
       {n:'B · Tempo runs',s:'8×40yd @ 75%'},
       {n:'C · Core circuit',s:'Dead bug · Pallof · suitcase carry — 3 rounds'},
       {n:'D · Film study',s:'One 5-question set (PUSH)'}]},
-    {day:4,title:'LOWER · CONTRAST B',blocks:[
+    {day:5,title:'LOWER · CONTRAST B',blocks:[
       {n:'A · Trap-bar deadlift',s:'4×3 @ 85% — pair with jump squats',pct:.85,lift:'dead'},
       {n:'A · Trap-bar jump squat (after each set)',s:'4×3 @ ~40 lb — peak power load'},
       {n:'B · Bulgarian split squat',s:'3×8/leg'},
       {n:'C · Single-leg calf + tib raise',s:'3×15 each'},
       {n:'D · Pallof press',s:'3×12/side'}]},
-    {day:5,title:'UPPER · BENCH BUILDER B',blocks:[
+    {day:4,title:'UPPER · BENCH BUILDER B',blocks:[
       {n:'A · Bench press (speed)',s:'6×3 @ 65% — move it fast',pct:.65,lift:'bench'},
       {n:'B · Incline DB press + chin-up',s:'3×10 · 3×AMRAP'},
       {n:'C · Dips',s:'3×8-12'},
@@ -720,7 +736,7 @@ const SETUP_TASKS=[
   {id:'env:phone',title:'Phone parks outside the bedroom at 10:15 — starting tonight',why:'One environmental decision worth more than any sleep feature. The 10pm alarm is the warning shot.'},
   {id:'env:film',title:'Name the film owner for every game before the opener',why:'Program films JV, or cousin does — decided in advance, never improvised. Film is the recruiting currency.'},
   {id:'env:team',title:'Team talk: mom (food+rides) · step-dad (camp fund) · cousin (spot/time/film)',why:'Four people, four jobs. The Sunday Dispatch will keep everyone honest — including you.'},
-  {id:'env:bell',title:'Get Basic\'s bell schedule the moment it publishes',why:'Your morning routine takes 1.5h. If first bell is ~7am, that\'s a ~5am wake — and 10:30 lights-out gives you 6.5h sleep, which breaks the #1 rule. We solve this with real numbers: earlier lights-out on school nights or a compressed game-day-style morning. Can\'t solve it without the bell time.'}
+  {id:'env:bell',title:'Lock your school-night wake alarm (~6:45am)',why:'Basic runs 8:30am-2:46pm (confirmed). Your 1.5h morning routine off a ~6:45 wake gets you there with margin, and 10:30 lights-out still banks a full ~8h — the sleep rule holds on school nights, no compressed morning needed. Set the wake alarm and this one\'s done.'}
 ];
 
 /* ============ NCAA TIMELINE · CLASS OF 2030 ============ */
@@ -1341,6 +1357,7 @@ function rPath(){
           <span class="note grow">${(lc=>lc?'Last contact '+fmtD(lc):'No contact yet')(Model.lastContact(S,p.id))}</span>
           <button class="btn sm" onclick="touchP('${p.id}')">CONTACTED TODAY</button>
           ${p.stage<5?`<button class="btn sm ghost" onclick="advP('${p.id}')">STAGE +</button>`:''}
+          <button class="btn sm ghost" onclick="rmP('${p.id}')" style="color:var(--red)">✕</button>
         </div>${p.notes?`<div class="note">${esc(p.notes)}</div>`:''}
       </div>`).join(''):'<div class="empty">No schools on the board yet. Add your first target below.</div>'}
     <div class="row" style="margin-top:12px">
@@ -1387,6 +1404,13 @@ function touchP(id){ const p=S.pipeline.find(x=>x.id===id);
 function advP(id){ const p=S.pipeline.find(x=>x.id===id); p.stage=Math.min(5,p.stage+1);
   logEvent('stage',{id,school:p.school,to:p.stage});
   save(); rPath(); if(p.stage===5) toast('COMMITTED. That\'s the whole game.'); }
+let pendingRm=null;
+function rmP(id){ const p=S.pipeline.find(x=>x.id===id); if(!p) return;
+  if(pendingRm!==id){ pendingRm=id; toast('Tap ✕ again to remove '+p.school); return; }
+  pendingRm=null;
+  S.pipeline=S.pipeline.filter(x=>x.id!==id);
+  logEvent('removed',{id,school:p.school});
+  save(); rPath(); toast(p.school+' removed — board stays honest'); }
 function copyTpl(k){ const t=EMAIL_TEMPLATES[k]; navigator.clipboard?.writeText('Subject: '+t.subject+'\n\n'+t.body).then(()=>toast('Copied ✓')); }
 
 /* ---- TRACK ---- */
@@ -1410,7 +1434,7 @@ function rTrack(){
     <details><summary>The destination: senior-year D1 ranges</summary><div class="bd">
       <table><tr><th></th><th>D2</th><th>FCS</th><th>G5</th><th>P4</th></tr>
       ${g.rows.map(b=>`<tr><td style="font-weight:700">${b.name}</td><td class="mono">${b.tiers.D2}</td><td class="mono">${b.tiers.FCS}</td><td class="mono">${b.tiers.G5}</td><td class="mono">${b.tiers.P4}</td></tr>`).join('')}
-      </table><br>Four years away. The waypoints above are how you get there.</div></details>
+      </table><br>Four years away. P4 is the recruiting bar — your personal north star on speed is sub-4.4. The waypoints above are how you get there. Your frame fits RB/slot, off-ball LB, and nickel/safety — sophomore film picks the spot, so train the fastest lane (RB speed) and you cover all three.</div></details>
   </div>`)(Model.waypointGaps())}
   <div class="card">
     <h3>System Read <span class="r">what your own data says</span></h3>
