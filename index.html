@@ -1414,6 +1414,23 @@ function rmP(id){ const p=S.pipeline.find(x=>x.id===id); if(!p) return;
 function copyTpl(k){ const t=EMAIL_TEMPLATES[k]; navigator.clipboard?.writeText('Subject: '+t.subject+'\n\n'+t.body).then(()=>toast('Copied ✓')); }
 
 /* ---- TRACK ---- */
+/* Athlete Profile radar — current vs this-year waypoint; untested speed axes collapse to center. Pure SVG. */
+function radarSVG(s=S){
+  const wp=currentWaypoint(), g=Model.gaps(s), mom=Model.momentum(s);
+  const val=k=>{if(['squat','bench','dead','clean'].includes(k))return Math.max(s.prs[k]||0,(mom.bestE1rm&&mom.bestE1rm[k])||0)||0;return g.latest(k)||0;};
+  const A=[['squat','Squat',wp.targets.squat],['dead','Dead',wp.targets.dead],['bench','Bench',wp.targets.bench],['clean','Clean',wp.targets.clean],['wt','Weight',wp.targets.wt],['vert','Vert',null],['broad','Broad',null],['forty','40',null]]
+    .map(([k,l,t])=>{const c=val(k);return {k,l,t,cur:c,pct:(t&&c)?Math.min(1,+(c/t).toFixed(3)):0,untested:!(t&&c)};});
+  const N=A.length,cx=130,cy=118,R=82;
+  const ang=i=>(-Math.PI/2)+i*2*Math.PI/N;
+  const pt=(i,v)=>[+(cx+R*v*Math.cos(ang(i))).toFixed(1),+(cy+R*v*Math.sin(ang(i))).toFixed(1)];
+  const ring=(r,st)=>`<polygon points="${A.map((a,i)=>pt(i,r).join(',')).join(' ')}" fill="none" stroke="${st}" stroke-width="1"/>`;
+  const rings=[0.25,0.5,0.75].map(r=>ring(r,'var(--line)')).join('')+ring(1,'var(--cyan)');
+  const spokes=A.map((a,i)=>{const[x,y]=pt(i,1);return `<line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="var(--line)" stroke-width="1"/>`;}).join('');
+  const labels=A.map((a,i)=>{const[x,y]=pt(i,1.3);return `<text x="${x}" y="${y}" fill="${a.untested?'var(--faint)':'var(--dim)'}" font-size="9" font-weight="700" text-anchor="middle" dominant-baseline="middle">${a.l}${a.untested?' ?':''}</text>`;}).join('');
+  const poly=A.map((a,i)=>pt(i,a.pct).join(',')).join(' ');
+  const dots=A.map((a,i)=>{if(a.untested)return '';const[x,y]=pt(i,a.pct);return `<circle cx="${x}" cy="${y}" r="3" fill="var(--amber)"/>`;}).join('');
+  return `<svg viewBox="0 0 260 236" width="100%" style="max-width:300px;display:block;margin:4px auto 0" role="img" aria-label="Athlete profile radar">${rings}${spokes}<polygon points="${poly}" fill="var(--amber)" fill-opacity="0.25" stroke="var(--amber)" stroke-width="2"/>${dots}${labels}</svg>`;
+}
 /* estimate untested lifts from real maxes + bodyweight; honest ratios, labeled as estimates */
 function strengthMap(s=S){
   const p=s.prs||{}, sq=p.squat||0, dl=p.dead||0, bp=p.bench||0, cl=p.clean||0;
@@ -1463,6 +1480,11 @@ function rTrack(){
       ${g.rows.map(b=>`<tr><td style="font-weight:700">${b.name}</td><td class="mono">${b.tiers.D2}</td><td class="mono">${b.tiers.FCS}</td><td class="mono">${b.tiers.G5}</td><td class="mono">${b.tiers.P4}</td></tr>`).join('')}
       </table><br>Four years away. P4 is the recruiting bar — your personal north star on speed is sub-4.4. The waypoints above are how you get there. Your frame fits RB/slot, off-ball LB, and nickel/safety — sophomore film picks the spot, so train the fastest lane (RB speed) and you cover all three.</div></details>
   </div>`)(Model.waypointGaps())}
+  <div class="card">
+    <h3>Athlete Profile <span class="r">you vs this year's target</span></h3>
+    ${radarSVG()}
+    <div class="note">The volt shape is you; the cyan ring is this year's freshman target. Your strength and mass axes are nearly full — but <b>40, vert, and broad sit dead center</b> because they're untested. That empty wedge is your whole gap, and it's the reason the baseline test matters more than anything in this app.</div>
+  </div>
   <div class="card">
     <h3>System Read <span class="r">what your own data says</span></h3>
     ${sr.days30<7?'<div class="empty">Needs ≥7 days of check-ins before the mirror is useful.</div>':`
