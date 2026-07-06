@@ -1414,6 +1414,33 @@ function rmP(id){ const p=S.pipeline.find(x=>x.id===id); if(!p) return;
 function copyTpl(k){ const t=EMAIL_TEMPLATES[k]; navigator.clipboard?.writeText('Subject: '+t.subject+'\n\n'+t.body).then(()=>toast('Copied ✓')); }
 
 /* ---- TRACK ---- */
+/* estimate untested lifts from real maxes + bodyweight; honest ratios, labeled as estimates */
+function strengthMap(s=S){
+  const p=s.prs||{}, sq=p.squat||0, dl=p.dead||0, bp=p.bench||0, cl=p.clean||0;
+  const bwM=s.metrics.filter(m=>m.key==='wt').sort((a,b)=>a.d<b.d?1:-1)[0];
+  const bw=bwM?bwM.val:158;
+  const R=v=>v?Math.round(v/5)*5:null;
+  const ratio=v=>v&&bw?+(v/bw).toFixed(2):null;
+  const verdict=(r,lo,hi)=>r==null?'—':(r>=hi?'elite for age':r>=lo?'strong for age':'building');
+  const reals=[
+    {lift:'Back squat',val:sq,r:ratio(sq),v:verdict(ratio(sq),1.5,2.0)},
+    {lift:'Deadlift',val:dl,r:ratio(dl),v:verdict(ratio(dl),1.75,2.25)},
+    {lift:'Bench',val:bp,r:ratio(bp),v:verdict(ratio(bp),1.0,1.35)},
+    {lift:'Hang clean',val:cl,r:ratio(cl),v:verdict(ratio(cl),0.75,1.05)}
+  ];
+  const ests=[
+    {lift:'Front squat',val:R(sq*0.85),from:'85% back squat'},
+    {lift:'Overhead press',val:R(bp*0.62),from:'62% bench'},
+    {lift:'Incline bench',val:R(bp*0.80),from:'80% bench'},
+    {lift:'Close-grip bench',val:R(bp*0.90),from:'90% bench'},
+    {lift:'Barbell row',val:R(bp*0.88),from:'about bench'},
+    {lift:'RDL',val:R(dl*0.85),from:'85% deadlift'},
+    {lift:'Trap-bar deadlift',val:R(dl*1.05),from:'105% deadlift'},
+    {lift:'Hip thrust',val:R(sq*1.4),from:'1.4x squat'},
+    {lift:'Weighted pull-up (+load)',val:R(bw*0.35),from:'35% bodyweight'}
+  ].filter(e=>e.val);
+  return {bw,reals,ests};
+}
 function rTrack(){
   const g=Model.gaps(), sr=Model.systemRead(), DOWN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   $('#v-track').innerHTML=`
@@ -1453,6 +1480,20 @@ function rTrack(){
       ${Object.entries(S.prs).map(([k,v])=>`<div class="stat"><div class="v mono">${v}</div><div class="k">${k} (lb)</div></div>`).join('')}
       <div class="stat"><div class="v mono">${g.latest('wt')??'—'}</div><div class="k">bodyweight</div></div>
     </div>
+  </div>
+  <div class="card">
+    <h3>Strength Map <span class="r">estimated · not measured</span></h3>
+    ${(sm=>`
+    <table><tr><th>Lift</th><th>Now</th><th>×BW</th><th>For age</th></tr>
+      ${sm.reals.map(r=>`<tr><td style="font-weight:700">${r.lift}</td><td class="mono" style="color:var(--amber);font-weight:800">${r.val||'—'}</td><td class="mono">${r.r?r.r+'×':'—'}</td><td style="color:var(--cyan);font-size:12px">${r.v}</td></tr>`).join('')}
+    </table>
+    <div class="note">Ratios vs your ${sm.bw} lb bodyweight. "For age" compares to typical 15-year-old standards — your squat and pull are already advanced.</div>
+    <details><summary>Estimated maxes — lifts you haven't tested</summary><div class="bd">
+      <table><tr><th>Lift</th><th>Est.</th><th>Basis</th></tr>
+      ${sm.ests.map(e=>`<tr><td>${esc(e.lift)}</td><td class="mono" style="color:var(--txt);font-weight:700">~${e.val}</td><td style="font-size:11px;color:var(--faint)">${esc(e.from)}</td></tr>`).join('')}
+      </table><br>Estimated from your real lifts + population ratios — starting loads, not gospel. Log a real top set and it replaces the guess.</div></details>
+    <div class="note">Your <b>40 and broad jump</b> can't be estimated from strength — those are the numbers only a real test gives. That's the last 5%: go get them.</div>
+    `)(strengthMap())}
   </div>
   <div class="card">
     <h3>Log a Measurable</h3>
