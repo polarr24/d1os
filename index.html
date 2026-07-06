@@ -926,8 +926,8 @@ const Model={
     const responded=s.pipeline.filter(p=>p.stage>=2).length;
     const rts=[];
     for(const p of s.pipeline.filter(p=>p.stage>=2)){
-      const c=s.events.find(e=>e.type==='contact'&&e.meta.id===p.id);
-      const r=s.events.find(e=>e.type==='stage'&&e.meta.id===p.id&&e.meta.to===2);
+      const c=s.events.find(e=>e.type==='contact'&&e.meta&&e.meta.id===p.id);
+      const r=s.events.find(e=>e.type==='stage'&&e.meta&&e.meta.id===p.id&&e.meta.to===2);
       if(c&&r) rts.push(daysBetween(c.d,r.d));
     }
     return {flags, contacted, responded,
@@ -987,7 +987,7 @@ const Model={
     let worst=null;
     if(c.days30>=7){ const i=c.skips30.indexOf(Math.max(...c.skips30));
       if(c.skips30[i]>0) worst={name:names[i],pct:Math.round(100*c.skips30[i]/c.days30)}; }
-    const prDays=s.events.filter(e=>e.type==='pr').map(e=>e.meta.dow);
+    const prDays=s.events.filter(e=>e.type==='pr'&&e.meta).map(e=>e.meta.dow);
     const prByDay=prDays.length?[...new Set(prDays)].map(d=>({day:d,n:prDays.filter(x=>x===d).length})).sort((a,b)=>b.n-a.n):[];
     const r=this.recruiting(s,today);
     return {worstSkip:worst, prByDay,
@@ -1193,7 +1193,7 @@ function rToday(){
 /* Weekly Dispatch — receipts + asks, generated from live state (LAST-REDESIGN.md #4) */
 function buildDispatch(){
   const con=Model.consistency(), mom=Model.momentum(), wtr=Model.weightTrend(), plan=decide();
-  const prs=S.events.filter(e=>e.type==='pr'&&daysBetween(e.d,todayISO())<7);
+  const prs=S.events.filter(e=>e.type==='pr'&&e.meta&&daysBetween(e.d,todayISO())<7);
   const asks=[];
   if(plan.tasks.some(t=>t.kind==='fuel')) asks.push('Mom: weight stalled — extra PB + whole milk in the rotation this week');
   if(!taskDone('env:film')&&phaseFor(todayISO())!=='offseason') asks.push('Cousin: confirm who films this week\'s game');
