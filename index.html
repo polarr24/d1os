@@ -449,6 +449,17 @@ const BENCHMARKS=[
   {key:'gpa',   name:'GPA',          unit:'',  lower:false, tiers:{P4:3.0,G5:3.0,FCS:3.2,D2:3.0}}
 ];
 
+/* ============ D1_BENCH — senior-recruit percentile thresholds by position (sourced Jul 2026) ============
+   P50≈FCS/low-D1, P75≈G5/mid-major, P90≈Power-4. Sources: NCSA + Go Big Recruiting position guides (40/vert),
+   Dynamite Sports + Atomic Athlete + Critical Bench (bench/squat 1RM), recruiting size ranges, NFL combine
+   position data (40 elite anchor). prov=1 = provisional/lower-confidence (broad, shuttle: combine-derived,
+   need firmer HS-recruit sourcing). forty + shuttle are lower-is-better. These are the DESTINATION bar. */
+const D1_BENCH={
+  RB:{forty:{p50:4.70,p75:4.60,p90:4.50},vert:{p50:30,p75:33,p90:36},broad:{p50:108,p75:114,p90:120,prov:1},bench:{p50:265,p75:270,p90:280},squat:{p50:350,p75:375,p90:390},shuttle:{p50:4.45,p75:4.30,p90:4.20,prov:1},wt:{p50:175,p75:185,p90:195}},
+  LB:{forty:{p50:4.75,p75:4.65,p90:4.55},vert:{p50:30,p75:33,p90:35},broad:{p50:108,p75:114,p90:118,prov:1},bench:{p50:315,p75:335,p90:355},squat:{p50:385,p75:405,p90:425},shuttle:{p50:4.50,p75:4.35,p90:4.20,prov:1},wt:{p50:205,p75:218,p90:228}},
+  S:{forty:{p50:4.65,p75:4.55,p90:4.45},vert:{p50:32,p75:35,p90:38},broad:{p50:114,p75:120,p90:126,prov:1},bench:{p50:245,p75:275,p90:300},squat:{p50:365,p75:405,p90:435},shuttle:{p50:4.35,p75:4.20,p90:4.05,prov:1},wt:{p50:185,p75:195,p90:205}}
+};
+
 /* ============ WAYPOINTS — stage-gated targets (owner request + review M5) ============
    Compare a freshman to END-OF-FRESHMAN targets, not to seniors. Senior tiers stay as the
    destination; waypoints are the next checkpoint. Numbers = informed expert judgment from
@@ -544,7 +555,7 @@ function fuelPlan(bw,adj=0){
   return {cal, pro, water:'1 gallon',
     day:['Breakfast: 3-4 eggs + oats w/ whole milk + banana','Lunch at Basic: school lunch (take the protein option + milk + fruit, skip nothing) PLUS a packed PB sandwich + banana — small pack, big surplus','Post-school: chocolate milk + granola or PB sandwich #2','Dinner: family meal, double the protein + rice/potatoes','Before 10:00: Greek yogurt or casein shake w/ milk'],
     groceries:['Eggs (5 doz) ~$12','Oats 5 lb ~$5','Rice 10 lb ~$8','Whole milk 3 gal ~$11','Chocolate milk ~$4','Peanut butter 40oz ~$6','Chicken leg quarters 10 lb ~$10','Ground beef 80/20 3 lb ~$12','Greek yogurt tub ×2 ~$10','Bananas/apples ~$8','Bread 2 loaves ~$5','Sweet potatoes 5 lb ~$4'],
-    note:'~$95-110/wk covers YOUR add-ons within the family budget. Cheap mass: eggs, oats, rice, milk, PB — the classics work.'};
+    note:'~$150-200/wk at Smiths for the real haul (the item prices below are rough estimates that swing by store and week — trust the total, not each line). Cheap mass still rules: eggs, oats, rice, milk, PB.'};
 }
 
 const TEMPLATES={
@@ -980,6 +991,20 @@ const Model={
   baselineDone(s=S){
     return ['forty','vert','broad'].every(k=>s.metrics.some(m=>m.key===k));
   },
+  /* percentile gap vs senior-recruit thresholds (D1_BENCH). Descriptive, not predictive. */
+  percentileGap(metric,value,pos='LB'){
+    const b=(typeof D1_BENCH!=='undefined')&&D1_BENCH[pos]&&D1_BENCH[pos][metric];
+    if(!b||value==null) return null;
+    const lower=(metric==='forty'||metric==='shuttle');
+    const meets=(v,t)=>lower?v<=t:v>=t;
+    let tier='below P50', chase='P50';
+    if(meets(value,b.p90)){tier='P90';chase=null;}
+    else if(meets(value,b.p75)){tier='P75';chase='P90';}
+    else if(meets(value,b.p50)){tier='P50';chase='P75';}
+    const target=chase?(chase==='P90'?b.p90:chase==='P75'?b.p75:b.p50):null;
+    const gap=target==null?null:+Math.abs(value-target).toFixed(2);
+    return {tier,chase,target,gap,lower,prov:!!b.prov};
+  },
   /* descriptive instrumentation — mirrors, not oracles */
   systemRead(s=S,today=todayISO()){
     const c=this.consistency(s,today);
@@ -1414,6 +1439,19 @@ function rmP(id){ const p=S.pipeline.find(x=>x.id===id); if(!p) return;
 function copyTpl(k){ const t=EMAIL_TEMPLATES[k]; navigator.clipboard?.writeText('Subject: '+t.subject+'\n\n'+t.body).then(()=>toast('Copied ✓')); }
 
 /* ---- TRACK ---- */
+/* benchTable — his logged/known metrics vs D1_BENCH senior-recruit thresholds for one position */
+function benchTable(pos='LB',s=S){
+  const g=Model.gaps(s), mom=Model.momentum(s);
+  const M=[['squat','Squat','lb'],['bench','Bench','lb'],['forty','40-yd','s'],['vert','Vertical','in'],['broad','Broad','in'],['shuttle','Shuttle','s'],['wt','Weight','lb']];
+  return M.map(([k,label,unit])=>{
+    const prov=(k==='broad'||k==='shuttle');
+    const val=['squat','bench'].includes(k)?(Math.max(s.prs[k]||0,(mom.bestE1rm&&mom.bestE1rm[k])||0)||null):g.latest(k);
+    const pg=Model.percentileGap(k,val,pos);
+    if(val==null||!pg) return {label,unit,prov,untested:true};
+    const gapText=pg.chase?`${pg.gap}${unit==='s'?'s':' '+unit} to ${pg.chase}`:'P90 hit';
+    return {label,unit,val,tier:pg.tier,gapText,prov};
+  });
+}
 /* Athlete Profile radar — current vs this-year waypoint; untested speed axes collapse to center. Pure SVG. */
 function radarSVG(s=S){
   const wp=currentWaypoint(), g=Model.gaps(s), mom=Model.momentum(s);
@@ -1486,6 +1524,14 @@ function rTrack(){
     <div class="note">The volt shape is you; the cyan ring is this year's freshman target. Your strength and mass axes are nearly full — but <b>40, vert, and broad sit dead center</b> because they're untested. That empty wedge is your whole gap, and it's the reason the baseline test matters more than anything in this app.</div>
   </div>
   <div class="card">
+    <h3>D1 Benchmarks <span class="r">senior recruit · LB</span></h3>
+    <div class="note">Where you'd stack up against a <b>senior</b> D1 linebacker recruit — P50≈FCS, P75≈G5, P90≈Power-4. You're 14 with a 4-year runway, so gaps here are the destination bar, not a freshman scorecard (the radar above is your on-track measure for this year).</div>
+    ${(rows=>`<table><tr><th>Metric</th><th>You</th><th>Tier</th><th>To next</th></tr>
+      ${rows.map(r=>r.untested?`<tr><td>${r.label}${r.prov?'*':''}</td><td class="mono" style="color:var(--faint)">—</td><td colspan="2" style="color:var(--faint);font-size:12px">untested — run it</td></tr>`:`<tr><td style="font-weight:700">${r.label}${r.prov?'*':''}</td><td class="mono" style="color:var(--amber);font-weight:800">${r.val}</td><td style="font-size:12px;color:${r.tier==='P90'?'var(--green)':r.tier==='below P50'?'var(--faint)':'var(--cyan)'}">${r.tier}</td><td class="mono" style="font-size:11px;color:var(--faint)">${r.gapText}</td></tr>`).join('')}
+    </table>`)(benchTable('LB'))}
+    <div class="note">Speed rows fill the day you test. <b>*</b> broad + shuttle thresholds are provisional (combine-derived), pending firmer HS-recruit sourcing.</div>
+  </div>
+  <div class="card">
     <h3>System Read <span class="r">what your own data says</span></h3>
     ${sr.days30<7?'<div class="empty">Needs ≥7 days of check-ins before the mirror is useful.</div>':`
     <div style="font-size:13px;line-height:1.7;color:var(--dim)">
@@ -1539,7 +1585,7 @@ function rTrack(){
     <div class="row">
       <div class="grow"><label>Metric</label><select id="mKey">
         <option value="wt">Body weight (lb)</option><option value="forty">40-yd (s)</option>
-        <option value="vert">Vertical (in)</option><option value="broad">Broad jump (in)</option>
+        <option value="vert">Vertical (in)</option><option value="broad">Broad jump (in)</option><option value="shuttle">Pro-agility shuttle (s)</option>
         <option value="gpa">GPA</option></select></div>
       <div style="width:100px"><label>Value</label><input id="mVal" type="number" step="0.01" inputmode="decimal"></div>
     </div>
