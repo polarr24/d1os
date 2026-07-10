@@ -546,7 +546,11 @@ const TECHNIQUE={
   'Zone drop (LB)':['Open your hips and gain depth — carry #3 vertical','Eyes on the QB, feel receivers cross your face','Settle in the window, don\'t chase — throttle under the dig','Break on the throw, close downhill, tackle through the catch'],
   'Pursuit angle':['Never trail the ball — take the angle that beats it to the sideline','Aim for a point in FRONT of the ballcarrier, not at him','Expect the cutback: the backside defender keeps inside leverage','Run through the hip, wrap, finish — gang-tackle to the whistle'],
   'Blitz timing (edge / A-gap)':['Time the ball, not the cadence — go on the first flinch of the center','Pick your move pre-snap: rip, swim, or bull — never decide late','Dip the edge or knife the gap low — small target, full speed','Close to the near hip, break down, wrap the QB — don\'t run past him'],
-  'Press / re-route (nickel)':['Patient feet — mirror the release, don\'t lunge or open early','Jam the near number to break the timing, then trail his hip','Stay in phase: eyes on his hips, not the ball, until he looks back','Find the ball late over the top shoulder — high-point or rake it out']};
+  'Press / re-route (nickel)':['Patient feet — mirror the release, don\'t lunge or open early','Jam the near number to break the timing, then trail his hip','Stay in phase: eyes on his hips, not the ball, until he looks back','Find the ball late over the top shoulder — high-point or rake it out'],
+  'RB vision / press the hole':['Aim at the hole and PRESS it — make the linebacker commit before you cut','Set up your blocks: slow to the hole, fast through it','One cut, get downhill — dancing gets you dropped for a loss','Eyes to the second level the instant you clear the line'],
+  'Pass protection (RB)':['Scan for the blitz pre-snap — know your man','Meet the rusher at the line, not deep in the pocket','Strike with inside hands, hips down, feet chopping','A clean blitz pickup on film buys coaches trust fast'],
+  'Ball security under contact':['Two hands the moment contact or traffic shows up','High and tight — ball on the sternum, elbow clamped','Cover the point with your off-hand through the pile','Never reach for extra yards with the ball hanging out'],
+  'Open-field tackle (angle)':['Take an angle that cuts the sideline off — never a chase straight at him','Break down under control about 3 yards out','Aim the near hip, head across, wrap and squeeze','Drive the feet and finish — no arm-tackles']};
 
 /* ============ FUEL PLAN — mass mission math (350-500 kcal surplus, ~0.8-1 g/lb protein) ============ */
 function fuelPlan(bw,adj=0){
@@ -1167,6 +1171,28 @@ function logPlanOnce(plan){
 /* ============ VIEWS — render model + plan, capture events. No business logic. ============ */
 
 /* ---- TODAY ---- */
+/* milestones — badges earned ONLY from real data; locked ones show what unlocks them */
+function milestones(s=S){
+  const con=Model.consistency(s);
+  const lastM=k=>{const m=(s.metrics||[]).filter(x=>x.key===k).sort((a,b)=>a.d<b.d?1:-1)[0];return m?m.val:null;};
+  const bw=lastM('wt'), vert=lastM('vert');
+  const has=k=>(s.metrics||[]).some(m=>m.key===k);
+  const checkinDays=Object.keys(s.checkins||{}).length;
+  const film=(s.pushLog||[]).filter(p=>p.type==='film').length;
+  const B=(label,earned,hint)=>({label,earned:!!earned,hint});
+  return [
+    B('First test logged',(s.metrics||[]).length>0,'log any measurable in TRACK'),
+    B('4-day check-in run',checkinDays>=4,'check in 4 days'),
+    B('Film habit',film>=1,'run the 5 questions in PUSH'),
+    B('First lift logged',(s.lifts||[]).length>0,'log one real set in TRAIN'),
+    B('Board started',(s.pipeline||[]).length>0,'add a target school in PATH'),
+    B('Baseline 40',has('forty'),'run and log your 40'),
+    B('Vert 30 in',vert>=30,vert?('at '+vert+' in — need 30'):'log a vertical'),
+    B('Squat 2x BW',!!(bw&&s.prs.squat>=2*bw),bw?('need '+Math.ceil(2*bw)+' at '+bw+' lb'):'log bodyweight'),
+    B('Bodyweight 165',bw>=165,bw?('at '+bw+' — climb to 165'):'log bodyweight'),
+    B('7-day streak',con.streak>=7,'all four, 7 days straight')
+  ];
+}
 function rToday(){
   const plan=decide(), ck=ckToday(), done=ck.filter(Boolean).length, con=Model.consistency();
   logPlanOnce(plan);
@@ -1180,6 +1206,7 @@ function rToday(){
   $('#v-today').innerHTML=`
   <div class="prio"><div class="k">TODAY'S PRIORITY${plan.focus?` · ATTACKING: ${esc(plan.focus.key.toUpperCase())}`:''}</div>
     <div class="t">${esc(plan.priority.title)}</div><div class="w">${esc(plan.priority.why)}</div></div>
+  ${(()=>{const t=todayISO();const dd=d=>daysBetween(t,d);const rows=[['Back to practice','2026-07-28'],['Equipment day','2026-08-01'],['3-team scrimmage','2026-08-08']].map(([l,d])=>({l,d,n:dd(d)})).filter(x=>x.n>=-1);if(!rows.length)return '';const s=dd('2026-08-08');const focus=s>10?'BUILD — push speed + power, bank 9h sleep + your calories. This 2-week window is where you separate.':s>3?'SHARPEN — cut volume ~40%, keep sprints crisp, arrive fresh and explosive.':s>=0?'GAME WEEK — light, fast, confident. Empty the tank on the 8th; play in front of 3 schools.':'';return `<div class="card"><h3>Countdown <span class="r">to the scrimmage</span></h3>${rows.map(x=>`<div class="row" style="padding:6px 0"><div class="grow" style="font-size:14px">${x.l} · <span style="color:var(--faint)">${fmtD(x.d)}</span></div><div class="mono" style="color:var(--amber);font-weight:800">${x.n<=0?'TODAY':x.n+'d'}</div></div>`).join('')}${focus?`<div class="note"><b style="color:var(--txt)">${focus}</b></div>`:''}</div>`;})()}
   <div class="card">
     <h3>Session <span class="r">${plan.phase.toUpperCase()} · ${['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date().getDay()]}</span></h3>
     <div style="font-size:18px;font-weight:900;color:var(--cyan);margin-bottom:6px">${esc(plan.workout.title)}</div>
@@ -1213,6 +1240,9 @@ function rToday(){
     </div>
     <div class="dots">${dots}</div>
   </div>
+  ${(ms=>`<div class="card"><h3>Milestones <span class="r">${ms.filter(b=>b.earned).length}/${ms.length} earned</span></h3>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">${ms.map(b=>`<span class="pill ${b.earned?'green':''}" style="${b.earned?'':'opacity:.45'}">${b.earned?'✓ ':''}${b.label}</span>`).join('')}</div>
+    ${(nl=>nl?`<div class="note">Next: <b>${nl.label}</b> — ${nl.hint}.</div>`:'<div class="note">Every milestone earned — set the next one with a coach.</div>')(ms.find(b=>!b.earned))}</div>`)(milestones())}
   ${new Date().getDay()===0&&!S.reviews.some(r=>r.d===todayISO())?`<div class="card">
     <h3>Sunday Review <span class="r">3 lines · your coaching manual</span></h3>
     <label>What worked this week</label><input id="rvW" placeholder="one line">
@@ -1268,14 +1298,43 @@ function doneTask(id,apply){
 let trainDay=null;
 function plates(t){ let s=(t-45)/2; if(s<=0) return 'bar only';
   const o=[]; for(const p of [45,25,10,5,2.5]){ while(s>=p){o.push(p);s-=p;} } return o.join(' + ')+' /side'; }
+let gymMode='full';
+function setGym(m){gymMode=m;rTrain();}
+function aptSession(w){
+  const t=(w&&w.title)||'', D=w?w.day:new Date().getDay();
+  const mk=(title,why,blocks)=>({title,why,blocks,day:D});
+  if(/UPPER|BENCH/.test(t)) return mk('APARTMENT · UPPER','No barbell needed — DB + bodyweight hits the same qualities. Move with intent.',[
+    {n:'A · Explosive push-ups',s:'5×5 — hands leave the floor, reset each rep'},
+    {n:'A · DB floor press (or loaded backpack)',s:'4×8 — controlled down, drive up'},
+    {n:'B · Feet-elevated / pike push-ups',s:'3×8-12 — your overhead-press swap'},
+    {n:'B · Inverted rows (under a sturdy table) or DB row',s:'4×10 — pull elbows past the ribs'},
+    {n:'C · Chin-ups if you have a bar, else backpack curls',s:'3×AMRAP'},
+    {n:'D · Neck 4-way + plank',s:'2×15 · 3×30s'}]);
+  if(/LOWER|CONTRAST|40|VERT|SPEED/.test(t)) return mk('APARTMENT · LOWER + SPEED','Take it outside — the speed and power work barely needs a gym.',[
+    {n:'A · Sprint mechanics + accel (grass, cleats)',s:'Wall drill 3×5 · 6×20yd from a 2-point, full walk-back'},
+    {n:'A · Jump progression',s:'Pogos 3×10 · broad jumps 4×3 (stick it) · depth-to-broad if legs are fresh'},
+    {n:'B · DB/goblet Bulgarian split squat',s:'3×8/leg — hold anything heavy'},
+    {n:'B · Single-leg DB hip thrust',s:'3×10/leg — sprint power lives here'},
+    {n:'C · Nordic curl (anchor your feet) + calf raises',s:'3×6 · 3×20'},
+    {n:'D · Ball security + hard cuts (your football)',s:'5 points of pressure · 10 cuts each way'}]);
+  if(/ATHLETICISM|POSITION/.test(t)) return mk('APARTMENT · ATHLETICISM','Field day. Football, gloves, cleats — compete against yourself.',[
+    {n:'A · 5-10-5 shuttle (cousin/phone times it)',s:'4 reps, full recovery'},
+    {n:'A · Approach + broad jumps',s:'5×3 each'},
+    {n:'B · Position drills with your ball',s:'Cuts, ball security, tracking — 15 min quality'},
+    {n:'C · Easy strides',s:'4×20yd smooth'}]);
+  return {...TEMPLATES.recoveryTemplate,day:D};
+}
 function rTrain(){
   const plan=decide();
   const week=weekFor(S,todayISO());
-  const w=trainDay===null?plan.workout:(week.find(x=>x.day===trainDay)||TEMPLATES.restDay);
+  let w=trainDay===null?plan.workout:(week.find(x=>x.day===trainDay)||TEMPLATES.restDay);
+  if(gymMode==='sore') w={...TEMPLATES.recoveryTemplate,day:w.day,title:'TOO SORE · RECOVERY',why:'Listen to the body — mobility, easy movement, food, sleep. Back hard tomorrow.'};
+  else if(gymMode==='apt') w=aptSession(w);
   const recent=S.lifts.slice(-5).reverse();
   const dl=plan.deload;
   $('#v-train').innerHTML=`
   <div class="seg">${[1,2,3,4,5,6,0].map(d=>`<button class="${w.day===d?'on':''}" onclick="trainDay=${d};rTrain()">${['S','M','T','W','T','F','S'][d]}</button>`).join('')}</div>
+  <div class="seg" style="margin-top:-6px"><button class="${gymMode==='full'?'on':''}" onclick="setGym('full')">EOS + cousin</button><button class="${gymMode==='apt'?'on':''}" onclick="setGym('apt')">Apartment</button><button class="${gymMode==='sore'?'on':''}" onclick="setGym('sore')">Too sore</button></div>
   ${plan.phase==='inseason'?`<div class="note" style="margin-bottom:10px">In-season week built around game day:
     <select style="width:auto;display:inline-block;padding:4px 8px" onchange="setGameDay(this.value)">
       ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((n,i)=>`<option value="${i}" ${S.settings.gameDay===i?'selected':''}>${n}</option>`).join('')}
@@ -1393,7 +1452,7 @@ function rPath(){
           ${p.stage<5?`<button class="btn sm ghost" onclick="advP('${p.id}')">STAGE +</button>`:''}
           <button class="btn sm ghost" onclick="rmP('${p.id}')" style="color:var(--red)">✕</button>
         </div>${p.notes?`<div class="note">${esc(p.notes)}</div>`:''}
-      </div>`).join(''):'<div class="empty">No schools on the board yet. Add your first target below.</div>'}
+      </div>`).join(''):`<div class="empty">Your board is empty — put your targets here. Coaches notice the kids who are organized.<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0 2px">${SCHOOLS.filter(s=>s.tier===1).slice(0,6).map(s=>`<button class="btn sm ghost" onclick="quickAdd('${esc(s.school).replace(/'/g,"\\'")}')">+ ${esc(s.school)}</button>`).join('')}</div>One tap to add a best-fit target, or type any school below.</div>`}
     <div class="row" style="margin-top:12px">
       <input id="npSchool" placeholder="School" class="grow">
       <input id="npCoach" placeholder="Coach (verify current staff)" class="grow">
@@ -1416,6 +1475,12 @@ function rPath(){
       <div class="bd">${t.items.map(i=>'• '+i).join('<br>')}</div></details>`).join('')}
   </div>
   <div class="card">
+    <h3>Recruiting One-Pager <span class="r">what a coach sees in 10s</span></h3>
+    <div class="note">The snapshot to paste into any coach email or DM. The blanks ARE the work: run the 40, log your GPA, add your Hudl link.</div>
+    <pre style="white-space:pre-wrap;font-size:12px;color:var(--dim);background:var(--bg2);border:1px solid var(--line);border-radius:10px;padding:12px;margin-top:10px;font-family:inherit">${esc(buildProfile())}</pre>
+    <button class="btn amber" style="width:100%;margin-top:10px" onclick="copyProfile()">COPY PROFILE</button>
+  </div>
+  <div class="card">
     <h3>Email Templates</h3>
     ${Object.entries(EMAIL_TEMPLATES).map(([k,t])=>`<details><summary>${k.replace(/_/g,' ').toUpperCase()}</summary>
       <div class="bd"><b>Subject:</b> ${esc(t.subject)}<br><br>${esc(t.body).replace(/\n/g,'<br>')}
@@ -1423,6 +1488,18 @@ function rPath(){
       <button class="btn sm" style="margin-top:8px" onclick="copyTpl('${k}')">COPY</button></div></details>`).join('')}
   </div>`;
 }
+function buildProfile(){
+  const m=k=>{const x=(S.metrics||[]).filter(y=>y.key===k).sort((a,b)=>a.d<b.d?1:-1)[0];return x?x.val:null;};
+  const p=S.prs, forty=m('forty'), vert=m('vert'), broad=m('broad'), wt=m('wt'), gpa=m('gpa');
+  return `${S.profile.name} [Last name] — Class of ${S.profile.classOf} — ${S.profile.pos}
+Henderson, NV — 5'7" / ${wt||'—'} lb
+Squat ${p.squat} · Deadlift ${p.dead} · Bench ${p.bench} · Hang clean ${p.clean}
+40yd: ${forty?forty+'s (hand-timed)':'[untested — run it]'} · Vertical: ${vert?vert+' in':'[untested]'} · Broad: ${broad?broad+' in':'[untested]'}
+GPA: ${gpa||'[log it]'} · NCAA Eligibility Center ID: [register at eligibilitycenter.org]
+Hudl: [add your highlight link]
+Contact: [parent name · phone · email]`;
+}
+function copyProfile(){ const t=buildProfile(); if(navigator.clipboard){navigator.clipboard.writeText(t);toast('Recruiting profile copied ✓');}else toast('Copy it from the box above'); }
 function addP(){ const s=$('#npSchool').value.trim(); if(!s){toast('School name required');return;}
   const id=uid();
   S.pipeline.push({id,school:s,coach:$('#npCoach').value.trim(),stage:0,notes:''});
@@ -1615,7 +1692,7 @@ function rTrack(){
     <div class="row">
       <div class="grow"><label>Metric</label><select id="mKey">
         <option value="wt">Body weight (lb)</option><option value="forty">40-yd (s)</option>
-        <option value="vert">Vertical (in)</option><option value="broad">Broad jump (in)</option><option value="shuttle">Pro-agility shuttle (s)</option>
+        <option value="vert">Vertical (in)</option><option value="broad">Broad jump (in)</option><option value="shuttle">Pro-agility shuttle (s)</option><option value="sleep">Sleep (hours)</option>
         <option value="gpa">GPA</option></select></div>
       <div style="width:100px"><label>Value</label><input id="mVal" type="number" step="0.01" inputmode="decimal"></div>
     </div>
@@ -1638,6 +1715,38 @@ function rTrack(){
     <details><summary>Budget grocery list</summary><div class="bd">${fp.groceries.map(x=>'• '+esc(x)).join('<br>')}<br><br>${esc(fp.note)}</div></details>`;})(fuelPlan(Model.gaps().latest('wt')||160,S.params.kcalAdj.v))}
   </div>
   <div class="card">
+    <h3>Sleep <span class="r">the #1 lever</span></h3>
+    <div class="note">More than any lift or supplement, sleep is where a 15-year-old grows and gets faster. On this 2-week break you have the time — target 9 hours.</div>
+    <div style="font-size:13px;color:var(--dim);line-height:1.7;margin-top:8px">• Lights out 10:30 · phone parked outside the room at 10:15<br>• Same wake time daily, even weekends<br>• Cool, dark room · no screens the last 30 minutes<br>• 20-min nap if a hard day leaves you flat — never after 4pm</div>
+    ${(vs=>vs.length?`<div style="margin-top:10px">${spark(vs,{goal:9,empty:''})}</div>`:'')(S.metrics.filter(m=>m.key==='sleep').sort((a,b)=>a.d<b.d?-1:1).map(m=>({d:m.d,v:m.val})))}
+    <div class="note">Log "Sleep (hours)" in the measurable box below to track the one thing that matters most.</div>
+  </div>
+  <div class="card">
+    <h3>Supplements <span class="r">evidence-tiered · not hype</span></h3>
+    <div class="note">Food first — supplements are the last 5%. Clear anything you take with a parent.</div>
+    <div style="font-size:11px;letter-spacing:.1em;color:var(--green);margin-top:10px;font-weight:800">TIER 1 · WORTH IT</div>
+    <div style="font-size:13px;color:var(--dim);line-height:1.7;margin-top:4px">
+      • <b style="color:var(--txt)">Creatine monohydrate</b> — 3–5 g/day, any time. The most-studied, most-effective legal supplement there is; safe for teen athletes.<br>
+      • <b style="color:var(--txt)">Whey protein</b> — a tool to hit your protein target when whole food is hard, not magic. 1–2 scoops as needed.<br>
+      • <b style="color:var(--txt)">Vitamin D3</b> — only if bloodwork shows you're low. Get tested first, don't guess.</div>
+    <div style="font-size:11px;letter-spacing:.1em;color:var(--red);margin-top:12px;font-weight:800">SKIP · WASTE OR RISK</div>
+    <div style="font-size:13px;color:var(--faint);line-height:1.7;margin-top:4px">
+      • Pre-workout / caffeine — you're 15; sleep is the real energy lever.<br>
+      • "Test boosters" — don't work, and messing with hormones now is a bad idea.<br>
+      • BCAAs — pointless when you already eat enough protein.<br>
+      • Mass gainers — sugar you can get cheaper from real food.</div>
+  </div>
+  <div class="card">
+    <h3>What to Invest In <span class="r">by return, not price</span></h3>
+    <div style="font-size:13px;color:var(--dim);line-height:1.8">
+      1. <b style="color:var(--amber)">Groceries / the surplus</b> — your body is the product, and you're 17 lb under target. Highest ROI, every single week.<br>
+      2. <b style="color:var(--amber)">~$15 phone tripod</b> — film your own sprints and lifts. Film is recruiting currency and free coaching feedback. Absurd return.<br>
+      3. <b style="color:var(--amber)">Cleats that actually fit</b> — you sprint and cut in these; worn cleats cost speed and risk ankles.<br>
+      4. <b style="color:var(--dim)">Creatine</b> — ~$15 for months of the one Tier-1 supplement.<br>
+      5. <b style="color:var(--dim)">Later: a 3-session sprint-mechanics block</b> with a real speed coach — once you have a baseline 40 to improve. Save it for when it'll move a measured number.</div>
+    <div class="note">Notice what's NOT here: shoe-of-the-month, supplement stacks, gadgets. Spend only on what moves a real number.</div>
+  </div>
+  <div class="card">
     <h3>Data <span class="r">yours, protected</span></h3>
     <div class="row">
       <button class="btn grow" onclick="exportS()">⬇ EXPORT BACKUP</button>
@@ -1654,8 +1763,10 @@ function pickImport(){ $('#impFile').click(); }
 
 /* ---- PUSH ---- */
 let drIdx=null;
+let pbIdx=null,pbShow=false;
+function drawPB(){pbIdx=Math.floor(Math.random()*PLAYBOOK.length);pbShow=false;rPush();}
 function rPush(){
-  const iq=Model.iq(), plan=decide(), dr=drIdx===null?null:DARK_ROOM[drIdx];
+  const iq=Model.iq(), plan=decide(), dr=drIdx===null?null:DARK_ROOM[drIdx], pb=pbIdx===null?null:PLAYBOOK[pbIdx];
   const engIq=plan.tasks.find(t=>t.kind==='iq');
   $('#v-push').innerHTML=`
   <div class="card">
@@ -1669,6 +1780,17 @@ function rPush(){
     <details style="margin-top:10px"><summary>Play study queue</summary><div class="bd">
       ${FILM_SYSTEM.weekly_play_to_study.map(w=>`<b style="color:var(--txt)">Wk ${w.week_range}:</b> ${esc(w.play)} — <i>${esc(w.why)}</i><br><span style="color:var(--faint)">${esc(w.where)}</span><br><br>`).join('')}
     </div></details>
+  </div>
+  <div class="card">
+    <h3>IQ Flashcards <span class="r">${PLAYBOOK.length} plays · call it before you flip it</span></h3>
+    ${pb?`<div class="pill cyan">${esc(pb.cat)} · ${esc(pb.name)}</div>
+      <div style="font-size:15px;font-weight:800;margin:10px 0 4px">${esc(pb.formation)}</div>
+      <div style="font-size:13px;color:var(--faint)">${esc(pb.concept)}</div>
+      ${pbShow?`<div style="font-size:14px;color:var(--dim);line-height:1.6;margin-top:10px;border-top:1px solid var(--line);padding-top:10px"><b style="color:var(--amber)">Your job:</b> ${esc(pb.job)}</div>
+        <div class="row" style="margin-top:12px"><button class="btn amber grow" onclick="logPush('film');pbIdx=null;pbShow=false;">GOT IT ✓</button><button class="btn ghost" onclick="drawPB()">NEXT</button></div>`
+      :`<button class="btn amber" style="width:100%;margin-top:12px" onclick="pbShow=true;rPush()">SHOW MY JOB</button>`}`
+    :`<div class="note" style="margin:0 0 12px">A play comes up — call your read and your job out loud, THEN flip it. This is how the game slows down for you.</div>
+      <button class="btn" style="width:100%" onclick="drawPB()">DRAW A PLAY</button>`}
   </div>
   <div class="card">
     <h3>Dark Room <span class="r">${DARK_ROOM.length} scenarios</span></h3>
