@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.17 -->
+<!DOCTYPE html><!-- d1os v7.18 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -457,6 +457,18 @@ const BENCHMARKS=[
    Dynamite Sports + Atomic Athlete + Critical Bench (bench/squat 1RM), recruiting size ranges, NFL combine
    position data (40 elite anchor). prov=1 = provisional/lower-confidence (broad, shuttle: combine-derived,
    need firmer HS-recruit sourcing). forty + shuttle are lower-is-better. These are the DESTINATION bar. */
+/* KNOWLEDGE_EDGES — hypotheses the athlete graph can TEST from his own append-only log.
+   ck/ek are metric keys paired by date. Downstream edges he can't yet measure are marked future. */
+const KNOWLEDGE_EDGES=[
+  {id:'sleep_energy',from:'Sleep',to:'Morning energy',ck:'sleep',ek:'energy',statement:'More sleep → higher morning energy'},
+  {id:'energy_sq',from:'Morning energy',to:'Session quality',ck:'energy',ek:'sq',statement:'Higher morning energy → better sessions'},
+  {id:'sleep_sq',from:'Sleep',to:'Session quality',ck:'sleep',ek:'sq',statement:'More sleep → better sessions'}
+];
+/* the directive's full chain; the last two links need signals he can't log yet — shown honest, never faked */
+const KNOWLEDGE_FUTURE=[
+  {from:'Session quality',to:'Coach feedback',need:'a coach-feedback log'},
+  {from:'Coach feedback',to:'Playing time',need:'depth-chart / snaps data'}
+];
 const D1_BENCH={
   RB:{forty:{p50:4.70,p75:4.60,p90:4.50},vert:{p50:30,p75:33,p90:36},broad:{p50:108,p75:114,p90:120,prov:1},bench:{p50:265,p75:270,p90:280},squat:{p50:350,p75:375,p90:390},shuttle:{p50:4.45,p75:4.30,p90:4.20,prov:1},wt:{p50:175,p75:185,p90:195}},
   LB:{forty:{p50:4.75,p75:4.65,p90:4.55},vert:{p50:30,p75:33,p90:35},broad:{p50:108,p75:114,p90:118,prov:1},bench:{p50:315,p75:335,p90:355},squat:{p50:385,p75:405,p90:425},shuttle:{p50:4.50,p75:4.35,p90:4.20,prov:1},wt:{p50:205,p75:218,p90:228}},
@@ -1028,6 +1040,52 @@ const Model={
             trendUp:c.rate7>=c.rate30, rate7:c.rate7, rate30:c.rate30, days30:c.days30};
   }
 };
+
+/* ============ KNOWLEDGE ENGINE (v7.18) — the accumulation layer ============
+   D1 OS stops re-solving the same question by turning paired observations into permanent
+   KNOWLEDGE OBJECTS. This is a PURE function of the append-only log (metrics/checkins/notes),
+   so knowledge (a) can never be fabricated, (b) can never drift from evidence, (c) survives
+   any UI redesign, and (d) is exported with the data — the log IS the permanent memory.
+   Contradictions are never overwritten: every observation stays in the log and is re-counted
+   here each time. Confidence comes ONLY from evidence quantity + consistency — never a guess. */
+function latestByDate(s,key){ const m={}; (s.metrics||[]).filter(x=>x.key===key&&x.val!=null).forEach(x=>{ m[x.d]=x.val; }); return m; }
+function knowledgeEdge(s,edge){
+  const A=latestByDate(s,edge.ck), B=latestByDate(s,edge.ek);
+  const dates=Object.keys(A).filter(d=>d in B).sort();
+  const nDays=dates.length;
+  const xs=dates.map(d=>A[d]), ys=dates.map(d=>B[d]);
+  const sign=v=>v>0?1:v<0?-1:0;
+  // Kendall-style concordance: compare every day against every other day — uses far more of
+  // the evidence than a median split and degrades honestly when signals tie.
+  let support=0, contra=0;
+  for(let i=0;i<nDays;i++) for(let j=i+1;j<nDays;j++){
+    const dx=sign(xs[i]-xs[j]), dy=sign(ys[i]-ys[j]);
+    if(dx===0||dy===0) continue;                 // ties carry no direction
+    if(dx===dy) support++; else contra++;
+  }
+  const decisive=support+contra;
+  const agree=decisive?support/decisive:0.5;
+  const strength=Math.abs(agree-0.5)*2;
+  const dir=agree>=0.5?'positive':'inverse';
+  const NEED=5, CONFIRM=8;
+  let status, conf;
+  if(nDays<NEED){ const more=NEED-nDays; status='insufficient'; conf=`Insufficient evidence — need ${more} more paired day${more===1?'':'s'}`; }
+  else if(decisive===0){ status='insufficient'; conf='Insufficient — no variation to test yet'; }
+  else if(strength>=0.5&&nDays>=CONFIRM){ status='confirmed'; conf=`Consistent — ${support}/${decisive} day-comparisons agree across ${nDays} days`; }
+  else if(strength>=0.5){ const more=CONFIRM-nDays; status='emerging'; conf=`Emerging — ${support}/${decisive} comparisons agree, ${more} more day${more===1?'':'s'} to confirm`; }
+  else if(strength<0.25){ status='none'; conf=`No detectable relationship — ${support}/${decisive} comparisons agree`; }
+  else { status='testing'; conf=`Mixed so far — ${support}/${decisive} comparisons agree, still testing`; }
+  return { ...edge, n:nDays, comparisons:decisive, support, contra, agree:+agree.toFixed(2), dir, status, conf,
+           lastUpdated:dates.at(-1)||null, testing:(status!=='confirmed'&&status!=='none'),
+           need:Math.max(0,NEED-nDays),
+           learned: status==='confirmed'?(dir==='positive'?edge.statement:`Opposite of expected: more ${edge.from.toLowerCase()} → less ${edge.to.toLowerCase()}`):(status==='none'?`No link found: ${edge.from.toLowerCase()} ↔ ${edge.to.toLowerCase()}`:null) };
+}
+function knowledgeGraph(s=S){ return (typeof KNOWLEDGE_EDGES!=='undefined'?KNOWLEDGE_EDGES:[]).map(e=>knowledgeEdge(s,e)); }
+function knowledgeLearned(s=S){ return knowledgeGraph(s).filter(e=>e.learned); }
+/* decision memory — the honest personal-evidence line behind a recommendation, or null if unproven */
+function knowledgeCite(id,s=S){ const e=knowledgeGraph(s).find(x=>x.id===id); if(!e||e.status==='insufficient') return null;
+  if(e.status==='none') return `your own data shows no clear link yet (${e.support}/${e.comparisons} day-comparisons)`;
+  return `the two moved together in ${e.support} of ${e.comparisons} day-to-day comparisons`; }
 /* ============ DECISION ENGINE — decide(S,date) → plan. Deterministic. Every item has a why. ============ */
 function weekFor(s,dateISO){
   const ph=phaseFor(dateISO);
@@ -1227,7 +1285,7 @@ function rToday(){
   const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊'};
   $('#v-today').innerHTML=`
   <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">DO IT →</button>`:''}</div>
-  <div class="card"><h3>Quick Log <span class="r">30 seconds</span></h3><div class="row"><button class="btn grow" onclick="quickLog('wt','Bodyweight (lb)')">Weight</button><button class="btn grow" onclick="quickLog('sleep','Sleep last night (hours)')">Sleep</button><button class="btn grow" onclick="go('train')">Lift →</button></div></div>
+  <div class="card"><h3>Quick Log <span class="r">30 seconds</span></h3><div class="row"><button class="btn grow" onclick="quickLog('wt','Bodyweight (lb)')">Weight</button><button class="btn grow" onclick="quickLog('sleep','Sleep last night (hours)')">Sleep</button><button class="btn grow" onclick="go('train')">Lift →</button></div><div class="row" style="margin-top:8px"><button class="btn grow" onclick="rateLog('energy','Morning energy (1–5)')">Energy 1–5</button><button class="btn grow" onclick="rateLog('sq','Session quality (1–5)')">Session 1–5</button></div><div class="note" style="margin-top:6px">Energy + session ratings are what let the app learn what actually works for <b>you</b> — see the Knowledge Graph in TRACK.</div></div>
   <div class="prio"><div class="k">TODAY'S PRIORITY${plan.focus?` · ATTACKING: ${esc(plan.focus.key.toUpperCase())}`:''}</div>
     <div class="t">${esc(plan.priority.title)}</div><div class="w">${esc(plan.priority.why)}</div></div>
   ${(()=>{const t=todayISO();const dd=d=>daysBetween(t,d);const rows=[['Back to practice','2026-07-28'],['Equipment day','2026-08-01'],['3-team scrimmage','2026-08-08']].map(([l,d])=>({l,d,n:dd(d)})).filter(x=>x.n>=-1);if(!rows.length)return '';const s=dd('2026-08-08');const focus=s>10?'BUILD — push speed + power, bank 9h sleep + your calories. This 2-week window is where you separate.':s>3?'SHARPEN — cut volume ~40%, keep sprints crisp, arrive fresh and explosive.':s>=0?'GAME WEEK — light, fast, confident. Empty the tank on the 8th; play in front of 3 schools.':'';return `<div class="card"><h3>Countdown <span class="r">to the scrimmage</span></h3>${rows.map(x=>`<div class="row" style="padding:6px 0"><div class="grow" style="font-size:14px">${x.l} · <span style="color:var(--faint)">${fmtD(x.d)}</span></div><div class="mono" style="color:var(--amber);font-weight:800">${x.n<=0?'TODAY':x.n+'d'}</div></div>`).join('')}${focus?`<div class="note"><b style="color:var(--txt)">${focus}</b></div>`:''}</div>`;})()}
@@ -1641,11 +1699,22 @@ function experiments(s=S){
     record:['school + level'],
     until:'Too early to narrow — keep training the number and add schools once film exists, so the board stays honest.',
     log:null, go:'path'});
+  const kg=(typeof knowledgeGraph==='function')?knowledgeGraph(s):[];
+  const kEdge=kg.filter(e=>e.testing).sort((a,b)=>a.need-b.need)[0];
+  if(kEdge) E.push({id:'know',title:'Build your knowledge graph',key0:7,
+    unlocks:['Personal cause→effect evidence (e.g. sleep → session quality)','Recommendations backed by YOUR data, not generic advice','A permanent, exported model of what works for you'],
+    keystone:1, effort:2, effLabel:'Low', effWhy:'two 1–5 taps a day (energy + session quality)',
+    protocol:['Each morning, log Energy 1–5','After training, log Session quality 1–5',`Keep it ~${Math.max(kEdge.need,5)} more days so a relationship can be tested`],
+    record:['morning energy 1–5','session quality 1–5'],
+    until:'Follow the sleep-first defaults for now — after ~5 paired days the app can tell you whether sleep actually moves YOUR sessions, instead of guessing.',
+    log:['energy','Morning energy (1–5)']});
   E.forEach(e=>{ e.value=e.unlocks.length+e.keystone; e.vBucket=e.value>=6?'Very High':e.value>=4?'High':e.value>=2?'Medium':'Low'; e.score=e.value/e.effort; });
   E.sort((a,b)=>b.score-a.score || b.value-a.value || a.key0-b.key0);
   return E;
 }
 function expLog(key,label){ const v=+prompt(label); if(v&&v>0){ (S.metrics=S.metrics||[]).push({d:todayISO(),key,val:v,src:'manual'}); logEvent('metric',{key,val:v}); save(); toast(key.toUpperCase()+' logged ✓ — engine re-ranking'); rTrack(); } }
+/* rateLog — 1–5 daily rating into the append-only log; feeds the knowledge graph */
+function rateLog(key,label){ let v=+prompt(label); if(v){ v=Math.max(1,Math.min(5,Math.round(v))); (S.metrics=S.metrics||[]).push({d:todayISO(),key,val:v,src:'manual'}); logEvent('metric',{key,val:v}); save(); toast(label.split(' (')[0]+' logged ✓'); rToday(); } }
 function expTop(e){ return `<div class="prio" style="margin-top:10px">
   <div class="k">SMALLEST TEST · LEARNING ${e.vBucket.toUpperCase()} · EFFORT ${e.effLabel.toUpperCase()}</div>
   <div class="t">${esc(e.title)}</div>
@@ -1789,6 +1858,24 @@ function rTrack(){
     ${xp.length?expTop(xp[0])+(xp.length>1?`<details><summary>${xp.length-1} more experiment${xp.length>2?'s':''} in the queue</summary><div class="bd">${xp.slice(1).map(expRow).join('')}</div></details>`:''):'<div class="empty">Every core input is logged. The app is reasoning on real evidence end-to-end — keep logging to keep the trends sharp.</div>'}
   </div>
   <div class="card">
+    <h3>Knowledge Graph <span class="r">what your evidence has taught the app</span></h3>
+    <div class="note">Experiments end in <b>knowledge</b>, not just data. Each link is built only from your own paired observations — and it's permanent: it lives in your exported log, survives any redesign, and the app never re-asks what it has already learned.</div>
+    ${(kg=>{
+      const pill=e=>e.status==='confirmed'?'green':e.status==='emerging'?'cyan':e.status==='testing'?'amber':'';
+      const badge=e=>e.status==='confirmed'?'confirmed':e.status==='none'?'no link':e.status==='emerging'?'emerging':e.status==='testing'?'testing':'gathering';
+      const rows=kg.map(e=>`<div style="padding:9px 0;border-bottom:1px solid var(--line)">
+        <div class="row"><b class="grow">${esc(e.from)} → ${esc(e.to)}</b><span class="pill ${pill(e)}" style="${e.status==='insufficient'?'opacity:.55':''}">${badge(e)}</span></div>
+        <div class="note" style="margin:3px 0 0">${esc(e.learned||e.statement)}</div>
+        <div class="note">${esc(e.conf)}${e.comparisons?` · <span style="color:var(--green)">${e.support}✓</span> / <span style="color:var(--red)">${e.contra}✗</span>`:''}${e.lastUpdated?` · updated ${esc(e.lastUpdated)}`:''}</div>
+      </div>`).join('');
+      const learned=kg.filter(e=>e.learned);
+      const learnedBlock=learned.length?`<div class="flag" style="margin-top:12px">🧠 <b>Learned &amp; remembered:</b><br>${learned.map(e=>'• '+esc(e.learned)).join('<br>')}</div>`:`<div class="note" style="margin-top:12px">Nothing confirmed yet — every link is still gathering evidence. The app won't claim a relationship it hasn't actually seen in your data.</div>`;
+      const future=KNOWLEDGE_FUTURE.map(f=>`<div class="note" style="opacity:.5">${esc(f.from)} → ${esc(f.to)} — not yet measurable (needs ${esc(f.need)})</div>`).join('');
+      return rows+learnedBlock+`<details style="margin-top:6px"><summary>The full chain (incl. what we can't measure yet)</summary><div class="bd">${future}</div></details>`;
+    })(knowledgeGraph())}
+    <div class="note">Contradictions never erase history — a day that disagrees is recorded as a ✗ and lowers consistency, so knowledge gets more <i>nuanced</i>, never deleted.</div>
+  </div>
+  <div class="card">
     <h3>System Read <span class="r">what your own data says</span></h3>
     ${sr.days30<7?'<div class="empty">Needs ≥7 days of check-ins before the mirror is useful.</div>':`
     <div style="font-size:13px;line-height:1.7;color:var(--dim)">
@@ -1869,7 +1956,7 @@ function rTrack(){
     <div class="note">More than any lift or supplement, sleep is where a 15-year-old grows and gets faster. On this 2-week break you have the time — target 9 hours.</div>
     <div style="font-size:13px;color:var(--dim);line-height:1.7;margin-top:8px">• Lights out 10:30 · phone parked outside the room at 10:15<br>• Same wake time daily, even weekends<br>• Cool, dark room · no screens the last 30 minutes<br>• 20-min nap if a hard day leaves you flat — never after 4pm</div>
     ${(vs=>vs.length?`<div style="margin-top:10px">${spark(vs,{goal:9,empty:''})}</div>`:'')(S.metrics.filter(m=>m.key==='sleep').sort((a,b)=>a.d<b.d?-1:1).map(m=>({d:m.d,v:m.val})))}
-    <div class="note">Log "Sleep (hours)" in the measurable box below to track the one thing that matters most.</div>
+    <div class="note">${(c=>c?`<b style="color:var(--cyan)">Your evidence:</b> ${esc(c)} — personal data, not a generic rule.`:'Log Sleep + Session quality daily and the app will learn whether sleep actually moves YOUR sessions — then this recommendation cites your own evidence instead of generic advice.')(typeof knowledgeCite==='function'?knowledgeCite('sleep_sq'):null)}</div>
   </div>
   <div class="card">
     <h3>Supplements <span class="r">evidence-tiered · not hype</span></h3>
