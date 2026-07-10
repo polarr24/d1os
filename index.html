@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.13 -->
+<!DOCTYPE html><!-- d1os v7.17 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1581,6 +1581,87 @@ function intel(s=S){
     {name:'Academics',known:has('gpa'),basis:has('gpa')?'GPA logged':'no GPA on record',unlock:'Log your GPA'}
   ];
 }
+/* ---- Experiment Engine (v7.17): the app no longer just names unknowns — it designs the
+   smallest test that buys the most learning per unit effort, and states the best call until
+   it's run. LEARNING VALUE = count of REAL downstream decisions gated on that input (+keystone),
+   so the ranking recomputes itself every time evidence lands. Effort is a design estimate, not a
+   measurement. No fabricated certainty about the athlete — only evidence acquisition. */
+function experiments(s=S){
+  const has=k=>(s.metrics||[]).some(m=>m.key===k);
+  const wt=(s.metrics||[]).filter(m=>m.key==='wt').length;
+  const lifts=(s.lifts||[]).length;
+  const fortyK=has('forty'), broadK=has('broad');
+  const E=[];
+  if(!fortyK) E.push({id:'forty',title:'Baseline 40-yard dash',key0:0,
+    unlocks:['Speed percentile vs RB/LB recruits','Recruiting benchmark gap','Sprint-progression trend','Speed-first training priority','Fills the radar 40 axis','A real speed waypoint',...(broadK?['Completes your speed-power profile']:[])],
+    keystone:2, effort:2, effLabel:'Low', effWhy:'one session, phone timer or a friend',
+    protocol:['Warm up fully — 10+ min, 3–4 build-ups','Measure a flat 40 yards','Run 3 timed sprints, full rest between','Keep the best time'],
+    record:['best 40 (s)','surface','fatigue 1–5'],
+    until:'Train the fastest lane (RB sprint mechanics) and assume you sit at the position median until a real time says otherwise — don\'t chase a number you haven\'t set.',
+    log:['forty','Best 40 time in seconds, e.g. 4.9']});
+  if(!broadK) E.push({id:'broad',title:'Broad jump',key0:1,
+    unlocks:['Lower-body power percentile','Explosiveness benchmark (broad)','Fills the radar broad axis',...(fortyK?['Completes your speed-power profile']:[])],
+    keystone:0, effort:1, effLabel:'Very Low', effWhy:'3 jumps, no equipment',
+    protocol:['Warm up','From a still stance, jump forward for max distance','Measure heel-to-start on 3 tries','Keep the best'],
+    record:['best broad (in)'],
+    until:'Your vert already reads explosive — assume broad tracks it until measured, but don\'t claim a power percentile without the number.',
+    log:['broad','Best broad jump in inches, e.g. 100']});
+  if(lifts<3) E.push({id:'lifts',title:'Log 3 working sets',key0:2,
+    unlocks:['Strength-trend curves','e1RM progression','Whether strength is limiting speed','Auto-calibrated plate targets'],
+    keystone:0, effort:1, effLabel:'Very Low', effWhy:'log during a workout you\'re already doing',
+    protocol:['Next lift, tap LOG in TRAIN','Enter weight × reps for your main sets','Repeat across squat/bench/dead/clean over a week'],
+    record:['weight × reps per main lift'],
+    until:'Your preset 1RMs drive plans now — a fine starting point, but they can\'t show progress until real sets exist.',
+    log:null, go:'train'});
+  if(wt<2) E.push({id:'wt',title:wt===1?'Second weigh-in (start the trend)':'Log your weight',key0:3,
+    unlocks:['Mass-gain trend','Fueling calibration — is the surplus real','Mass-mission alarm if you\'re dropping'],
+    keystone:0, effort:1, effLabel:'Very Low', effWhy:'10 seconds on a scale',
+    protocol:['Weigh in first thing, same conditions','Log it','Repeat weekly'],
+    record:['weight (lb)'],
+    until:'One weigh-in is a dot, not a trend — hold the +300 kcal plan and let the second point tell us if it\'s working.',
+    log:['wt','Body weight in lb']});
+  if(!has('sleep')) E.push({id:'sleep',title:'Log sleep for 7 nights',key0:4,
+    unlocks:['Recovery signal on your #1 lever','Sleep-vs-performance correlation later'],
+    keystone:0, effort:2, effLabel:'Low', effWhy:'one number each morning for a week',
+    protocol:['Each morning, log hours slept','Keep it going 7 nights'],
+    record:['hours slept'],
+    until:'Sleep is the biggest recovery lever at your age — protect 9 hours as the default until your own data says you need more or less.',
+    log:['sleep','Hours slept last night, e.g. 8.5']});
+  if(!has('gpa')) E.push({id:'gpa',title:'Enter your GPA',key0:5,
+    unlocks:['Academic-eligibility tracking','Recruiting-profile completeness'],
+    keystone:0, effort:1, effLabel:'Very Low', effWhy:'one number',
+    protocol:['Pull your current GPA','Log it'],
+    record:['GPA'],
+    until:'Academics gate every offer — assume you must clear the NCAA qualifier bar until your real GPA is on record.',
+    log:['gpa','Current GPA, e.g. 3.6']});
+  if((s.pipeline||[]).length===0) E.push({id:'targets',title:'Add your first target schools',key0:6,
+    unlocks:['PATH pipeline engine','Per-school benchmark gaps','Contact + follow-up tracking'],
+    keystone:0, effort:2, effLabel:'Low', effWhy:'add a few schools in PATH',
+    protocol:['Open PATH','Add schools you\'d realistically fit','The engine starts tracking gaps + follow-ups'],
+    record:['school + level'],
+    until:'Too early to narrow — keep training the number and add schools once film exists, so the board stays honest.',
+    log:null, go:'path'});
+  E.forEach(e=>{ e.value=e.unlocks.length+e.keystone; e.vBucket=e.value>=6?'Very High':e.value>=4?'High':e.value>=2?'Medium':'Low'; e.score=e.value/e.effort; });
+  E.sort((a,b)=>b.score-a.score || b.value-a.value || a.key0-b.key0);
+  return E;
+}
+function expLog(key,label){ const v=+prompt(label); if(v&&v>0){ (S.metrics=S.metrics||[]).push({d:todayISO(),key,val:v,src:'manual'}); logEvent('metric',{key,val:v}); save(); toast(key.toUpperCase()+' logged ✓ — engine re-ranking'); rTrack(); } }
+function expTop(e){ return `<div class="prio" style="margin-top:10px">
+  <div class="k">SMALLEST TEST · LEARNING ${e.vBucket.toUpperCase()} · EFFORT ${e.effLabel.toUpperCase()}</div>
+  <div class="t">${esc(e.title)}</div>
+  <div class="note" style="margin-top:8px"><b style="color:var(--dim)">Run it:</b> ${e.protocol.map(esc).join(' → ')}</div>
+  <div class="note"><b style="color:var(--dim)">Record:</b> ${e.record.map(esc).join(', ')} — ${esc(e.effWhy)}</div>
+  <div class="note"><b style="color:var(--dim)">Unlocks:</b> ${e.unlocks.map(esc).join(' · ')}</div>
+  <div class="note" style="border-top:1px solid var(--line);padding-top:8px;margin-top:8px"><b style="color:var(--cyan)">Best call until then:</b> ${esc(e.until)}</div>
+  ${e.log?`<button class="btn amber sm" style="margin-top:10px" onclick="expLog('${e.log[0]}','${esc(e.log[1])}')">LOG RESULT →</button>`:e.go?`<button class="btn sm" style="margin-top:10px" onclick="go('${e.go}')">OPEN ${e.go.toUpperCase()} →</button>`:''}
+</div>`; }
+function expRow(e){ return `<div style="padding:9px 0;border-bottom:1px solid var(--line)">
+  <div class="row"><b class="grow">${esc(e.title)}</b><span class="pill">${esc(e.vBucket)} · ${esc(e.effLabel)} effort</span></div>
+  <div class="note" style="margin-top:3px"><b style="color:var(--dim)">Test:</b> ${e.protocol.map(esc).join(' → ')}</div>
+  <div class="note"><b style="color:var(--dim)">Unlocks:</b> ${e.unlocks.map(esc).join(' · ')}</div>
+  <div class="note"><b style="color:var(--cyan)">Until then:</b> ${esc(e.until)}</div>
+  ${e.log?`<button class="btn sm" style="margin-top:8px" onclick="expLog('${e.log[0]}','${esc(e.log[1])}')">LOG →</button>`:e.go?`<button class="btn sm" style="margin-top:8px" onclick="go('${e.go}')">OPEN ${e.go.toUpperCase()} →</button>`:''}
+</div>`; }
 /* benchTable — his logged/known metrics vs D1_BENCH senior-recruit thresholds for one position */
 function benchTable(pos='LB',s=S){
   const g=Model.gaps(s), mom=Model.momentum(s);
@@ -1652,6 +1733,7 @@ function strengthMap(s=S){
 }
 function rTrack(){
   const g=Model.gaps(), sr=Model.systemRead(), DOWN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const xp=experiments(), knownN=intel().filter(d=>d.known).length;
   $('#v-track').innerHTML=`
   <div class="card">
     <h3>Your Waypoints <span class="r">${esc(Model.waypointGaps().label)}</span></h3>
@@ -1698,7 +1780,13 @@ function rTrack(){
     <h3>What I Actually Know <span class="r">honest confidence · no fake scores</span></h3>
     <div class="note">A real coach models you — but only from what they can see. Here's where I have real signal vs. where I'm blind, and the fastest way to turn a guess into knowledge. I will never show you a made-up "readiness 84%" — that would be lying, and this app doesn't do that.</div>
     ${(dims=>dims.map(d=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><div class="row"><b class="grow">${d.name}</b><span class="pill ${d.known?'green':''}" style="${d.known?'':'opacity:.55'}">${d.known?'✓ have data':'blind'}</span></div><div class="note" style="margin:3px 0 0">${esc(d.basis)}${d.known?'':' — '+esc(d.unlock)}</div></div>`).join(''))(intel())}
-    <div class="note">Every row that turns green is more the app honestly understands — and only then can real trends and confidence appear. Right now the single highest-value input you can give it is a <b>baseline 40</b>.</div>
+    <div class="note">Every row that turns green is more the app honestly understands — and only then can real trends appear. ${xp.length?`Right now the highest-value input you can give it is <b>${esc(xp[0].title)}</b> — the exact test is in the next card.`:'Every core input is in — the app is running on real evidence across the board.'}</div>
+  </div>
+  <div class="card">
+    <h3>Next Experiment <span class="r">most learning per effort</span></h3>
+    <div class="flag">📈 <b>${knownN}/8</b> evidence sources in. Every experiment you finish permanently sharpens every engine below it — this list is built to get shorter.</div>
+    <div class="note">When something's unknown, the app gives one of four honest answers — never a guess: <b>we know</b> · <b>we don't</b> · <b>the smallest test that would tell us</b> · <b>the best call until then</b>. Ranked by what each unlocks ÷ how hard it is.</div>
+    ${xp.length?expTop(xp[0])+(xp.length>1?`<details><summary>${xp.length-1} more experiment${xp.length>2?'s':''} in the queue</summary><div class="bd">${xp.slice(1).map(expRow).join('')}</div></details>`:''):'<div class="empty">Every core input is logged. The app is reasoning on real evidence end-to-end — keep logging to keep the trends sharp.</div>'}
   </div>
   <div class="card">
     <h3>System Read <span class="r">what your own data says</span></h3>
