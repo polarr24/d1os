@@ -778,6 +778,7 @@ const DEFAULTS={
     followupDays:{v:35, basis:'default'}    // pipeline staleness window
   },
   reviews:[],    // {d, worked, broke, fix} — Sunday journal, the qualitative memory
+  notes:[],      // {d, text} — daily reflections, append-only; surfaces in export
   sessions:{}    // {ISO:[bool per block]} — set-by-set execution, feeds adherence-by-block
 };
 let S=loadS();
@@ -1199,6 +1200,12 @@ function rToday(){
       <div><div class="t">${c.t}</div><div class="s">${c.s}</div></div></div>`).join('')}
   </div>
   <div class="card">
+    <h3>Daily Notes <span class="r">shows up in your export</span></h3>
+    <textarea id="dailyNote" rows="2" placeholder="Wins, problems, how you felt, what you learned — one line so you don't forget it"></textarea>
+    <button class="btn amber" style="width:100%;margin-top:10px" onclick="addNote()">SAVE NOTE</button>
+    ${(S.notes||[]).length?`<div style="margin-top:12px">${(S.notes||[]).slice(-6).reverse().map((n,i)=>`<div style="padding:8px 0;border-top:1px solid var(--line);font-size:13px"><span style="color:var(--faint)">${fmtD(n.d)}</span> — ${esc(n.text)} <span onclick="delNote(${(S.notes.length-1)-i})" style="color:var(--faint);float:right;cursor:pointer;padding:0 4px">✕</span></div>`).join('')}</div>`:'<div class="note">Nothing yet. Jot one line a day and by the scrimmage you\'ll have a record of exactly what worked.</div>'}
+  </div>
+  <div class="card">
     <h3>Streak <span class="r">last 30 days</span></h3>
     <div class="row" style="margin-bottom:10px">
       <div class="big mono" style="color:${con.streak>0?'var(--amber)':'var(--faint)'}">${con.streak}</div>
@@ -1215,6 +1222,8 @@ function rToday(){
     <button class="btn" style="width:100%;margin-top:8px" onclick="copyDispatch()">📨 COPY DISPATCH FOR FAMILY CHAT</button>
   </div>`:''}`;
 }
+function addNote(){ const t=($('#dailyNote').value||'').trim(); if(!t){toast('Write one line first');return;} (S.notes=S.notes||[]).push({d:todayISO(),text:t}); save(); rToday(); toast('Note saved ✓'); }
+function delNote(i){ if(!S.notes||i<0||i>=S.notes.length) return; S.notes.splice(i,1); save(); rToday(); }
 /* Weekly Dispatch — receipts + asks, generated from live state (LAST-REDESIGN.md #4) */
 function buildDispatch(){
   const con=Model.consistency(), mom=Model.momentum(), wtr=Model.weightTrend(), plan=decide();
@@ -1452,12 +1461,24 @@ function benchTable(pos='LB',s=S){
     return {label,unit,val,tier:pg.tier,gapText,prov};
   });
 }
+/* spark — tiny SVG trend line; handles 0 / 1 / N points + goal reference, never emits NaN */
+function spark(vals,o){o=o||{};const w=o.w||264,h=o.h||64,p=8;
+  if(!vals||!vals.length) return `<div class="note" style="text-align:center;padding:12px 0">${esc(o.empty||'No data yet — log to start this graph.')}</div>`;
+  const gs=(o.goal!=null)?[o.goal]:[];let mn=Math.min(...vals.map(x=>x.v),...gs),mx=Math.max(...vals.map(x=>x.v),...gs);if(mn===mx){mn-=1;mx+=1;}
+  const X=i=>vals.length<2?w/2:+(p+(w-2*p)*i/(vals.length-1)).toFixed(1);
+  const Y=v=>+(h-p-(h-2*p)*(v-mn)/(mx-mn)).toFixed(1);
+  const pts=vals.map((x,i)=>[X(i),Y(x.v)]);
+  const gl=(o.goal!=null)?`<line x1="${p}" y1="${Y(o.goal)}" x2="${w-p}" y2="${Y(o.goal)}" stroke="var(--cyan)" stroke-dasharray="3 3" stroke-width="1"/>`:'';
+  const ln=pts.length>1?`<polyline points="${pts.map(a=>a.join(',')).join(' ')}" fill="none" stroke="var(--amber)" stroke-width="2"/>`:'';
+  const dots=pts.map(a=>`<circle cx="${a[0]}" cy="${a[1]}" r="3" fill="var(--amber)"/>`).join('');
+  return `<svg viewBox="0 0 ${w} ${h}" width="100%" style="max-width:${w}px;display:block;margin:2px auto" role="img" aria-label="trend chart">${gl}${ln}${dots}</svg>`;}
 /* Athlete Profile radar — current vs this-year waypoint; untested speed axes collapse to center. Pure SVG. */
 function radarSVG(s=S){
   const wp=currentWaypoint(), g=Model.gaps(s), mom=Model.momentum(s);
   const val=k=>{if(['squat','bench','dead','clean'].includes(k))return Math.max(s.prs[k]||0,(mom.bestE1rm&&mom.bestE1rm[k])||0)||0;return g.latest(k)||0;};
-  const A=[['squat','Squat',wp.targets.squat],['dead','Dead',wp.targets.dead],['bench','Bench',wp.targets.bench],['clean','Clean',wp.targets.clean],['wt','Weight',wp.targets.wt],['vert','Vert',null],['broad','Broad',null],['forty','40',null]]
-    .map(([k,l,t])=>{const c=val(k);return {k,l,t,cur:c,pct:(t&&c)?Math.min(1,+(c/t).toFixed(3)):0,untested:!(t&&c)};});
+  const dbt=k=>{const b=(typeof D1_BENCH!=='undefined')&&D1_BENCH.LB&&D1_BENCH.LB[k];return b?b.p50:null;};
+  const A=[['squat','Squat',wp.targets.squat],['dead','Dead',wp.targets.dead],['bench','Bench',wp.targets.bench],['clean','Clean',wp.targets.clean],['wt','Weight',wp.targets.wt],['vert','Vert',dbt('vert')],['broad','Broad',dbt('broad')],['forty','40',dbt('forty')]]
+    .map(([k,l,t])=>{const c=val(k);const lower=(k==='forty'||k==='shuttle');const has=!!(t&&c);return {k,l,t,cur:c,pct:has?(lower?Math.min(1,+(t/c).toFixed(3)):Math.min(1,+(c/t).toFixed(3))):0,untested:!has};});
   const N=A.length,cx=130,cy=118,R=82;
   const ang=i=>(-Math.PI/2)+i*2*Math.PI/N;
   const pt=(i,v)=>[+(cx+R*v*Math.cos(ang(i))).toFixed(1),+(cy+R*v*Math.sin(ang(i))).toFixed(1)];
@@ -1522,6 +1543,15 @@ function rTrack(){
     <h3>Athlete Profile <span class="r">you vs this year's target</span></h3>
     ${radarSVG()}
     <div class="note">The volt shape is you; the cyan ring is this year's freshman target. Your strength and mass axes are nearly full — but <b>40, vert, and broad sit dead center</b> because they're untested. That empty wedge is your whole gap, and it's the reason the baseline test matters more than anything in this app.</div>
+  </div>
+  <div class="card">
+    <h3>Bodyweight <span class="r">mass mission → 174 lb</span></h3>
+    ${(vs=>spark(vs,{goal:174,empty:'Log your weight weekly — the curve starts here.'}))(S.metrics.filter(m=>m.key==='wt').sort((a,b)=>a.d<b.d?-1:1).map(m=>({d:m.d,v:m.val})))}
+    ${(()=>{const wm=S.metrics.filter(m=>m.key==='wt').sort((a,b)=>a.d<b.d?-1:1);if(!wm.length)return '<div class="note">No weigh-in logged yet.</div>';const cur=wm[wm.length-1].val,gap=174-cur,dropping=wm.length>=2&&wm[wm.length-1].val<wm[wm.length-2].val;return `<div class="note">You're at <b>${cur} lb</b> — ${gap>0?`<b>${gap} lb under</b> your 174 mass target`:'at or over target'}. ${dropping?'<b style="color:var(--red)">Weight is trending DOWN on a mass mission — that\'s the alarm, not progress.</b> ':''}${gap>0?'If the scale isn\'t climbing, the surplus isn\'t real: add ~300 kcal/day and re-weigh in a week.':''}</div>`;})()}
+  </div>
+  <div class="card">
+    <h3>Strength Trend <span class="r">e1RM over time</span></h3>
+    ${(()=>{if(!S.lifts.length)return `<div class="empty">No sets logged yet.<br><button class="btn amber sm" style="margin-top:10px" onclick="go('train')">LOG YOUR FIRST SET →</button></div><div class="note">One logged set turns this into a real strength curve — it's the single thing blocking your whole progress graph.</div>`;const byEx=k=>S.lifts.filter(l=>l.ex===k).map(l=>({d:l.d,v:epley(l.wt,l.reps)}));return ['squat','bench','dead','clean'].map(k=>byEx(k).length?`<div style="font-size:11px;letter-spacing:.1em;color:var(--faint);margin-top:8px">${k.toUpperCase()}</div>${spark(byEx(k),{})}`:'').join('')||'<div class="note">Log a main lift (squat/bench/dead/clean) to draw its curve.</div>';})()}
   </div>
   <div class="card">
     <h3>D1 Benchmarks <span class="r">senior recruit · LB</span></h3>
