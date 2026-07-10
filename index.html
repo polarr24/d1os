@@ -1565,6 +1565,22 @@ function rmP(id){ const p=S.pipeline.find(x=>x.id===id); if(!p) return;
 function copyTpl(k){ const t=EMAIL_TEMPLATES[k]; navigator.clipboard?.writeText('Subject: '+t.subject+'\n\n'+t.body).then(()=>toast('Copied ✓')); }
 
 /* ---- TRACK ---- */
+/* intel — the honest intelligence layer: confidence by DATA AVAILABILITY, ranked missing inputs by unlock value. Never a fabricated score. */
+function intel(s=S){
+  const has=k=>(s.metrics||[]).some(m=>m.key===k);
+  const wt=(s.metrics||[]).filter(m=>m.key==='wt').length;
+  const ci=Object.keys(s.checkins||{}).length;
+  return [
+    {name:'Speed (40)',known:has('forty'),basis:has('forty')?'your measured 40':'untested — the app is blind here',unlock:'Run + log your 40'},
+    {name:'Explosiveness',known:has('vert')||has('broad'),basis:((has('vert')?'vert':'')+(has('vert')&&has('broad')?' + ':'')+(has('broad')?'broad':''))?(((has('vert')?'vert':'')+(has('vert')&&has('broad')?' + ':'')+(has('broad')?'broad':''))+' measured'):'untested',unlock:'Log vert + broad'},
+    {name:'Strength progress',known:(s.lifts||[]).length>0,basis:(s.lifts||[]).length?(s.lifts.length+' sets logged'):'maxes are preset, but no logged sets to trend',unlock:'Log sets in TRAIN'},
+    {name:'Mass trend',known:wt>=2,basis:wt>=2?(wt+' weigh-ins'):wt===1?'one weigh-in — no trend yet':'no weigh-in',unlock:'Weigh in weekly'},
+    {name:'Sleep',known:has('sleep'),basis:has('sleep')?'logged hours':'no data on your #1 lever',unlock:'Log sleep nightly'},
+    {name:'Consistency',known:ci>=3,basis:ci+' check-in day'+(ci===1?'':'s'),unlock:'Keep checking in'},
+    {name:'Recruiting',known:(s.pipeline||[]).length>0,basis:(s.pipeline||[]).length+' schools on the board',unlock:'Add targets in PATH'},
+    {name:'Academics',known:has('gpa'),basis:has('gpa')?'GPA logged':'no GPA on record',unlock:'Log your GPA'}
+  ];
+}
 /* benchTable — his logged/known metrics vs D1_BENCH senior-recruit thresholds for one position */
 function benchTable(pos='LB',s=S){
   const g=Model.gaps(s), mom=Model.momentum(s);
@@ -1677,6 +1693,12 @@ function rTrack(){
       ${rows.map(r=>r.untested?`<tr><td>${r.label}${r.prov?'*':''}</td><td class="mono" style="color:var(--faint)">—</td><td colspan="2" style="color:var(--faint);font-size:12px">untested — run it</td></tr>`:`<tr><td style="font-weight:700">${r.label}${r.prov?'*':''}</td><td class="mono" style="color:var(--amber);font-weight:800">${r.val}</td><td style="font-size:12px;color:${r.tier==='P90'?'var(--green)':r.tier==='below P50'?'var(--faint)':'var(--cyan)'}">${r.tier}</td><td class="mono" style="font-size:11px;color:var(--faint)">${r.gapText}</td></tr>`).join('')}
     </table>`)(benchTable('LB'))}
     <div class="note">Speed rows fill the day you test. <b>*</b> broad + shuttle thresholds are provisional (combine-derived), pending firmer HS-recruit sourcing.</div>
+  </div>
+  <div class="card">
+    <h3>What I Actually Know <span class="r">honest confidence · no fake scores</span></h3>
+    <div class="note">A real coach models you — but only from what they can see. Here's where I have real signal vs. where I'm blind, and the fastest way to turn a guess into knowledge. I will never show you a made-up "readiness 84%" — that would be lying, and this app doesn't do that.</div>
+    ${(dims=>dims.map(d=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><div class="row"><b class="grow">${d.name}</b><span class="pill ${d.known?'green':''}" style="${d.known?'':'opacity:.55'}">${d.known?'✓ have data':'blind'}</span></div><div class="note" style="margin:3px 0 0">${esc(d.basis)}${d.known?'':' — '+esc(d.unlock)}</div></div>`).join(''))(intel())}
+    <div class="note">Every row that turns green is more the app honestly understands — and only then can real trends and confidence appear. Right now the single highest-value input you can give it is a <b>baseline 40</b>.</div>
   </div>
   <div class="card">
     <h3>System Read <span class="r">what your own data says</span></h3>
