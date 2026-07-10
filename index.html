@@ -1171,6 +1171,24 @@ function logPlanOnce(plan){
 /* ============ VIEWS — render model + plan, capture events. No business logic. ============ */
 
 /* ---- TODAY ---- */
+/* oneThing — the single highest-value action right now, chosen from real data (cognitive-load killer) */
+function oneThing(plan){
+  const g=Model.gaps(), has=k=>S.metrics.some(m=>m.key===k);
+  const bw=g.latest('wt');
+  const wm=S.metrics.filter(m=>m.key==='wt').sort((a,b)=>a.d<b.d?-1:1);
+  const dropping=wm.length>=2&&wm[wm.length-1].val<wm[wm.length-2].val;
+  const liftToday=(S.lifts||[]).some(l=>l.d===todayISO());
+  const ck=S.checkins[todayISO()]||[];
+  if(!has('forty')||!has('vert')||!has('broad')) return {t:'Run your baseline 40, vert + broad',w:'20 minutes with your cousin unlocks your entire speed engine — every target, chart, and gap. Nothing moves the needle like this.',go:"go('track')"};
+  if(!(S.lifts||[]).length) return {t:'Log your first lift',w:'One set turns on your strength curve and milestones. Do it the second you rack the bar.',go:"go('train')"};
+  if(bw&&bw<174&&dropping) return {t:"Eat — you're dropping on a mass mission",w:'You went the wrong way on the scale. Add ~300 kcal today and re-weigh in a week.',go:"go('track')"};
+  if(!liftToday&&plan&&plan.workout&&!plan.workout.recovery) return {t:"Train + log today's session",w:esc(plan.workout.title)+' — log every set on the floor before you leave.',go:"go('train')"};
+  if(!(S.pipeline||[]).length) return {t:'Put your schools on the Board',w:'Coaches notice who is organized. One tap adds a target in PATH.',go:"go('path')"};
+  const done=ck.filter(Boolean).length;
+  if(done<4) return {t:'Finish your Daily Four',w:done+'/4 done. Consistency is the separator — close it out.',go:null};
+  return {t:"You're dialed today",w:'Everything essential is done. Bank your sleep and recover — growth happens now.',go:null};
+}
+function quickLog(key,label){ const v=+prompt(label); if(v&&v>0){ (S.metrics=S.metrics||[]).push({d:todayISO(),key,val:v,src:'manual'}); save(); toast(label.split(' (')[0]+' logged ✓'); rToday(); } }
 /* milestones — badges earned ONLY from real data; locked ones show what unlocks them */
 function milestones(s=S){
   const con=Model.consistency(s);
@@ -1195,6 +1213,7 @@ function milestones(s=S){
 }
 function rToday(){
   const plan=decide(), ck=ckToday(), done=ck.filter(Boolean).length, con=Model.consistency();
+  const o1=oneThing(plan);
   logPlanOnce(plan);
   let dots='';
   for(let i=29;i>=0;i--){
@@ -1204,6 +1223,8 @@ function rToday(){
   }
   const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊'};
   $('#v-today').innerHTML=`
+  <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">DO IT →</button>`:''}</div>
+  <div class="card"><h3>Quick Log <span class="r">30 seconds</span></h3><div class="row"><button class="btn grow" onclick="quickLog('wt','Bodyweight (lb)')">Weight</button><button class="btn grow" onclick="quickLog('sleep','Sleep last night (hours)')">Sleep</button><button class="btn grow" onclick="go('train')">Lift →</button></div></div>
   <div class="prio"><div class="k">TODAY'S PRIORITY${plan.focus?` · ATTACKING: ${esc(plan.focus.key.toUpperCase())}`:''}</div>
     <div class="t">${esc(plan.priority.title)}</div><div class="w">${esc(plan.priority.why)}</div></div>
   ${(()=>{const t=todayISO();const dd=d=>daysBetween(t,d);const rows=[['Back to practice','2026-07-28'],['Equipment day','2026-08-01'],['3-team scrimmage','2026-08-08']].map(([l,d])=>({l,d,n:dd(d)})).filter(x=>x.n>=-1);if(!rows.length)return '';const s=dd('2026-08-08');const focus=s>10?'BUILD — push speed + power, bank 9h sleep + your calories. This 2-week window is where you separate.':s>3?'SHARPEN — cut volume ~40%, keep sprints crisp, arrive fresh and explosive.':s>=0?'GAME WEEK — light, fast, confident. Empty the tank on the 8th; play in front of 3 schools.':'';return `<div class="card"><h3>Countdown <span class="r">to the scrimmage</span></h3>${rows.map(x=>`<div class="row" style="padding:6px 0"><div class="grow" style="font-size:14px">${x.l} · <span style="color:var(--faint)">${fmtD(x.d)}</span></div><div class="mono" style="color:var(--amber);font-weight:800">${x.n<=0?'TODAY':x.n+'d'}</div></div>`).join('')}${focus?`<div class="note"><b style="color:var(--txt)">${focus}</b></div>`:''}</div>`;})()}
@@ -1468,6 +1489,17 @@ function rPath(){
         <button class="btn sm ghost" style="margin-top:4px" onclick="quickAdd('${esc(s.school).replace(/'/g,"\\'")}')">+ board</button></div>`).join('')}
       </div></details>`;}).join('')}
     <div class="note">Tiers 4–6 (${SCHOOLS.filter(s=>s.tier>3).length} more) — work the closest circles first. Coach names in this list go stale; always verify current staff before contacting.</div>
+  </div>
+  <div class="card">
+    <h3>Academic Eligibility <span class="r">the gate nobody talks about</span></h3>
+    <div class="note">Grades and test scores are a HARD D1 gate — the best 40 in the state can't save a transcript. This is the easiest edge you have, and most kids blow it.</div>
+    <div style="font-size:13px;color:var(--dim);line-height:1.8;margin-top:8px">
+      • <b style="color:var(--txt)">16 NCAA core courses</b> across high school — 10 done before senior year, locked in<br>
+      • <b style="color:var(--txt)">Core GPA ≥ 2.3</b> to be D1-eligible — but aim <b style="color:var(--txt)">3.0+</b> to open doors and unlock academic money<br>
+      • <b style="color:var(--txt)">Register free</b> at eligibilitycenter.org (do it sophomore year)<br>
+      • <b style="color:var(--txt)">SAT/ACT</b> junior year — a good score widens offers and adds aid on top of football<br>
+      • Keep every report card. Transcript mistakes are brutal to undo later</div>
+    <div class="note">Log your GPA in TRACK each semester so this stays honest and on-track.</div>
   </div>
   <div class="card">
     <h3>NCAA Timeline · Class of 2030</h3>
