@@ -433,11 +433,14 @@ const GATE_SEPT1='2028-09-01';       // Sept 1 junior year: all communication op
    confirm when schedules publish. Anything outside a range = offseason. */
 const PHASES=[
   {from:'2026-07-01',to:'2026-08-09',phase:'preseason'},
-  {from:'2026-08-10',to:'2026-10-31',phase:'inseason'},   // JV season; NV 2026 opener ~Aug 13-14 (verified); JV game day TBD
+  {from:'2026-08-10',to:'2026-10-31',phase:'inseason'},   // varsity opener Aug 21 vs Foothill (Basic 2026 sched, IG @basic_academy); JV usually the night before
   {from:'2026-11-09',to:'2027-02-13',phase:'wrestling'},  // casual — NO cutting; mass defended
   {from:'2027-02-22',to:'2027-05-15',phase:'track'},      // 100m/sprints — track owns speed work
 ];
 function phaseFor(iso){ const p=PHASES.find(p=>iso>=p.from&&iso<=p.to); return p?p.phase:'offseason'; }
+/* Basic Wolves 2026 varsity schedule (from IG @basic_academy). Dates verified from the graphic;
+   opponents partly read from small logos — TBD ones need confirming. JV usually plays the night before. */
+const SCHEDULE=[{d:'2026-08-21',opp:'Foothill'},{d:'2026-08-28',opp:'TBD'},{d:'2026-09-04',opp:'Green Valley'},{d:'2026-09-11',opp:'TBD'},{d:'2026-09-18',opp:'TBD'},{d:'2026-09-25',opp:'TBD'},{d:'2026-10-02',opp:'Palo Verde'},{d:'2026-10-09',opp:'TBD'}];
 
 /* ============ BENCHMARKS — typical committed-recruit ranges, RB, senior yr ============ */
 const BENCHMARKS=[
@@ -1489,6 +1492,11 @@ function rPath(){
         <button class="btn sm ghost" style="margin-top:4px" onclick="quickAdd('${esc(s.school).replace(/'/g,"\\'")}')">+ board</button></div>`).join('')}
       </div></details>`;}).join('')}
     <div class="note">Tiers 4–6 (${SCHOOLS.filter(s=>s.tier>3).length} more) — work the closest circles first. Coach names in this list go stale; always verify current staff before contacting.</div>
+  </div>
+  <div class="card">
+    <h3>Season Schedule <span class="r">Basic 2026 · @basic_academy</span></h3>
+    <div class="note">From your team's post. Aug 8 is your preseason scrimmage; the real opener is <b>Aug 21 vs Foothill</b>. Tell me the opponents marked TBD and I'll finish it.</div>
+    ${SCHEDULE.map(g=>`<div class="row" style="padding:7px 0;border-bottom:1px solid var(--line)"><div class="grow" style="font-size:14px"><b>${fmtD(g.d)}</b> · ${g.opp==='TBD'?'<span style="color:var(--faint)">opponent TBD</span>':esc(g.opp)}</div><div class="mono" style="color:var(--faint);font-size:12px">${(n=>n>0?n+'d':n===0?'TODAY':'done')(daysBetween(todayISO(),g.d))}</div></div>`).join('')}
   </div>
   <div class="card">
     <h3>Academic Eligibility <span class="r">the gate nobody talks about</span></h3>
