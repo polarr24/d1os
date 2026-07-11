@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.18 -->
+<!DOCTYPE html><!-- d1os v7.19 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -798,6 +798,7 @@ const DEFAULTS={
   },
   reviews:[],    // {d, worked, broke, fix} — Sunday journal, the qualitative memory
   notes:[],      // {d, text} — daily reflections, append-only; surfaces in export
+  recs:[],       // {id,d,kind,text,why,ev,unc,asm,outKey,win,followed,followedOn} — recommendation objects (the learning loop): every rec is a testable hypothesis, append-only
   sessions:{}    // {ISO:[bool per block]} — set-by-set execution, feeds adherence-by-block
 };
 let S=loadS();
@@ -1086,6 +1087,58 @@ function knowledgeLearned(s=S){ return knowledgeGraph(s).filter(e=>e.learned); }
 function knowledgeCite(id,s=S){ const e=knowledgeGraph(s).find(x=>x.id===id); if(!e||e.status==='insufficient') return null;
   if(e.status==='none') return `your own data shows no clear link yet (${e.support}/${e.comparisons} day-comparisons)`;
   return `the two moved together in ${e.support} of ${e.comparisons} day-to-day comparisons`; }
+
+/* ============ DECISION EFFECTIVENESS ENGINE (v7.19) — the closed learning loop ============
+   Answers the question the app could not answer before: "Did my recommendation actually help?"
+   Every recommendation is a persisted hypothesis (s.recs). This PURE engine grades each KIND of
+   advice from the athlete's OWN observed outcomes — comparing the outcome metric on days he
+   FOLLOWED the advice vs days he IGNORED it. Evidence states only: supported / mixed / no effect /
+   insufficient. It will conclude its own advice is useless if the data says so. Never a fabricated
+   number. Works with zero UI — the intelligence is here, not in the screens.
+   Outcome is read at an EXACT offset day (off) so adjacent recommendations never share evidence. */
+const REC_KINDS={
+  speed:  {label:'Test-day (40 / vert / broad)', outKey:null,     off:3},
+  lift:   {label:'Log your lifts',               outKey:null,     off:2},
+  fuel:   {label:'Eat more / hit the surplus',   outKey:'wt',     off:7},
+  train:  {label:'Train + log the session',      outKey:'sq',     off:0},
+  board:  {label:'Build the recruiting board',   outKey:null,     off:14},
+  daily4: {label:'Finish the Daily Four',         outKey:'energy', off:1},
+  recover:{label:'Recover / bank sleep',         outKey:'sq',     off:1}
+};
+function metricOn(s,key,dateISO){ const m=(s.metrics||[]).filter(x=>x.key===key&&x.d===dateISO); return m.length?m[m.length-1].val:null; }
+function recEffectiveness(s=S){
+  const today=todayISO(), byKind={};
+  (s.recs||[]).forEach(r=>{ (byKind[r.kind]=byKind[r.kind]||[]).push(r); });
+  const med=a=>{ const b=[...a].sort((m,n)=>m-n),k=b.length; return k?(k%2?b[(k-1)/2]:+(((b[k/2-1]+b[k/2])/2)).toFixed(2)):null; };
+  const nm=k=>k==='sq'?'Session quality':k==='energy'?'Energy':k==='wt'?'Bodyweight':k;
+  return Object.keys(byKind).map(kind=>{
+    const meta=REC_KINDS[kind]||{label:kind,outKey:null,off:2};
+    const recs=byKind[kind], total=recs.length;
+    const followed=recs.filter(r=>r.followed==='followed').length;
+    const ignored=recs.filter(r=>r.followed==='ignored').length;
+    let effect='insufficient', detail='', lastConfirmed=null, retire=false;
+    if(!meta.outKey){ effect='not-measurable';
+      detail='No daily outcome to measure yet — recording whether you follow it ('+followed+'/'+total+').'; }
+    else {
+      const fv=[], iv=[];
+      recs.forEach(r=>{ if(daysBetween(r.d,today)<meta.off) return;           // outcome day not reached
+        const v=metricOn(s,meta.outKey,addDays(r.d,meta.off)); if(v==null) return;
+        (r.followed==='followed'?fv:(r.followed==='ignored'?iv:null))?.push({d:r.d,v}); });
+      if(fv.length>=4 && iv.length>=2){
+        const mf=med(fv.map(x=>x.v)), mi=med(iv.map(x=>x.v));
+        lastConfirmed=fv.map(x=>x.d).sort().at(-1);
+        if(mf-mi>=0.5){ effect='supported'; detail=nm(meta.outKey)+' averaged '+mf+' on the '+fv.length+' days you followed it vs '+mi+' on '+iv.length+" days you didn't."; }
+        else if(Math.abs(mf-mi)<0.5){ effect='none'; retire=true; detail='No measurable benefit — '+nm(meta.outKey)+' was '+mf+' followed vs '+mi+' not ('+fv.length+' vs '+iv.length+').'; }
+        else { effect='mixed'; detail='Mixed signal — '+mf+' followed vs '+mi+' not ('+fv.length+' vs '+iv.length+').'; }
+      } else {
+        const nf=Math.max(0,4-fv.length), ni=Math.max(0,2-iv.length);
+        detail='Need '+nf+' more followed + '+ni+' more skipped day'+(ni===1?'':'s')+' with a logged '+nm(meta.outKey).toLowerCase()+' to judge.';
+      }
+    }
+    return {kind,label:meta.label,total,followed,ignored,outKey:meta.outKey,off:meta.off,effect,detail,lastConfirmed,retire};
+  });
+}
+function recEffFor(kind,s=S){ return recEffectiveness(s).find(e=>e.kind===kind)||null; }
 /* ============ DECISION ENGINE — decide(S,date) → plan. Deterministic. Every item has a why. ============ */
 function weekFor(s,dateISO){
   const ph=phaseFor(dateISO);
@@ -1229,6 +1282,17 @@ function logPlanOnce(plan){
   S.events.push({d:plan.date,type:'plan',meta:{ph:plan.phase,wo:plan.workout.title,dl:plan.deload,tk:plan.tasks.map(t=>t.kind)}});
   save();
 }
+
+/* ===== Recommendation loop (v7.19) — actions that persist a recommendation as a first-class,
+   testable hypothesis and record whether the athlete followed it. Pure evaluation lives in the
+   model (recEffectiveness). These mutate the append-only recs log. ===== */
+function recLog(kind,text,ctx){ ctx=ctx||{}; const d=todayISO(); const id='rec:'+d+':'+kind;
+  S.recs=S.recs||[]; if(S.recs.some(r=>r.id===id)) return id;
+  S.recs.push({id,d,kind,text,why:ctx.why||'',ev:ctx.ev||'',unc:ctx.unc||'',asm:ctx.asm||'',outKey:ctx.outKey||null,win:ctx.win||1,followed:null,followedOn:null});
+  save(); return id; }
+function todayRec(kind){ const id='rec:'+todayISO()+':'+kind; return (S.recs||[]).find(r=>r.id===id)||null; }
+function setRecFollow(id,state){ const r=(S.recs||[]).find(x=>x.id===id); if(!r) return; r.followed=state; r.followedOn=todayISO();
+  logEvent('recfollow',{id,state}); save(); toast('Logged — the app is learning from it'); if(typeof rToday==='function') rToday(); }
 /* ============ VIEWS — render model + plan, capture events. No business logic. ============ */
 
 /* ---- TODAY ---- */
@@ -1240,14 +1304,14 @@ function oneThing(plan){
   const dropping=wm.length>=2&&wm[wm.length-1].val<wm[wm.length-2].val;
   const liftToday=(S.lifts||[]).some(l=>l.d===todayISO());
   const ck=S.checkins[todayISO()]||[];
-  if(!has('forty')||!has('vert')||!has('broad')) return {t:'Run your baseline 40, vert + broad',w:'20 minutes with your cousin unlocks your entire speed engine — every target, chart, and gap. Nothing moves the needle like this.',go:"go('track')"};
-  if(!(S.lifts||[]).length) return {t:'Log your first lift',w:'One set turns on your strength curve and milestones. Do it the second you rack the bar.',go:"go('train')"};
-  if(bw&&bw<174&&dropping) return {t:"Eat — you're dropping on a mass mission",w:'You went the wrong way on the scale. Add ~300 kcal today and re-weigh in a week.',go:"go('track')"};
-  if(!liftToday&&plan&&plan.workout&&!plan.workout.recovery) return {t:"Train + log today's session",w:esc(plan.workout.title)+' — log every set on the floor before you leave.',go:"go('train')"};
-  if(!(S.pipeline||[]).length) return {t:'Put your schools on the Board',w:'Coaches notice who is organized. One tap adds a target in PATH.',go:"go('path')"};
+  if(!has('forty')||!has('vert')||!has('broad')) return {kind:'speed',t:'Run your baseline 40, vert + broad',w:'20 minutes with your cousin unlocks your entire speed engine — every target, chart, and gap. Nothing moves the needle like this.',go:"go('track')",outKey:null,win:3,ev:'no 40/vert/broad on record',unc:'your true speed is unknown',asm:'a clean hand-timed test is close enough to start'};
+  if(!(S.lifts||[]).length) return {kind:'lift',t:'Log your first lift',w:'One set turns on your strength curve and milestones. Do it the second you rack the bar.',go:"go('train')",outKey:null,win:2,ev:'0 sets logged',unc:'your real strength trend',asm:'preset 1RMs are a fair starting point'};
+  if(bw&&bw<174&&dropping) return {kind:'fuel',t:"Eat — you're dropping on a mass mission",w:'You went the wrong way on the scale. Add ~300 kcal today and re-weigh in a week.',go:"go('track')",outKey:'wt',win:7,ev:'weight trended down vs a 174 target',unc:'whether the surplus is real',asm:'+300 kcal/day is enough to reverse it'};
+  if(!liftToday&&plan&&plan.workout&&!plan.workout.recovery) return {kind:'train',t:"Train + log today's session",w:esc(plan.workout.title)+' — log every set on the floor before you leave.',go:"go('train')",outKey:'sq',win:1,ev:"today's plan is a training day",unc:'how the session will actually feel',asm:'training as prescribed raises session quality'};
+  if(!(S.pipeline||[]).length) return {kind:'board',t:'Put your schools on the Board',w:'Coaches notice who is organized. One tap adds a target in PATH.',go:"go('path')",outKey:null,win:14,ev:'0 schools on the board',unc:'which levels fit you',asm:'early targets help even before film'};
   const done=ck.filter(Boolean).length;
-  if(done<4) return {t:'Finish your Daily Four',w:done+'/4 done. Consistency is the separator — close it out.',go:null};
-  return {t:"You're dialed today",w:'Everything essential is done. Bank your sleep and recover — growth happens now.',go:null};
+  if(done<4) return {kind:'daily4',t:'Finish your Daily Four',w:done+'/4 done. Consistency is the separator — close it out.',go:null,outKey:'energy',win:1,ev:done+'/4 boxes done today',unc:'which habit matters most for you',asm:'finishing all four supports next-day energy'};
+  return {kind:'recover',t:"You're dialed today",w:'Everything essential is done. Bank your sleep and recover — growth happens now.',go:null,outKey:'sq',win:1,ev:'all four done',unc:'your personal recovery response',asm:'banked sleep shows up as better sessions'};
 }
 function quickLog(key,label){ const v=+prompt(label); if(v&&v>0){ (S.metrics=S.metrics||[]).push({d:todayISO(),key,val:v,src:'manual'}); save(); toast(label.split(' (')[0]+' logged ✓'); rToday(); } }
 /* milestones — badges earned ONLY from real data; locked ones show what unlocks them */
@@ -1276,6 +1340,8 @@ function rToday(){
   const plan=decide(), ck=ckToday(), done=ck.filter(Boolean).length, con=Model.consistency();
   const o1=oneThing(plan);
   logPlanOnce(plan);
+  recLog(o1.kind,o1.t,{why:o1.w,ev:o1.ev,unc:o1.unc,asm:o1.asm,outKey:o1.outKey,win:o1.win});
+  const o1rec=todayRec(o1.kind), o1eff=(typeof recEffFor==='function')?recEffFor(o1.kind):null;
   let dots='';
   for(let i=29;i>=0;i--){
     const c=S.checkins[addDays(todayISO(),-i)]||[];
@@ -1284,7 +1350,9 @@ function rToday(){
   }
   const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊'};
   $('#v-today').innerHTML=`
-  <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">DO IT →</button>`:''}</div>
+  <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}${o1eff&&o1eff.retire?' <b style="color:var(--red)">· your own results haven\'t shown this helps — treat it as optional.</b>':o1eff&&o1eff.effect==='supported'?' <b style="color:var(--green)">· backed by your own results.</b>':''}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">DO IT →</button>`:''}
+    <div class="row" style="gap:6px;margin-top:10px"><button class="btn sm grow ${o1rec&&o1rec.followed==='followed'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','followed')">Did it ✓</button><button class="btn sm grow ${o1rec&&o1rec.followed==='partial'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','partial')">Partly</button><button class="btn sm grow ${o1rec&&o1rec.followed==='ignored'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','ignored')">Didn't</button></div>
+    <div class="note" style="margin-top:6px;font-style:normal">Your answer becomes evidence — the Recommendation Ledger in TRACK learns which advice actually helps you.</div></div>
   <div class="card"><h3>Quick Log <span class="r">30 seconds</span></h3><div class="row"><button class="btn grow" onclick="quickLog('wt','Bodyweight (lb)')">Weight</button><button class="btn grow" onclick="quickLog('sleep','Sleep last night (hours)')">Sleep</button><button class="btn grow" onclick="go('train')">Lift →</button></div><div class="row" style="margin-top:8px"><button class="btn grow" onclick="rateLog('energy','Morning energy (1–5)')">Energy 1–5</button><button class="btn grow" onclick="rateLog('sq','Session quality (1–5)')">Session 1–5</button></div><div class="note" style="margin-top:6px">Energy + session ratings are what let the app learn what actually works for <b>you</b> — see the Knowledge Graph in TRACK.</div></div>
   <div class="prio"><div class="k">TODAY'S PRIORITY${plan.focus?` · ATTACKING: ${esc(plan.focus.key.toUpperCase())}`:''}</div>
     <div class="t">${esc(plan.priority.title)}</div><div class="w">${esc(plan.priority.why)}</div></div>
@@ -1874,6 +1942,17 @@ function rTrack(){
       return rows+learnedBlock+`<details style="margin-top:6px"><summary>The full chain (incl. what we can't measure yet)</summary><div class="bd">${future}</div></details>`;
     })(knowledgeGraph())}
     <div class="note">Contradictions never erase history — a day that disagrees is recorded as a ✗ and lowers consistency, so knowledge gets more <i>nuanced</i>, never deleted.</div>
+  </div>
+  <div class="card">
+    <h3>Recommendation Ledger <span class="r">is the app's advice working?</span></h3>
+    <div class="note">Every "one thing" becomes a testable hypothesis: the app stores why it said it, what was uncertain, whether you followed it, and what happened after — then grades <b>its own advice</b> from your real outcomes. It's willing to conclude a recommendation doesn't help you.</div>
+    ${(eff=>eff.length?eff.map(e=>{
+      const bmap={supported:'green',mixed:'amber',none:'red','not-measurable':'',insufficient:''};
+      const blabel={supported:'supported',mixed:'mixed',none:'no effect','not-measurable':'tracking',insufficient:'gathering'};
+      return `<div style="padding:9px 0;border-bottom:1px solid var(--line)"><div class="row"><b class="grow">${esc(e.label)}</b><span class="pill ${bmap[e.effect]}" style="${(e.effect==='insufficient'||e.effect==='not-measurable')?'opacity:.6':''}">${blabel[e.effect]}</span></div><div class="note" style="margin:3px 0 0">${esc(e.detail)}</div><div class="note">Followed ${e.followed}/${e.total}${e.lastConfirmed?` · last confirmed ${esc(e.lastConfirmed)}`:''}${e.retire?' · <b style="color:var(--red)">no longer recommended</b>':''}</div></div>`;
+    }).join(''):'<div class="empty">No recommendations tracked yet.<br>On TODAY, answer <b>Did it / Partly / Didn\'t</b> under your one thing — that logs the first hypothesis.</div>')(typeof recEffectiveness==='function'?recEffectiveness():[])}
+    ${(rs=>rs.length?`<details style="margin-top:8px"><summary>${rs.length} recommendation object${rs.length>1?'s':''} on record</summary><div class="bd">${rs.slice(-6).reverse().map(r=>`• <b>${esc(r.d)}</b> — ${esc(r.text)}<br><span style="color:var(--faint)">unknown at the time: ${esc(r.unc||'—')} · assumed: ${esc(r.asm||'—')} · <b style="color:${r.followed==='followed'?'var(--green)':r.followed==='ignored'?'var(--red)':'var(--faint)'}">${r.followed||'no answer yet'}</b></span>`).join('<br><br>')}</div></details>`:'')(S.recs||[])}
+    <div class="note">Contradictions are kept, never overwritten — advice that stops working flips to "no longer recommended" on its own. Truth over consistency.</div>
   </div>
   <div class="card">
     <h3>System Read <span class="r">what your own data says</span></h3>
