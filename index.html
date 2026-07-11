@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.19 -->
+<!DOCTYPE html><!-- d1os v7.27 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -776,6 +776,133 @@ const TIMELINE=[
   {g:'Junior (2028–29)',from:'2028-08-01',to:'2029-07-31',items:['SEPT 1, 2028: all communication fully open','THE recruiting year — respond fast, visit, build relationships','Official visits allowed — use all five wisely','Junior film = most important film of your life','NCAA Eligibility Center registration + core-course audit']},
   {g:'Senior (2029–30)',from:'2029-08-01',to:'2030-07-31',items:['Early signing period — most spots gone by December','Keep grades up — offers get pulled over eligibility','Board ranked: dream / realistic / safety','Sign. Enroll. Start over at the bottom — and climb.']}
 ];
+
+/* ============ POLICY (v7.20) — the constitutional layer governing self-modification ============
+   Evidence produces knowledge. Knowledge does NOT automatically produce behavior change.
+   Behavior change requires policy evaluation, then HUMAN approval. The system proposes; the
+   owner decides. This layer outlives every reasoning engine: any future engine that wants to
+   change behavior must emit a proposal object and pass these five questions. Learning happens
+   daily; changing happens rarely — that distinction is the point.
+   Stability principle: bars STEP UP as real observations accumulate, so the system becomes
+   harder to change over time, never more reactive. Every bar is stated, never hidden. */
+const POLICY={
+  questions:[
+    {id:'sufficient',   q:'Is the supporting evidence sufficient — demonstrably, not probably?'},
+    {id:'contradictions',q:'Has contradictory evidence been counted and weighed?'},
+    {id:'forward',      q:'Would this improve future recommendations, or merely react to recent days?'},
+    {id:'overfit',      q:'Could this overfit one short period?'},
+    {id:'explainable',  q:'Can the proposal explain itself entirely from evidence?'}
+  ],
+  bars:[
+    {minObs:0,  label:'exploratory', needFollowed:4, needIgnored:2, needSpanDays:14, needWeeks:3, maxContra:0.35},
+    {minObs:60, label:'established', needFollowed:6, needIgnored:3, needSpanDays:21, needWeeks:4, maxContra:0.30},
+    {minObs:200,label:'entrenched',  needFollowed:8, needIgnored:4, needSpanDays:42, needWeeks:6, maxContra:0.25}
+  ]
+};
+
+/* ============ SEASON ENTRY (v7.22) — camp readiness, playing time, first film ============
+   Value gate: remove this and the athlete shows up to Jul 28 camp less conditioned and not
+   heat-ready (Henderson NV, 100°F+), never gets told how freshmen actually win reps
+   (special teams + evaluation behaviors), and leaves the Aug 8 scrim with no film — recruiting
+   currency delayed a season. Dates from the verified 2026 Basic schedule. */
+const SEASON_ENTRY={
+  prepStart:'2026-07-13', campStart:'2026-07-28', scrim:'2026-08-08', opener:'2026-08-21',
+  gear:[
+    'Cleats broken in — wear them 20 min/day this week; camp blisters cost practice reps',
+    'Mouthguard bought + molded (boil-and-bite, 2 minutes)',
+    'One-gallon water jug, marked with time lines',
+    'Athletic tape + pre-wrap in the bag',
+    'Shorts/shirt for helmet-fit + conditioning-test day'
+  ],
+  /* dow → [week-1 finisher, week-2 finisher] — ramped repeat-sprint work AFTER lifts, never instead */
+  cond:{
+    2:['After the lift: 4×40yd strides at ~80%, walk-back rest','After the lift: 6×40yd at ~90%, 45s rest'],
+    5:['After the lift: 4×40yd strides at ~80%, walk-back rest','After the lift: 6×40yd at ~90%, 45s rest'],
+    6:['6 half-gassers (sideline to sideline ×2) at easy pace, 1:00 rest','8 half-gassers timed, 45s rest — camp pace']
+  },
+  heat:'20–45 min outdoor time this morning (build up across the two weeks). Weigh before/after any outdoor session — losing more than ~2% of bodyweight means you under-drank; fix it the same day.',
+  earn:[
+    ['Volunteer for EVERY special team','Freshman playing time starts on kickoff and punt. Tell the coach directly: "I want kickoff, punt, anything."'],
+    ['Sprint between every drill','Coaches chart effort before talent. Being first in line is a depth-chart vote you cast yourself.'],
+    ['Know your assignment before your rep','One busted assignment costs more future reps than one lost battle ever will. Ask before, not after.'],
+    ['Ask one coach one question today','"What do I need to do to earn more reps?" — then visibly do that exact thing.'],
+    ['Play to the whistle, every snap','Scrim film gets watched. Pursuit and finish show on every play, even away from the ball.'],
+    ['Zero missed practices','Availability is the first ability. The calendar is the tryout.']
+  ],
+  filmOps:[
+    'Tripod ($15) or cousin/parent at the fence — highest spot available, follow the ball, keep jersey numbers readable',
+    'Record EVERY rep you take — offense, defense, special teams. You cannot clip what was never filmed',
+    'Write down your jersey number + drill order right after, so your plays are findable',
+    'Same weekend: cut your 3 best plays → upload to Hudl. Most freshmen wait a year for film; yours can exist Aug 9'
+  ]
+};
+
+/* ============ VARSITY ADVANTAGE data (v7.23) ============ */
+/* Free Wins — each unchecked box has cost a freshman reps before. Secured the night before. */
+const FREE_WINS=[
+  'Helmet + pads in the bag',
+  'Mouthpiece in the helmet',
+  'Gallon jug filled + in the bag',
+  'Cleats, tape, pre-wrap packed',
+  'Homework done before practice',
+  'Breakfast eaten (or lunch packed)'
+];
+/* practice quality joins the knowledge graph — same honest concordance engine */
+KNOWLEDGE_EDGES.push(
+  {id:'sleep_pq',from:'Sleep',to:'Practice quality',ck:'sleep',ek:'pq',statement:'More sleep → better practice'},
+  {id:'energy_pq',from:'Morning energy',to:'Practice quality',ck:'energy',ek:'pq',statement:'Higher morning energy → better practice'}
+);
+
+/* ============ PROGRAM STAFF data (v7.24) ============ */
+/* Strength coach: every lift carries its football purpose — keyword-matched to block names */
+const LIFT_WHY=[
+  ['front squat','Block destruction → leg drive → explosive first step'],
+  ['pause squat','Strength out of the deepest position → stalemate becomes knock-back'],
+  ['squat','Leg drive → tackle power → yards after contact'],
+  ['trap-bar','Total-body pull → tackling strike → sled-dog acceleration'],
+  ['rdl','Hamstring armor → sprint speed → pulled-hammy insurance'],
+  ['dead','Hip hinge power → strike, wrap, drive through the tackle'],
+  ['hang clean','Triple extension → hitting power on contact'],
+  ['clean','Explosive hips → the pop coaches hear on film'],
+  ['bench','Punch → separation from blocks → shed and pursue'],
+  ['incline','Upper-chest punch angle → press blockers off your frame'],
+  ['ohp','Overhead press → locked-out stiff arm and punch strength'],
+  ['press','Punch strength → keep blockers off your legs'],
+  ['row','Pulling strength → rip/swim moves → tackle wrap'],
+  ['pull-up','Grip + pull → dragging down ballcarriers'],
+  ['sprint','The game IS sprints — every rep is 40 practice'],
+  ['jump','Elastic power → vertical for picks, burst for gaps'],
+  ['nordic','Hamstring braking strength → decelerate faster than blockers expect'],
+  ['carry','Grip + trunk under load → fourth-quarter tackle strength'],
+  ['plank','Trunk stiffness → deliver force without folding'],
+  ['stride','Sprint mechanics under low strain — speed you keep'],
+  ['gasser','Repeat-sprint gas tank — the 4th quarter separator'],
+  ['tempo','Aerobic base → recover between plays faster than your man']
+];
+function liftWhy(name){ const k=String(name||'').toLowerCase(); const hit=LIFT_WHY.find(x=>k.includes(x[0])); return hit?hit[1]:null; }
+/* Film coordinator: fixed tag vocabulary so film becomes searchable */
+const CLIP_TAGS=['Good read','Great angle','Block shed','Big play','Missed tackle','Poor pursuit','Wrong leverage','Busted assignment'];
+const CLIP_BAD=['Missed tackle','Poor pursuit','Wrong leverage','Busted assignment'];
+/* Equipment manager: game-day additions on top of FREE_WINS */
+const GAME_EXTRAS=['Extra socks + compression','Recovery snacks + water for after','Uniform + game socks laid out','Phone charged for film'];
+
+/* ============ GAP ENGINE data (v7.25) — why each factor matters, what it blocks ============ */
+const GAP_WHY={
+  squat:{why:'Leg drive — tackle power and yards after contact',blocks:['winning line-of-scrimmage battles']},
+  bench:{why:'Punch — shedding blocks instead of absorbing them',blocks:['playing off blockers','camp bench reps test']},
+  dead:{why:'Hip hinge power — the strike in every tackle',blocks:['knock-back tackles']},
+  clean:{why:'Triple extension — the pop coaches hear on film',blocks:['explosive contact','power testing']},
+  wt:{why:'Mass is the price of admission at LB',blocks:['holding up vs varsity linemen','position projection']},
+  forty:{why:'The first number every recruiter reads',blocks:['speed waypoints','D1 percentile read','camp invites'],keystone:true},
+  vert:{why:'Lower-body explosion recruiters can verify in one jump',blocks:['explosiveness percentile']},
+  broad:{why:'Horizontal power — first-step burst made measurable',blocks:['power profile completeness']},
+  gpa:{why:'NCAA 2.3 core floor — and the first question coaches ask counselors',blocks:['EVERY offer','camp invites','eligibility itself']},
+  film:{why:'Film is the only proof coaches accept — no reel, no recruit',blocks:['recruiting emails having a link','coach evaluation']},
+  coachwork:{why:'A repeated correction is a rep-costing habit coaches are watching',blocks:['depth-chart trust','clean practice film']},
+  consistency:{why:'Availability + habits are the first ability',blocks:['streak-built adaptation','coach trust']},
+  recruiting:{why:'Organized athletes get remembered; unorganized ones get lost',blocks:['follow-ups','camp planning']},
+  health:{why:'Recurring soreness untreated becomes missed practices',blocks:['practice availability','the season itself']}
+};
 /* ============ STATE — facts and events only; anything computable is computed ============ */
 const DB='d1os_v7';
 const DEFAULTS={
@@ -794,10 +921,15 @@ const DEFAULTS={
   params:{
     kcalAdj:     {v:0,  basis:'default'},   // personal surplus correction, ±kcal
     maxConsec:   {v:5,  basis:'default'},   // recovery override threshold, days
-    followupDays:{v:35, basis:'default'}    // pipeline staleness window
+    followupDays:{v:35, basis:'default'},   // pipeline staleness window
+    demotedRecs: {v:[], basis:'default'}    // rec kinds policy-approved OUT of the ONE THING ladder
   },
   reviews:[],    // {d, worked, broke, fix} — Sunday journal, the qualitative memory
   notes:[],      // {d, text} — daily reflections, append-only; surfaces in export
+  coach:[],      // {d, text} — every coach correction, permanent; repeats logged as new entries
+  opp:[],        // {d, opp, text} — opponent scout notes; outlive the season
+  clips:[],      // {d, opp, tag, note} — tagged film moments; searchable career film knowledge
+  body:[],       // {d, area, lvl} — soreness/prep log (patterns, never diagnosis)
   recs:[],       // {id,d,kind,text,why,ev,unc,asm,outKey,win,followed,followedOn} — recommendation objects (the learning loop): every rec is a testable hypothesis, append-only
   sessions:{}    // {ISO:[bool per block]} — set-by-set execution, feeds adherence-by-block
 };
@@ -1052,9 +1184,10 @@ const Model={
 function latestByDate(s,key){ const m={}; (s.metrics||[]).filter(x=>x.key===key&&x.val!=null).forEach(x=>{ m[x.d]=x.val; }); return m; }
 function knowledgeEdge(s,edge){
   const A=latestByDate(s,edge.ck), B=latestByDate(s,edge.ek);
-  const dates=Object.keys(A).filter(d=>d in B).sort();
+  const L=edge.lag||0; // lag L: cause on day d, effect on day d+L — same-day when 0
+  const dates=Object.keys(B).filter(db=>addDays(db,-L) in A).sort();
   const nDays=dates.length;
-  const xs=dates.map(d=>A[d]), ys=dates.map(d=>B[d]);
+  const xs=dates.map(db=>A[addDays(db,-L)]), ys=dates.map(db=>B[db]);
   const sign=v=>v>0?1:v<0?-1:0;
   // Kendall-style concordance: compare every day against every other day — uses far more of
   // the evidence than a median split and degrades honestly when signals tie.
@@ -1117,10 +1250,10 @@ function recEffectiveness(s=S){
     const followed=recs.filter(r=>r.followed==='followed').length;
     const ignored=recs.filter(r=>r.followed==='ignored').length;
     let effect='insufficient', detail='', lastConfirmed=null, retire=false;
+    const fv=[], iv=[];
     if(!meta.outKey){ effect='not-measurable';
       detail='No daily outcome to measure yet — recording whether you follow it ('+followed+'/'+total+').'; }
     else {
-      const fv=[], iv=[];
       recs.forEach(r=>{ if(daysBetween(r.d,today)<meta.off) return;           // outcome day not reached
         const v=metricOn(s,meta.outKey,addDays(r.d,meta.off)); if(v==null) return;
         (r.followed==='followed'?fv:(r.followed==='ignored'?iv:null))?.push({d:r.d,v}); });
@@ -1135,10 +1268,520 @@ function recEffectiveness(s=S){
         detail='Need '+nf+' more followed + '+ni+' more skipped day'+(ni===1?'':'s')+' with a logged '+nm(meta.outKey).toLowerCase()+' to judge.';
       }
     }
-    return {kind,label:meta.label,total,followed,ignored,outKey:meta.outKey,off:meta.off,effect,detail,lastConfirmed,retire};
+    return {kind,label:meta.label,total,followed,ignored,outKey:meta.outKey,off:meta.off,effect,detail,lastConfirmed,retire,pairs:meta.outKey?{f:fv,i:iv}:null};
   });
 }
 function recEffFor(kind,s=S){ return recEffectiveness(s).find(e=>e.kind===kind)||null; }
+
+/* ============ POLICY LAYER (v7.20) — the constitutional bridge between knowledge and action ====
+   Pure functions. Proposals are DERIVED from evidence every time (never stored — the one law);
+   only the human DECISION persists: an append-only 'policy' event + a params write with basis.
+   Any future engine that wants to change behavior emits a proposal object through policyEval.
+   The policy outlives the engines. */
+function policyObsCount(s=S){ return (s.metrics||[]).length+(s.lifts||[]).length+Object.keys(s.checkins||{}).length+(s.pushLog||[]).length; }
+function policyBar(s=S){
+  const n=policyObsCount(s);
+  const bar=[...POLICY.bars].reverse().find(b=>n>=b.minObs)||POLICY.bars[0];
+  return {...bar, obs:n,
+    note:`${n} real observations on record — the system is ${bar.label}. A behavior change now needs ${bar.needFollowed} followed + ${bar.needIgnored} skipped graded days, spread over ${bar.needWeeks}+ distinct weeks spanning ${bar.needSpanDays}+ days, with at most ${Math.round(bar.maxContra*100)}% contradicting evidence. The bar rises as evidence accumulates — the system gets more stable, never more reactive.`};
+}
+/* fixed 7-day bins since epoch — 'distinct calendar weeks' for the overfit check */
+function weekBin(d){ return Math.floor((new Date(d+'T12:00').getTime()/864e5+4)/7); }
+/* policyEval(p,s) → verdict object. p must carry: id,param,kind,current,proposed,support,contra,
+   followed,ignored (GRADED days),evDates,reason,expected,unknowns,explain. Nothing hidden. */
+function policyEval(p,s=S){
+  const bar=policyBar(s);
+  const days=(p.evDates||[]).slice().sort();
+  const span=days.length>1?daysBetween(days[0],days.at(-1)):0;
+  const weeks=new Set(days.map(weekBin)).size;
+  const tot=(p.support||0)+(p.contra||0);
+  const contraShare=tot>0?p.contra/tot:null;
+  const Q=[];
+  const q1=p.followed>=bar.needFollowed&&p.ignored>=bar.needIgnored;
+  Q.push({id:'sufficient',pass:q1,note:q1
+    ?`${p.followed} followed + ${p.ignored} skipped graded days — meets the ${bar.label} bar (${bar.needFollowed}+${bar.needIgnored}).`
+    :`${p.followed} followed + ${p.ignored} skipped graded days; the ${bar.label} bar is ${bar.needFollowed}+${bar.needIgnored}. Not demonstrably sufficient.`});
+  const q2=contraShare!=null&&contraShare<=bar.maxContra;
+  Q.push({id:'contradictions',pass:q2,note:contraShare==null
+    ?'No contradiction count present — rejected: unexamined contradiction is hidden uncertainty.'
+    :`${p.contra} of ${tot} evidence points disagree (${Math.round(contraShare*100)}%; bar allows ${Math.round(bar.maxContra*100)}%). Contradictions counted, never erased.`});
+  const q3=span>=bar.needSpanDays;
+  Q.push({id:'forward',pass:q3,note:q3
+    ?`Evidence spans ${span} days — a pattern, not a reaction to this week.`
+    :`Evidence spans only ${span} days (needs ${bar.needSpanDays}) — acting on it would be reacting to recent observations, not learning.`});
+  const q4=weeks>=bar.needWeeks;
+  Q.push({id:'overfit',pass:q4,note:q4
+    ?`Seen across ${weeks} distinct weeks — not one short period.`
+    :`All evidence sits in ${weeks} distinct week${weeks===1?'':'s'} (needs ${bar.needWeeks}) — could be one short period. Delayed, not rejected: keep logging.`});
+  const q5=['current','proposed','reason','expected','unknowns','explain'].every(k=>p[k]&&String(p[k]).trim());
+  Q.push({id:'explainable',pass:q5,note:q5
+    ?'Every field derives from logged evidence — nothing hidden, nothing magical.'
+    :'Proposal is missing evidence-derived fields — rejected.'});
+  const verdict=(!q1||!q2||!q3||!q5)?'rejected':(!q4?'delayed':'eligible');
+  return {...p,bar:bar.label,obs:bar.obs,spanDays:span,weeks,questions:Q,verdict,
+    verdictNote:verdict==='eligible'
+      ?'Passed all five policy questions — awaiting YOUR approval. The system proposes; you decide.'
+      :verdict==='delayed'
+      ?'Delayed by policy: the evidence must span more distinct weeks before behavior may change.'
+      :'Rejected by policy: this evidence has not earned a behavior change.'};
+}
+/* revisions(s) — the FIRST consumer of the policy layer. Generates candidate behavior changes
+   from the Decision Effectiveness Engine and submits every one to policyEval. Today it knows one
+   kind of change (demote/restore a rec kind in the ONE THING ladder); future engines add
+   generators here — the policy above never changes shape. */
+function revisions(s=S){
+  const effs=(typeof recEffectiveness==='function')?recEffectiveness(s):[];
+  const demoted=(s.params&&s.params.demotedRecs&&s.params.demotedRecs.v)||[];
+  const med=a=>{const b=[...a].sort((x,y)=>x-y),k=b.length;return k?(k%2?b[(k-1)/2]:(b[k/2-1]+b[k/2])/2):null;};
+  const out=[];
+  for(const e of effs){
+    if(!e.pairs||!e.pairs.f.length||!e.pairs.i.length) continue;
+    const mi=med(e.pairs.i.map(x=>x.v));
+    const helped=e.pairs.f.filter(x=>x.v-mi>=0.5).length;     // followed days where the advice looked like it helped
+    const flat=e.pairs.f.length-helped;                        // followed days consistent with "no benefit"
+    const evDates=[...e.pairs.f,...e.pairs.i].map(x=>x.d);
+    const base={kind:e.kind,param:'demotedRecs',followed:e.pairs.f.length,ignored:e.pairs.i.length,evDates};
+    let p=null;
+    if(e.effect==='none'&&!demoted.includes(e.kind)){
+      p=policyEval({...base,id:'demote:'+e.kind,
+        current:`"${e.label}" can be prescribed as TODAY'S ONE THING`,
+        proposed:`Stop prescribing "${e.label}" as the ONE THING — the ladder falls through to the next real priority`,
+        support:flat,contra:helped,
+        reason:e.detail,
+        expected:'The daily priority stops spending your attention on advice your own outcomes graded as no-effect.',
+        unknowns:'A longer season, better logging, or a changed context could reverse this. The grade keeps updating and this change is reversible through the same policy.',
+        explain:`Your own log graded "${e.label}" as having no measurable effect: ${e.detail}`},s);
+    } else if(e.effect==='supported'&&demoted.includes(e.kind)){
+      p=policyEval({...base,id:'restore:'+e.kind,
+        current:`"${e.label}" is demoted out of the ONE THING ladder`,
+        proposed:`Restore "${e.label}" as an eligible ONE THING`,
+        support:helped,contra:flat,
+        reason:e.detail,
+        expected:'Advice your outcomes now support returns to the daily priority.',
+        unknowns:'The earlier no-effect grade came from real days too — both records are kept; neither is erased.',
+        explain:`Your own log now grades "${e.label}" as supported: ${e.detail}`},s);
+    }
+    if(!p) continue;
+    /* a rejection is permanent FOR THIS EVIDENCE — identical evidence never resurfaces; new evidence may */
+    const fp=`${p.support}✓/${p.contra}✗ over ${evDates.length} graded days`;
+    p.fingerprint=fp;
+    const dismissed=(s.events||[]).some(ev=>ev.type==='policy'&&ev.meta&&ev.meta.action==='rejected'&&ev.meta.id===p.id&&ev.meta.evidence===fp);
+    if(!dismissed) out.push(p);
+  }
+  return out;
+}
+
+/* ============ CALIBRATION LAYER (v7.21) — the system measures its OWN reasoning ============
+   Every recommendation is a prediction; every prediction eventually meets evidence; therefore
+   every prediction is calibratable. Because ALL knowledge here is a pure function of the
+   append-only log, the system can REPLAY what it believed on any past date (stateAt) and compare
+   it to what it believes now — so reversals, premature conclusions and over/under-confidence are
+   DERIVED from permanent observations, never stored, never opinion. Counts, not scores.
+   Merge rule holds: no family inherits credibility from another; every statement cites evidence. */
+function stateAt(s,dateISO){
+  const f=a=>(a||[]).filter(x=>x.d<=dateISO);
+  const ck={}; Object.keys(s.checkins||{}).forEach(k=>{ if(k<=dateISO) ck[k]=s.checkins[k]; });
+  const recs=(s.recs||[]).filter(r=>r.d<=dateISO).map(r=>(r.followedOn&&r.followedOn>dateISO)?{...r,followed:null,followedOn:null}:r);
+  return {...s, metrics:f(s.metrics), lifts:f(s.lifts), pushLog:f(s.pushLog), events:f(s.events), checkins:ck, recs};
+}
+function calLabel(key){
+  const [t,id]=key.split(':');
+  if(t==='edge'){ const e=(typeof KNOWLEDGE_EDGES!=='undefined'?KNOWLEDGE_EDGES:[]).find(x=>x.id===id); return e?e.statement:id; }
+  return (typeof REC_KINDS!=='undefined'&&REC_KINDS[id]?REC_KINDS[id].label:id);
+}
+/* belief timeline: what the system concluded at each date evidence landed */
+function beliefTimeline(s=S){
+  const dates=[...new Set((s.metrics||[]).map(m=>m.d))].sort();
+  return dates.map(d=>{
+    const past=stateAt(s,d), edges={}, kinds={};
+    knowledgeGraph(past).forEach(e=>{ edges[e.id]=e.status; });
+    recEffectiveness(past).forEach(e=>{ kinds[e.kind]=e.effect; });
+    return {d,edges,kinds};
+  });
+}
+const CAL_SETTLED=['confirmed','none','supported','mixed'];
+/* reversals + settled conclusions, from replay — the scientific-humility record */
+function calReversals(s=S){
+  const tl=beliefTimeline(s), hist={};
+  for(const t of tl){
+    for(const id in t.edges) (hist['edge:'+id]=hist['edge:'+id]||[]).push({d:t.d,st:t.edges[id]});
+    for(const id in t.kinds) (hist['kind:'+id]=hist['kind:'+id]||[]).push({d:t.d,st:t.kinds[id]});
+  }
+  const reversals=[], settled=[];
+  for(const k in hist){
+    const runs=[]; for(const p of hist[k]) if(!runs.length||runs[runs.length-1].st!==p.st) runs.push({st:p.st,d:p.d});
+    let first=null;
+    for(let i=0;i<runs.length;i++){
+      if(!CAL_SETTLED.includes(runs[i].st)) continue;
+      if(!first) first=runs[i];
+      if(i<runs.length-1) reversals.push({key:k,what:calLabel(k),was:runs[i].st,at:runs[i].d,now:runs[i+1].st,when:runs[i+1].d,
+        premature:daysBetween(runs[i].d,runs[i+1].d)<=14,
+        statement:`I concluded "${calLabel(k)} — ${runs[i].st}" on ${runs[i].d}. Evidence through ${runs[i+1].d} says "${runs[i+1].st}". The correction is on record; nothing was erased.`});
+    }
+    if(first) settled.push({key:k,what:calLabel(k),st:runs[runs.length-1].st,since:runs[runs.length-1].d,
+      firstSettled:first.d,reversed:reversals.some(r=>r.key===k)});
+  }
+  return {reversals,settled};
+}
+/* the calibration engine — families graded ONLY on their own record */
+function calibration(s=S){
+  const effs=recEffectiveness(s), byKind={};
+  (s.recs||[]).forEach(r=>{ (byKind[r.kind]=byKind[r.kind]||[]).push(r); });
+  const fam=Object.keys(byKind).map(kind=>{
+    const rs=byKind[kind], e=effs.find(x=>x.kind===kind)||{};
+    const res=e.effect==='supported'?'supported':e.effect==='none'?'contradicted':e.effect==='mixed'?'mixed':'unresolved';
+    return {kind,label:(typeof REC_KINDS!=='undefined'&&REC_KINDS[kind]?REC_KINDS[kind].label:kind),
+      n:rs.length,answered:rs.filter(r=>r.followed).length,
+      graded:e.pairs?e.pairs.f.length+e.pairs.i.length:0,resolution:res,detail:e.detail||'',
+      firstD:rs[0].d,lastD:rs[rs.length-1].d,asm:[...new Set(rs.map(r=>r.asm).filter(Boolean))]};
+  });
+  const rv=calReversals(s);
+  const counts={improved:fam.filter(f=>f.resolution==='supported').length,
+    noEffect:fam.filter(f=>f.resolution==='contradicted').length,
+    mixed:fam.filter(f=>f.resolution==='mixed').length,
+    unresolved:fam.filter(f=>f.resolution==='unresolved').length,
+    reversals:rv.reversals.length, settled:rv.settled.length};
+  const held28=rv.settled.filter(x=>daysBetween(x.firstSettled,todayISO())>=28);
+  let confidence;
+  if(rv.settled.length<3) confidence='Too early to know how trustworthy I am — fewer than 3 settled conclusions exist. That honest answer IS the calibration.';
+  else if(rv.reversals.length/rv.settled.length>1/3) confidence=`Leaning overconfident: ${rv.reversals.length} of ${rv.settled.length} settled conclusions later reversed — conclusions may be settling too early. Raising the evidence bar would be justified, through policy, never silently.`;
+  else if(rv.reversals.length===0&&held28.length>=3) confidence=`No settled conclusion has reversed (${held28.length} have held 28+ days). No sign of overconfidence; if this persists the bars could safely relax — through policy, never silently.`;
+  else confidence=`${rv.reversals.length} reversal${rv.reversals.length===1?'':'s'} across ${rv.settled.length} settled conclusions — within honest bounds for single-athlete evidence.`;
+  const sup=fam.filter(f=>f.resolution==='supported').sort((a,b)=>b.graded-a.graded);
+  const con=fam.filter(f=>f.resolution==='contradicted').sort((a,b)=>b.graded-a.graded);
+  return {fam,counts,reversals:rv.reversals,settled:rv.settled,confidence,
+    strongest:sup[0]||null,weakest:con[0]||null,unresolved:fam.filter(f=>f.resolution==='unresolved')};
+}
+/* generation-time reference — each family cites ONLY its own history (merge rule) */
+function calNote(kind,s=S){
+  const n=(s.recs||[]).filter(r=>r.kind===kind).length;
+  if(!n) return 'first prediction of this kind — no track record yet; treat it as experimental.';
+  const e=recEffFor(kind,s);
+  if(e&&e.effect==='supported') return 'this reasoning has historically performed well in your own data — '+e.detail;
+  if(e&&e.effect==='none') return 'I thought this kind of advice would help; your evidence showed it did not. It stays on record, not in charge.';
+  if(e&&e.effect==='mixed') return 'this reasoning has a mixed record in your data — still experimental.';
+  return `this recommendation remains experimental — ${n} prediction${n===1?'':'s'} on record, none resolved by evidence yet.`;
+}
+/* per-recommendation calibration object resolution (prediction date is r.d; unknowns are r.unc) */
+function recOutcome(r,s=S){
+  const meta=(typeof REC_KINDS!=='undefined')&&REC_KINDS[r.kind];
+  if(!meta||!meta.outKey) return {resolved:false,note:'no measurable outcome defined for this prediction'};
+  if(daysBetween(r.d,todayISO())<meta.off) return {resolved:false,note:'outcome day not reached yet'};
+  const v=metricOn(s,meta.outKey,addDays(r.d,meta.off));
+  return v==null?{resolved:false,note:'no evidence reached this prediction'}
+    :{resolved:true,val:v,when:addDays(r.d,meta.off),note:meta.outKey+'='+v+' recorded '+addDays(r.d,meta.off)};
+}
+/* periodic self-audit — four questions, answered only from the permanent record */
+function selfAudit(s=S){
+  const cal=calibration(s);
+  const wrongAsm={};
+  cal.fam.filter(f=>f.resolution==='contradicted'||f.resolution==='mixed').forEach(f=>f.asm.forEach(a=>{ wrongAsm[a]=(wrongAsm[a]||0)+f.n; }));
+  const pol=(s.events||[]).filter(e=>e.type==='policy'&&e.meta&&e.meta.action==='approved');
+  /* the events log is append-only chronological — a later INDEX means a later decision, even same-day */
+  const polReversed=pol.filter((e,i)=>String(e.meta.id).indexOf('demote:')===0&&pol.some((x,j)=>j>i&&x.meta.id==='restore:'+e.meta.kind))
+    .map(e=>({id:e.meta.id,d:e.d,undone:pol.find((x,j)=>j>pol.indexOf(e)&&x.meta.id==='restore:'+e.meta.kind).d}));
+  const kg=knowledgeGraph(s), stale=[];
+  for(const key of ['sleep','energy','sq']){
+    const days=new Set((s.metrics||[]).filter(mm=>mm.key===key).map(mm=>mm.d)).size;
+    if(days>=5&&!kg.some(e=>(e.ck===key||e.ek===key)&&(e.status==='confirmed'||e.status==='none')))
+      stale.push({key,days,note:days+' days of '+key+' logged; no relationship settled yet — the experiment has produced data but no learning so far.'});
+  }
+  const survived=cal.settled.filter(x=>!x.reversed&&daysBetween(x.firstSettled,todayISO())>=28);
+  return {wrongAsm:Object.entries(wrongAsm).sort((a,b)=>b[1]-a[1]).slice(0,3),polReversed,stale,survived};
+}
+
+/* ============ VARSITY ADVANTAGE (v7.23) — what a varsity starter knows, derived ============
+   Pure functions over the permanent log. Every read states its evidence; every empty state is
+   honest. A freshman forgets coaching — this layer is where it accumulates instead. */
+const normCue=t=>String(t||'').toLowerCase().replace(/[^a-z0-9 ]/g,'').replace(/\s+/g,' ').trim();
+function coachMemory(s=S,today=todayISO()){
+  const g={};
+  (s.coach||[]).forEach(c=>{ const k=normCue(c.text); (g[k]=g[k]||{text:c.text,dates:[]}).dates.push(c.d); });
+  const list=Object.values(g).map(x=>{ const ds=x.dates.slice().sort();
+    return {text:x.text,n:ds.length,first:ds[0],last:ds[ds.length-1],daysSince:daysBetween(ds[ds.length-1],today)}; })
+    .sort((a,b)=>b.n-a.n||a.daysSince-b.daysSince);
+  const wk=d0=>(s.coach||[]).filter(c=>daysBetween(c.d,today)>=d0&&daysBetween(c.d,today)<d0+7).length;
+  return {list,
+    mostRepeated:list.find(x=>x.n>=2)||null,
+    improving:list.filter(x=>x.n>=2&&x.daysSince>=14).sort((a,b)=>b.daysSince-a.daysSince),
+    quiet30:list.filter(x=>x.daysSince>=30),
+    newRecurring:list.filter(x=>x.n>=2&&daysBetween(x.first,today)<=7),
+    thisWeek:wk(0), lastWeek:wk(7)};
+}
+function weakConcepts(s=S){
+  const per={};
+  (s.pushLog||[]).filter(p=>p.type==='pb'&&p.concept).forEach(p=>{ (per[p.concept]=per[p.concept]||[]).push(p); });
+  const out=[];
+  for(const c in per){ const arr=per[c], miss=arr.filter(x=>x.ok===0).length;
+    if(!miss) continue;
+    const last2=arr.slice(-2);
+    if(last2.length===2&&last2.every(x=>x.ok===1)) continue;   // recovered: 2 straight gots
+    out.push({concept:c,miss,reps:arr.length});
+  }
+  return out.sort((a,b)=>b.miss-a.miss);
+}
+function practiceDay(dateISO){
+  const dow=new Date(dateISO+'T12:00').getDay();
+  if(dateISO>=SEASON_ENTRY.campStart&&dateISO<SEASON_ENTRY.opener) return dow!==0;
+  if(phaseFor(dateISO)==='inseason') return dow>=1&&dow<=5;
+  return false;
+}
+/* one practice, one objective — sourced from the strongest evidence available */
+function practiceMission(s=S,d=todayISO()){
+  const hot=coachMemory(s,d).list.find(x=>x.n>=2&&x.daysSince<=14);
+  if(hot) return {src:'coach',t:'Delete the correction: '+hot.text,
+    why:'Coach has said it '+hot.n+'×. Erasing a repeated correction is the fastest visible improvement a coach can reward with reps.'};
+  const wc=weakConcepts(s)[0];
+  if(wc) return {src:'iq',t:'Own the concept that bit you: '+wc.concept,
+    why:'Missed '+wc.miss+'× in flashcards — a busted assignment costs more reps than a lost battle.'};
+  const eIdx=Math.floor(daysBetween('2026-01-01',d))%SEASON_ENTRY.earn.length;
+  return {src:'earn',t:SEASON_ENTRY.earn[eIdx][0],why:SEASON_ENTRY.earn[eIdx][1]};
+}
+function missionStats(s=S){
+  const ev=(s.events||[]).filter(e=>e.type==='mission'&&e.meta).sort((a,b)=>a.d<b.d?-1:1);
+  const last10=ev.slice(-10);
+  let streak=0; for(let i=ev.length-1;i>=0;i--){ if(ev[i].meta.ok===1) streak++; else break; }
+  let twoInRow=false; for(let i=1;i<ev.length;i++) if(ev[i].meta.ok===0&&ev[i-1].meta.ok===0) twoInRow=true;
+  return {answered:ev.length,hit:last10.filter(e=>e.meta.ok===1).length,of:last10.length,streak,
+    neverTwoMisses:ev.length>=4&&!twoInRow};
+}
+function freeWinsRead(s=S,today=todayISO()){
+  const ev=(s.events||[]).filter(e=>e.type==='task'&&e.meta&&String(e.meta.id).indexOf('freewin:')===0);
+  const byDay={}; ev.forEach(e=>{ const p=e.meta.id.split(':'); (byDay[p[1]]=byDay[p[1]]||new Set()).add(+p[2]); });
+  const days=Object.keys(byDay).sort();
+  const per=FREE_WINS.map((w,i)=>({item:w,secured:days.filter(d=>byDay[d].has(i)).length,of:days.length}));
+  const weakest=days.length>=3?per.slice().sort((a,b)=>(a.secured/a.of)-(b.secured/b.of))[0]:null;
+  const clean3=days.slice(-3).length===3&&days.slice(-3).every(d=>byDay[d].size>=FREE_WINS.length);
+  return {days:days.length,per,weakest,clean3};
+}
+/* recovery pattern read — honest medians, no claim below 4+4 rated days */
+function recoveryRead(s=S){
+  const pq=latestByDate(s,'pq'), days=Object.keys(pq).sort();
+  const lower=new Set((s.lifts||[]).filter(l=>['squat','dead'].includes(l.ex)).map(l=>l.d));
+  const after=[],other=[];
+  for(const d of days) (lower.has(addDays(d,-1))?after:other).push(pq[d]);
+  const med=a=>{const b=[...a].sort((x,y)=>x-y),k=b.length;return k?(k%2?b[(k-1)/2]:(b[k/2-1]+b[k/2])/2):null;};
+  if(after.length<4||other.length<4) return {status:'insufficient',
+    note:'No recovery claims yet — needs '+Math.max(0,4-after.length)+' more practice ratings the day after heavy lower lifts and '+Math.max(0,4-other.length)+' more on other days. Rate practices 1–5 in Quick Log.'};
+  const diff=med(after)-med(other);
+  if(diff<=-1) return {status:'read',penalty:true,
+    note:'Practice quality median '+med(after)+' the day after heavy lower lifts vs '+med(other)+' otherwise ('+after.length+'/'+other.length+' rated days) — your evidence says move squat/dead further from practice.'};
+  return {status:'read',penalty:false,
+    note:'No lower-day penalty in your data: '+med(after)+' after vs '+med(other)+' otherwise ('+after.length+'/'+other.length+' rated days).'};
+}
+/* momentum — signals only when evidence exists; protect up, interrupt down */
+function momentumRead(s=S,today=todayISO()){
+  const sig=[], ms=missionStats(s), cm=coachMemory(s,today);
+  if(ms.streak>=3) sig.push({dir:'up',t:ms.streak+' practice missions hit in a row — protect the streak; change nothing that is working.'});
+  if(ms.of>=6&&ms.hit/ms.of<0.4) sig.push({dir:'down',t:'Missions hit '+ms.hit+'/'+ms.of+' recently — shrink tomorrow\u2019s mission until one lands.'});
+  if(cm.lastWeek>=3&&cm.thisWeek<cm.lastWeek) sig.push({dir:'up',t:'Coach corrections falling: '+cm.lastWeek+' last week \u2192 '+cm.thisWeek+' this week. That is the depth chart moving.'});
+  if(cm.thisWeek>cm.lastWeek&&cm.thisWeek>=3) sig.push({dir:'down',t:'Corrections rising ('+cm.lastWeek+'\u2192'+cm.thisWeek+') — pick ONE and delete it this week.'});
+  const pq=latestByDate(s,'pq'); const pd=Object.keys(pq).sort();
+  if(pd.length>=6){ const med=a=>{const b=[...a].sort((x,y)=>x-y),k=b.length;return k%2?b[(k-1)/2]:(b[k/2-1]+b[k/2])/2;};
+    const rec=med(pd.slice(-3).map(d=>pq[d])), pri=med(pd.slice(-6,-3).map(d=>pq[d]));
+    if(rec-pri>=1) sig.push({dir:'up',t:'Practice quality climbing (median '+pri+'\u2192'+rec+') — conditioning is landing.'});
+    if(pri-rec>=1) sig.push({dir:'down',t:'Practice quality slipping ('+pri+'\u2192'+rec+') — check sleep and recovery before pushing harder.'});
+  }
+  return sig;
+}
+function nextOpponent(s=S,today=todayISO()){
+  const g=(typeof SCHEDULE!=='undefined'?SCHEDULE:[]).find(x=>x.d>=today);
+  if(!g) return null;
+  return {...g,notes:(s.opp||[]).filter(n=>normCue(n.opp)===normCue(g.opp)),days:daysBetween(today,g.d)};
+}
+/* varsity ready — a checklist, never a score; every item earned from evidence */
+function varsityReady(s=S,today=todayISO()){
+  const wc=weakConcepts(s), pbReps=(s.pushLog||[]).filter(p=>p.type==='pb').length;
+  const fw=freeWinsRead(s,today), ms=missionStats(s);
+  const done=id=>(s.events||[]).some(e=>e.type==='task'&&e.meta&&e.meta.id===id);
+  const prepDone=(s.events||[]).filter(e=>e.type==='task'&&e.meta&&String(e.meta.id).indexOf('prep:')===0).length;
+  const sl=(s.metrics||[]).filter(x=>x.key==='sleep'&&daysBetween(x.d,today)<7);
+  const slAvg=sl.length?+(sl.reduce((a,b)=>a+b.val,0)/sl.length).toFixed(1):null;
+  const pdays=[]; for(let i=1;i<=14;i++){ const d=addDays(today,-i); if(practiceDay(d)) pdays.push(d); }
+  const attended=pdays.filter(d=>s.checkins[d]||(s.events||[]).some(e=>e.type==='mission'&&e.d===d)).length;
+  const items=[
+    {k:'Assignments known',ok:pbReps>=20&&wc.length===0,
+     ev:pbReps<20?pbReps+'/20 flashcard reps — keep drawing plays':wc.length?wc.length+' concept'+(wc.length===1?'':'s')+' still biting: '+wc.slice(0,2).map(x=>x.concept).join(', '):pbReps+' reps, no unresolved misses'},
+    {k:'Conditioning built',ok:prepDone>=6,ev:prepDone+' prep-window sessions completed (needs 6)'},
+    {k:'Equipment automatic',ok:fw.clean3,ev:fw.days?('last 3 tracked practice days '+(fw.clean3?'fully secured':'had holes')+' ('+fw.days+' days tracked)'):'no Free Wins tracked yet'},
+    {k:'Film current',ok:done('firstclips'),ev:done('firstclips')?'first clips are on Hudl':'no clips on Hudl yet'},
+    {k:'Recovery evidenced',ok:sl.length>=5&&slAvg>=8,ev:sl.length<5?('sleep logged '+sl.length+'/5 nights this week'):slAvg+'h average this week (needs 8+)'},
+    {k:'Attendance perfect',ok:pdays.length>0&&attended===pdays.length,ev:pdays.length?attended+'/'+pdays.length+' recent practice days show activity':'season has not started'},
+    {k:'Mission habit',ok:ms.answered>=5&&ms.of>0&&ms.hit>=Math.ceil(ms.of*0.6),ev:ms.answered?ms.hit+'/'+ms.of+' recent missions hit ('+ms.answered+' answered)':'no missions answered yet'}
+  ];
+  return {items,earned:items.filter(i=>i.ok).length};
+}
+
+/* ============ PROGRAM STAFF (v7.24) — replacing real football-program workflows ============ */
+/* Film coordinator: searchable tags + honest improvement counts (early vs recent halves) */
+function filmRead(s=S){
+  const c=s.clips||[]; if(!c.length) return {n:0,byTag:[],trend:null,byOpp:[]};
+  const byTag=CLIP_TAGS.map(t=>({tag:t,n:c.filter(x=>x.tag===t).length,bad:CLIP_BAD.includes(t)})).filter(x=>x.n);
+  const days=[...new Set(c.map(x=>x.d))].sort();
+  let trend=null;
+  if(days.length>=4){ const mid=days[Math.floor(days.length/2)];
+    const half=p=>{const cc=c.filter(x=>p(x.d)); const bad=cc.filter(x=>CLIP_BAD.includes(x.tag)).length; return {n:cc.length,bad};};
+    const a=half(d=>d<mid), b=half(d=>d>=mid);
+    if(a.n>=3&&b.n>=3) trend={early:a,recent:b,
+      note:`Miss-tags ${a.bad}/${a.n} early → ${b.bad}/${b.n} recent — counts from your own tagged film, nothing else.`};
+  }
+  const byOpp=[...new Set(c.map(x=>x.opp).filter(Boolean))].map(o=>({opp:o,
+    bad:c.filter(x=>x.opp===o&&CLIP_BAD.includes(x.tag)).length,n:c.filter(x=>x.opp===o).length}))
+    .filter(x=>x.bad).sort((x,y)=>y.bad-x.bad);
+  return {n:c.length,byTag,trend,byOpp};
+}
+/* Athletic trainer: recurring-soreness pattern — preparation, never diagnosis */
+function bodyRead(s=S,today=todayISO()){
+  const recent=(s.body||[]).filter(b=>daysBetween(b.d,today)<=14);
+  const areas={}; recent.forEach(b=>{ const k=String(b.area).toLowerCase().trim(); (areas[k]=areas[k]||[]).push(b); });
+  const recurring=Object.keys(areas).filter(k=>areas[k].length>=3)
+    .map(k=>({area:k,n:areas[k].length,lastLvl:areas[k][areas[k].length-1].lvl}));
+  return {recent:recent.length,recurring,
+    flag:recurring.length?`Recurring 14-day pattern: ${recurring.map(r=>r.area+' ('+r.n+'×)').join(', ')} — switch to train-around mode and tell a coach/parent. Return-to-play is a medical call, never the app's.`:null};
+}
+/* Recruiting coordinator: nothing forgotten — one derived ops checklist */
+function recruitOps(s=S,today=todayISO()){
+  const ev=t=>(s.events||[]).filter(e=>e.type===t).map(e=>e.d).sort();
+  const hudl=ev('hudl'), camps=(s.events||[]).filter(e=>e.type==='camp'&&e.meta);
+  const lastHudl=hudl[hudl.length-1]||null;
+  const g=(s.metrics||[]).filter(x=>x.key==='gpa').sort((a,b)=>a.d<b.d?1:-1)[0];
+  const done=id=>(s.events||[]).some(e=>e.type==='task'&&e.meta&&e.meta.id===id);
+  const items=[
+    {k:'Film on Hudl',ok:done('firstclips'),ev:done('firstclips')?'first clips live':'no clips yet — the next game/scrim is the source'},
+    {k:'Hudl fresh (≤60d)',ok:!!lastHudl&&daysBetween(lastHudl,today)<=60,ev:lastHudl?('last update '+lastHudl):'no Hudl update ever logged'},
+    {k:'Board has targets',ok:(s.pipeline||[]).length>0,ev:(s.pipeline||[]).length+' schools on the Board'},
+    {k:'GPA on record',ok:!!g,ev:g?('GPA '+g.val+' logged '+g.d):'no GPA logged — coaches ask early'},
+    {k:'Measurables current (≤90d)',ok:['wt'].every(k2=>(s.metrics||[]).some(x=>x.key===k2&&daysBetween(x.d,today)<=90)),ev:'height/weight/40 asked on every camp form'},
+    {k:'Camp/showcase list',ok:camps.length>0,ev:camps.length?camps.map(c=>c.meta.name+(c.meta.when?' ('+c.meta.when+')':'')).join(' · '):'none tracked — summer camps are where freshmen get measured'}
+  ];
+  return {items,missing:items.filter(i=>!i.ok),camps,lastHudl};
+}
+/* Career archive: every season derivable forever from the append-only log */
+function careerArchive(s=S){
+  const yr=d=>{ const y=+d.slice(0,4); return d.slice(5,7)>='08'?y:y-1; };
+  const years={};
+  const touch=(d,f)=>{ const y=yr(d); years[y]=years[y]||{checkins:0,lifts:0,prs:0,corrections:0,clips:0,contacts:0,missions:0,best:{}}; f(years[y]); };
+  Object.keys(s.checkins||{}).forEach(d=>touch(d,x=>x.checkins++));
+  (s.lifts||[]).forEach(l=>touch(l.d,x=>{ x.lifts++; const e=epley(l.wt,l.reps); if(!x.best[l.ex]||e>x.best[l.ex]) x.best[l.ex]=e; }));
+  (s.coach||[]).forEach(c=>touch(c.d,x=>x.corrections++));
+  (s.clips||[]).forEach(c=>touch(c.d,x=>x.clips++));
+  (s.events||[]).forEach(e=>{ if(e.type==='pr') touch(e.d,x=>x.prs++); if(e.type==='contact') touch(e.d,x=>x.contacts++); if(e.type==='mission') touch(e.d,x=>x.missions++); });
+  const grade=y=>({2026:'Freshman',2027:'Sophomore',2028:'Junior',2029:'Senior'})[y]||y;
+  return Object.keys(years).sort().map(y=>({year:y+'–'+(+y+1)%100,grade:grade(+y),...years[y]}));
+}
+
+/* ============ GAP ENGINE (v7.25) — what separates him from the next level ============
+   Consumes waypointGaps, percentileGap, academic, filmRead, coachMemory, consistency,
+   recruitOps, bodyRead, experiments. Adds NO new standards: physical rungs are stage
+   waypoints then D1 percentiles; honest rungs in between (All-Conference/All-State) have
+   no published numbers and are never invented. One bottleneck wins, by stated precedence,
+   with a consensus list showing which existing systems point at it. */
+function gapEngine(s=S,today=todayISO()){
+  const F=[], wg=Model.waypointGaps(s,today), aca=Model.academic(s,today);
+  const pos=(s.profile&&s.profile.pos||'LB').indexOf('LB')>=0?'LB':'RB';
+  const stage=wg.label.split('·')[0].trim();
+  for(const r of wg.rows){
+    if(r.key==='gpa') continue;
+    const gw=GAP_WHY[r.key]||{why:'',blocks:[]};
+    const pg=r.cur!=null?Model.percentileGap(r.key,r.cur,pos):null;
+    let tier,ev,fix;
+    if(r.progress==null){ tier='UNKNOWN';
+      ev=r.rel&&r.cur==null?'no measurement on record — evidence required; no standard invented':'no target computable yet';
+      fix='log it once — every gap read for '+r.key+' unlocks from one measurement'; }
+    else if(r.progress>=1){ tier='READY'; ev=r.key+' '+r.cur+' meets the '+stage+' waypoint ('+r.target+')'+(pg?' · '+pg.tier+' vs D1-recruit seniors':''); fix='maintain — the engine holds it'; }
+    else if(r.progress>=0.85){ tier='COMPETITIVE'; ev=r.cur+' vs '+r.target+' waypoint ('+Math.round(r.progress*100)+'%)'+(pg?' · '+pg.tier+' vs D1 seniors':''); fix=FOCUS_BLOCKS[r.key]?'focus block auto-added on matching days':'keep the plan'; }
+    else { tier='LIMITING'; ev=r.cur+' vs '+r.target+' waypoint ('+Math.round(r.progress*100)+'%)'; fix=FOCUS_BLOCKS[r.key]?'engine attacks it: '+FOCUS_BLOCKS[r.key].n:'targeted work in the plan'; }
+    F.push({id:'phys:'+r.key,key:r.key,name:r.key,domain:'physical',tier,ev,why:gw.why,blocks:gw.blocks,fix,progress:r.progress});
+  }
+  const g=GAP_WHY.gpa;
+  F.push(aca.gpa==null
+    ?{id:'gpa',key:'gpa',name:'Academics',domain:'eligibility',tier:'UNKNOWN',ev:'no GPA on record',why:g.why,blocks:g.blocks,fix:'log your GPA in TRACK — one number'}
+    :aca.gpa<2.3?{id:'gpa',key:'gpa',name:'Academics',domain:'eligibility',tier:'LIMITING',ev:'GPA '+aca.gpa+' — under the NCAA 2.3 core floor',why:g.why,blocks:g.blocks,fix:'grades own the evening until this clears 2.3'}
+    :aca.gpa<3.0?{id:'gpa',key:'gpa',name:'Academics',domain:'eligibility',tier:'COMPETITIVE',ev:'GPA '+aca.gpa+' — eligible, below the 3.0 recruiting bar',why:g.why,blocks:g.blocks,fix:'one assignment before screens, every night'}
+    :{id:'gpa',key:'gpa',name:'Academics',domain:'eligibility',tier:'READY',ev:'GPA '+aca.gpa,why:g.why,blocks:g.blocks,fix:'hold it'});
+  const done=id=>(s.events||[]).some(e=>e.type==='task'&&e.meta&&e.meta.id===id);
+  const hudl=(s.events||[]).filter(e=>e.type==='hudl').map(e=>e.d).sort();
+  const fw2=GAP_WHY.film;
+  F.push(done('firstclips')
+    ?((hudl.length&&daysBetween(hudl[hudl.length-1],today)<=60)
+      ?{id:'film',key:'film',name:'Film',domain:'recruiting',tier:'READY',ev:'clips live + Hudl fresh',why:fw2.why,blocks:fw2.blocks,fix:'keep clipping 3 plays per game'}
+      :{id:'film',key:'film',name:'Film',domain:'recruiting',tier:'COMPETITIVE',ev:'clips exist; Hudl not updated in 60+ days',why:fw2.why,blocks:fw2.blocks,fix:'update Hudl, tap HUDL UPDATED in PATH'})
+    :today>=SEASON_ENTRY.scrim
+      ?{id:'film',key:'film',name:'Film',domain:'recruiting',tier:'LIMITING',ev:'season film exists but nothing is clipped to Hudl',why:fw2.why,blocks:fw2.blocks,fix:'cut 3 best plays this weekend — Film Room + Hudl'}
+      :{id:'film',key:'film',name:'Film',domain:'recruiting',tier:'UNKNOWN',ev:'no game film can exist yet — first chance is the Aug 8 scrim',why:fw2.why,blocks:fw2.blocks,fix:'run the First Film ops plan on Aug 8'});
+  const cm=coachMemory(s,today), cw=GAP_WHY.coachwork;
+  F.push(!(s.coach||[]).length
+    ?{id:'coachwork',key:'coachwork',name:'Coaching applied',domain:'practice',tier:'UNKNOWN',ev:'no corrections logged yet — starts at camp',why:cw.why,blocks:cw.blocks,fix:'log every correction from day one of camp'}
+    :(cm.mostRepeated&&cm.mostRepeated.n>=3&&cm.mostRepeated.daysSince<=14)
+      ?{id:'coachwork',key:'coachwork',name:'Coaching applied',domain:'practice',tier:'LIMITING',ev:'"'+cm.mostRepeated.text+'" heard '+cm.mostRepeated.n+'× and still live',why:cw.why,blocks:cw.blocks,fix:'it becomes the practice mission until it goes quiet'}
+      :cm.newRecurring.length
+        ?{id:'coachwork',key:'coachwork',name:'Coaching applied',domain:'practice',tier:'COMPETITIVE',ev:cm.newRecurring.length+' new recurring point(s) this week',why:cw.why,blocks:cw.blocks,fix:'attack the newest one before it roots'}
+        :{id:'coachwork',key:'coachwork',name:'Coaching applied',domain:'practice',tier:'READY',ev:'no live repeated corrections — '+(cm.quiet30.length?cm.quiet30.length+' gone quiet 30+ days':'record is clean'),why:cw.why,blocks:cw.blocks,fix:'keep logging honestly'});
+  const con=Model.consistency(s,today), cy=GAP_WHY.consistency;
+  F.push(!con.everComplete
+    ?{id:'consistency',key:'consistency',name:'Consistency',domain:'practice',tier:'UNKNOWN',ev:'no complete check-in days yet',why:cy.why,blocks:cy.blocks,fix:'the Daily Four, today'}
+    :con.rate30>=0.8?{id:'consistency',key:'consistency',name:'Consistency',domain:'practice',tier:'READY',ev:Math.round(con.rate30*100)+'% of the last 30 days complete',why:cy.why,blocks:cy.blocks,fix:'protect the streak'}
+    :con.rate30>=0.5?{id:'consistency',key:'consistency',name:'Consistency',domain:'practice',tier:'COMPETITIVE',ev:Math.round(con.rate30*100)+'% complete (30d)',why:cy.why,blocks:cy.blocks,fix:'streak shield covers one 3/4 day a week — use it, not excuses'}
+    :{id:'consistency',key:'consistency',name:'Consistency',domain:'practice',tier:'LIMITING',ev:Math.round(con.rate30*100)+'% complete (30d)',why:cy.why,blocks:cy.blocks,fix:'minimum viable day beats a perfect plan skipped'});
+  const ro=recruitOps(s,today), rw=GAP_WHY.recruiting;
+  const roMiss=ro.items.filter(i=>!i.ok&&['Board has targets','Hudl fresh (≤60d)','Camp/showcase list','Measurables current (≤90d)'].indexOf(i.k)>=0);
+  F.push(roMiss.length===0
+    ?{id:'recruiting',key:'recruiting',name:'Recruiting ops',domain:'recruiting',tier:'READY',ev:'coordinator checklist clear',why:rw.why,blocks:rw.blocks,fix:'monthly pulse keeps it clear'}
+    :roMiss.length<=2?{id:'recruiting',key:'recruiting',name:'Recruiting ops',domain:'recruiting',tier:'COMPETITIVE',ev:roMiss.length+' open: '+roMiss.map(i=>i.k).join(', '),why:rw.why,blocks:rw.blocks,fix:'close the open items in PATH → Recruiting Ops'}
+    :{id:'recruiting',key:'recruiting',name:'Recruiting ops',domain:'recruiting',tier:'LIMITING',ev:roMiss.length+' open: '+roMiss.map(i=>i.k).join(', '),why:rw.why,blocks:rw.blocks,fix:'PATH → Recruiting Ops, top to bottom'});
+  const br=bodyRead(s,today), hw=GAP_WHY.health;
+  if(br.recurring.length) F.push({id:'health',key:'health',name:'Health pattern',domain:'availability',tier:'LIMITING',ev:br.recurring.map(r=>r.area+' ('+r.n+'× in 14d)').join(', '),why:hw.why,blocks:hw.blocks,fix:'train-around mode + tell a coach/parent; return-to-play is medical'});
+  else if((s.body||[]).length) F.push({id:'health',key:'health',name:'Health pattern',domain:'availability',tier:'READY',ev:'no recurring soreness pattern',why:hw.why,blocks:hw.blocks,fix:'keep the log honest'});
+  return {stage,pos,factors:F};
+}
+/* ONE bottleneck — explicit precedence, and the consensus of systems pointing at it */
+function gapBottleneck(s=S,today=todayISO()){
+  const {factors,stage}=gapEngine(s,today);
+  const by=id=>factors.find(f=>f.id===id);
+  const lim=t=>factors.filter(f=>f.tier===t);
+  const speedUnknown=['forty','vert','broad'].filter(k=>{const f=by('phys:'+k);return f&&f.tier==='UNKNOWN';});
+  let pick=null, consensus=[];
+  if(by('gpa')&&by('gpa').tier==='LIMITING'){ pick=by('gpa'); consensus=['decide() priority slot seized','Academic Eligibility card','Recruiting Ops open item']; }
+  else if(by('health')&&by('health').tier==='LIMITING'){ pick=by('health'); consensus=['Trainer log 14-day pattern','availability gates every other factor']; }
+  else if(speedUnknown.length>=2){ pick=by('phys:forty')||by('phys:'+speedUnknown[0]);
+    consensus=['Experiment Engine ranks the baseline test #1','waypoint targets uncomputable without it','radar speed axes empty','D1 percentile unreadable']; }
+  else if(by('film')&&by('film').tier==='LIMITING'){ pick=by('film'); consensus=['Recruiting Ops open item','recruiting one-pager has no link','Film Room empty']; }
+  else if(by('coachwork')&&by('coachwork').tier==='LIMITING'){ pick=by('coachwork'); consensus=['Coach Memory most-repeated','practice mission already targets it']; }
+  else if(lim('LIMITING').some(f=>f.domain==='physical')){
+    pick=lim('LIMITING').filter(f=>f.domain==='physical').sort((a,b)=>(a.progress??1)-(b.progress??1))[0];
+    consensus=['waypoint gap engine primary','focus block targets it in TRAIN']; }
+  else if(by('consistency')&&by('consistency').tier==='LIMITING'){ pick=by('consistency'); consensus=['System Read adherence','streak engine']; }
+  else if(lim('LIMITING')[0]){ pick=lim('LIMITING')[0]; consensus=['Recruiting Ops checklist']; }
+  else if(lim('UNKNOWN')[0]){ pick=lim('UNKNOWN')[0]; consensus=['Experiment Engine — unknowns before optimization']; }
+  else { pick=lim('COMPETITIVE').sort((a,b)=>(a.progress??1)-(b.progress??1))[0]||null; consensus=pick?['closest competitive factor to the '+stage+' waypoint']:[]; }
+  return pick?{...pick,consensus}:null;
+}
+/* Am I closing the gap? — replayed, never remembered */
+function gapTrend(s=S,today=todayISO(),back=28){
+  const past=stateAt(s,addDays(today,-back));
+  const cnt=fs=>({lim:fs.filter(f=>f.tier==='LIMITING').length,unk:fs.filter(f=>f.tier==='UNKNOWN').length,rdy:fs.filter(f=>f.tier==='READY').length});
+  const a=cnt(gapEngine(past,addDays(today,-back)).factors), b=cnt(gapEngine(s,today).factors);
+  const moved=[];
+  gapEngine(past,addDays(today,-back)).factors.forEach(pf=>{
+    const nf=gapEngine(s,today).factors.find(x=>x.id===pf.id);
+    if(nf&&nf.tier!==pf.tier) moved.push({name:pf.name,from:pf.tier,to:nf.tier}); });
+  return {back,past:a,now:b,moved,
+    note:back+' days ago: '+a.lim+' limiting / '+a.unk+' unknown / '+a.rdy+' ready → today: '+b.lim+' / '+b.unk+' / '+b.rdy+(moved.length?' · moved: '+moved.map(x=>x.name+' '+x.from+'→'+x.to).join(', '):' · no tier changes yet')};
+}
+/* Recruiting view — helps, hurts, missing, largest return */
+function recruitView(s=S,today=todayISO()){
+  const {factors}=gapEngine(s,today);
+  const rel=['phys:forty','phys:vert','phys:broad','phys:wt','phys:squat','phys:bench','phys:dead','gpa','film','recruiting'];
+  const rf=factors.filter(f=>rel.indexOf(f.id)>=0);
+  const helps=rf.filter(f=>f.tier==='READY').map(f=>f.name+': '+f.ev);
+  const hurts=rf.filter(f=>f.tier==='LIMITING').map(f=>f.name+': '+f.ev);
+  const missing=rf.filter(f=>f.tier==='UNKNOWN').map(f=>f.name+': '+f.ev);
+  const order=['film','phys:forty','gpa','recruiting'];
+  let top=null;
+  for(const id of order){ const f=rf.find(x=>x.id===id&&(x.tier==='LIMITING'||x.tier==='UNKNOWN')); if(f){ top={name:f.name,because:f.why+' — '+f.fix}; break; } }
+  if(!top){ const f=rf.filter(x=>x.tier==='COMPETITIVE').sort((a,b)=>(a.progress??1)-(b.progress??1))[0]; if(f) top={name:f.name,because:f.why+' — '+f.fix}; }
+  return {helps,hurts,missing,top};
+}
 /* ============ DECISION ENGINE — decide(S,date) → plan. Deterministic. Every item has a why. ============ */
 function weekFor(s,dateISO){
   const ph=phaseFor(dateISO);
@@ -1158,6 +1801,9 @@ function decide(s=S,dateISO=todayISO()){
   if(ph==='inseason'&&dow===(s.settings.gameDay??5)){
     plan.priority={title:'Game day. Empty the tank.',
       why:'Everything this week pointed here. Eat real food, run your pre-game script, and play fast — the film gets made today.'};
+  } else if(aca.gpa!=null&&aca.gpa<2.3){
+    plan.priority={title:'Eligibility alert — grades first',
+      why:`GPA ${aca.gpa} is under the NCAA 2.3 core floor. This is a hamstring for your career: no eligibility, no film, no recruiting. Train today, but schoolwork owns the evening.`};
   } else if(con.everComplete && con.gapDays!=null && con.gapDays>=2){
     plan.priority={title:'Back to work',
       why:`${con.gapDays} days off the board. That's done — today counts. Loads are adjusted; just execute.`};
@@ -1274,6 +1920,28 @@ function decide(s=S,dateISO=todayISO()){
         why:'30 days of evidence. The verdict is in your own data — read it, then we calibrate.'});
   }
 
+  // 12 · SEASON ENTRY — show up ready (Jul 13–27), earn the spot (camp→opener), leave with film (Aug 8)
+  if(dateISO>=SEASON_ENTRY.prepStart&&dateISO<SEASON_ENTRY.campStart){
+    const wk=dateISO<'2026-07-20'?0:1, c=SEASON_ENTRY.cond[dow], prepId='prep:'+dateISO;
+    if(c&&!taskDone(prepId)) plan.tasks.push({kind:'prep',id:prepId,title:c[wk],
+      why:`Camp starts ${fmtD(SEASON_ENTRY.campStart)}. Strength is banked — repeat-sprint shape decides who looks good in pads. Ramped, not heroic.`});
+    const heatId='heat:'+dateISO;
+    if(!taskDone(heatId)) plan.tasks.push({kind:'prep',id:heatId,title:'Heat prep: '+SEASON_ENTRY.heat,
+      why:'August practice in Henderson is 100°F+. Heat-ready players get more quality reps in the exact window depth charts form.'});
+    if(!taskDone('gear:ready')) plan.tasks.push({kind:'prep',id:'gear:ready',title:'Camp gear check — list in PUSH → Earn the Spot',
+      why:'Blisters, cramps and missing gear give away practice reps for free.'});
+  }
+  if(dateISO>=SEASON_ENTRY.campStart&&dateISO<=SEASON_ENTRY.opener){
+    const eIdx=Math.floor(daysBetween('2026-01-01',dateISO))%SEASON_ENTRY.earn.length, eId='earn:'+dateISO;
+    if(!taskDone(eId)) plan.tasks.push({kind:'earn',id:eId,title:SEASON_ENTRY.earn[eIdx][0],why:SEASON_ENTRY.earn[eIdx][1]});
+  }
+  if(dateISO>=addDays(SEASON_ENTRY.scrim,-2)&&dateISO<=SEASON_ENTRY.scrim&&!taskDone('filmops'))
+    plan.tasks.push({kind:'film',id:'filmops',title:'Film-day ops for the scrimmage — plan is in PATH',
+      why:'The Aug 8 scrim is your first film. No footage = recruiting currency delayed a full season.'});
+  if(dateISO>SEASON_ENTRY.scrim&&dateISO<=addDays(SEASON_ENTRY.scrim,2)&&!taskDone('firstclips'))
+    plan.tasks.push({kind:'film',id:'firstclips',title:'Cut your 3 best scrimmage plays → upload to Hudl',
+      why:'Film from Aug 8 uploaded by Aug 10 puts you a season ahead of most freshmen.'});
+
   return plan;
 }
 /* one plan-summary event per day — closes the prescribed-vs-done loop (meta-architecture #3) */
@@ -1293,6 +1961,53 @@ function recLog(kind,text,ctx){ ctx=ctx||{}; const d=todayISO(); const id='rec:'
 function todayRec(kind){ const id='rec:'+todayISO()+':'+kind; return (S.recs||[]).find(r=>r.id===id)||null; }
 function setRecFollow(id,state){ const r=(S.recs||[]).find(x=>x.id===id); if(!r) return; r.followed=state; r.followedOn=todayISO();
   logEvent('recfollow',{id,state}); save(); toast('Logged — the app is learning from it'); if(typeof rToday==='function') rToday(); }
+
+/* ===== Policy actions (v7.20) — the only door through which knowledge changes behavior.
+   The system proposes (revisions), policy evaluates (policyEval), the HUMAN decides here.
+   Every decision is recorded forever: an append-only 'policy' event carrying evidence basis,
+   approval date, version and reason — a reproducible reasoning history. ===== */
+const POLICY_VER='7.20';
+function approveProposal(id){
+  const p=revisions(S).find(x=>x.id===id);
+  if(!p){ toast('Proposal no longer exists — evidence changed'); return; }
+  if(p.verdict!=='eligible'){ toast('Policy has not cleared this change'); return; }
+  S.params.demotedRecs=S.params.demotedRecs||{v:[],basis:'default'};
+  if(p.param==='demotedRecs'){
+    S.params.demotedRecs.v = id.indexOf('demote:')===0
+      ? [...new Set([...S.params.demotedRecs.v, p.kind])]
+      : S.params.demotedRecs.v.filter(k=>k!==p.kind);
+    S.params.demotedRecs.basis='policy '+todayISO()+' v'+POLICY_VER+' · '+p.fingerprint+' · '+p.explain;
+  }
+  logEvent('policy',{id:p.id,action:'approved',param:p.param,kind:p.kind,from:p.current,to:p.proposed,
+    why:p.reason,evidence:p.fingerprint,bar:p.bar,obs:p.obs,ver:POLICY_VER});
+  save(); toast('Approved — behavior changed, decision on permanent record');
+  if(typeof rTrack==='function') rTrack();
+}
+function rejectProposal(id){
+  const p=revisions(S).find(x=>x.id===id); if(!p) return;
+  logEvent('policy',{id:p.id,action:'rejected',param:p.param,kind:p.kind,evidence:p.fingerprint,bar:p.bar,ver:POLICY_VER});
+  save(); toast('Rejected — recorded; identical evidence will not re-ask');
+  if(typeof rTrack==='function') rTrack();
+}
+
+/* ===== v7.26 polish: taps not typing ===== */
+let pendClip=null, pendSore=false;
+function rateTap(key,v,scr){ (S.metrics=S.metrics||[]).push({d:todayISO(),key,val:v,src:'manual'}); logEvent('metric',{key,val:v}); save();
+  toast((key==='pq'?'Practice':key==='energy'?'Energy':'Session')+' '+v+'/5 ✓'); (scr==='track'?rTrack:rToday)(); }
+function rate5(key,scr){
+  const m=[...(S.metrics||[])].reverse().find(x=>x.key===key&&x.d===todayISO());
+  if(m) return `<span class="pill green">${m.val}/5 ✓</span>`;
+  return [1,2,3,4,5].map(v=>`<button class="btn sm ghost" style="min-width:34px;padding:6px 0" onclick="rateTap('${key}',${v},'${scr}')">${v}</button>`).join(''); }
+function addCoachIn(id,scr){ const el=$('#'+id), t=el&&el.value; if(!t||!t.trim()){ toast('Type the correction first'); return; }
+  (S.coach=S.coach||[]).push({d:todayISO(),text:t.trim()}); save(); toast('On permanent record — now delete it'); (scr==='today'?rToday:rPush)(); }
+function clipTag(t){ pendClip=t; rPush(); }
+function saveClip(){ if(!pendClip) return; const note=($('#clipNote')&&$('#clipNote').value||'').trim();
+  const lastGame=[...SCHEDULE].reverse().find(g=>g.d<=todayISO());
+  (S.clips=S.clips||[]).push({d:todayISO(),tag:pendClip,note,opp:lastGame?lastGame.opp:'Scrimmage'});
+  pendClip=null; save(); toast('Clip tagged — searchable forever'); rPush(); }
+function soreTap(v){ const a=($('#soreArea')&&$('#soreArea').value||'').trim(); if(!a){ toast('Type where first (e.g. left hamstring)'); return; }
+  (S.body=S.body||[]).push({d:todayISO(),area:a,lvl:v}); pendSore=false; save();
+  toast(v>=4?'Logged — train-around today, tell a coach/parent':'Logged'); rTrack(); }
 /* ============ VIEWS — render model + plan, capture events. No business logic. ============ */
 
 /* ---- TODAY ---- */
@@ -1304,14 +2019,18 @@ function oneThing(plan){
   const dropping=wm.length>=2&&wm[wm.length-1].val<wm[wm.length-2].val;
   const liftToday=(S.lifts||[]).some(l=>l.d===todayISO());
   const ck=S.checkins[todayISO()]||[];
-  if(!has('forty')||!has('vert')||!has('broad')) return {kind:'speed',t:'Run your baseline 40, vert + broad',w:'20 minutes with your cousin unlocks your entire speed engine — every target, chart, and gap. Nothing moves the needle like this.',go:"go('track')",outKey:null,win:3,ev:'no 40/vert/broad on record',unc:'your true speed is unknown',asm:'a clean hand-timed test is close enough to start'};
-  if(!(S.lifts||[]).length) return {kind:'lift',t:'Log your first lift',w:'One set turns on your strength curve and milestones. Do it the second you rack the bar.',go:"go('train')",outKey:null,win:2,ev:'0 sets logged',unc:'your real strength trend',asm:'preset 1RMs are a fair starting point'};
-  if(bw&&bw<174&&dropping) return {kind:'fuel',t:"Eat — you're dropping on a mass mission",w:'You went the wrong way on the scale. Add ~300 kcal today and re-weigh in a week.',go:"go('track')",outKey:'wt',win:7,ev:'weight trended down vs a 174 target',unc:'whether the surplus is real',asm:'+300 kcal/day is enough to reverse it'};
-  if(!liftToday&&plan&&plan.workout&&!plan.workout.recovery) return {kind:'train',t:"Train + log today's session",w:esc(plan.workout.title)+' — log every set on the floor before you leave.',go:"go('train')",outKey:'sq',win:1,ev:"today's plan is a training day",unc:'how the session will actually feel',asm:'training as prescribed raises session quality'};
-  if(!(S.pipeline||[]).length) return {kind:'board',t:'Put your schools on the Board',w:'Coaches notice who is organized. One tap adds a target in PATH.',go:"go('path')",outKey:null,win:14,ev:'0 schools on the board',unc:'which levels fit you',asm:'early targets help even before film'};
   const done=ck.filter(Boolean).length;
-  if(done<4) return {kind:'daily4',t:'Finish your Daily Four',w:done+'/4 done. Consistency is the separator — close it out.',go:null,outKey:'energy',win:1,ev:done+'/4 boxes done today',unc:'which habit matters most for you',asm:'finishing all four supports next-day energy'};
-  return {kind:'recover',t:"You're dialed today",w:'Everything essential is done. Bank your sleep and recover — growth happens now.',go:null,outKey:'sq',win:1,ev:'all four done',unc:'your personal recovery response',asm:'banked sleep shows up as better sessions'};
+  const C=[];
+  if(!has('forty')||!has('vert')||!has('broad')) C.push({kind:'speed',t:'Run your baseline 40, vert + broad',w:'20 minutes with your cousin unlocks your entire speed engine — every target, chart, and gap. Nothing moves the needle like this.',go:"go('track')",outKey:null,win:3,ev:'no 40/vert/broad on record',unc:'your true speed is unknown',asm:'a clean hand-timed test is close enough to start'});
+  if(!(S.lifts||[]).length) C.push({kind:'lift',t:'Log your first lift',w:'One set turns on your strength curve and milestones. Do it the second you rack the bar.',go:"go('train')",outKey:null,win:2,ev:'0 sets logged',unc:'your real strength trend',asm:'preset 1RMs are a fair starting point'});
+  if(bw&&bw<174&&dropping) C.push({kind:'fuel',t:"Eat — you're dropping on a mass mission",w:'You went the wrong way on the scale. Add ~300 kcal today and re-weigh in a week.',go:"go('track')",outKey:'wt',win:7,ev:'weight trended down vs a 174 target',unc:'whether the surplus is real',asm:'+300 kcal/day is enough to reverse it'});
+  if(!liftToday&&plan&&plan.workout&&!plan.workout.recovery) C.push({kind:'train',t:"Train + log today's session",w:esc(plan.workout.title)+' — log every set on the floor before you leave.',go:"go('train')",outKey:'sq',win:1,ev:"today's plan is a training day",unc:'how the session will actually feel',asm:'training as prescribed raises session quality'});
+  if(!(S.pipeline||[]).length) C.push({kind:'board',t:'Put your schools on the Board',w:'Coaches notice who is organized. One tap adds a target in PATH.',go:"go('path')",outKey:null,win:14,ev:'0 schools on the board',unc:'which levels fit you',asm:'early targets help even before film'});
+  if(done<4) C.push({kind:'daily4',t:'Finish your Daily Four',w:done+'/4 done. Consistency is the separator — close it out.',go:null,outKey:'energy',win:1,ev:done+'/4 boxes done today',unc:'which habit matters most for you',asm:'finishing all four supports next-day energy'});
+  C.push({kind:'recover',t:"You're dialed today",w:'Everything essential is done. Bank your sleep and recover — growth happens now.',go:null,outKey:'sq',win:1,ev:'all four done',unc:'your personal recovery response',asm:'banked sleep shows up as better sessions'});
+  /* policy consumer: kinds the owner approved OUT of the ladder fall through to the next rung */
+  const demoted=(S.params&&S.params.demotedRecs&&S.params.demotedRecs.v)||[];
+  return C.find(c=>!demoted.includes(c.kind))||C[C.length-1];
 }
 function quickLog(key,label){ const v=+prompt(label); if(v&&v>0){ (S.metrics=S.metrics||[]).push({d:todayISO(),key,val:v,src:'manual'}); save(); toast(label.split(' (')[0]+' logged ✓'); rToday(); } }
 /* milestones — badges earned ONLY from real data; locked ones show what unlocks them */
@@ -1348,12 +2067,39 @@ function rToday(){
     const n=c.filter(Boolean).length;
     dots+=`<i class="${n===4?'hit':n>0?'part':''}"></i>`;
   }
-  const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊'};
+  const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊',prep:'🔥',earn:'🏈',film:'🎬'};
   $('#v-today').innerHTML=`
   <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}${o1eff&&o1eff.retire?' <b style="color:var(--red)">· your own results haven\'t shown this helps — treat it as optional.</b>':o1eff&&o1eff.effect==='supported'?' <b style="color:var(--green)">· backed by your own results.</b>':''}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">DO IT →</button>`:''}
     <div class="row" style="gap:6px;margin-top:10px"><button class="btn sm grow ${o1rec&&o1rec.followed==='followed'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','followed')">Did it ✓</button><button class="btn sm grow ${o1rec&&o1rec.followed==='partial'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','partial')">Partly</button><button class="btn sm grow ${o1rec&&o1rec.followed==='ignored'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','ignored')">Didn't</button></div>
-    <div class="note" style="margin-top:6px;font-style:normal">Your answer becomes evidence — the Recommendation Ledger in TRACK learns which advice actually helps you.</div></div>
-  <div class="card"><h3>Quick Log <span class="r">30 seconds</span></h3><div class="row"><button class="btn grow" onclick="quickLog('wt','Bodyweight (lb)')">Weight</button><button class="btn grow" onclick="quickLog('sleep','Sleep last night (hours)')">Sleep</button><button class="btn grow" onclick="go('train')">Lift →</button></div><div class="row" style="margin-top:8px"><button class="btn grow" onclick="rateLog('energy','Morning energy (1–5)')">Energy 1–5</button><button class="btn grow" onclick="rateLog('sq','Session quality (1–5)')">Session 1–5</button></div><div class="note" style="margin-top:6px">Energy + session ratings are what let the app learn what actually works for <b>you</b> — see the Knowledge Graph in TRACK.</div></div>
+    ${(bn=>{const dup=bn&&((o1.kind==='speed'&&bn.id.indexOf('phys:')===0&&['forty','vert','broad'].includes(bn.key))||(o1.kind==='lift'&&bn.id.indexOf('phys:')===0)||(o1.kind==='board'&&bn.id==='recruiting')||(o1.kind==='fuel'&&bn.key==='wt'));return bn&&!dup?`<div class="note" style="margin-top:5px;font-style:normal"><b style="color:var(--cyan)">Your bottleneck:</b> ${esc(bn.name)} — ${esc(bn.ev)}. <span style="color:var(--faint)">Full read: TRACK → The Gap.</span></div>`:'';})(typeof gapBottleneck==='function'?gapBottleneck():null)}
+    ${(tr=>/performed well|did not|mixed/.test(tr)?`<div class="note" style="margin-top:5px;font-style:normal;color:var(--faint)">Track record: ${esc(tr)}</div>`:'')(typeof calNote==='function'?calNote(o1.kind):'')}</div>
+  ${(pm=>{ if(!practiceDay(todayISO())) return '';
+    const mev=(S.events||[]).find(e=>e.type==='mission'&&e.d===todayISO());
+    const pqm=[...(S.metrics||[])].reverse().find(x=>x.key==='pq'&&x.d===todayISO());
+    const bnPill=(typeof gapBottleneck==='function'&&(b=>b&&b.id==='coachwork'&&pm.src==='coach')(gapBottleneck()))?' <span class="pill red">= YOUR BOTTLENECK</span>':'';
+    if(mev&&pqm) return `<div class="card"><div class="row"><div class="grow" style="font-size:13px"><b style="color:${mev.meta.ok===1?'var(--green)':'var(--red)'}">Mission ${mev.meta.ok===1?'HIT ✓':'missed'}</b> · practice ${pqm.val}/5 — logged</div></div>
+      <div class="row" style="gap:6px;margin-top:6px"><input id="cmToday" placeholder="Coach said… (add anytime)" style="flex:1"><button class="btn sm" onclick="addCoachIn('cmToday','today')">SAVE</button></div></div>`;
+    return `<div class="card">
+    <h3>Practice Mission${bnPill} <span class="r">one practice · one objective</span></h3>
+    ${mev?`<div class="note">Mission: <b style="color:${mev.meta.ok===1?'var(--green)':'var(--red)'}">${mev.meta.ok===1?'HIT ✓':'not today — tomorrow the target shrinks'}</b></div>`
+    :`<div class="t" style="font-size:16px">${esc(pm.t)}</div><div class="note" style="margin-top:4px">${esc(pm.why)}</div>
+     <div class="row" style="gap:6px;margin-top:8px"><button class="btn amber sm grow" onclick="missionAns(1)">HIT IT ✓</button><button class="btn ghost sm grow" onclick="missionAns(0)">NOT TODAY</button></div>`}
+    ${(ms=>ms.answered>=4?`<div class="note" style="margin-top:6px">${ms.streak>=3?`<b style="color:var(--green)">${ms.streak} in a row.</b> `:''}${ms.neverTwoMisses?'Never two misses in a row — evidence, not a pep talk. ':''}${ms.hit}/${ms.of} recent hit.</div>`:'')(missionStats())}
+    <div class="row" style="align-items:center;gap:6px;margin-top:8px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Practice</span>${rate5('pq','today')}</div>
+    <div class="row" style="gap:6px;margin-top:8px"><input id="cmToday" placeholder="Coach said… (one line)" style="flex:1"><button class="btn sm amber" onclick="addCoachIn('cmToday','today')">SAVE</button></div>
+  </div>`;})(typeof practiceMission==='function'?practiceMission():null)}
+  ${(fd=>{ if(!fd) return '';
+    const items=FREE_WINS.concat((phaseFor(fd)==='inseason'&&new Date(fd+'T12:00').getDay()===(S.settings.gameDay??5))?GAME_EXTRAS:[]);
+    const got=i=>(S.events||[]).some(e=>e.type==='task'&&e.meta&&e.meta.id==='freewin:'+fd+':'+i);
+    if(items.every((_,i)=>got(i))) return `<div class="card"><div class="note" style="margin:0">🎒 <b>Bag ready</b> — all ${items.length} free wins secured for ${fd===todayISO()?'today':'tomorrow'} ✓</div></div>`;
+    return `<div class="card">
+    <h3>Free Wins <span class="r">${items.filter((_,i)=>got(i)).length}/${items.length} secured</span></h3>
+    <div class="note">For ${fd===todayISO()?'today':'tomorrow'} — every unchecked box has cost a freshman reps.</div>
+    ${items.map((w,i)=>{const done=got(i);
+      return `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><button class="btn sm ${done?'amber':'ghost'}" onclick="freeWin('${fd}',${i})">${done?'✓':'☐'}</button><span class="grow" style="font-size:13px;margin-left:8px">${esc(w)}</span></div>`;}).join('')}
+    ${(fw=>fw.weakest&&fw.weakest.secured<fw.weakest.of?`<div class="note" style="margin-top:6px">Most-missed: <b>${esc(fw.weakest.item)}</b> (${fw.weakest.secured}/${fw.weakest.of} days) — fix the pattern.</div>`:'')(freeWinsRead())}
+  </div>`;})(practiceDay(todayISO())?todayISO():(practiceDay(addDays(todayISO(),1))?addDays(todayISO(),1):null))}
+  <div class="card"><h3>Quick Log <span class="r">taps, not typing</span></h3><div class="row" style="align-items:center;gap:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Energy</span>${rate5('energy','today')}</div>${((S.lifts||[]).some(l=>l.d===todayISO())||((S.sessions&&S.sessions[todayISO()])||[]).some(Boolean))?`<div class="row" style="align-items:center;gap:6px;margin-top:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Session</span>${rate5('sq','today')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn grow" onclick="quickLog('wt','Bodyweight (lb)')">Weight</button><button class="btn grow" onclick="quickLog('sleep','Sleep last night (hours)')">Sleep</button><button class="btn grow" onclick="go('train')">Lift →</button></div><div class="note" style="margin-top:6px">One tap each — this is what lets the app learn what works for <b>you</b>.</div></div>
   <div class="prio"><div class="k">TODAY'S PRIORITY${plan.focus?` · ATTACKING: ${esc(plan.focus.key.toUpperCase())}`:''}</div>
     <div class="t">${esc(plan.priority.title)}</div><div class="w">${esc(plan.priority.why)}</div></div>
   ${(()=>{const t=todayISO();const dd=d=>daysBetween(t,d);const rows=[['Back to practice','2026-07-28'],['Equipment day','2026-08-01'],['3-team scrimmage','2026-08-08']].map(([l,d])=>({l,d,n:dd(d)})).filter(x=>x.n>=-1);if(!rows.length)return '';const s=dd('2026-08-08');const focus=s>10?'BUILD — push speed + power, bank 9h sleep + your calories. This 2-week window is where you separate.':s>3?'SHARPEN — cut volume ~40%, keep sprints crisp, arrive fresh and explosive.':s>=0?'GAME WEEK — light, fast, confident. Empty the tank on the 8th; play in front of 3 schools.':'';return `<div class="card"><h3>Countdown <span class="r">to the scrimmage</span></h3>${rows.map(x=>`<div class="row" style="padding:6px 0"><div class="grow" style="font-size:14px">${x.l} · <span style="color:var(--faint)">${fmtD(x.d)}</span></div><div class="mono" style="color:var(--amber);font-weight:800">${x.n<=0?'TODAY':x.n+'d'}</div></div>`).join('')}${focus?`<div class="note"><b style="color:var(--txt)">${focus}</b></div>`:''}</div>`;})()}
@@ -1395,11 +2141,14 @@ function rToday(){
     ${(nl=>nl?`<div class="note">Next: <b>${nl.label}</b> — ${nl.hint}.</div>`:'<div class="note">Every milestone earned — set the next one with a coach.</div>')(ms.find(b=>!b.earned))}</div>`)(milestones())}
   ${new Date().getDay()===0&&!S.reviews.some(r=>r.d===todayISO())?`<div class="card">
     <h3>Sunday Review <span class="r">3 lines · your coaching manual</span></h3>
+    ${posCoachRead()}
+    ${compRead()}
     <label>What worked this week</label><input id="rvW" placeholder="one line">
     <label>What broke</label><input id="rvB" placeholder="one line">
     <label>One fix for next week</label><input id="rvF" placeholder="one line">
     <button class="btn amber" style="width:100%;margin-top:12px" onclick="saveReview()">SAVE</button>
     <button class="btn" style="width:100%;margin-top:8px" onclick="copyDispatch()">📨 COPY DISPATCH FOR FAMILY CHAT</button>
+    <button class="btn" style="width:100%;margin-top:8px" onclick="copyPosReport()">📋 COPY POSITION REPORT</button>
   </div>`:''}`;
 }
 function addNote(){ const t=($('#dailyNote').value||'').trim(); if(!t){toast('Write one line first');return;} (S.notes=S.notes||[]).push({d:todayISO(),text:t}); save(); rToday(); toast('Note saved ✓'); }
@@ -1504,7 +2253,7 @@ function rTrain(){
       return `<div style="padding:10px 0;border-bottom:1px solid var(--line);${done?'opacity:.45':''}" ${isToday?`onclick="tglBlock(${i})"`:''}>
         <div class="row"><div class="grow">
         <div style="font-weight:700;font-size:14px">${done?'✓ ':''}${esc(b.n)}</div>
-        <div style="font-size:13px;color:var(--dim);margin-top:2px">${esc(b.s)}</div>${load}</div>
+        <div style="font-size:13px;color:var(--dim);margin-top:2px">${esc(b.s)}</div>${(w2=>w2?`<div class="note" style="margin-top:2px;color:var(--faint)">⚡ ${esc(w2)}</div>`:'')(liftWhy(b.n))}${load}</div>
         ${isToday?`<div class="box" style="width:22px;height:22px;border:2px solid ${done?'var(--amber)':'var(--line)'};border-radius:6px;background:${done?'var(--amber)':'transparent'};flex-shrink:0"></div>`:''}</div></div>`;}).join('');})()}
     ${!w.recovery?`<div class="row" style="margin-top:12px">
       <button class="btn grow" id="restBtn" onclick="restTimer(150)">⏱ REST 2:30</button>
@@ -1590,6 +2339,28 @@ function rPath(){
   const rec=Model.recruiting();
   $('#v-path').innerHTML=`
   ${rec.flags.map(p=>`<div class="flag">⚑ <b>${esc(p.school)}</b> — ${daysBetween(Model.lastContact(S,p.id),todayISO())} days since contact. Send an update email.</div>`).join('')}
+  ${(todayISO()>=addDays(SEASON_ENTRY.scrim,-28)&&todayISO()<=addDays(SEASON_ENTRY.scrim,2))?`<div class="card">
+    <h3>First Film — ${fmtD(SEASON_ENTRY.scrim)} scrimmage <span class="r">recruiting currency</span></h3>
+    <div class="note">Hudl exists, the reel does not. This scrimmage is the first chance to change that — but only if someone films it.</div>
+    ${SEASON_ENTRY.filmOps.map((x,i)=>`<div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5"><b style="color:var(--amber)">${i+1}.</b> ${esc(x)}</div>`).join('')}
+  </div>`:''}
+  ${(no=>no&&no.opp!=='TBD'&&no.days<=21?`<div class="card">
+    <h3>Next Opponent: ${esc(no.opp)} <span class="r">${no.days} day${no.days===1?'':'s'} out</span></h3>
+    <div class="note">Varsity players scout. Log what you see and hear — offense style, their best players, tendencies. Notes never expire: next season they are still here.</div>
+    <button class="btn" style="width:100%;margin:8px 0" onclick="addOpp('${esc(no.opp)}')">+ SCOUT NOTE</button>
+    ${no.notes.length?no.notes.map(n=>`<div class="note">• ${esc(n.text)} <span style="color:var(--faint)">(${esc(fmtD(n.d))})</span></div>`).join(''):'<div class="note" style="color:var(--faint)">No notes yet — start with their base offense the first time you see them warm up.</div>'}
+  </div>`:'')(typeof nextOpponent==='function'?nextOpponent():null)}
+  <div class="card">
+    <h3>Recruiting Ops <span class="r">nothing gets forgotten</span></h3>
+    ${(ro=>ro.items.map(i=>`<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span style="width:22px">${i.ok?'<b style="color:var(--green)">✓</b>':'<b style="color:var(--red)">!</b>'}</span><div class="grow"><b style="font-size:13px">${esc(i.k)}</b><div class="note" style="margin:1px 0 0">${esc(i.ev)}</div></div></div>`).join('')+(ro.missing.length?`<div class="note" style="margin-top:6px"><b style="color:var(--red)">${ro.missing.length} open item${ro.missing.length===1?'':'s'}</b> — a recruiting coordinator would be chasing these.</div>`:'<div class="note" style="margin-top:6px">All clear — coordinator-approved.</div>'))(recruitOps())}
+    <div class="row" style="gap:6px;margin-top:8px"><button class="btn sm grow" onclick="logHudl()">HUDL UPDATED ✓</button><button class="btn sm grow" onclick="addCamp()">+ CAMP/SHOWCASE</button></div>
+    ${(rv=>`<details style="margin-top:8px"><summary>Recruiting reality check</summary><div class="bd">
+      ${rv.helps.length?`<div class="note"><b style="color:var(--green)">Helping now:</b> ${rv.helps.map(esc).join(' · ')}</div>`:'<div class="note">Nothing on the helps side yet — that changes with the first measurement.</div>'}
+      ${rv.hurts.length?`<div class="note"><b style="color:var(--red)">Hurting now:</b> ${rv.hurts.map(esc).join(' · ')}</div>`:''}
+      ${rv.missing.length?`<div class="note"><b style="color:var(--dim)">Missing entirely:</b> ${rv.missing.map(esc).join(' · ')}</div>`:''}
+      ${rv.top?`<div class="note"><b style="color:var(--amber)">Largest recruiting return:</b> ${esc(rv.top.name)} — ${esc(rv.top.because)}</div>`:''}
+    </div></details>`)(typeof recruitView==='function'?recruitView():{helps:[],hurts:[],missing:[],top:null})}
+  </div>
   <div class="card">
     <h3>The Board <span class="r">${S.pipeline.length} schools</span></h3>
     ${S.pipeline.length?[...S.pipeline].sort((a,b)=>b.stage-a.stage).map(p=>`
@@ -1941,6 +2712,7 @@ function rTrack(){
       const future=KNOWLEDGE_FUTURE.map(f=>`<div class="note" style="opacity:.5">${esc(f.from)} → ${esc(f.to)} — not yet measurable (needs ${esc(f.need)})</div>`).join('');
       return rows+learnedBlock+`<details style="margin-top:6px"><summary>The full chain (incl. what we can't measure yet)</summary><div class="bd">${future}</div></details>`;
     })(knowledgeGraph())}
+    <div class="note"><b style="color:var(--dim)">Recovery read:</b> ${esc(recoveryRead().note)}</div>
     <div class="note">Contradictions never erase history — a day that disagrees is recorded as a ✗ and lowers consistency, so knowledge gets more <i>nuanced</i>, never deleted.</div>
   </div>
   <div class="card">
@@ -1951,8 +2723,81 @@ function rTrack(){
       const blabel={supported:'supported',mixed:'mixed',none:'no effect','not-measurable':'tracking',insufficient:'gathering'};
       return `<div style="padding:9px 0;border-bottom:1px solid var(--line)"><div class="row"><b class="grow">${esc(e.label)}</b><span class="pill ${bmap[e.effect]}" style="${(e.effect==='insufficient'||e.effect==='not-measurable')?'opacity:.6':''}">${blabel[e.effect]}</span></div><div class="note" style="margin:3px 0 0">${esc(e.detail)}</div><div class="note">Followed ${e.followed}/${e.total}${e.lastConfirmed?` · last confirmed ${esc(e.lastConfirmed)}`:''}${e.retire?' · <b style="color:var(--red)">no longer recommended</b>':''}</div></div>`;
     }).join(''):'<div class="empty">No recommendations tracked yet.<br>On TODAY, answer <b>Did it / Partly / Didn\'t</b> under your one thing — that logs the first hypothesis.</div>')(typeof recEffectiveness==='function'?recEffectiveness():[])}
-    ${(rs=>rs.length?`<details style="margin-top:8px"><summary>${rs.length} recommendation object${rs.length>1?'s':''} on record</summary><div class="bd">${rs.slice(-6).reverse().map(r=>`• <b>${esc(r.d)}</b> — ${esc(r.text)}<br><span style="color:var(--faint)">unknown at the time: ${esc(r.unc||'—')} · assumed: ${esc(r.asm||'—')} · <b style="color:${r.followed==='followed'?'var(--green)':r.followed==='ignored'?'var(--red)':'var(--faint)'}">${r.followed||'no answer yet'}</b></span>`).join('<br><br>')}</div></details>`:'')(S.recs||[])}
+    ${(rs=>rs.length?`<details style="margin-top:8px"><summary>${rs.length} recommendation object${rs.length>1?'s':''} on record</summary><div class="bd">${rs.slice(-6).reverse().map(r=>`• <b>${esc(r.d)}</b> — ${esc(r.text)}<br><span style="color:var(--faint)">unknown at the time: ${esc(r.unc||'—')} · assumed: ${esc(r.asm||'—')} · <b style="color:${r.followed==='followed'?'var(--green)':r.followed==='ignored'?'var(--red)':'var(--faint)'}">${r.followed||'no answer yet'}</b> · outcome: ${esc((typeof recOutcome==='function'?recOutcome(r):{note:'—'}).note)}</span>`).join('<br><br>')}</div></details>`:'')(S.recs||[])}
     <div class="note">Contradictions are kept, never overwritten — advice that stops working flips to "no longer recommended" on its own. Truth over consistency.</div>
+  </div>
+  <div class="card">
+    <h3>The Gap <span class="r">what separates you from the next level</span></h3>
+    ${(bn=>bn?`<div class="prio" style="margin-bottom:8px"><div class="k">THE BOTTLENECK · ONE THING WINS</div>
+      <div class="t">${esc(bn.name)}</div>
+      <div class="note" style="margin-top:4px"><b style="color:var(--dim)">Why it matters:</b> ${esc(bn.why)}</div>
+      <div class="note"><b style="color:var(--dim)">Evidence:</b> ${esc(bn.ev)}</div>
+      <div class="note"><b style="color:var(--dim)">It blocks:</b> ${bn.blocks.map(esc).join(' · ')}</div>
+      <div class="note"><b style="color:var(--dim)">Remove it:</b> ${esc(bn.fix)}</div>
+      <div class="note" style="margin-top:4px;border-top:1px solid var(--line);padding-top:4px"><b style="color:var(--cyan)">Systems pointing here:</b> ${bn.consensus.map(esc).join(' · ')}</div>
+    </div>`:'<div class="empty">No gap read yet.</div>')(typeof gapBottleneck==='function'?gapBottleneck():null)}
+    ${(ge=>{const T={LIMITING:['LIMITING','red'],UNKNOWN:['EVIDENCE REQUIRED',''],COMPETITIVE:['COMPETITIVE','amber'],READY:['READY','green']};
+      return ['LIMITING','UNKNOWN','COMPETITIVE','READY'].map(tier=>{const fs=ge.factors.filter(f=>f.tier===tier); return fs.length?`
+        <div class="note" style="margin-top:6px"><b style="color:var(--${T[tier][1]||'faint'})">${T[tier][0]}</b></div>
+        ${fs.map(f=>`<div style="padding:5px 0;border-bottom:1px solid var(--line)"><b style="font-size:13px">${esc(f.name)}</b><div class="note" style="margin:1px 0 0">${esc(f.ev)}</div></div>`).join('')}`:'';}).join('');})(gapEngine())}
+    ${(gt=>`<div class="note" style="margin-top:8px"><b style="color:var(--dim)">Closing the gap?</b> ${esc(gt.note)}</div>`)(gapTrend())}
+    <div class="note">Rungs between JV waypoints and D1 percentiles (All-Conference, All-State) have no honest published numbers — the ladder here runs stage waypoint → D1-recruit percentiles, and unknowns say so instead of inventing standards.</div>
+  </div>
+  <div class="card">
+    <h3>Trainer's Log <span class="r">prevent missed reps</span></h3>
+    <div class="note">Patterns, never diagnosis. Log soreness the day you feel it — three hits on the same area in 14 days raises the flag.</div>
+    ${pendSore?`<div class="row" style="gap:6px;margin:8px 0"><input id="soreArea" placeholder="where? e.g. left hamstring" style="flex:1">${[1,2,3,4,5].map(v=>`<button class="btn sm ghost" style="min-width:30px" onclick="soreTap(${v})">${v}</button>`).join('')}</div>`:`<button class="btn" style="width:100%;margin:8px 0" onclick="pendSore=true;rTrack()">+ SORE / TIGHT</button>`}
+    ${(br=>br.flag?`<div class="flag">⚠ ${esc(br.flag)}</div>`:br.recent?`<div class="note">${br.recent} entr${br.recent===1?'y':'ies'} in 14 days — no recurring pattern. Keep logging honest.</div>`:'<div class="note" style="color:var(--faint)">Nothing logged. Quiet is fine — silence should mean healthy, not forgotten.</div>')(bodyRead())}
+    ${(S.body||[]).slice(-5).reverse().map(b=>`<div class="note">• ${esc(b.area)} ${b.lvl}/5 <span style="color:var(--faint)">(${esc(fmtD(b.d))})</span></div>`).join('')}
+  </div>
+  ${(ca=>ca.length?`<div class="card">
+    <h3>Career Archive <span class="r">everything survives</span></h3>
+    ${ca.map(y=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b style="font-size:13px">${esc(y.year)} · ${esc(y.grade)}</b><div class="note" style="margin:2px 0 0">${y.checkins} check-ins · ${y.lifts} sets${Object.keys(y.best).length?' (best e1RM: '+Object.entries(y.best).map(([k,v])=>k+' '+v).join(', ')+')':''} · ${y.prs} PRs · ${y.corrections} corrections · ${y.clips} clips · ${y.missions} missions · ${y.contacts} coach contacts</div></div>`).join('')}
+    <div class="note">Derived from the permanent log — in four years this replays the whole career. Monthly export is the insurance.</div>
+  </div>`:'')(careerArchive())}
+  <div class="card">
+    <h3>Varsity Ready <span class="r">earned, never predicted</span></h3>
+    <div class="note">Not a score. Seven things every varsity starter has handled — you either have the evidence or you don't yet.</div>
+    ${(v=>v.items.map(i=>`<div class="row" style="padding:7px 0;border-bottom:1px solid var(--line)"><span style="width:22px">${i.ok?'<b style="color:var(--green)">✓</b>':'<span style="color:var(--faint)">☐</span>'}</span><div class="grow"><b style="font-size:13px">${esc(i.k)}</b><div class="note" style="margin:1px 0 0">${esc(i.ev)}</div></div></div>`).join('')+`<div class="note" style="margin-top:6px">${v.earned}/${v.items.length} earned. Nothing here is predicted — every check comes from your own record.</div>`)(varsityReady())}
+  </div>
+  <div class="card">
+    <h3>Policy <span class="r">when may the app change itself?</span></h3>
+    <div class="note">Knowledge updates every day. <b>Behavior changes rarely — by design.</b> Evidence never rewires the engine directly: a change must pass five policy questions, then <b>you</b> approve it. ${esc(policyBar().note)}</div>
+    ${(ps=>ps.length?ps.map(p=>{
+      const vp={eligible:'green',delayed:'amber',rejected:'red'}[p.verdict];
+      const vl={eligible:'awaiting your call',delayed:'delayed',rejected:'rejected'}[p.verdict];
+      return `<div style="padding:10px 0;border-bottom:1px solid var(--line)">
+        <div class="row"><b class="grow">${esc(p.proposed)}</b><span class="pill ${vp}">${vl}</span></div>
+        <div class="note" style="margin:4px 0 0"><b style="color:var(--dim)">Now:</b> ${esc(p.current)}</div>
+        <div class="note"><b style="color:var(--dim)">Evidence:</b> ${esc(p.explain)}</div>
+        <div class="note"><b style="color:var(--dim)">Expected:</b> ${esc(p.expected)}</div>
+        <div class="note"><b style="color:var(--dim)">Unknowns:</b> ${esc(p.unknowns)}</div>
+        <div style="margin-top:6px">${p.questions.map(q=>`<div class="note">${q.pass?'<span style="color:var(--green)">✓</span>':'<span style="color:var(--red)">✗</span>'} ${esc((POLICY.questions.find(x=>x.id===q.id)||{}).q||q.id)}<br><span style="color:var(--faint)">&nbsp;&nbsp;${esc(q.note)}</span></div>`).join('')}</div>
+        <div class="note" style="margin-top:4px"><i>${esc(p.verdictNote)}</i></div>
+        ${p.verdict==='eligible'?`<div class="row" style="gap:6px;margin-top:8px"><button class="btn amber sm grow" onclick="approveProposal('${p.id}')">APPROVE CHANGE</button><button class="btn ghost sm grow" onclick="rejectProposal('${p.id}')">REJECT</button></div>`:''}
+      </div>`;
+    }).join(''):`<div class="empty">No proposal has earned a behavior change.<br>That is the policy working, not the app failing — it must demonstrate, not guess.</div>`)(typeof revisions==='function'?revisions():[])}
+    ${(evs=>evs.length?`<details style="margin-top:8px"><summary>Reasoning history — ${evs.length} decision${evs.length>1?'s':''} on permanent record</summary><div class="bd">${evs.slice(-8).reverse().map(ev=>`• <b>${esc(ev.d)}</b> — ${esc(ev.meta.action)} <b>${esc(ev.meta.id)}</b>${ev.meta.evidence?` · evidence ${esc(ev.meta.evidence)}`:''}${ev.meta.bar?` · bar: ${esc(ev.meta.bar)}`:''} · v${esc(ev.meta.ver||'?')}`).join('<br>')}</div></details>`:'')((S.events||[]).filter(ev=>ev.type==='policy'&&ev.meta))}
+    <div class="note">The system knows things. Policy decides when it has <b>earned the right</b> to act on them.</div>
+  </div>
+  <div class="card">
+    <h3>Calibration <span class="r">how trustworthy am I?</span></h3>
+    ${(c=>`
+    <div class="note"><b>${esc(c.confidence)}</b></div>
+    <div class="note" style="margin-top:6px"><b style="color:var(--dim)">The record so far:</b> ${c.counts.improved} reasoning famil${c.counts.improved===1?'y':'ies'} supported by your outcomes · ${c.counts.noEffect} contradicted · ${c.counts.mixed} mixed · ${c.counts.unresolved} unresolved · ${c.counts.reversals} conclusion${c.counts.reversals===1?'':'s'} reversed out of ${c.counts.settled} settled. Counts over the permanent log — never a trust score.</div>
+    ${c.strongest?`<div class="note"><b style="color:var(--green)">Strongest family:</b> ${esc(c.strongest.label)} — ${esc(c.strongest.detail)}</div>`:''}
+    ${c.weakest?`<div class="note"><b style="color:var(--red)">Repeatedly failed:</b> ${esc(c.weakest.label)} — ${esc(c.weakest.detail)}</div>`:''}
+    ${c.unresolved.length?`<div class="note"><b style="color:var(--dim)">Still unresolved:</b> ${c.unresolved.map(f=>esc(f.label)+' ('+f.n+' prediction'+(f.n===1?'':'s')+')').join(' · ')}</div>`:''}
+    ${c.reversals.length?`<div class="flag" style="margin-top:8px">🔬 <b>Corrections on record:</b><br>${c.reversals.slice(-3).map(r=>'• '+esc(r.statement)+(r.premature?' <i>(settled prematurely — under 14 days)</i>':'')).join('<br>')}</div>`
+      :`<div class="note" style="margin-top:6px">No settled conclusion has needed reversal yet${c.counts.settled?'':' — but with 0 settled conclusions that is expected, not impressive'}. Saying "I was wrong" from evidence is a capability this system keeps.</div>`}
+    ${(a=>((a.wrongAsm.length||a.polReversed.length||a.stale.length||a.survived.length)?`<details style="margin-top:8px"><summary>Self-audit</summary><div class="bd">
+      ${a.wrongAsm.length?`<div class="note"><b>Assumptions that generated corrections:</b> ${a.wrongAsm.map(x=>esc(x[0])+' ('+x[1]+' predictions)').join(' · ')}</div>`:''}
+      ${a.polReversed.length?`<div class="note"><b>Policies later reversed:</b> ${a.polReversed.map(p=>esc(p.id)+' (approved '+esc(p.d)+', undone '+esc(p.undone)+')').join(' · ')}</div>`:''}
+      ${a.stale.length?`<div class="note"><b>Experiments with data but no learning yet:</b> ${a.stale.map(x=>esc(x.note)).join(' · ')}</div>`:''}
+      ${a.survived.length?`<div class="note"><b>Conclusions that survived review (28+ days, never reversed):</b> ${a.survived.map(x=>esc(x.what)).join(' · ')}</div>`:''}
+    </div></details>`:''))(typeof selfAudit==='function'?selfAudit():{wrongAsm:[],polReversed:[],stale:[],survived:[]})}
+    `)(typeof calibration==='function'?calibration():{fam:[],counts:{improved:0,noEffect:0,mixed:0,unresolved:0,reversals:0,settled:0},reversals:[],settled:[],confidence:'',unresolved:[],strongest:null,weakest:null})}
+    <div class="note">Every line above is derived from permanent observations — beliefs are replayed from the log, never stored, so the system can compare what it concluded then with what the evidence says now. No family borrows credibility from another.</div>
   </div>
   <div class="card">
     <h3>System Read <span class="r">what your own data says</span></h3>
@@ -2080,7 +2925,11 @@ function pickImport(){ $('#impFile').click(); }
 /* ---- PUSH ---- */
 let drIdx=null;
 let pbIdx=null,pbShow=false;
-function drawPB(){pbIdx=Math.floor(Math.random()*PLAYBOOK.length);pbShow=false;rPush();}
+function drawPB(){ /* retention: half the draws re-deal a concept that bit you before */
+  const wc=(typeof weakConcepts==='function')?weakConcepts():[];
+  if(wc.length&&Math.random()<0.5){ const pool=PLAYBOOK.map((p,i)=>[p,i]).filter(x=>x[0].concept===wc[0].concept);
+    if(pool.length){ pbIdx=pool[Math.floor(Math.random()*pool.length)][1]; pbShow=false; rPush(); return; } }
+  pbIdx=Math.floor(Math.random()*PLAYBOOK.length); pbShow=false; rPush(); }
 function rPush(){
   const iq=Model.iq(), plan=decide(), dr=drIdx===null?null:DARK_ROOM[drIdx], pb=pbIdx===null?null:PLAYBOOK[pbIdx];
   const engIq=plan.tasks.find(t=>t.kind==='iq');
@@ -2089,6 +2938,36 @@ function rPush(){
     <h3>IQ Reps This Week <span class="r">${iq.reps7}</span></h3>
     <div class="note" style="margin:0">Engine says today: <b style="color:var(--amber)">${esc(engIq?.title||'—')}</b><br>Any rep logged here also checks box 3 on TODAY.</div>
   </div>
+  <div class="card">
+    <h3>Film Room <span class="r">film becomes searchable</span></h3>
+    <div class="note">Tag every clip the day you watch it. Weeks later: "show every missed-leverage rep" is one tap.</div>
+    <div style="margin:8px 0;display:flex;flex-wrap:wrap;gap:6px">${CLIP_TAGS.map(t=>`<button class="btn sm ${pendClip===t?'amber':'ghost'}" onclick="clipTag('${t}')">+ ${esc(t)}</button>`).join('')}</div>
+    ${pendClip?`<div class="row" style="gap:6px;margin:8px 0"><input id="clipNote" placeholder="what happened? (optional)" style="flex:1"><button class="btn sm amber" onclick="saveClip()">SAVE</button><button class="btn sm ghost" onclick="pendClip=null;rPush()">✕</button></div><div class="note" style="margin:0 0 6px">Opponent auto-filled from the schedule — one tap + save.</div>`:''}
+    ${(fr=>fr.n?`
+      <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px"><button class="btn sm ${!filmTag?'amber':'ghost'}" onclick="setFilmTag(null)">All (${fr.n})</button>${fr.byTag.map(x=>`<button class="btn sm ${filmTag===x.tag?'amber':'ghost'}" onclick="setFilmTag('${x.tag}')" style="${x.bad?'color:var(--red)':''}">${esc(x.tag)} ${x.n}</button>`).join('')}</div>
+      ${(S.clips||[]).filter(c=>!filmTag||c.tag===filmTag).slice(-12).reverse().map(c=>`<div class="note" style="border-bottom:1px solid var(--line);padding:5px 0">${CLIP_BAD.includes(c.tag)?'<b style="color:var(--red)">'+esc(c.tag)+'</b>':'<b style="color:var(--green)">'+esc(c.tag)+'</b>'} — ${esc(c.note||'')} <span style="color:var(--faint)">${esc(c.opp||'')} · ${esc(fmtD(c.d))}</span></div>`).join('')}
+      ${fr.trend?`<div class="note" style="margin-top:6px"><b style="color:var(--dim)">Improvement check:</b> ${esc(fr.trend.note)}</div>`:''}
+      ${fr.byOpp.length?`<div class="note"><b style="color:var(--dim)">Most trouble vs:</b> ${fr.byOpp.slice(0,2).map(x=>esc(x.opp)+' ('+x.bad+' miss-tags)').join(' · ')}</div>`:''}`
+    :'<div class="empty">No clips tagged yet. First film: the Aug 8 scrimmage.</div>')(filmRead())}
+  </div>
+  <div class="card">
+    <h3>Coach Memory <span class="r">coaching accumulates here</span></h3>
+    <div class="note">A freshman forgets coaching. A varsity player accumulates it. Log every correction the minute practice ends — 10 seconds each.</div>
+    <div class="row" style="gap:6px;margin:8px 0"><input id="cmIn" placeholder="What did the coach say?" style="flex:1"><button class="btn sm amber" onclick="addCoachIn('cmIn','push')">SAVE</button></div>
+    ${(cm=>cm.list.length?`
+      ${cm.mostRepeated?`<div class="note"><b style="color:var(--red)">Most repeated:</b> “${esc(cm.mostRepeated.text)}” — ${cm.mostRepeated.n}×. This IS your practice mission until it goes quiet.</div>`:''}
+      ${cm.newRecurring.length?`<div class="note"><b style="color:var(--amber)">New recurring weakness:</b> ${cm.newRecurring.map(x=>'“'+esc(x.text)+'”').join(', ')} — repeated within a week.</div>`:''}
+      ${cm.improving.length?`<div class="note"><b style="color:var(--green)">Going quiet:</b> ${cm.improving.map(x=>'“'+esc(x.text)+'” ('+x.daysSince+'d silent)').join(' · ')} — improvement a coach can see.</div>`:''}
+      ${cm.quiet30.length?`<div class="note"><b style="color:var(--green)">Not heard in 30+ days:</b> ${cm.quiet30.map(x=>'“'+esc(x.text)+'”').join(' · ')} — earned. Keep it.</div>`:''}
+      <details style="margin-top:6px"><summary>All corrections (${cm.list.length})</summary><div class="bd">${cm.list.map((x,i)=>`<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><span class="grow" style="font-size:13px">“${esc(x.text)}” · ${x.n}× · last ${esc(fmtD(x.last))}</span><button class="btn sm ghost" onclick="coachAgainIdx(${i})">HEARD AGAIN</button></div>`).join('')}</div></details>`
+    :'<div class="empty">Nothing on record yet. After your first practice: every correction you heard, one line each.</div>')(coachMemory())}
+  </div>
+  ${todayISO()<=SEASON_ENTRY.opener?`<div class="card">
+    <h3>Earn the Spot <span class="r">how freshmen actually win reps</span></h3>
+    <div class="note">Coaches decide playing time from behaviors they can SEE. These six are the whole meta-game — one rotates onto TODAY every day of camp.</div>
+    ${SEASON_ENTRY.earn.map(x=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b style="font-size:13px">${esc(x[0])}</b><div class="note" style="margin:2px 0 0">${esc(x[1])}</div></div>`).join('')}
+    <details style="margin-top:8px"><summary>Camp gear check (${SEASON_ENTRY.gear.length})</summary><div class="bd">${SEASON_ENTRY.gear.map(g=>'<div class="note">☐ '+esc(g)+'</div>').join('')}</div></details>
+  </div>`:''}
   <div class="card">
     <h3>The 5 Questions <span class="r">every play you watch</span></h3>
     ${FILM_SYSTEM['5_question_framework'].map(q=>`<div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5">${esc(q)}</div>`).join('')}
@@ -2099,11 +2978,12 @@ function rPush(){
   </div>
   <div class="card">
     <h3>IQ Flashcards <span class="r">${PLAYBOOK.length} plays · call it before you flip it</span></h3>
+    ${(wc=>wc.length?`<div class="note"><b style="color:var(--red)">Concepts that bit you before:</b> ${wc.slice(0,3).map(x=>esc(x.concept)+' ('+x.miss+'×)').join(' · ')} — the deck now deals these more often.</div>`:'')(weakConcepts())}
     ${pb?`<div class="pill cyan">${esc(pb.cat)} · ${esc(pb.name)}</div>
       <div style="font-size:15px;font-weight:800;margin:10px 0 4px">${esc(pb.formation)}</div>
       <div style="font-size:13px;color:var(--faint)">${esc(pb.concept)}</div>
       ${pbShow?`<div style="font-size:14px;color:var(--dim);line-height:1.6;margin-top:10px;border-top:1px solid var(--line);padding-top:10px"><b style="color:var(--amber)">Your job:</b> ${esc(pb.job)}</div>
-        <div class="row" style="margin-top:12px"><button class="btn amber grow" onclick="logPush('film');pbIdx=null;pbShow=false;">GOT IT ✓</button><button class="btn ghost" onclick="drawPB()">NEXT</button></div>`
+        <div class="row" style="margin-top:12px;gap:6px"><button class="btn amber grow" onclick="logPB(1)">GOT IT ✓</button><button class="btn ghost grow" onclick="logPB(0)">MISSED ✗</button></div>`
       :`<button class="btn amber" style="width:100%;margin-top:12px" onclick="pbShow=true;rPush()">SHOW MY JOB</button>`}`
     :`<div class="note" style="margin:0 0 12px">A play comes up — call your read and your job out loud, THEN flip it. This is how the game slows down for you.</div>
       <button class="btn" style="width:100%" onclick="drawPB()">DRAW A PLAY</button>`}
@@ -2146,6 +3026,79 @@ function copyScout(){
 }
 function drawDR(){ drIdx=Math.floor(Math.random()*DARK_ROOM.length); rPush(); }
 function logPush(type){ S.pushLog.push({d:todayISO(),type}); const c=ckToday(); if(!c[2]) c[2]=true; completeTask('iq:'+todayISO()); save(); rPush(); toast('IQ rep logged ✓'); }
+
+/* ===== Varsity Advantage actions (v7.23) — one-tap capture, append-only ===== */
+function missionAns(ok){ if((S.events||[]).some(e=>e.type==='mission'&&e.d===todayISO())) return;
+  S.events.push({d:todayISO(),type:'mission',meta:{ok}}); save();
+  toast(ok?'Mission hit — on record':'Honest answer recorded — tomorrow the target shrinks'); rToday(); }
+function freeWin(d,i){ const id='freewin:'+d+':'+i; if(!taskDone(id)){ logEvent('task',{id}); save(); } rToday(); }
+function coachAgainIdx(i){ const x=coachMemory().list[i]; if(!x) return;
+  (S.coach=S.coach||[]).push({d:todayISO(),text:x.text}); save(); toast('Heard again — logged. Make it your mission.'); rPush(); }
+function addOpp(opp){ const t=prompt('Scout note for '+opp+' (what you saw or heard)');
+  if(t&&t.trim()){ (S.opp=S.opp||[]).push({d:todayISO(),opp,text:t.trim()}); save(); toast('Saved — scout notes outlive the season'); rPath(); } }
+function logPB(ok){ const pb=PLAYBOOK[pbIdx]; if(!pb) return;
+  S.pushLog.push({d:todayISO(),type:'pb',ok,concept:pb.concept}); completeTask('iq:'+todayISO()); save();
+  toast(ok?'Got it — on record':'Missed — the deck will bring it back until you own it'); drawPB(); }
+/* Sunday position-coach read — derived entirely from the week's evidence */
+function posCoachRead(){
+  const cm=coachMemory(), ms=missionStats(), wc=weakConcepts(), mo=momentumRead();
+  const hasEv=cm.list.length||ms.answered||wc.length;
+  if(!hasEv) return '<div class="note">No practice evidence this week yet — the position-coach read starts when corrections, missions and flashcards get logged.</div>';
+  let h='<div class="note"><b style="color:var(--amber)">Position-coach read (this week\u2019s evidence):</b></div>';
+  if(cm.mostRepeated) h+='<div class="note">Biggest leak: \u201c'+esc(cm.mostRepeated.text)+'\u201d \u2014 heard '+cm.mostRepeated.n+'\u00d7.</div>';
+  if(cm.improving.length) h+='<div class="note">Most improved: \u201c'+esc(cm.improving[0].text)+'\u201d \u2014 '+cm.improving[0].daysSince+' days quiet.</div>';
+  if(ms.of) h+='<div class="note">Missions: '+ms.hit+'/'+ms.of+' hit'+(ms.neverTwoMisses?' \u2014 never missed two in a row (that is evidence, not a pep talk)':'')+'.</div>';
+  if(wc.length) h+='<div class="note">Concept leaks: '+wc.slice(0,2).map(x=>esc(x.concept)+' ('+x.miss+'\u00d7)').join(', ')+'.</div>';
+  mo.forEach(m=>{ h+='<div class="note">'+(m.dir==='up'?'<span style="color:var(--green)">\u25b2</span> ':'<span style="color:var(--red)">\u25bc</span> ')+esc(m.t)+'</div>'; });
+  const fr=filmRead();
+  if(fr.trend) h+='<div class="note">Film check: '+esc(fr.trend.note)+'</div>';
+  if(fr.byOpp.length) h+='<div class="note">Trouble vs: '+fr.byOpp.slice(0,2).map(x=>esc(x.opp)+' ('+x.bad+' miss-tags)').join(', ')+'.</div>';
+  if(cm.quiet30.length) h+='<div class="note">Stayed fixed: '+cm.quiet30.map(x=>'\u201c'+esc(x.text)+'\u201d').join(', ')+'.</div>';
+  h+='<div class="note"><b>Priority this week:</b> '+esc(practiceMission().t)+'</div>';
+  return '<div style="border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:8px">'+h+'</div>';
+}
+
+/* ===== Program Staff actions (v7.24) ===== */
+let filmTag=null;
+function setFilmTag(t){ filmTag=t; rPush(); }
+function logHudl(){ logEvent('hudl',{}); save(); toast('Hudl update on record'); rPath(); }
+function addCamp(){ const name=prompt('Camp / showcase name?'); if(!name||!name.trim()) return;
+  const when=prompt('When? (e.g. Jun 2027, or a date)')||'';
+  logEvent('camp',{name:name.trim(),when:when.trim()}); save(); toast('Tracked — it will not be forgotten'); rPath(); }
+function buildPosReport(){
+  const cm=coachMemory(), ms=missionStats(), wc=weakConcepts(), fr=filmRead(), wg=Model.waypointGaps();
+  const L=[]; L.push('POSITION REPORT — '+S.profile.name+' ('+S.profile.pos+') — week of '+todayISO());
+  L.push('');
+  if(cm.improving.length) L.push('Biggest improvement: "'+cm.improving[0].text+'" — '+cm.improving[0].daysSince+' days without hearing it.');
+  if(cm.mostRepeated) L.push('Recurring mistake: "'+cm.mostRepeated.text+'" — '+cm.mostRepeated.n+'x on record. This is the week\u2019s fix.');
+  if(cm.list.length) L.push('Most repeated coaching point overall: "'+cm.list[0].text+'" ('+cm.list[0].n+'x).');
+  L.push('Missions: '+(ms.of?ms.hit+'/'+ms.of+' hit'+(ms.streak>=2?' ('+ms.streak+' straight)':''):'none answered yet')+'.');
+  if(wc.length) L.push('Assignment leaks: '+wc.slice(0,3).map(x=>x.concept+' ('+x.miss+'x)').join(', ')+'.');
+  if(fr.trend) L.push('Film: '+fr.trend.note);
+  L.push('Priority: '+practiceMission().t);
+  if(wg.primary) L.push('Physical priority: '+wg.primary.key+' (biggest waypoint gap).');
+  const bn=gapBottleneck();
+  if(bn){ L.push('Bottleneck (all systems): '+bn.name+' — '+bn.ev+'. Fix: '+bn.fix); }
+  const gt=gapTrend(); L.push('Gap trend: '+gt.note);
+  L.push(''); L.push('Every line above is derived from logged evidence — nothing generated.');
+  return L.join('\n');
+}
+function copyPosReport(){ navigator.clipboard?.writeText(buildPosReport()).then(()=>toast('Position report copied')); }
+
+/* Weekly competitive report (v7.25) — advantage, bottleneck, fastest routes */
+function compRead(){
+  const bn=gapBottleneck(); if(!bn) return '';
+  const ge=gapEngine(); const rv=recruitView();
+  const adv=ge.factors.filter(f=>f.tier==='READY').sort((a,b)=>(b.progress??0)-(a.progress??0))[0];
+  return `<div style="border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:8px">
+    <div class="note"><b style="color:var(--amber)">Competitive report:</b></div>
+    <div class="note">Advantage: ${adv?esc(adv.name)+' — '+esc(adv.ev):'none earned yet — the first measurement changes that'}</div>
+    <div class="note">Limiting factor: <b>${esc(bn.name)}</b> — ${esc(bn.ev)}</div>
+    <div class="note">Fastest route to playing time: ${esc(practiceMission().t)}</div>
+    <div class="note">Fastest route to recruiting value: ${rv.top?esc(rv.top.name)+' — '+esc(rv.top.because):'—'}</div>
+    <div class="note" style="color:var(--faint)">One bottleneck. One mission. Both from evidence.</div>
+  </div>`;
+}
 /* ============ NAV + BOOT ============ */
 const RENDER={today:rToday,train:rTrain,path:rPath,track:rTrack,push:rPush};
 function go(v){
