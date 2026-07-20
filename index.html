@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.27 -->
+<!DOCTYPE html><!-- d1os v7.42 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -11,38 +11,61 @@
 <title>D1 OS</title>
 <style>
 :root{
-  --bg:#08090c; --bg2:#0d0f14; --card:#111419; --card2:#171b22;
-  --line:#1e222b; --txt:#f5f7fa; --dim:#98a2b1; --faint:#5b6472;
+  --bg:#07080b; --bg2:#0d0f14; --card:#10131a; --card2:#171b23;
+  --line:#20242e; --txt:#f5f7fa; --dim:#9aa4b3; --faint:#78818f; /* v7.38: measured 4.72:1 on card — WCAG AA at 12px; was #5d6574 @ 3.17:1, a real font-color defect */
   --amber:#c9f24e; --amber-dim:#3f4a1f; --cyan:#74b4c6; --cyan-dim:#294551;
-  --green:#5fd39a; --red:#ff5d5d; --radius:18px;
+  --green:#5fd39a; --red:#ff5d5d; --radius:20px;
+  --glow:0 0 24px -6px rgba(201,242,78,.45);
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{font-size:16px}
 body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  padding-bottom:calc(72px + env(safe-area-inset-bottom));min-height:100vh;
-  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  padding-bottom:calc(84px + env(safe-area-inset-bottom));min-height:100vh;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;position:relative}
+/* stadium-at-night ambience: two distant light sources + a field-grid whisper. Pure CSS, zero assets. */
+body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
+  background:radial-gradient(720px 420px at 85% -8%,rgba(201,242,78,.075),transparent 62%),
+             radial-gradient(640px 460px at -12% 108%,rgba(116,180,198,.06),transparent 60%),
+             linear-gradient(180deg,#090b10 0%,var(--bg) 34%)}
+body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
+  background:repeating-linear-gradient(0deg,transparent 0 47px,rgba(255,255,255,.014) 47px 48px),
+             repeating-linear-gradient(90deg,transparent 0 47px,rgba(255,255,255,.010) 47px 48px)}
 h1,h2,h3{font-weight:800;letter-spacing:.02em}
-.mono{font-variant-numeric:tabular-nums}
-#hdr{position:sticky;top:0;z-index:50;background:rgba(10,14,20,.92);backdrop-filter:blur(12px);
-  border-bottom:1px solid var(--line);padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
+.mono{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+::selection{background:var(--amber);color:#0b1000}
+#hdr{position:sticky;top:0;z-index:50;background:rgba(9,11,16,.82);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
+  border-bottom:1px solid transparent;
+  border-image:linear-gradient(90deg,transparent,rgba(201,242,78,.35),transparent) 1;
+  padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
   display:flex;justify-content:space-between;align-items:center}
-#hdr .brand{font-size:15px;font-weight:900;letter-spacing:.12em;color:var(--amber)}
+#hdr .brand{font-size:15px;font-weight:900;letter-spacing:.16em;
+  background:linear-gradient(115deg,var(--txt) 30%,var(--amber) 85%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+#hdr .brand::after{content:'';display:inline-block;width:6px;height:6px;border-radius:99px;background:var(--amber);
+  margin-left:7px;vertical-align:2px;box-shadow:0 0 10px 1px rgba(201,242,78,.8);animation:beacon 2.6s ease-in-out infinite}
+@keyframes beacon{0%,100%{opacity:1}50%{opacity:.35}}
 #hdr .cd{font-size:12px;color:var(--dim);text-align:right;line-height:1.35}
-#hdr .cd b{color:var(--cyan);font-weight:800}
+#hdr .cd b{color:var(--amber);font-weight:900;font-size:14px;text-shadow:0 0 14px rgba(201,242,78,.45)}
 main{padding:16px;max-width:560px;margin:0 auto}
-.view{display:none}.view.on{display:block}
-.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;box-shadow:0 1px 0 rgba(255,255,255,.03) inset}
-.card h3{font-size:12px;letter-spacing:.14em;color:var(--dim);margin-bottom:12px;text-transform:uppercase}
-.card h3 .r{float:right;color:var(--faint);font-weight:600;letter-spacing:0}
-.big{font-size:34px;font-weight:900}
+.view{display:none}.view.on{display:block;animation:rise .28s cubic-bezier(.2,.8,.25,1)}
+@keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
+.card{background:linear-gradient(180deg,rgba(255,255,255,.022),transparent 42%),var(--card);
+  border:1px solid var(--line);border-radius:var(--radius);padding:16px;margin-bottom:14px;
+  box-shadow:0 1px 0 rgba(255,255,255,.045) inset,0 10px 28px -18px rgba(0,0,0,.85)}
+.card h3{font-size:12px;letter-spacing:.15em;color:var(--dim);margin-bottom:12px;text-transform:uppercase}
+.card h3 .r{float:right;color:var(--faint);font-weight:600;letter-spacing:0;text-transform:none}
+.big{font-size:38px;font-weight:900;letter-spacing:-.02em}
 .row{display:flex;gap:10px;align-items:center}
 .grow{flex:1}
-.btn{background:var(--card2);border:1px solid var(--line);color:var(--txt);border-radius:10px;
-  padding:11px 14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit}
-.btn.amber{background:var(--amber);border-color:var(--amber);color:#0b1000}
+.btn{background:linear-gradient(180deg,rgba(255,255,255,.035),transparent 55%),var(--card2);
+  border:1px solid var(--line);color:var(--txt);border-radius:12px;
+  padding:11px 14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;
+  transition:transform .12s,box-shadow .12s,border-color .12s}
+.btn.amber{background:linear-gradient(160deg,#dcff66,var(--amber) 60%);border-color:var(--amber);color:#0b1000;
+  box-shadow:var(--glow),0 1px 0 rgba(255,255,255,.5) inset;text-shadow:0 1px 0 rgba(255,255,255,.25)}
 .btn.ghost{background:transparent}
-.btn.sm{padding:7px 10px;font-size:12px;border-radius:8px}
-.btn:active{transform:scale(.97)}
+.btn.sm{padding:7px 10px;font-size:12px;border-radius:9px}
+.btn:active{transform:scale(.96)}
+.btn.amber:active{box-shadow:0 0 10px -4px rgba(201,242,78,.5)}
 input,select,textarea{background:var(--bg2);border:1px solid var(--line);color:var(--txt);border-radius:10px;
   padding:11px 12px;font-size:16px;font-family:inherit;width:100%}
 input:focus,select:focus,textarea:focus{outline:none;border-color:var(--cyan-dim)}
@@ -53,16 +76,23 @@ label{font-size:11px;letter-spacing:.08em;color:var(--dim);text-transform:upperc
 .pill.cyan{color:var(--cyan);border-color:var(--cyan-dim)}
 .pill.green{color:var(--green);border-color:#2b5c44}
 .pill.red{color:var(--red);border-color:#6b2b2b}
-#nav{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;background:rgba(13,18,28,.96);
-  backdrop-filter:blur(12px);border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
+#nav{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;background:rgba(11,14,20,.78);
+  backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);
+  border-top:1px solid transparent;
+  border-image:linear-gradient(90deg,transparent,rgba(255,255,255,.10),transparent) 1;
+  padding-bottom:env(safe-area-inset-bottom)}
 #nav button{flex:1;background:none;border:none;color:var(--faint);font-family:inherit;font-size:10px;
-  font-weight:800;letter-spacing:.08em;padding:10px 0 12px;cursor:pointer;display:flex;flex-direction:column;gap:3px;align-items:center}
-#nav button .ic{line-height:0}
+  font-weight:800;letter-spacing:.08em;padding:11px 0 12px;cursor:pointer;display:flex;flex-direction:column;gap:4px;align-items:center;
+  position:relative;transition:color .15s}
+#nav button .ic{line-height:0;transition:transform .15s}
 #nav button .ic svg{width:23px;height:23px}
 #nav button.on{color:var(--amber)}
+#nav button.on .ic{transform:translateY(-1px);filter:drop-shadow(0 0 7px rgba(201,242,78,.55))}
+#nav button.on::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:26px;height:2.5px;
+  border-radius:0 0 4px 4px;background:var(--amber);box-shadow:0 0 12px 1px rgba(201,242,78,.6)}
 .dots{display:grid;grid-template-columns:repeat(15,1fr);gap:5px}
-.dots i{aspect-ratio:1;border-radius:3px;background:var(--bg2);border:1px solid var(--line)}
-.dots i.hit{background:var(--amber);border-color:var(--amber);box-shadow:0 0 8px -2px var(--amber)}
+.dots i{aspect-ratio:1;border-radius:3px;background:var(--bg2);border:1px solid var(--line);transition:background .2s}
+.dots i.hit{background:linear-gradient(150deg,#dcff66,var(--amber));border-color:var(--amber);box-shadow:0 0 9px -2px var(--amber)}
 .dots i.part{background:var(--amber-dim);border-color:var(--amber-dim)}
 .chk{display:flex;gap:12px;align-items:center;padding:12px 0;border-bottom:1px solid var(--line);cursor:pointer}
 .chk:last-child{border-bottom:none}
@@ -96,11 +126,84 @@ details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
 .stat .v{font-size:22px;font-weight:900}
 .stat .k{font-size:10px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-top:2px}
 .empty{text-align:center;color:var(--faint);font-size:13px;padding:24px 0}
-.prio{background:linear-gradient(150deg,rgba(201,242,78,.10),var(--card) 46%);border:1px solid var(--amber-dim);border-radius:var(--radius);padding:16px 16px 16px 18px;margin-bottom:14px;position:relative;overflow:hidden}
-.prio::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--amber)}
+.prio{background:linear-gradient(150deg,rgba(201,242,78,.11),var(--card) 46%);border:1px solid var(--amber-dim);border-radius:var(--radius);padding:16px 16px 16px 18px;margin-bottom:14px;position:relative;overflow:hidden;
+  box-shadow:0 0 34px -18px rgba(201,242,78,.5),0 1px 0 rgba(255,255,255,.05) inset}
+.prio::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(180deg,#dcff66,var(--amber));box-shadow:0 0 12px 0 rgba(201,242,78,.55)}
+.prio::after{content:'';position:absolute;top:0;left:-70%;width:45%;height:100%;pointer-events:none;
+  background:linear-gradient(105deg,transparent,rgba(255,255,255,.05) 48%,transparent);
+  animation:sheen 6.5s ease-in-out infinite}
+@keyframes sheen{0%,72%{left:-70%}88%,100%{left:130%}}
 .prio .k{font-size:10px;letter-spacing:.14em;color:var(--amber);font-weight:900}
 .prio .t{font-size:16px;font-weight:800;margin-top:3px}
 .prio .w{font-size:12px;color:var(--dim);margin-top:4px;font-style:italic}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* ============ player identity card — the hero (v7.36) ============ */
+.pcard{position:relative;overflow:hidden;border-radius:24px;padding:20px 20px 18px;margin-bottom:16px;
+  background:
+    radial-gradient(120% 90% at 88% -20%,rgba(201,242,78,.16),transparent 55%),
+    radial-gradient(130% 100% at -10% 120%,rgba(116,180,198,.10),transparent 55%),
+    linear-gradient(165deg,#171c22,#0c0f14 70%);
+  border:1px solid rgba(201,242,78,.22);
+  box-shadow:0 0 40px -14px rgba(201,242,78,.34),0 20px 40px -24px #000,0 1px 0 rgba(255,255,255,.06) inset}
+.pcard::after{content:'';position:absolute;inset:0;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent 0 33px,rgba(255,255,255,.02) 33px 34px)}
+.pc-num{position:absolute;top:52px;right:6px;font-family:var(--disp);font-weight:400;
+  font-size:168px;line-height:1;color:rgba(255,255,255,.05);letter-spacing:-.03em;pointer-events:none;z-index:0}
+.pc-top,.pc-name,.pc-sub,.pc-rail,.pc-foot,.pc-motto{position:relative;z-index:1}
+.pc-top{display:flex;justify-content:space-between;align-items:center;position:relative}
+.pc-pos{font-family:var(--disp);font-weight:400;font-size:16px;letter-spacing:.22em;color:var(--amber);
+  border:1px solid var(--amber-dim);border-radius:7px;padding:3px 10px 2px;background:rgba(201,242,78,.06)}
+.pc-gate{font-size:11px;color:var(--dim)}
+.pc-gate b{color:var(--amber);font-size:15px;font-family:var(--disp);font-weight:400;letter-spacing:.03em}
+.pc-name{font-family:var(--disp);font-weight:400;font-size:clamp(52px,15vw,74px);line-height:.9;
+  letter-spacing:.02em;margin-top:12px;position:relative;
+  background:linear-gradient(170deg,#ffffff 34%,#c9f24e 130%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 2px 18px rgba(201,242,78,.18))}
+.pc-sub{font-size:11px;letter-spacing:.14em;color:var(--faint);margin-top:5px;font-weight:800;position:relative}
+.pc-rail{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:16px;position:relative}
+.pc-stat{background:rgba(9,11,15,.55);border:1px solid var(--line);border-radius:11px;padding:9px 4px 7px;text-align:center}
+.pc-v{font-family:var(--disp);font-weight:400;font-size:25px;letter-spacing:.02em;color:var(--txt);line-height:1}
+.pc-u{font-size:11px;color:var(--faint);letter-spacing:0}
+.pc-none{color:var(--faint)}
+.pc-k{font-size:8.5px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-top:4px;font-weight:800}
+.pc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;position:relative}
+.pc-verif{font-size:9.5px;letter-spacing:.06em;color:var(--green);font-weight:800}
+.pc-ready{font-family:var(--disp);font-weight:400;font-size:14px;letter-spacing:.08em;color:var(--cyan)}
+.pc-motto{margin-top:9px;font-size:13px;font-style:italic;color:var(--dim);position:relative;
+  border-top:1px solid var(--line);padding-top:9px}
+/* widget mode (#widget): the glanceable face — iPad split-view / pinned desktop window */
+body.wm{padding-bottom:0}
+body.wm #hdr,body.wm #nav{display:none}
+body.wm main{max-width:none;padding:0;min-height:100vh;display:grid;place-items:center}
+.wj{text-align:center;padding:28px 20px}
+.wj .n{font-size:clamp(64px,22vw,150px);font-weight:900;letter-spacing:-.04em;line-height:1;
+  background:linear-gradient(165deg,#f5f7fa 25%,var(--amber) 90%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;
+  filter:drop-shadow(0 0 26px rgba(201,242,78,.28))}
+.wj .l{font-size:clamp(11px,2.6vw,14px);letter-spacing:.34em;color:var(--dim);text-transform:uppercase;margin-top:6px}
+.wj .sub{display:flex;gap:26px;justify-content:center;margin-top:26px}
+.wj .sub .v{font-size:clamp(22px,6vw,34px);font-weight:900}
+.wj .sub .k{font-size:10px;letter-spacing:.16em;color:var(--faint);text-transform:uppercase;margin-top:2px}
+.wj .one{margin-top:26px;font-size:clamp(13px,3.2vw,16px);color:var(--dim)}
+.wj .one b{color:var(--amber)}
+
+/* ============ v7.35 display face — broadcast typography, embedded + offline-safe ============
+   Bebas Neue (OFL license), subset to 8KB and inlined: the athletic display face of jersey
+   numbers and TV graphics packages. System fonts are what $5 looks like; this is the fix. */
+@font-face{font-family:'Bebas Neue';font-style:normal;font-weight:400;font-display:swap;src:url(data:font/woff2;base64,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) format('woff2')}
+:root{--disp:'Bebas Neue','Arial Narrow',sans-serif}
+#hdr .brand{font-family:var(--disp);font-weight:400;font-size:21px;letter-spacing:.24em}
+#hdr .cd b{font-family:var(--disp);font-weight:400;font-size:18px;letter-spacing:.04em}
+.big{font-family:var(--disp);font-weight:400;font-size:46px;letter-spacing:.03em}
+.stat .v{font-family:var(--disp);font-weight:400;font-size:31px;letter-spacing:.03em}
+.card h3{font-family:var(--disp);font-weight:400;font-size:15px;letter-spacing:.22em}
+.card h3 .r{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:11px}
+#nav button{font-family:var(--disp);font-weight:400;font-size:12.5px;letter-spacing:.18em}
+.prio .k{font-family:var(--disp);font-weight:400;font-size:13px;letter-spacing:.26em}
+.prio .t{font-family:var(--disp);font-weight:400;font-size:23px;letter-spacing:.045em}
+.wj .n{font-family:var(--disp);font-weight:400}
+.wj .l{font-family:var(--disp);font-weight:400}
+.seg button{font-family:var(--disp);font-weight:400;letter-spacing:.14em;font-size:13.5px}
+.pill{font-family:var(--disp);font-weight:400;letter-spacing:.1em;font-size:12px}
 </style>
 </head>
 <body>
@@ -173,31 +276,31 @@ const PLAYBOOK = [
 ];
 
 const SCHOOLS = [
-  {"tier": 1, "school": "UNLV", "conf": "MW", "city": "Las Vegas, NV", "dist": "30 min from home", "coach": "Barry Odom (HC) · UNLV RB coach TBD", "why": "Home school · Vegas pipeline · they take Henderson kids"},
-  {"tier": 1, "school": "Nevada (Reno)", "conf": "MW", "city": "Reno, NV", "dist": "7 hr", "coach": "Jeff Choate (HC) · Nevada RB coach TBD", "why": "NV flagship · run-heavy scheme · good RB history"},
-  {"tier": 1, "school": "Boise State", "conf": "MW", "city": "Boise, ID", "dist": "9 hr", "coach": "Spencer Danielson (HC) · Boise RB coach TBD", "why": "Best MW program · RB-friendly scheme · Las Vegas satellite camps"},
-  {"tier": 1, "school": "Northern Arizona", "conf": "BSC", "city": "Flagstaff, AZ", "dist": "4 hr", "coach": "Brent Brennan (HC) · NAU RB coach TBD", "why": "FCS · D1 · great academic fit · walk-on path possible"},
-  {"tier": 1, "school": "Utah State", "conf": "MW", "city": "Logan, UT", "dist": "8 hr", "coach": "Bronco Mendenhall (HC) · USU RB coach TBD", "why": "Mountain West · dual-position RB/LB fits scheme"},
-  {"tier": 1, "school": "Idaho State", "conf": "BSC", "city": "Pocatello, ID", "dist": "11 hr", "coach": "Nathan Pinegar (HC) · ISU RB coach TBD", "why": "FCS · D1 · good for wrestlers who want D1 football"},
-  {"tier": 2, "school": "San Diego State", "conf": "MW", "city": "San Diego, CA", "dist": "5 hr", "coach": "Sean Lewis (HC) · SDSU RB coach TBD", "why": "MW contender · dual-position recruited kids well"},
-  {"tier": 2, "school": "Fresno State", "conf": "MW", "city": "Fresno, CA", "dist": "6 hr", "coach": "Matt Entz (HC) · Fresno RB coach TBD", "why": "Built for tough RBs · wrestling pipeline exists"},
+  {"tier": 1, "school": "UNLV", "conf": "MW", "city": "Las Vegas, NV", "dist": "30 min from home", "coach": "Dan Mullen (HC) · Mike Scherer (LB) — verified Jul 2026", "why": "Home school · Vegas pipeline · they take Henderson kids"},
+  {"tier": 1, "school": "Nevada (Reno)", "conf": "MW", "city": "Reno, NV", "dist": "7 hr", "coach": "Jeff Choate (HC) · Nico Johnson (ILB) — verified Jul 2026", "why": "NV flagship · run-heavy scheme · good RB history"},
+  {"tier": 1, "school": "Boise State", "conf": "P12", "city": "Boise, ID", "dist": "9 hr", "coach": "Spencer Danielson (HC, extended thru 2030) · position coach: broncosports.com/staff — verify", "why": "Best program in the new Pac-12 · RB-friendly scheme · Las Vegas satellite camps"},
+  {"tier": 1, "school": "Northern Arizona", "conf": "BSC", "city": "Flagstaff, AZ", "dist": "4 hr", "coach": "Brian Wright (HC) — verified Jul 2026 (Brennan left for Arizona in 2024)", "why": "FCS · D1 · great academic fit · walk-on path possible"},
+  {"tier": 1, "school": "Utah State", "conf": "P12", "city": "Logan, UT", "dist": "8 hr", "coach": "Bronco Mendenhall (HC) — verified Jul 2026 · position staff: utahstateaggies.com", "why": "New Pac-12 · dual-position RB/LB fits scheme"},
+  {"tier": 1, "school": "Idaho State", "conf": "BSC", "city": "Pocatello, ID", "dist": "11 hr", "coach": "Charlie Ragle (HC) — verified Jul 2026 (prior listing was wrong)", "why": "FCS · D1 · good for wrestlers who want D1 football"},
+  {"tier": 2, "school": "San Diego State", "conf": "P12", "city": "San Diego, CA", "dist": "5 hr", "coach": "Sean Lewis (HC) · SDSU RB coach TBD", "why": "New Pac-12 contender · dual-position recruited kids well"},
+  {"tier": 2, "school": "Fresno State", "conf": "P12", "city": "Fresno, CA", "dist": "6 hr", "coach": "Matt Entz (HC) · Fresno RB coach TBD", "why": "Built for tough RBs · wrestling pipeline exists"},
   {"tier": 2, "school": "San Jose State", "conf": "MW", "city": "San Jose, CA", "dist": "9 hr", "coach": "Ken Niumatalolo (HC) · SJSU RB coach TBD", "why": "MW · service-academy discipline fits your profile"},
   {"tier": 2, "school": "Air Force", "conf": "MW", "city": "Colorado Springs, CO", "dist": "14 hr", "coach": "Troy Calhoun (HC) · AFA RB coach TBD", "why": "Service academy · academics + D1 football · dual-sport athlete valued"},
-  {"tier": 2, "school": "Colorado State", "conf": "MW", "city": "Fort Collins, CO", "dist": "13 hr", "coach": "Jay Norvell (HC) · CSU RB coach TBD", "why": "MW · known RB pipeline · western fit"},
+  {"tier": 2, "school": "Colorado State", "conf": "P12", "city": "Fort Collins, CO", "dist": "13 hr", "coach": "Jay Norvell (HC) · CSU RB coach TBD", "why": "New Pac-12 · known RB pipeline · western fit"},
   {"tier": 2, "school": "Wyoming", "conf": "MW", "city": "Laramie, WY", "dist": "13 hr", "coach": "Jay Sawvel (HC) · Wyo RB coach TBD", "why": "MW · toughness + academics · walk-on friendly"},
   {"tier": 2, "school": "New Mexico", "conf": "MW", "city": "Albuquerque, NM", "dist": "10 hr", "coach": "Bronco Mendenhall era ended — new HC TBD", "why": "MW · triple-option friendly · undersized RBs succeed here"},
   {"tier": 2, "school": "Hawaii", "conf": "MW", "city": "Honolulu, HI", "dist": "air", "coach": "Timmy Chang (HC) · UH RB coach TBD", "why": "MW · run-heavy · Vegas kids recruited hard"},
-  {"tier": 3, "school": "Oregon", "conf": "P12", "city": "Eugene, OR", "dist": "16 hr", "coach": "Dan Lanning (HC) · UO RB coach TBD", "why": "P4 elite · undersized speed RBs (Achane, Irving) fit · Vegas pipeline"},
-  {"tier": 3, "school": "Stanford", "conf": "P12", "city": "Stanford, CA", "dist": "11 hr", "coach": "Frank Reich era — new HC TBD", "why": "P4 · academic prestige · 5'7 walk-on path · 3.7+ GPA required"},
-  {"tier": 3, "school": "Cal", "conf": "P12", "city": "Berkeley, CA", "dist": "10 hr", "coach": "Justin Wilcox (HC) · Cal RB coach TBD", "why": "P4 · academic prestige · dual-position RB/LB recruit"},
-  {"tier": 3, "school": "Washington State", "conf": "P12", "city": "Pullman, WA", "dist": "17 hr", "coach": "Jake Dickert (HC) · WSU RB coach TBD", "why": "P4 · walk-on path known · academic support strong"},
-  {"tier": 3, "school": "Oregon State", "conf": "P12", "city": "Corvallis, OR", "dist": "15 hr", "coach": "Trent Bray era — new HC TBD", "why": "P4 · known undersized RB pipeline · academic strong"},
-  {"tier": 3, "school": "Utah", "conf": "P12", "city": "Salt Lake City, UT", "dist": "7 hr", "coach": "Kyle Whittingham (HC) · Utah RB coach TBD", "why": "P4 · run-heavy scheme · recruit from NV often"},
-  {"tier": 3, "school": "Arizona", "conf": "P12", "city": "Tucson, AZ", "dist": "7 hr", "coach": "Brent Brennan (HC) · Zona RB coach TBD", "why": "P4 · western · RV/travel lifestyle common · RB recruits here"},
-  {"tier": 3, "school": "Arizona State", "conf": "P12", "city": "Tempe, AZ", "dist": "6 hr", "coach": "Kenny Dillingham (HC) · ASU RB coach TBD", "why": "P4 · Vegas pipeline (close to home) · competitive roster"},
-  {"tier": 3, "school": "USC", "conf": "P12", "city": "Los Angeles, CA", "dist": "5 hr", "coach": "Lincoln Riley (HC) · USC RB coach TBD", "why": "P4 dream · if walk-on path works · dual-sport = RB/LB asset"},
-  {"tier": 3, "school": "UCLA", "conf": "P12", "city": "Los Angeles, CA", "dist": "5 hr", "coach": "DeShaun Foster era — new HC TBD", "why": "P4 · walk-on path real · dual-position known"},
-  {"tier": 3, "school": "Colorado", "conf": "P12", "city": "Boulder, CO", "dist": "14 hr", "coach": "Deion Sanders (HC) · CU RB coach TBD", "why": "P4 · transfer-portal friendly · 'Prime Time' values athletes"},
+  {"tier": 3, "school": "Oregon", "conf": "B1G", "city": "Eugene, OR", "dist": "16 hr", "coach": "Dan Lanning (HC) · UO RB coach TBD", "why": "P4 elite · undersized speed RBs (Achane, Irving) fit · Vegas pipeline"},
+  {"tier": 3, "school": "Stanford", "conf": "ACC", "city": "Stanford, CA", "dist": "11 hr", "coach": "Frank Reich era — new HC TBD", "why": "P4 · academic prestige · 5'7 walk-on path · 3.7+ GPA required"},
+  {"tier": 3, "school": "Cal", "conf": "ACC", "city": "Berkeley, CA", "dist": "10 hr", "coach": "Justin Wilcox (HC) · Cal RB coach TBD", "why": "P4 · academic prestige · dual-position RB/LB recruit"},
+  {"tier": 2, "school": "Washington State", "conf": "P12", "city": "Pullman, WA", "dist": "17 hr", "coach": "WSU staff TBD — verify current", "why": "New Pac-12 (left P4 in realignment) · now same league + level as Boise · walk-on path known · academics strong"},
+  {"tier": 2, "school": "Oregon State", "conf": "P12", "city": "Corvallis, OR", "dist": "15 hr", "coach": "OSU staff TBD — verify current", "why": "New Pac-12 (left P4 in realignment) · realistic reach now · known undersized RB pipeline · academics strong"},
+  {"tier": 3, "school": "Utah", "conf": "B12", "city": "Salt Lake City, UT", "dist": "7 hr", "coach": "Kyle Whittingham (HC) · Utah RB coach TBD", "why": "P4 · run-heavy scheme · recruit from NV often"},
+  {"tier": 3, "school": "Arizona", "conf": "B12", "city": "Tucson, AZ", "dist": "7 hr", "coach": "Brent Brennan (HC) · Zona RB coach TBD", "why": "P4 · western · RV/travel lifestyle common · RB recruits here"},
+  {"tier": 3, "school": "Arizona State", "conf": "B12", "city": "Tempe, AZ", "dist": "6 hr", "coach": "Kenny Dillingham (HC) · ASU RB coach TBD", "why": "P4 · Vegas pipeline (close to home) · competitive roster"},
+  {"tier": 3, "school": "USC", "conf": "B1G", "city": "Los Angeles, CA", "dist": "5 hr", "coach": "Lincoln Riley (HC) · USC RB coach TBD", "why": "P4 dream · if walk-on path works · dual-sport = RB/LB asset"},
+  {"tier": 3, "school": "UCLA", "conf": "B1G", "city": "Los Angeles, CA", "dist": "5 hr", "coach": "DeShaun Foster era — new HC TBD", "why": "P4 · walk-on path real · dual-position known"},
+  {"tier": 3, "school": "Colorado", "conf": "B12", "city": "Boulder, CO", "dist": "14 hr", "coach": "Deion Sanders (HC) · CU RB coach TBD", "why": "P4 · transfer-portal friendly · 'Prime Time' values athletes"},
   {"tier": 4, "school": "Texas Tech", "conf": "B12", "city": "Lubbock, TX", "dist": "air", "coach": "Joey McGuire (HC) · TTU RB coach TBD", "why": "Big 12 · 5'7+ RBs succeed in air raid · dual-position valued"},
   {"tier": 4, "school": "TCU", "conf": "B12", "city": "Fort Worth, TX", "dist": "air", "coach": "Sonny Dykes (HC) · TCU RB coach TBD", "why": "Big 12 · undersized speed RBs (Achane) fit · western recruit"},
   {"tier": 4, "school": "Baylor", "conf": "B12", "city": "Waco, TX", "dist": "air", "coach": "Dave Aranda (HC) · BU RB coach TBD", "why": "Big 12 · RB pipeline exists · academic strong"},
@@ -424,6 +527,10 @@ const INJURY_PROTOCOLS = [{"n": 1, "name": "Hamstring Strain", "grade": "1-3", "
 
 const VISUALIZATION = {"pre_snap_15s": {"duration": "15 seconds", "use": "Before every snap in-game", "script": "1. Eyes closed. One breath. In 4. Out 4.\n2. See YOUR stance. See YOUR eyes on the MIKE.\n3. See the play. ONE CUT. GET NORTH.\n4. Eyes open. Snap. EXECUTE."}, "pre_game_5min": {"duration": "5 minutes", "use": "In the locker room before kickoff", "script": "1. (1 min) Close eyes. Visualize the stadium. Hear the crowd. Feel the pads.\n2. (1 min) Run the first 5 plays of YOUR script. First-person. Feel the ball. See the hole.\n3. (1 min) Visualize the bad play. How you fix it. Next play.\n4. (1 min) See yourself making the big play. Touchdown. Big hit. Big stop.\n5. (1 min) Cue word: FINISH. One breath. Open eyes. Locked in."}, "pre_bed_5min": {"duration": "5 minutes", "use": "Before sleep (10:00 PM)", "script": "1. (1 min) Body scan. Toes to head. Release tension.\n2. (1 min) Replay today's BEST rep. In your body. Feel it.\n3. (1 min) See tomorrow's morning. Wake up. Stretch. Fuel. Train.\n4. (1 min) Visualize 3 plays you'll execute tomorrow. First-person.\n5. (1 min) Gratitude. 3 specific. Sleep."}, "audio_guide_text": "Welcome to visualization. Close your eyes. Breathe in... 4... hold... 7... out... 8. Again. Good. Now see yourself in stance. Hear the cadence. Feel the handoff. See the hole open. Hit it at full speed. Break the arm tackle. Fall forward. Extra 4 yards. Again -- second play -- different look -- you read it instantly -- cut back -- explode. Third play. You feel strong. You feel fast. You built this. You own this. Breathe. Open your eyes when ready."};
 
+
+/* CONF DATA verified 2026-07-11: new Pac-12 launched Jul 1 2026 (OSU, WSU + Boise St, Colorado St, Fresno St, SDSU, Texas St, Utah St; Gonzaga non-FB). UNLV/Nevada/SJSU/Air Force/Wyoming/New Mexico/Hawaii remain Mountain West. Re-verify each season. */
+
+/* TIER-1 STAFF verified 2026-07-12 via school sites + press: UNLV Mullen/Scherer, Nevada Choate/Johnson, Boise Danielson, NAU Wright, USU Mendenhall, ISU Ragle. Coach names churn every Dec-Feb: re-verify each cycle. Nevada questionnaire verified live: nevadawolfpack.com (Prospective Athlete form). */
 /* ============ STRUCTURAL DATES (verified Jul 2026) ============ */
 const GATE_D1_CONTACT='2028-06-15';  // Jun 15 after sophomore year: D1 contact opens
 const GATE_SEPT1='2028-09-01';       // Sept 1 junior year: all communication open
@@ -436,8 +543,27 @@ const PHASES=[
   {from:'2026-08-10',to:'2026-10-31',phase:'inseason'},   // varsity opener Aug 21 vs Foothill (Basic 2026 sched, IG @basic_academy); JV usually the night before
   {from:'2026-11-09',to:'2027-02-13',phase:'wrestling'},  // casual — NO cutting; mass defended
   {from:'2027-02-22',to:'2027-05-15',phase:'track'},      // 100m/sprints — track owns speed work
+  /* v7.40 FOUR-YEAR SURVIVAL: sophomore→senior years pre-seeded from the NV HS calendar
+     shape (NIAA fall ≈ mid-Aug–Oct/Nov; wrestling Nov–Feb; track Feb–May). est:1 marks
+     every date an ESTIMATE — each August the audit task (40-engine) demands verification
+     against the real schedule, and the correction is a one-line edit. The engine never
+     again silently falls into permanent offseason: the app now outlives its author's
+     calendar knowledge by design. */
+  {from:'2027-07-01',to:'2027-08-08',phase:'preseason',est:1},
+  {from:'2027-08-09',to:'2027-11-06',phase:'inseason', est:1},
+  {from:'2027-11-08',to:'2028-02-12',phase:'wrestling',est:1},
+  {from:'2028-02-21',to:'2028-05-13',phase:'track',    est:1},
+  {from:'2028-07-01',to:'2028-08-06',phase:'preseason',est:1},
+  {from:'2028-08-07',to:'2028-11-04',phase:'inseason', est:1},
+  {from:'2028-11-06',to:'2029-02-10',phase:'wrestling',est:1},
+  {from:'2029-02-19',to:'2029-05-12',phase:'track',    est:1},
+  {from:'2029-07-01',to:'2029-08-05',phase:'preseason',est:1},
+  {from:'2029-08-06',to:'2029-11-03',phase:'inseason', est:1},   // senior season — the one recruiters watch live
+  {from:'2029-11-05',to:'2030-02-09',phase:'wrestling',est:1},
+  {from:'2030-02-18',to:'2030-05-11',phase:'track',    est:1},
 ];
 function phaseFor(iso){ const p=PHASES.find(p=>iso>=p.from&&iso<=p.to); return p?p.phase:'offseason'; }
+function phaseEst(iso){ const p=PHASES.find(p=>iso>=p.from&&iso<=p.to); return !!(p&&p.est); } // is today's phase running on estimated dates?
 /* Basic Wolves 2026 varsity schedule (from IG @basic_academy). Dates verified from the graphic;
    opponents partly read from small logos — TBD ones need confirming. JV usually plays the night before. */
 const SCHEDULE=[{d:'2026-08-21',opp:'Foothill'},{d:'2026-08-28',opp:'TBD'},{d:'2026-09-04',opp:'Green Valley'},{d:'2026-09-11',opp:'TBD'},{d:'2026-09-18',opp:'TBD'},{d:'2026-09-25',opp:'TBD'},{d:'2026-10-02',opp:'Palo Verde'},{d:'2026-10-09',opp:'TBD'}];
@@ -903,6 +1029,85 @@ const GAP_WHY={
   recruiting:{why:'Organized athletes get remembered; unorganized ones get lost',blocks:['follow-ups','camp planning']},
   health:{why:'Recurring soreness untreated becomes missed practices',blocks:['practice availability','the season itself']}
 };
+
+/* ============ PEAK 14 (v7.28) — the 2-week test-retest transformation block ============
+   Jul 13–27: Test Day A → 11 days of ramped work (already in the engine) → Retest Day B under
+   identical conditions → measured deltas. The block PROVES what the break built — evidence,
+   never a promised number. Hand-timed 40s carry ±0.1s noise and the readout says so. */
+const PEAK14={start:'2026-07-13',testA:'2026-07-13',testB:'2026-07-25',end:'2026-07-27',
+  tests:[['forty','40-yard (s)','s',true,0.05,4.9],['vert','Vertical (in)','in',false,0.5,25],['broad','Broad jump (in)','in',false,1,100],['wt','Bodyweight (lb)','lb',false,1,160]],
+  protocol:['Full warm-up: 10 min + 3–4 build-up sprints','40: hand-timed, best of 3, full rest between','Vert: 3 attempts, best counts','Broad: 3 attempts, heel-to-line','Same surface, same shoes, same time of day on retest — conditions are part of the measurement']};
+
+/* ============ v7.34 FILM SYLLABUS — exact assignments, not "watch film" ============
+   Owner directive (2026-07-17): "exact videos to go through in film, literally everything to do."
+   Twelve assignments, ordered. Each names WHO to watch, HOW to find it (search strings verified
+   Jul 2026 — they self-heal when URLs rot), what the EYES do during every rep, the active-watching
+   DRILL (this is the part nobody builds: film becomes reps, not entertainment), and the one
+   question answered afterward — the answer is logged, permanent, and searchable.
+   Canon verified via web search Jul 17 2026: Kuechly weekly-routine video (YouTube), Baldy's
+   Kuechly breakdown (panthers.com), NFL Film Sessions channel (nfl.com), Kollmann's Film Room. */
+const FILM_SYLLABUS=[
+ {id:'kuechly-method',wk:1,tag:'META',title:'How the best watcher watched',
+  find:'Luke Kuechly walks through his weekly film routine',src:'YouTube — verified Jul 2026',
+  watch:['His ORDER: opponent\'s last 3 games, run game first — never highlights','Who tells him the play: the GUARD, not the ball, not the QB','He watches one position for a full drive before widening out'],
+  drill:'Write his 3-step weekly order in the answer box. It becomes YOUR order for every opponent this season.',
+  q:'What does Kuechly look at first, and why is it never the ball?',concept:'keys'},
+ {id:'sanders-vision',wk:2,tag:'RB EYES',title:'Vision: Barry Sanders',
+  find:'Barry Sanders A Football Life NFL Films',src:'NFL Films',
+  watch:['His eyes cut BEFORE the block finishes — he trusts where the hole will be, not where it is','Tempo: he slows INTO the line to speed out of it','He almost never takes a square hit — angles are chosen two steps early'],
+  drill:'Pause at every handoff. Call the hole out loud. Count how many times the hole he takes is NOT the called lane.',
+  q:'Find 3 runs where slowing down made him faster. What did the slow buy?',concept:'vision'},
+ {id:'sproles-passpro',wk:3,tag:'UNDERSIZED',title:'The playing-time skill: Sproles pass pro',
+  find:'Darren Sproles pass protection highlights',src:'YouTube',
+  watch:['Feet SET before contact — the smaller man who arrives first wins','He strikes the rusher\'s inside shoulder and surrenders nothing inside','Pad level: his shoulders are under theirs at contact, every rep'],
+  drill:'Count 10 blitz pickups. Score each: were his feet set first, yes or no? Freshmen who pass pro PLAY. This is the skill coaches bench backs over.',
+  q:'Why does 5\'6" beat 250 lb — what arrives first and where?',concept:'passpro'},
+ {id:'kuechly-keys',wk:4,tag:'LB EYES',title:'Keys: Kuechly reads the guard',
+  find:'Baldy Breakdown Luke Kuechly best Panthers linebacker',src:'panthers.com — verified Jul 2026',
+  watch:['Guard\'s first step tells run/pass before the mesh','His feet NEVER cross when flow goes away — shuffle, shuffle, trigger','Zero false steps downhill: he\'s right because his eyes were right pre-snap'],
+  drill:'Ten snaps watching ONLY the guard — you are not allowed to see the ball. Say run/pass at his first step. Track your hits.',
+  q:'Helmet up vs helmet down on the guard\'s first step — which is which?',concept:'keys'},
+ {id:'contact-balance',wk:5,tag:'RB EYES',title:'Contact balance: lowest man wins',
+  find:'Maurice Jones-Drew lowest man wins runs',src:'YouTube / NFL Films',
+  watch:['Pads drop BEFORE contact, not at it','Feet never stop driving through arm tackles','Spin/counter comes OFF contact — never speculative'],
+  drill:'Clip-count: 10 broken tackles. For each, name what broke it — pads, feet, or angle. Tally which wins most for a short back.',
+  q:'At your 157 lb: which of the three (pads/feet/angle) is your paycheck and why?',concept:'contact'},
+ {id:'wagner-fits',wk:6,tag:'LB EYES',title:'Run fits: Wagner squeezes his gap',
+  find:'Bobby Wagner run fit film breakdown',src:'YouTube',
+  watch:['He fills HIS gap and trusts pursuit — no hero ball, no vacated lanes','Hands inside on every shed; the blocker\'s numbers, never the edges','He plays blocks half-a-man so the shed has somewhere to go'],
+  drill:'Ten run snaps: name Wagner\'s gap pre-snap, then check if he stayed in it. Every "no" — find what moved him.',
+  q:'One play where staying HOME made the tackle happen two gaps away. Describe the chain.',concept:'fits'},
+ {id:'call-it',wk:7,tag:'META',title:'THE CALL-IT DRILL — your prediction rate becomes a number',
+  find:'NFL Film Sessions full drive all-22',src:'nfl.com Film Sessions — verified Jul 2026',
+  watch:['Formation + back depth + line stance weight = the pre-snap tell stack','3rd-and-short vs 3rd-and-long: call tendencies flip','Motion: who moves and what the defense does back'],
+  drill:'Pause EVERY snap pre-snap. Call run or pass out loud. Use the HIT/MISS counter below — your call rate gets logged as a real metric and tracked all season.',
+  q:'Which single pre-snap tell earned you the most correct calls?',concept:'keys'},
+ {id:'sproles-space',wk:8,tag:'UNDERSIZED',title:'Winning in space: option routes',
+  find:'Darren Sproles Austin Ekeler option routes vs linebackers',src:'YouTube',
+  watch:['He reads the LB\'s leverage, not a pre-decided route','Stem attacks the LB\'s blind hip — the turn is created, not found','Catch-to-upfield is one motion; no gather step'],
+  drill:'Ten routes: call the LB\'s leverage (inside/outside) at the stem, then check which way the back broke. That read is YOUR route tree vs LBs.',
+  q:'How does a back know inside vs outside before the break? Name the tell.',concept:'space'},
+ {id:'warner-cover',wk:9,tag:'LB EYES',title:'Coverage: Warner\'s eyes in zone',
+  find:'Fred Warner coverage film study zone drops',src:'YouTube',
+  watch:['Eyes THROUGH the QB to the route distribution — he sees both at once','Depth is bought early so the break is downhill, never chasing','He passes routes off with his eyes before his feet'],
+  drill:'Ten dropbacks: freeze at the QB\'s back foot. Point where Warner should be. Unfreeze and measure.',
+  q:'What tells Warner to sink vs drive? One sentence.',concept:'coverage'},
+ {id:'self-scout',wk:10,tag:'SELF',title:'Self-scout: the Aug 8 scrimmage tape',
+  find:'YOUR scrimmage film (tripod or team film)',src:'ZAYDEN-D1/01-FILM',
+  watch:['Apply the Kuechly order to YOURSELF: run game first, one position (you), full drives','Your first step on every snap: false steps are the undersized player\'s tax','Every rep where you disappeared — what were your eyes doing?'],
+  drill:'Tag every rep in the Film Room above with the honest tag. The 24-hour rule applies to scrimmages too.',
+  q:'Your three most repeated mistakes, named without excuses. These become practice missions.',concept:'self'},
+ {id:'situations',wk:11,tag:'META',title:'Situational IQ: chart a full game',
+  find:'any full NFL/college game replay',src:'YouTube full game replays',
+  watch:['Chart every 3rd down: distance, personnel, call, result','Red zone: what changes in spacing when the field shrinks','2-minute: how tempo changes the defense\'s calls'],
+  drill:'One game, one notebook page: the 3rd-down chart. You will see the pattern by halftime — that pattern is what coordinators are.',
+  q:'This team\'s 3rd-and-3-or-less identity in five words?',concept:'situations'},
+ {id:'undersized-canon',wk:12,tag:'UNDERSIZED',title:'The canon: every small player who made it',
+  find:'shortest NFL players highlights Sproles Boston Scott Deuce Vaughn Devin Hester',src:'YouTube',
+  watch:['Across ALL of them: what three skills repeat?','None of them win with size — name what each wins with instead','Special teams: the door most undersized players walked through first'],
+  drill:'Write the three repeating survival skills as personal rules. They get carved into THE VAULT (save as vault: notes).',
+  q:'Your three rules, in your words. These are yours now.',concept:'identity'}
+];
 /* ============ STATE — facts and events only; anything computable is computed ============ */
 const DB='d1os_v7';
 const DEFAULTS={
@@ -931,8 +1136,34 @@ const DEFAULTS={
   clips:[],      // {d, opp, tag, note} — tagged film moments; searchable career film knowledge
   body:[],       // {d, area, lvl} — soreness/prep log (patterns, never diagnosis)
   recs:[],       // {id,d,kind,text,why,ev,unc,asm,outKey,win,followed,followedOn} — recommendation objects (the learning loop): every rec is a testable hypothesis, append-only
-  sessions:{}    // {ISO:[bool per block]} — set-by-set execution, feeds adherence-by-block
+  sessions:{},   // {ISO:[bool per block]} — set-by-set execution, feeds adherence-by-block
+  core:[],       // v7.41 {d,name,subj,grade,credit} — NCAA core courses, append-only; core GPA is COMPUTED
+  games:[],      // v7.41 {d,opp,car,yds,td,tkl} — season stat line, append-only; totals are COMPUTED
+  meta:{mod:{}}  // v7.32 sync bookkeeping: per-group last-write timestamps (prs/profile/settings/params)
 };
+if(typeof structuredClone!=='function'){ globalThis.structuredClone=o=>JSON.parse(JSON.stringify(o)); }
+/* v7.32 sync identity — MUST precede loadS(): migrate() calls normIds(), and consts do not
+   hoist. (Learned the hard way: with these below, migrating real state threw in the TDZ,
+   loadS() swallowed it, and a loaded phone booted looking empty.) */
+const SYNC_APPEND=['lifts','metrics','pushLog','events','reviews','notes','coach','opp','clips','body','recs','core','games'];
+const SYNC_KEYED=['checkins','sessions'];
+const SYNC_LWW=['profile','prs','settings','params'];
+/* deterministic entry id: content hash + nth-occurrence-of-identical-content. Two devices
+   holding the same history derive the same ids without coordination. */
+function entHash(str){ let h=5381; for(let i=0;i<str.length;i++) h=((h<<5)+h+str.charCodeAt(i))>>>0; return h.toString(36); }
+function entKey(x){ const c={}; for(const k in x) if(k!=='id') c[k]=x[k]; return JSON.stringify(c); }
+function normIds(s){
+  for(const k of SYNC_APPEND){
+    const arr=s[k]; if(!Array.isArray(arr)) continue;
+    const occ={};
+    for(const x of arr){
+      if(!x||typeof x!=='object') continue;
+      const key=entKey(x); const n=occ[key]||0; occ[key]=n+1;
+      if(!x.id) x.id='e'+entHash(key)+(n?'.'+n:'');
+    }
+  }
+  return s;
+}
 let S=loadS();
 function loadS(){
   try{
@@ -954,9 +1185,52 @@ function migrate(p){
       delete pl.last;
     }
   }
+  if(!s.meta||!s.meta.mod) s.meta={mod:{}};
+  normIds(s); // v7.32: persistent deterministic entry ids (sync identity)
   return s;
 }
-function save(){ try{localStorage.setItem(DB,JSON.stringify(S));}catch(e){toast('⚠ Save failed — export your data now (TRACK → Data)');} }
+function save(){
+  let ok=true;
+  normIds(S); _lwwTouch(); // v7.32: id + last-write bookkeeping before persist
+  const _str=JSON.stringify(S);
+  // v7.40 four-year sentinel: warn LONG before any storage or sync limit can bite (Firestore doc cap 1MB)
+  try{ if(_str.length>700000&&!save._szWarned){ save._szWarned=1; toast('4-year check: data file is getting big — export a backup this week. Nothing is lost; this is early warning, not an emergency.'); } }catch(e){}
+  try{ localStorage.setItem(DB,_str); }
+  catch(e){ ok=false;
+    toast('⚠ SAVE FAILED — data is NOT persisting. Export NOW (TRACK → Data).');
+    try{ if(!document.querySelector('#saveFail')) document.body.insertAdjacentHTML('afterbegin',
+      '<div id="saveFail" style="position:sticky;top:0;z-index:99;background:#7a1f1f;color:#fff;padding:10px 14px;font-size:13px;font-weight:700">⚠ Your data is NOT saving to this phone. Export a backup right now. <button class="btn sm" style="margin-left:8px" onclick="exportS()">EXPORT NOW</button></div>');
+    }catch(_){}
+  }
+  idbMirror();
+  if(typeof pushCloud==='function') pushCloud(); // v7.32: debounced cloud push (no-op when sync is off)
+}
+/* IndexedDB mirror (v7.29) — second copy of the entire state on every save. localStorage is the
+   most evictable store a browser has; this survives many clears that kill it. Fire-and-forget. */
+let _idb=null,_idbLast=0;
+function idbOpen(cb){ if(_idb){ cb(_idb); return; }
+  try{ const r=indexedDB.open('d1os-mirror',1);
+    r.onupgradeneeded=()=>{ r.result.createObjectStore('kv'); };
+    r.onsuccess=()=>{ _idb=r.result; cb(_idb); }; r.onerror=()=>{}; }catch(e){} }
+function idbMirror(){ /* cached handle + 5s throttle — no per-tap connection churn */
+  const now=Date.now(); if(now-_idbLast<5000) return; _idbLast=now;
+  idbOpen(db=>{ try{ const tx=db.transaction('kv','readwrite');
+    tx.objectStore('kv').put(JSON.stringify(S),'state'); tx.objectStore('kv').put(todayISO(),'when'); }catch(e){} }); }
+/* v7.30: restore is a BOOT GATE — freshness is read before anything renders or saves, and the
+   first render waits for the verdict (800ms cap so boot can never hang). */
+function idbRestoreCheck(cb){
+  cb=cb||function(){};
+  let fresh=false; try{ fresh=!localStorage.getItem(DB); }catch(e){}
+  if(!fresh||typeof indexedDB==='undefined'){ cb(false); return; }
+  let done=false; const fin=r=>{ if(!done){ done=true; cb(r); } };
+  setTimeout(()=>fin(false),800);
+  idbOpen(db=>{ try{ const tx=db.transaction('kv','readonly'), rq=tx.objectStore('kv').get('state');
+    rq.onsuccess=()=>{ try{ const p=rq.result?JSON.parse(rq.result):null;
+      if(p&&((p.metrics||[]).length||(p.lifts||[]).length||Object.keys(p.checkins||{}).length)){
+        S=migrate(p); save(); toast('Recovered your data from the mirror ✓'); fin(true);
+      } else fin(false); }catch(e){ fin(false); } };
+    rq.onerror=()=>fin(false);
+  }catch(e){ fin(false); } }); }
 function logEvent(type,meta){ S.events.push({d:todayISO(),type,meta}); }
 
 /* ---- export / import (DISCOVERY.md A4 — the data's escape hatch) ---- */
@@ -987,7 +1261,9 @@ function importS(file){
 function undoLast(kind){
   const arr=kind==='lift'?S.lifts:S.metrics;
   if(!arr.length){ toast('Nothing to undo'); return; }
-  const x=arr.pop(); save();
+  const x=arr.pop();
+  logEvent('void',{kind,was:JSON.stringify(x),id:x.id||null,undo:true}); // v7.32: undo must leave a record or sync resurrects the entry
+  save();
   toast('Removed: '+(kind==='lift'?`${x.ex} ${x.wt}×${x.reps}`:`${x.key} ${x.val}`));
   kind==='lift'?rTrain():rTrack();
 }
@@ -996,15 +1272,192 @@ function undoLast(kind){
 const $=s=>document.querySelector(s);
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 function todayISO(d=new Date()){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
-function daysBetween(a,b){ return Math.round((new Date(b)-new Date(a))/864e5); }
+function daysBetween(a,b){ return Math.round((new Date(b+'T12:00')-new Date(a+'T12:00'))/864e5); }
 function addDays(iso,n){ const d=new Date(iso+'T12:00'); d.setDate(d.getDate()+n); return todayISO(d); }
 function fmtD(iso){ return new Date(iso+'T12:00').toLocaleDateString('en-US',{month:'short',day:'numeric'}); }
 function toast(m){ const t=$('#toast'); if(!t) return; t.textContent=m; t.classList.add('on'); clearTimeout(t._x); t._x=setTimeout(()=>t.classList.remove('on'),2400); }
-function epley(w,r){ return r<=1? w : Math.round(w*(1+r/30)); }
+function epley(w,r){ r=Math.min(r,10); return r<=1? w : Math.round(w*(1+r/30)); } // capped at 10 reps: high-rep sets do not estimate maxes honestly
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,6); }
 function ckToday(){ const k=todayISO(); if(!S.checkins[k]) S.checkins[k]=[false,false,false,false]; return S.checkins[k]; }
 function taskDone(id){ return S.events.some(e=>e.type==='task'&&e.meta&&e.meta.id===id); }
 function completeTask(id){ if(!taskDone(id)){ logEvent('task',{id}); save(); } }
+
+/* void a bad historical entry (v7.29): the entry is removed so derived stats heal, and a permanent
+   'void' event records exactly what was removed and when — the correction itself is append-only. */
+function voidEntry(kind,idx){
+  const arr=kind==='lift'?S.lifts:S.metrics;
+  const x=arr[idx]; if(!x) return;
+  arr.splice(idx,1);
+  logEvent('void',{kind,was:JSON.stringify(x),id:x.id||null}); // id lets sync apply this void on every device exactly once
+  save(); toast('Entry voided — stats recomputed, correction on permanent record');
+  if(typeof rTrack==='function') rTrack();
+}
+
+/* ============ CLOUD SYNC (v7.32) ============
+   Three devices, one athlete, one truth. Design honors the one law: state is facts and
+   events, so merge is defined per ownership class, never blanket last-write-wins:
+   - append-only arrays  → union by persistent deterministic id (nothing logged is ever lost)
+   - checkins/sessions   → element-wise OR (done anywhere = done)
+   - pipeline entities   → per-entity latest write (mu stamped on change)
+   - prs/profile/settings/params → per-group latest write (meta.mod stamped on change)
+   - void events carry the target id → applied idempotently on every device
+   Cloud layer is progressive enhancement: no config ⇒ v7.31 behavior, byte for byte.
+   (SYNC_* consts + normIds live above loadS() — parse-order requirement, see note there.) */
+
+/* last-write bookkeeping: save() hashes each LWW group and stamps meta.mod only on real
+   change — zero edits at write sites, and a device that merely boots never claims newness. */
+let _lww=null;
+function _lwwSnap(){
+  const o={pipe:{}};
+  for(const g of SYNC_LWW) o[g]=JSON.stringify(S[g]||null);
+  for(const p of S.pipeline||[]){ const c={...p}; delete c.mu; o.pipe[p.id]=JSON.stringify(c); }
+  return o;
+}
+function _lwwInit(){ _lww=_lwwSnap(); }
+function _lwwTouch(){
+  if(!_lww){ _lwwInit(); return; }
+  if(!S.meta||!S.meta.mod) S.meta={mod:{}};
+  const now=Date.now(), cur=_lwwSnap();
+  for(const g of SYNC_LWW) if(cur[g]!==_lww[g]) S.meta.mod[g]=now;
+  for(const p of S.pipeline||[]) if(cur.pipe[p.id]!==_lww.pipe[p.id]) p.mu=now;
+  _lww=cur;
+}
+
+function mergeStates(a,b){
+  const m=structuredClone(DEFAULTS);
+  m.v=Math.max(a.v||7,b.v||7);
+  normIds(a); normIds(b);
+  // append-only: union by id, ordered by date (stable within a day)
+  for(const k of SYNC_APPEND){
+    const seen={}, seenCk={}, out=[];
+    for(const x of (a[k]||[]).concat(b[k]||[])){
+      if(!x||typeof x!=='object'){ out.push(x); continue; }
+      if(seen[x.id]) continue;
+      if(k==='recs'){ const ck=entKey(x); if(seenCk[ck]) continue; seenCk[ck]=1; } // engine recs: same content ⇒ same rec, uid notwithstanding
+      seen[x.id]=1; out.push(structuredClone(x));
+    }
+    out.sort((x,y)=>((x&&x.d)||'')<((y&&y.d)||'')?-1:((x&&x.d)||'')>((y&&y.d)||'')?1:0);
+    m[k]=out;
+  }
+  // voids with a target id apply on every device, exactly once, forever (idempotent by id)
+  const voided={};
+  for(const e of m.events) if(e.type==='void'&&e.meta&&e.meta.id) voided[e.meta.id]=1;
+  m.lifts=m.lifts.filter(x=>!voided[x.id]);
+  m.metrics=m.metrics.filter(x=>!voided[x.id]);
+  m.core=(m.core||[]).filter(x=>!voided[x.id]);   // v7.41: corrections apply everywhere
+  m.games=(m.games||[]).filter(x=>!voided[x.id]);
+  // keyed day maps: element-wise OR — a box checked on any device is a fact
+  for(const k of SYNC_KEYED){
+    const A=a[k]||{}, B=b[k]||{}, out={};
+    for(const key of Object.keys(A).concat(Object.keys(B))){
+      if(out[key]!==undefined) continue;
+      const x=A[key], y=B[key];
+      if(x&&y){ const n=Math.max(x.length,y.length); out[key]=Array.from({length:n},(_,i)=>!!((x[i])||(y[i]))); }
+      else out[key]=structuredClone(x||y);
+    }
+    m[k]=out;
+  }
+  // pipeline: union of schools; same school edited on both → latest write wins per entity
+  const byId={};
+  for(const p of a.pipeline||[]) byId[p.id]=p;
+  for(const p of b.pipeline||[]){ const q=byId[p.id]; if(!q||(p.mu||0)>(q.mu||0)) byId[p.id]=p; }
+  m.pipeline=Object.keys(byId).map(id=>structuredClone(byId[id]));
+  // scalar groups: per-group latest write via meta.mod
+  const ma=(a.meta&&a.meta.mod)||{}, mb=(b.meta&&b.meta.mod)||{};
+  m.meta={mod:{}};
+  for(const g of SYNC_LWW){
+    const ta=ma[g]||0, tb=mb[g]||0;
+    m[g]=structuredClone((tb>ta?b:a)[g]||DEFAULTS[g]);
+    m.meta.mod[g]=Math.max(ta,tb);
+  }
+  return m;
+}
+_lwwInit(); // S exists by now; baseline so boot alone never stamps newness
+
+/* ---- cloud transport: Firebase (compat CDN), loaded lazily, never required ---- */
+const SYNC_KEY='d1os_sync';
+let _fb=null,_fbUser=null,_syncT=null,_lastPush='',_syncLast=null,_syncErr='',_unsub=null;
+function syncCfg(){ try{ return JSON.parse(localStorage.getItem(SYNC_KEY)||'null'); }catch(e){ return null; } }
+function _script(u){ return new Promise((res,rej)=>{ const s=document.createElement('script'); s.src=u; s.onload=res; s.onerror=rej; document.head.appendChild(s); }); }
+async function cloudInit(){
+  if(_fb) return _fb;
+  const cfg=syncCfg();
+  if(!cfg||!cfg.apiKey||!cfg.projectId) return null;
+  if(typeof fetch==='undefined'||typeof document==='undefined'||!document.head) return null; // test shim / non-browser
+  try{
+    if(typeof firebase==='undefined'){
+      const b='https://www.gstatic.com/firebasejs/10.14.1/';
+      await _script(b+'firebase-app-compat.js');
+      await _script(b+'firebase-auth-compat.js');
+      await _script(b+'firebase-firestore-compat.js');
+    }
+    if(!firebase.apps.length) firebase.initializeApp(cfg);
+    _fb=firebase; return _fb;
+  }catch(e){ _syncErr='offline — sync will retry when you have signal'; return null; }
+}
+async function cloudBoot(){
+  const fb=await cloudInit(); if(!fb) return;
+  fb.auth().onAuthStateChanged(u=>{
+    _fbUser=u;
+    if(_unsub){ _unsub(); _unsub=null; }
+    if(u) _listen();
+    rSyncUI();
+  });
+}
+function _doc(){ return _fb.firestore().collection('athletes').doc(_fbUser.uid); }
+function _listen(){
+  _unsub=_doc().onSnapshot(snap=>{
+    try{
+      if(snap.metadata&&snap.metadata.hasPendingWrites) return; // our own in-flight write
+      const d=snap.data();
+      if(!d||!d.state){ pushCloud(true); return; }          // empty cloud: this device seeds it
+      if(d.state===_lastPush){ _syncLast=Date.now(); rSyncUI(); return; } // echo of our push
+      _applyRemote(d.state);
+    }catch(e){}
+  },err=>{ _syncErr=err.code||'listen failed'; rSyncUI(); });
+}
+function _applyRemote(str){
+  try{
+    const remote=migrate(JSON.parse(str));
+    const before=JSON.stringify(S);
+    S=mergeStates(S,remote); _lwwInit(); save();
+    _syncLast=Date.now(); _syncErr='';
+    if(JSON.stringify(S)!==before){
+      try{ if(typeof RENDER!=='undefined'&&typeof curView!=='undefined') RENDER[curView](); }catch(e){}
+      toast('Synced across devices ✓');
+    }
+    rSyncUI();
+  }catch(e){ _syncErr='merge failed: '+e.message; rSyncUI(); }
+}
+function pushCloud(now){
+  if(!_fb||!_fbUser) return;
+  clearTimeout(_syncT);
+  const run=()=>{
+    let str; try{ str=JSON.stringify(S); }catch(e){ return; }
+    if(str===_lastPush) return;
+    _lastPush=str;
+    _doc().set({state:str,mod:Date.now(),bytes:str.length})
+      .then(()=>{ _syncLast=Date.now(); _syncErr=''; rSyncUI(); })
+      .catch(e=>{ _lastPush=''; _syncErr=e.code||'push failed'; rSyncUI(); _syncT=setTimeout(run,15000); });
+  };
+  now?run():_syncT=setTimeout(run,2500);
+}
+async function cloudSignIn(email,pass,create){
+  const fb=await cloudInit();
+  if(!fb){ toast(_syncErr||'Save the sync config first'); return; }
+  try{
+    if(create) await fb.auth().createUserWithEmailAndPassword(email,pass);
+    else await fb.auth().signInWithEmailAndPassword(email,pass);
+    _syncErr=''; toast('Signed in — syncing ✓');
+  }catch(e){ _syncErr=(e.code||'sign-in failed').replace('auth/',''); toast('Sign-in failed: '+_syncErr); rSyncUI(); }
+}
+function cloudSignOut(){
+  try{ if(_unsub){ _unsub(); _unsub=null; } if(_fb) _fb.auth().signOut(); }catch(e){}
+  _fbUser=null; _lastPush=''; rSyncUI(); toast('Sync off on this device (data stays)');
+}
+function rSyncUI(){ try{ const el=document.querySelector('#syncStat'); if(el&&typeof syncCardHTML==='function') el.innerHTML=syncCardHTML(); }catch(e){} }
+if(typeof document!=='undefined'&&document.addEventListener)
+  document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&_fbUser) pushCloud(true); });
 /* ============ ATHLETE STATE MODEL — pure derived views. Never stored. ============
    Only dimensions the logged data can support (ARCHITECTURE.md). */
 const Model={
@@ -1066,8 +1519,10 @@ const Model={
     const win=s.lifts.filter(l=>l.ex===ex&&daysBetween(l.d,today)<=21);
     if(win.length<6) return {plateaued:false,weeks:0};
     const best=Math.max(...win.map(l=>epley(l.wt,l.reps)));
-    const before=s.lifts.filter(l=>l.ex===ex&&daysBetween(l.d,today)>21);
-    if(!before.length) return {plateaued:false,weeks:0};
+    /* rolling window (v7.29): compare vs the PRIOR 21 days, not all-time best — being below an
+       old PR forever is not a plateau; stalling vs recent work is */
+    const before=s.lifts.filter(l=>l.ex===ex&&daysBetween(l.d,today)>21&&daysBetween(l.d,today)<=42);
+    if(before.length<3) return {plateaued:false,weeks:0};
     const prior=Math.max(...before.map(l=>epley(l.wt,l.reps)));
     const stuck=best<=prior;
     return {plateaued:stuck, weeks:stuck?Math.floor(daysBetween(before.at(-1).d,today)/7):0};
@@ -1678,7 +2133,7 @@ function careerArchive(s=S){
    with a consensus list showing which existing systems point at it. */
 function gapEngine(s=S,today=todayISO()){
   const F=[], wg=Model.waypointGaps(s,today), aca=Model.academic(s,today);
-  const pos=(s.profile&&s.profile.pos||'LB').indexOf('LB')>=0?'LB':'RB';
+  const pos=(s.settings&&s.settings.benchPos)||((s.profile&&s.profile.pos||'LB').indexOf('LB')>=0?'LB':'RB');
   const stage=wg.label.split('·')[0].trim();
   for(const r of wg.rows){
     if(r.key==='gpa') continue;
@@ -1781,6 +2236,144 @@ function recruitView(s=S,today=todayISO()){
   for(const id of order){ const f=rf.find(x=>x.id===id&&(x.tier==='LIMITING'||x.tier==='UNKNOWN')); if(f){ top={name:f.name,because:f.why+' — '+f.fix}; break; } }
   if(!top){ const f=rf.filter(x=>x.tier==='COMPETITIVE').sort((a,b)=>(a.progress??1)-(b.progress??1))[0]; if(f) top={name:f.name,because:f.why+' — '+f.fix}; }
   return {helps,hurts,missing,top};
+}
+
+/* PEAK 14 read (v7.28): day counter, phase, test windows A/B, measured deltas when both exist */
+function peak14Read(s=S,today=todayISO()){
+  if(today<PEAK14.start||today>addDays(PEAK14.end,2)) return null;
+  const day=daysBetween(PEAK14.start,today)+1;
+  const inWin=(d,anchor)=>Math.abs(daysBetween(anchor,d))<=1;   // test valid on the day or ±1
+  const read=anchor=>{ const out={};
+    for(const [k] of PEAK14.tests){
+      const hits=(s.metrics||[]).filter(x=>x.key===k&&inWin(x.d,anchor)).sort((a,b)=>a.d<b.d?-1:1);
+      if(hits.length) out[k]=hits[hits.length-1].val; }
+    return out; };
+  const A=read(PEAK14.testA), B=read(PEAK14.testB);
+  const deltas=PEAK14.tests.map(([k,label,unit,lower])=>{
+    if(A[k]==null||B[k]==null) return {k,label,unit,a:A[k]??null,b:B[k]??null,delta:null};
+    const d=+(B[k]-A[k]).toFixed(2);
+    return {k,label,unit,a:A[k],b:B[k],delta:d,better:lower?d<0:d>0}; });
+  const phase=today<PEAK14.testA?'pre':today===PEAK14.testA?'testA':today<PEAK14.testB?'build':today===PEAK14.testB?'testB':'review';
+  return {day,phase,A,B,deltas,
+    aDone:PEAK14.tests.every(([k])=>A[k]!=null), bDone:PEAK14.tests.every(([k])=>B[k]!=null)};
+}
+
+/* ============ v7.33 BEAT LAST WEEK — the push engine's single standard ============
+   Owner directive (2026-07-17): "pushed me harder and further than anybody possibly could",
+   standard chosen: beat last week. Work is COUNTED, never invented — the engine pushes with
+   receipts, not pep talks. The bar is the best of the two previous weeks: a lost week never
+   lowers the standard, so slack has a price the engine collects automatically. */
+function weekStart(d){ const dt=new Date(d+'T12:00'); const dow=(dt.getDay()+6)%7; return addDays(d,-dow); } // Monday
+function weekWork(s,startISO){
+  let sets=0,iq=0,notes=0,boxes=0,days=0;
+  for(let i=0;i<7;i++){ const d=addDays(startISO,i);
+    const dsets=(s.lifts||[]).filter(l=>l.d===d).length;
+    const sess=((s.sessions||{})[d]||[]).some(Boolean);
+    const ck=(s.checkins||{})[d]||[];
+    if(dsets||sess||ck[0]) days++;
+    sets+=dsets;
+    iq+=(s.pushLog||[]).filter(p=>p.d===d).length;
+    notes+=(s.notes||[]).filter(n=>n.d===d).length;
+    boxes+=ck.filter(Boolean).length;
+  }
+  return {days,sets,iq,notes,boxes,actions:sets+iq+notes+boxes};
+}
+function weekLedger(s=S,today=todayISO()){
+  const w0=weekStart(today);
+  const cur=weekWork(s,w0), w1=weekWork(s,addDays(w0,-7)), w2=weekWork(s,addDays(w0,-14));
+  const bar={days:Math.max(w1.days,w2.days),actions:Math.max(w1.actions,w2.actions)};
+  const left=6-((new Date(today+'T12:00').getDay()+6)%7);
+  const beat=cur.days>bar.days||(cur.days===bar.days&&cur.actions>bar.actions);
+  const level=beat?'won':(cur.days+left>=bar.days)?'alive':'lost';
+  return {cur,bar,last:w1,left,beat,level};
+}
+/* consecutive fully-silent days before today — zero logged anything. Fuel for the receipts callout. */
+function silentDays(s=S,today=todayISO()){
+  let n=0;
+  for(let i=1;i<=14;i++){ const d=addDays(today,-i);
+    const any=(s.lifts||[]).some(l=>l.d===d)||((s.checkins||{})[d]||[]).some(Boolean)
+      ||(s.pushLog||[]).some(p=>p.d===d)||(s.notes||[]).some(x=>x.d===d)
+      ||((s.sessions||{})[d]||[]).some(Boolean)||(s.metrics||[]).some(m=>m.d===d);
+    if(any) break; n++;
+  }
+  return n;
+}
+
+/* ============ v7.41 ROADMAP-20 model layer — items 1,2,3,5,8,9,10 ============ */
+/* 1 · NCAA core-course read. Rules verified Jul 2026: 16 core, D1 core GPA 2.3,
+   10-of-16 (7 in EN/MA/SC) LOCKED at start of semester 7. Semester 7 for class of
+   2030 ≈ Aug 2029. Core GPA: A=4 B=3 C=2 D=1 F=0, credit-weighted. */
+const CORE_LOCK='2029-08-05'; // start of semester 7 (senior fall) — estimate, verified by August audit
+function coreRead(s=S){
+  const rows=s.core||[];
+  const pts={A:4,B:3,C:2,D:1,F:0};
+  const cr=rows.reduce((a,c)=>a+(+c.credit||0),0);
+  const qp=rows.reduce((a,c)=>a+(pts[c.grade]??0)*(+c.credit||0),0);
+  const gpa=cr?+(qp/cr).toFixed(3):null;
+  const ems=rows.filter(c=>['EN','MA','SC'].includes(c.subj)).reduce((a,c)=>a+(+c.credit||0),0);
+  return {rows,credits:cr,gpa,ems,need:16,lockDays:daysBetween(todayISO(),CORE_LOCK),
+    d1ok:gpa==null?null:gpa>=2.3,
+    read:gpa==null?'No core courses logged — the eligibility clock started with grade 9.'
+      :`Core GPA ${gpa.toFixed(2)} on ${cr} of 16 credits (${ems} in EN/MA/SC of 7 needed in the locked 10). D1 line: 2.30.`};
+}
+/* 2 · season stat line — totals computed, never stored */
+function seasonStats(s=S){
+  const g=s.games||[];
+  const t=g.reduce((a,x)=>({car:a.car+(+x.car||0),yds:a.yds+(+x.yds||0),td:a.td+(+x.td||0),tkl:a.tkl+(+x.tkl||0)}),{car:0,yds:0,td:0,tkl:0});
+  return {games:g,n:g.length,t,ypc:t.car?+(t.yds/t.car).toFixed(1):null};
+}
+/* 3 · sleep read vs the 8h injury bar (Milewski 2014: <8h ⇒ 1.7× injury risk) */
+function sleepRead(s=S,today=todayISO()){
+  const wk=(s.metrics||[]).filter(m=>m.key==='sleep'&&daysBetween(m.d,today)<7);
+  const avg=wk.length?+(wk.reduce((a,b)=>a+b.val,0)/wk.length).toFixed(1):null;
+  return {n:wk.length,avg,ok:avg!=null&&avg>=8};
+}
+/* 5 · Hudl freshness — recruiters bounce off stale reels */
+function hudlFresh(s=S,today=todayISO()){
+  const ev=(s.events||[]).filter(e=>e.type==='hudl').map(e=>e.d).sort();
+  const last=ev.length?ev[ev.length-1]:null;
+  const days=last?daysBetween(last,today):null;
+  return {last,days,stale:days!=null&&days>30&&phaseFor(today)==='inseason'};
+}
+/* 8 · calibration gate — the learning layer earns visibility at 90 days of telemetry */
+function calGate(s=S,today=todayISO()){
+  const days=[...Object.keys(s.checkins||{}),...(s.lifts||[]).map(l=>l.d),...(s.metrics||[]).map(m=>m.d)].sort();
+  const first=days.length?days[0]:null;
+  const have=first?daysBetween(first,today):0;
+  return {first,have,open:have>=90,unlock:first?addDays(first,90):null};
+}
+/* 9 · season report — verified deltas over one season window */
+function seasonReport(s=S,from='2026-08-10',to='2026-10-31'){
+  const inW=d=>d>=from&&d<=to;
+  const lifts=(s.lifts||[]).filter(l=>inW(l.d));
+  const e1=ex=>{const L2=lifts.filter(l=>l.ex===ex); return L2.length?{a:epley(L2[0].wt,L2[0].reps),b:Math.max(...L2.map(x=>epley(x.wt,x.reps)))}:null;};
+  const ck=Object.entries(s.checkins||{}).filter(([d])=>inW(d));
+  const adh=ck.length?Math.round(100*ck.filter(([,v])=>v.some(Boolean)).length/ck.length):null;
+  return {stats:seasonStats(s),e1:{squat:e1('squat'),bench:e1('bench'),dead:e1('dead')},
+    clips:(s.clips||[]).filter(c=>inW(c.d)).length,adherence:adh,
+    weight:(k=>{const w=(s.metrics||[]).filter(m=>m.key==='wt'&&inW(m.d)); return w.length>=2?{a:w[0].val,b:w[w.length-1].val}:null;})()};
+}
+/* 10 · brain-dump parser — messy text in, SUGGESTIONS out. Suggest-and-approve only:
+   nothing writes without a tap. Patterns cover how the owner actually writes. */
+function dumpParse(txt){
+  const out=[]; const t=' '+String(txt||'').toLowerCase()+' ';
+  const lifts={bench:'bench',squat:'squat',dead:'dead',deadlift:'dead',clean:'clean'};
+  for(const word in lifts){
+    let m=t.match(new RegExp('(\\d{2,3})\\s*(?:x\\s*(\\d{1,2})\\s*)?on\\s*'+word))||
+          t.match(new RegExp(word+'\\s*(?:at|to|of)?\\s*(\\d{2,3})(?:\\s*x\\s*(\\d{1,2}))?'))||
+          t.match(new RegExp('(?:hit|got)\\s*(\\d{2,3})(?:\\s*x\\s*(\\d{1,2}))?\\s*(?:on\\s*)?'+word));
+    if(m){ const wt=+m[1],reps=+(m[2]||1);
+      if(wt>=45&&wt<=700) out.push({kind:'lift',ex:lifts[word],wt,reps,label:`${lifts[word]} ${wt}×${reps}`}); }
+  }
+  let m=t.match(/(?:weigh(?:ed|ing)?|bw|bodyweight)\s*(?:at|in at)?\s*(\d{2,3})/)||t.match(/(\d{3})\s*(?:lbs?|pounds)\b/);
+  if(m&&+m[1]>=100&&+m[1]<=350) out.push({kind:'metric',key:'wt',val:+m[1],label:`bodyweight ${m[1]} lb`});
+  m=t.match(/(\d{2})\s*(?:inch|in|")?\s*(?:standing\s*)?vert/)||t.match(/vert(?:ical)?\s*(?:of|at)?\s*(\d{2})/);
+  if(m&&+m[1]>=10&&+m[1]<=50) out.push({kind:'metric',key:'vert',val:+m[1],label:`vertical ${m[1]}"`});
+  m=t.match(/(\d\.\d{1,2})\s*(?:forty|40)/)||t.match(/(?:forty|40)[^\d]{0,10}(\d\.\d{1,2})/);
+  if(m&&+m[1]>=4&&+m[1]<=7) out.push({kind:'metric',key:'forty',val:+m[1],label:`40yd ${m[1]}s`});
+  m=t.match(/slept?\s*(\d{1,2}(?:\.\d)?)/);
+  if(m&&+m[1]>=3&&+m[1]<=14) out.push({kind:'metric',key:'sleep',val:+m[1],label:`sleep ${m[1]}h`});
+  return out;
 }
 /* ============ DECISION ENGINE — decide(S,date) → plan. Deterministic. Every item has a why. ============ */
 function weekFor(s,dateISO){
@@ -1893,6 +2486,24 @@ function decide(s=S,dateISO=todayISO()){
     plan.tasks.push({kind:'academic',id:'gpa:'+dateISO.slice(0,7),title:'Log current GPA in TRACK',
       why:aca.daysSince==null?'No GPA on record. Grades are a D1 gate, not a detail.':`GPA last logged ${aca.daysSince} days ago.`});
   }
+  // 9a-3 · NCAA ELIGIBILITY CENTER (v7.41): register in grade 9 — verified Jul 2026. One-time, hard gate.
+  if(!taskDone('ncaa:register')){
+    plan.tasks.push({kind:'academic',id:'ncaa:register',title:'Register at eligibilitycenter.org (free profile)',
+      why:'The eligibility clock started with grade 9. Registration takes 20 minutes and every core course from now on counts — 10 of 16 lock before senior year.'});
+  }
+  // 9a-4 · SEASON REPORT (v7.41): when a season ends, the evidence gets a chapter
+  if(phaseFor(dateISO)==='offseason'&&dateISO>='2026-11-01'&&dateISO<='2026-11-30'&&!taskDone('seasonreport:2026')){
+    plan.tasks.push({kind:'report',id:'seasonreport:2026',title:'Season Report Card: open PATH → Season, screenshot, archive it',
+      why:'Freshman season is data now — verified deltas become the first chapter of the 2028 dossier.'});
+  }
+  // 9a-2 · ANNUAL AUGUST AUDIT (v7.40 four-year survival): every new school year, the system
+  // demands re-verification of its own assumptions. Trigger computable (August, once per year,
+  // 2027+), action executable today, why honest: estimated dates rot; verified dates don't.
+  const yr=+dateISO.slice(0,4);
+  if(dateISO.slice(5,7)==='08'&&yr>=2027&&!taskDone('audit:'+yr)){
+    plan.tasks.push({kind:'setup',id:'audit:'+yr,title:'August audit: verify this season\'s dates + staff ('+yr+')',
+      why:'New school year. The calendar past 2027 runs on ESTIMATES until you verify: real season dates (fix PHASES), game day, this year\'s schedule, and December\'s coach re-verify. 10 minutes keeps the engine honest for '+(2030-yr)+' more year'+(2030-yr===1?'':'s')+'.'});
+  }
   // 9b · FILM RITUAL (in-season, day after game): mark your best plays while fresh
   if(ph==='inseason'){
     const gd=s.settings.gameDay??5, dayAfter=((gd+1)%7);
@@ -1919,6 +2530,14 @@ function decide(s=S,dateISO=todayISO()){
       plan.tasks.push({kind:'report',id:'day30',title:'Day-30 review: open System Read in TRACK',
         why:'30 days of evidence. The verdict is in your own data — read it, then we calibrate.'});
   }
+
+  // 11b · PEAK 14 test bracket (v7.28): the break is measured, not vibed
+  if(dateISO===PEAK14.testA&&!taskDone('peak:testA'))
+    plan.tasks.push({kind:'test',id:'peak:testA',title:'PEAK 14 · TEST DAY A: 40 + vert + broad + weigh-in',
+      why:'Day 1 of the 2-week block. These four numbers are the baseline the whole break gets measured against — and the 40 is your bottleneck by every system\u2019s read.'});
+  if(dateISO===PEAK14.testB&&!taskDone('peak:testB'))
+    plan.tasks.push({kind:'test',id:'peak:testB',title:'PEAK 14 · RETEST DAY B: same 4 tests, same conditions',
+      why:'Day 13. Same surface, same shoes, same time of day. Whatever changed in 2 weeks becomes measured fact today.'});
 
   // 12 · SEASON ENTRY — show up ready (Jul 13–27), earn the spot (camp→opener), leave with film (Aug 8)
   if(dateISO>=SEASON_ENTRY.prepStart&&dateISO<SEASON_ENTRY.campStart){
@@ -2032,7 +2651,6 @@ function oneThing(plan){
   const demoted=(S.params&&S.params.demotedRecs&&S.params.demotedRecs.v)||[];
   return C.find(c=>!demoted.includes(c.kind))||C[C.length-1];
 }
-function quickLog(key,label){ const v=+prompt(label); if(v&&v>0){ (S.metrics=S.metrics||[]).push({d:todayISO(),key,val:v,src:'manual'}); save(); toast(label.split(' (')[0]+' logged ✓'); rToday(); } }
 /* milestones — badges earned ONLY from real data; locked ones show what unlocks them */
 function milestones(s=S){
   const con=Model.consistency(s);
@@ -2055,6 +2673,47 @@ function milestones(s=S){
     B('7-day streak',con.streak>=7,'all four, 7 days straight')
   ];
 }
+/* ============ v7.36 PLAYER IDENTITY CARD — you, on your own screen ============
+   The fix for "it doesn't feel like mine": the app opened with a chore, not the athlete.
+   This is the hero — his name, his VERIFIED numbers (logged, not claimed — the moat made
+   visible), his standing, his motto. Every stat traces to real state; nothing invented. */
+function playerCardHTML(){
+  const mom=(typeof Model!=='undefined'&&Model.momentum)?Model.momentum():{bestE1rm:{}};
+  const be=mom.bestE1rm||{};
+  const lift=k=>Math.max(S.prs[k]||0, be[k]||0)||null;             // approved PR or a bigger logged e1RM
+  const lm=k=>{ const a=(S.metrics||[]).filter(m=>m.key===k); return a.length?a[a.length-1].val:null; };
+  const bw=lm('wt'), vert=lm('vert');
+  const gate=daysBetween(todayISO(),GATE_D1_CONTACT);
+  const vr=(typeof varsityReady==='function')?varsityReady():{earned:0,items:[]};
+  const con=(typeof Model!=='undefined'&&Model.consistency)?Model.consistency():{};
+  const streak=con.streak||0;
+  // stat rail — verified numbers only; a null shows as a prompt to go log it, never a fake value
+  const cells=[
+    ['SQUAT',lift('squat'),'lb'],['BENCH',lift('bench'),'lb'],['DEAD',lift('dead'),'lb'],
+    ['VERT',vert,'"'],['BW',bw,'lb']
+  ];
+  const rail=cells.map(([k,v,u])=>`<div class="pc-stat"><div class="pc-v mono">${v!=null?v:'<span class="pc-none">—</span>'}${v!=null&&u==='"'?'<span class="pc-u">"</span>':''}</div><div class="pc-k">${k}${v!=null&&u==='lb'?' <span class="pc-u">lb</span>':''}</div></div>`).join('');
+  const motto=(()=>{ const v=(S.notes||[]).filter(n=>/^vault:/i.test(n.text||''));
+    if(v.length) return v[v.length-1].text.replace(/^vault:\s*/i,'');
+    return 'no losses for gain'; })();
+  const p=S.profile||{};
+  return `<div class="pcard">
+    <div class="pc-num">${String(p.classOf||2030).slice(-2)}</div>
+    <div class="pc-top">
+      <div class="pc-pos">${esc(p.pos||'RB/LB')}</div>
+      <div class="pc-gate"><b class="mono">${gate}</b> days · Jun 15 gate</div>
+    </div>
+    <div class="pc-name">${esc((p.name||'ZAYDEN')).toUpperCase()}</div>
+    <div class="pc-sub">CLASS OF ${esc(p.classOf||2030)} · HENDERSON, NV${streak>0?` · <span style="color:var(--amber)">${streak}-DAY STREAK</span>`:''}</div>
+    <div class="pc-rail">${rail}</div>
+    <div class="pc-foot">
+      <span class="pc-verif">✓ VERIFIED — every number logged, none claimed</span>
+      <span class="pc-ready">${vr.earned}/7 varsity-ready</span>
+    </div>
+    <div class="pc-motto">“${esc(motto)}”</div>
+  </div>`;
+}
+
 function rToday(){
   const plan=decide(), ck=ckToday(), done=ck.filter(Boolean).length, con=Model.consistency();
   const o1=oneThing(plan);
@@ -2069,10 +2728,29 @@ function rToday(){
   }
   const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊',prep:'🔥',earn:'🏈',film:'🎬'};
   $('#v-today').innerHTML=`
+  ${typeof playerCardHTML==='function'?playerCardHTML():''}
   <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}${o1eff&&o1eff.retire?' <b style="color:var(--red)">· your own results haven\'t shown this helps — treat it as optional.</b>':o1eff&&o1eff.effect==='supported'?' <b style="color:var(--green)">· backed by your own results.</b>':''}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">DO IT →</button>`:''}
     <div class="row" style="gap:6px;margin-top:10px"><button class="btn sm grow ${o1rec&&o1rec.followed==='followed'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','followed')">Did it ✓</button><button class="btn sm grow ${o1rec&&o1rec.followed==='partial'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','partial')">Partly</button><button class="btn sm grow ${o1rec&&o1rec.followed==='ignored'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','ignored')">Didn't</button></div>
     ${(bn=>{const dup=bn&&((o1.kind==='speed'&&bn.id.indexOf('phys:')===0&&['forty','vert','broad'].includes(bn.key))||(o1.kind==='lift'&&bn.id.indexOf('phys:')===0)||(o1.kind==='board'&&bn.id==='recruiting')||(o1.kind==='fuel'&&bn.key==='wt'));return bn&&!dup?`<div class="note" style="margin-top:5px;font-style:normal"><b style="color:var(--cyan)">Your bottleneck:</b> ${esc(bn.name)} — ${esc(bn.ev)}. <span style="color:var(--faint)">Full read: TRACK → The Gap.</span></div>`:'';})(typeof gapBottleneck==='function'?gapBottleneck():null)}
     ${(tr=>/performed well|did not|mixed/.test(tr)?`<div class="note" style="margin-top:5px;font-style:normal;color:var(--faint)">Track record: ${esc(tr)}</div>`:'')(typeof calNote==='function'?calNote(o1.kind):'')}</div>
+  ${typeof weekLedgerCard==='function'?weekLedgerCard():''}
+  ${(pk=>pk?`<div class="card" style="border-color:#3f4a1f">
+    <h3>PEAK 14 <span class="r">day ${Math.min(pk.day,14)} of 14 · measured, not promised</span></h3>
+    ${pk.phase==='testA'?`<div class="t" style="font-size:16px">TEST DAY A — set the baseline</div>
+      <div class="note" style="margin-top:4px">${PEAK14.protocol.map(esc).join(' · ')}</div>
+      <div class="row" style="gap:6px;margin-top:8px">${PEAK14.tests.map(([k,l,u2,lo2,stp,fb])=>`<button class="btn sm grow" onclick="numOpen('${k}','${esc(l)}',${stp},${fb})">${esc(l.split(' (')[0])}</button>`).join('')}</div>
+      ${pk.aDone?'<div class="note" style="margin-top:6px;color:var(--green)">Baseline complete ✓ — every target in the app just got real.</div>':''}`
+    :pk.phase==='testB'?`<div class="t" style="font-size:16px">RETEST DAY B — measure the block</div>
+      <div class="note" style="margin-top:4px">Same conditions as Day 1: ${PEAK14.protocol[4]}</div>
+      <div class="row" style="gap:6px;margin-top:8px">${PEAK14.tests.map(([k,l,u2,lo2,stp,fb])=>`<button class="btn sm grow" onclick="numOpen('${k}','${esc(l)}',${stp},${fb})">${esc(l.split(' (')[0])}</button>`).join('')}</div>`
+    :pk.phase==='review'||pk.bDone?'':`<div class="note">Build days. The work is in TRAIN + your tasks below — retest lands ${esc(fmtD(PEAK14.testB))}.</div>`}
+    ${(pk.aDone&&pk.deltas.some(d=>d.delta!=null))?`<div style="margin-top:8px;border-top:1px solid var(--line);padding-top:6px">
+      ${pk.deltas.map(d=>d.delta==null?`<div class="note">${esc(d.label)}: ${d.a!=null?d.a+' → retest pending':'not in baseline'}</div>`
+        :`<div class="note"><b>${esc(d.label)}:</b> ${d.a} → ${d.b} (<b style="color:${d.better?'var(--green)':'var(--red)'}">${d.delta>0?'+':''}${d.delta}</b>)</div>`).join('')}
+      <div class="note" style="color:var(--faint)">Hand-timed 40s carry ~±0.1s of timing noise — treat changes inside that as unchanged.</div>
+    </div>`:''}
+    ${!pk.aDone&&pk.phase!=='testA'?`<div class="note" style="color:var(--faint)">Baseline incomplete — any missing test can still be logged; the block measures whatever has two honest points.</div>`:''}
+  </div>`:'')(typeof peak14Read==='function'?peak14Read():null)}
   ${(pm=>{ if(!practiceDay(todayISO())) return '';
     const mev=(S.events||[]).find(e=>e.type==='mission'&&e.d===todayISO());
     const pqm=[...(S.metrics||[])].reverse().find(x=>x.key==='pq'&&x.d===todayISO());
@@ -2099,12 +2777,14 @@ function rToday(){
       return `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><button class="btn sm ${done?'amber':'ghost'}" onclick="freeWin('${fd}',${i})">${done?'✓':'☐'}</button><span class="grow" style="font-size:13px;margin-left:8px">${esc(w)}</span></div>`;}).join('')}
     ${(fw=>fw.weakest&&fw.weakest.secured<fw.weakest.of?`<div class="note" style="margin-top:6px">Most-missed: <b>${esc(fw.weakest.item)}</b> (${fw.weakest.secured}/${fw.weakest.of} days) — fix the pattern.</div>`:'')(freeWinsRead())}
   </div>`;})(practiceDay(todayISO())?todayISO():(practiceDay(addDays(todayISO(),1))?addDays(todayISO(),1):null))}
-  <div class="card"><h3>Quick Log <span class="r">taps, not typing</span></h3><div class="row" style="align-items:center;gap:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Energy</span>${rate5('energy','today')}</div>${((S.lifts||[]).some(l=>l.d===todayISO())||((S.sessions&&S.sessions[todayISO()])||[]).some(Boolean))?`<div class="row" style="align-items:center;gap:6px;margin-top:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Session</span>${rate5('sq','today')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn grow" onclick="quickLog('wt','Bodyweight (lb)')">Weight</button><button class="btn grow" onclick="quickLog('sleep','Sleep last night (hours)')">Sleep</button><button class="btn grow" onclick="go('train')">Lift →</button></div><div class="note" style="margin-top:6px">One tap each — this is what lets the app learn what works for <b>you</b>.</div></div>
+  <div class="card"><h3>Quick Log <span class="r">taps, not typing</span></h3><div class="row" style="align-items:center;gap:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Energy</span>${rate5('energy','today')}</div>${((S.lifts||[]).some(l=>l.d===todayISO())||((S.sessions&&S.sessions[todayISO()])||[]).some(Boolean))?`<div class="row" style="align-items:center;gap:6px;margin-top:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Session</span>${rate5('sq','today')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn grow" onclick="numOpen('wt','Bodyweight (lb)',1,160)">Weight</button><button class="btn grow" onclick="numOpen('sleep','Sleep (h)',0.5,8)">Sleep</button><button class="btn grow" onclick="go('train')">Lift →</button></div>
+  ${(be=>{const last=be.length?be[be.length-1]:null;const days=last!=null?daysBetween(last,todayISO()):null;const col=days==null||days>30?'var(--red)':days>14?'var(--amber)':'var(--green)';
+    return `<div class="row" style="margin-top:8px;align-items:center"><span class="note grow" style="margin:0">Off-device backup: <b style="color:${col}">${days==null?'NEVER':days===0?'today':days+'d ago'}</b> — the export file is the only thing that survives a lost phone</span>${(days==null||days>7)?`<button class="btn sm" onclick="exportS()">EXPORT</button>`:''}</div>`;})((S.events||[]).filter(e=>e.type==='task'&&e.meta&&String(e.meta.id).indexOf('backup:')===0).map(e=>e.d).sort())}<div class="note" style="margin-top:6px">One tap each — this is what lets the app learn what works for <b>you</b>.</div></div>
   <div class="prio"><div class="k">TODAY'S PRIORITY${plan.focus?` · ATTACKING: ${esc(plan.focus.key.toUpperCase())}`:''}</div>
     <div class="t">${esc(plan.priority.title)}</div><div class="w">${esc(plan.priority.why)}</div></div>
   ${(()=>{const t=todayISO();const dd=d=>daysBetween(t,d);const rows=[['Back to practice','2026-07-28'],['Equipment day','2026-08-01'],['3-team scrimmage','2026-08-08']].map(([l,d])=>({l,d,n:dd(d)})).filter(x=>x.n>=-1);if(!rows.length)return '';const s=dd('2026-08-08');const focus=s>10?'BUILD — push speed + power, bank 9h sleep + your calories. This 2-week window is where you separate.':s>3?'SHARPEN — cut volume ~40%, keep sprints crisp, arrive fresh and explosive.':s>=0?'GAME WEEK — light, fast, confident. Empty the tank on the 8th; play in front of 3 schools.':'';return `<div class="card"><h3>Countdown <span class="r">to the scrimmage</span></h3>${rows.map(x=>`<div class="row" style="padding:6px 0"><div class="grow" style="font-size:14px">${x.l} · <span style="color:var(--faint)">${fmtD(x.d)}</span></div><div class="mono" style="color:var(--amber);font-weight:800">${x.n<=0?'TODAY':x.n+'d'}</div></div>`).join('')}${focus?`<div class="note"><b style="color:var(--txt)">${focus}</b></div>`:''}</div>`;})()}
   <div class="card">
-    <h3>Session <span class="r">${plan.phase.toUpperCase()} · ${['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date().getDay()]}</span></h3>
+    <h3>Session <span class="r">${plan.phase.toUpperCase()}${(typeof phaseEst==='function'&&phaseEst(todayISO()))?' · EST. DATES — August audit verifies':''} · ${['SUN','MON','TUE','WED','THU','FRI','SAT'][new Date().getDay()]}</span></h3>
     <div style="font-size:18px;font-weight:900;color:var(--cyan);margin-bottom:6px">${esc(plan.workout.title)}</div>
     <div style="font-size:13px;color:var(--dim);line-height:1.6">${plan.workout.blocks.map(b=>'• '+esc(b.n)).join('<br>')}</div>
     <div class="note">${esc(plan.workout.why)}</div>
@@ -2259,7 +2939,17 @@ function rTrain(){
       <button class="btn grow" id="restBtn" onclick="restTimer(150)">⏱ REST 2:30</button>
       <button class="btn ghost" onclick="restTimer(15)">CONTRAST 0:15</button>
     </div><div class="note">Contrast pairs: jump within ~15s of racking. Between full sets: 2–3 min. The timing IS the method.<br>Solo at the apartment gym today? Skip anything marked SPOTTER/EOS — swap in the pause variant or DB work. Max attempts happen at EOS only, cousin present.</div>`:''}
+    <div class="note"><b style="color:var(--cyan)">2026 dosing:</b> work sets end at 1–3 reps in reserve — grind the last rep speed, never the form. On accessory lifts, the last set can extend with lengthened partials (bottom-half reps after full-ROM failure): 2025 meta-analysis shows a small real edge for growth at long muscle lengths. Small edge, not magic — the surplus and sleep still outrank it.</div>
   </div>
+  ${typeof fullDayCard==='function'?fullDayCard():''}
+  ${(ph=>['preseason','inseason'].includes(ph)?`<div class="card" style="border-color:#294551">
+    <h3>Injury Armor <span class="r">2×/week · evidence updated Jul 2026</span></h3>
+    <div class="note" style="margin:0 0 6px">RB/LB is a hamstring-and-groin job. Two exercises, ~6 minutes after practice, twice a week — this is the closest thing to real armor the literature has:</div>
+    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.6"><b style="color:var(--amber)">Nordic curls</b> — 3×3–5, eccentric only (partner or bench-hook holds your ankles; lower as slow as possible, push back up). 2025 review: up to <b>60% fewer new</b> hamstring injuries, <b>85% fewer re-injuries</b>. The catch that IS the point: it only works above <b>~75% adherence</b> — miss weeks and the protection evaporates. Your checkins are the adherence tracker.</div>
+    <div style="padding:7px 0;font-size:13px;line-height:1.6"><b style="color:var(--amber)">Copenhagen plank</b> — 2×6–10/side (top leg on a bench, lift hips, hold 3s). Groin/adductor strength for cuts and tackles. Evidence honest-labeled: supportive but weaker than the Nordic's (one 2025 meta was retracted) — kept because adductor strength itself is a known groin-injury factor and the cost is 3 minutes.</div>
+    <div class="note">Start at the LOW end of every range — the Nordic bites the first two weeks. Soreness ≥2 days = drop a set, not the habit.</div>
+    ${(sr=>`<div class="note" style="margin-top:6px;border-top:1px solid var(--line);padding-top:6px"><b style="color:${sr.ok?'var(--green)':sr.n?'var(--red)':'var(--dim)'}">Sleep is armor too:</b> ${sr.avg!=null?`${sr.avg}h average this week (${sr.n} nights logged)`:'no sleep logged this week'} — under 8h, adolescent injury risk runs 1.7× (Milewski 2014). The cheapest protection on this card.</div>`)(sleepRead())}
+  </div>`:'')(phaseFor(todayISO()))}
   <div class="card">
     <h3>Log a Lift</h3>
     <div class="row">
@@ -2268,9 +2958,10 @@ function rTrain(){
       <div style="width:70px"><label>Reps</label><input id="lgRp" type="number" inputmode="numeric" placeholder="#"></div>
     </div>
     <div class="row" style="margin-top:12px">
-      <button class="btn amber grow" onclick="logLift()">LOG SET</button>
+      <button class="btn sm ${liftYest?'amber':'ghost'}" onclick="liftYest=!liftYest;rTrain()">${liftYest?'YESTERDAY':'today'}</button><button class="btn amber grow" onclick="logLift()">LOG SET</button>
       <button class="btn ghost sm" onclick="undoLast('lift')">UNDO</button>
     </div>
+    ${S.lifts.length?(l=>`<button class="btn ghost" style="margin-top:8px;width:100%" onclick="repeatLast()">↻ SAME AS LAST · ${esc(l.ex)} ${l.wt}×${l.reps}</button>`)(S.lifts[S.lifts.length-1]):''}
     <div id="prSuggest"></div>
     ${recent.length?`<table style="margin-top:12px"><tr><th>Date</th><th>Lift</th><th>Set</th><th>e1RM</th></tr>
       ${recent.map(l=>`<tr><td>${fmtD(l.d)}</td><td>${esc(l.ex)}</td><td class="mono">${l.wt}×${l.reps}</td><td class="mono">${epley(l.wt,l.reps)}</td></tr>`).join('')}</table>`:''}
@@ -2297,10 +2988,92 @@ function rTrain(){
     • Heavy sled @ 40–50% BW: proven acceleration gains in adolescent sprinters<br>
     • Landings before depth jumps · contacts capped ~60/session: adolescent plyo guidelines<br>
     • Cold plunge ≥6h after lifting only: post-lift icing blunts growth signaling (meta-analysis)<br>
-    • 350–500 kcal surplus + ~0.9 g/lb protein: sports-nutrition consensus for lean gain</div>
+    • 350–500 kcal surplus + ~0.9 g/lb protein: sports-nutrition consensus for lean gain<br>
+    <span style="color:var(--cyan)">2026 refresh (verified Jul 2026):</span><br>
+    • RIR-anchored sets (1–3 in reserve): standard autoregulation — effort measured without gadgets<br>
+    • Lengthened partials on accessories: 2025 meta, ES 0.283 for long-length growth — small real edge<br>
+    • Nordic curls in-season: up to 60%/85% fewer new/recurrent hamstring injuries at ≥75% adherence (2025 review)</div>
+  </div>`;
+}
+/* ============ v7.33 THE HARDEST COACH (owner directive 2026-07-17) ============
+   "Pushed me harder and further than anybody possibly could." The hardest coach is not the
+   loudest one — it's the one with receipts. Everything below counts real work and quotes the
+   owner's own words; nothing is invented (mirrors, not oracles). */
+function weekLedgerCard(){
+  const L=weekLedger(), sil=silentDays();
+  const note=[...(S.notes||[])].reverse().find(n=>n.text&&n.text.length>15&&!/^vault:/i.test(n.text));
+  const quote=(sil>=2&&note)?`<div class="note" style="margin-top:8px;border-left:3px solid var(--amber);padding-left:10px;font-style:normal">You wrote: <i>"${esc(note.text.length>110?note.text.slice(0,110)+'…':note.text)}"</i> — ${fmtD(note.d)}.<br><b style="color:var(--red)">The log since: ${sil} empty day${sil>1?'s':''}.</b> One of these is lying — one log today ends the argument.</div>`:'';
+  const col=L.level==='won'?'var(--green)':L.level==='alive'?'var(--amber)':'var(--red)';
+  /* v7.38 psych audit: hard on the standard, never on the self, always action-forward.
+     Self-criticism predicts burnout in adolescent athletes; standards that don't move +
+     a next action predict return. The bar stays ruthless — the sentence points forward. */
+  const verdict=L.level==='won'?'WEEK BEATEN ✓ — now bury it'
+    :L.level==='alive'?`${Math.max(L.bar.days-L.cur.days,0)} day${L.bar.days-L.cur.days===1?'':'s'} + ${Math.max(L.bar.actions-L.cur.actions+1,1)} actions to beat the bar · ${L.left} day${L.left!==1?'s':''} left`
+    :'LOST WEEK — THE BAR DOESN\'T MOVE. It\'s waiting Monday. Take it back.';
+  return `<div class="card" style="border-color:#3f4a1f">
+    <h3>Beat Last Week <span class="r">the only opponent is the previous you</span></h3>
+    <div class="row" style="text-align:center">
+      <div class="grow"><div class="mono" style="font-size:22px;font-weight:800;color:${col}">${L.cur.days}<span style="color:var(--faint);font-size:14px">/${L.bar.days}</span></div><div class="note" style="margin:0">training days vs bar</div></div>
+      <div class="grow"><div class="mono" style="font-size:22px;font-weight:800;color:${col}">${L.cur.actions}<span style="color:var(--faint);font-size:14px">/${L.bar.actions}</span></div><div class="note" style="margin:0">logged work vs bar</div></div>
+    </div>
+    <div class="note" style="margin-top:6px"><b style="color:${col}">${verdict}</b><br>Bar = your best of the last 2 weeks. A lost week never lowers it — slack has a price and the engine collects.</div>
+    ${quote}</div>`;
+}
+function vaultCard(){
+  const carved=(S.notes||[]).filter(n=>/^vault:/i.test(n.text||''));
+  return `<div class="card" style="border-color:#3f4a1f">
+    <h3>THE VAULT <span class="r">written on a good day · opened on the bad ones</span></h3>
+    <div class="note" style="margin:0 0 6px">Locked-in you wrote these Jul 17, 2026, for the days that WILL come. Add your own lines any time — save a note starting with <b>vault:</b> and it gets carved in here forever.</div>
+    <details><summary>🪑 Benched / passed over</summary><div class="bd" style="font-size:13px;line-height:1.75">
+      You knew this day existed when you chose the hard path. Nobody owes you reps — you take them back.<br>
+      1. Say nothing today you'd delete tomorrow. Coaches remember mouths longer than mistakes.<br>
+      2. Tonight, log the facts: whose reps are they now? What does he do that you don't — one honest sentence, no excuses in it.<br>
+      3. Tomorrow's mission: be impossible to ignore. Full speed on plays that "don't matter" — that is exactly what staffs watch.<br>
+      4. The ledger doesn't know the depth chart exists. Beat last week anyway — the kid who answers a benching with his best week is a different animal, and everyone notices.<br>
+      <i>"no losses for gain" — your words. This is what they're for.</i></div></details>
+    <details><summary>🎬 Bad game on film</summary><div class="bd" style="font-size:13px;line-height:1.75">
+      The 24-hour rule: it's allowed to burn today. Tomorrow it becomes data.<br>
+      1. Within 24h, watch every bad rep twice. First pass — no judgment, just what happened. Second pass — name the ONE correctable cause: eyes, pad level, hesitation. Tag the clips in the Film Room above.<br>
+      2. Log one coach question from the film: "Coach — that 3rd-quarter run, was that read mine?" Asking beats hiding, every single time.<br>
+      3. That one cause is next week's practice mission. One bad game buys one week of targeted reps. That's the whole trade — nothing else is owed.<br>
+      4. You are likely the only freshman in Nevada running this protocol. That IS the separation.</div></details>
+    ${carved.length?`<div class="note" style="margin-top:6px"><b>Your carved lines:</b><br>${carved.map(n=>`<i>"${esc(n.text.replace(/^vault:\s*/i,''))}"</i> — ${fmtD(n.d)}`).join('<br>')}</div>`:''}
+  </div>`;
+}
+/* ============ v7.42 THE 3-HOUR DAY — owner directive: "3hr hard workouts, better than
+   everyone on the field." Evidence says 3 hours IN A ROW makes a 158-lb adolescent smaller,
+   slower, and hurt (>16h/wk injury threshold; session quality decays past ~75min; OTS wrecks
+   the hormones that build mass). Three hours A DAY, split into blocks that multiply, is how
+   the elite actually do it — and two structured sessions/day even beats one long one on
+   sleep in the youth data. Hard on the standard: all four blocks, every training day. */
+function fullDayBlocks(){
+  const doy=Math.floor(new Date(todayISO()+'T12:00').getTime()/864e5);
+  const pick=(arr,n,off)=>Array.from({length:n},(_,i)=>arr[(doy+off+i*2)%arr.length]);
+  const drills=pick(RB_DRILLS,2,0).concat(pick(LB_DRILLS,1,1));
+  const syl=(typeof sylNext==='function')?sylNext():null;
+  return {drills,syl};
+}
+function fullDayCard(){
+  const {drills,syl}=fullDayBlocks();
+  const pmDone=taskDone('pm:'+todayISO());
+  return `<div class="card" style="border-color:#3f4a1f">
+    <h3>The 3-Hour Day <span class="r">3 hrs a day beats 3 hrs in a row</span></h3>
+    <div class="note" style="margin:0 0 8px">One long grind trains fatigue, eats your surplus, and past ~16 hrs/week the injury data turns ugly. Four blocks, spread across the day, is MORE total war — and every block multiplies the others. Better than everyone on the field = the only one who did all four.</div>
+    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK A · MAIN SESSION</b> <span class="pill">60–75 min</span><br>The session above, at full intensity — bar speed honest, 1–3 RIR, contrast pairs timed. Intensity is capped by duration ON PURPOSE: past ~75 min the quality that makes you faster is gone.</div>
+    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK B · THE ANABOLIC BLOCK</b> <span class="pill">45–60 min</span><br>Eat the biggest meal of the day + get horizontal. On a mass mission at 158 lb, THIS is training — the only block that makes you bigger than the kid across from you. Skipping it to lift longer is how you stay small.</div>
+    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK C · SKILLS (PM)</b> <span class="pill">30–40 min</span><br>Today's rotation:<br>${drills.map(d=>`• <b>${esc(d.name)}</b> — ${esc(d.reps)} <span style="color:var(--faint)">(${esc(d.key)})</span>`).join('<br>')}<br>${pmDone?'<b style="color:var(--green)">PM block done ✓</b>':`<button class="btn sm amber" style="margin-top:6px" onclick="completeTask('pm:'+todayISO());rTrain();toast('PM block logged — the full day is real ✓')">PM BLOCK DONE ✓</button>`}</div>
+    <div style="padding:7px 0;font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK D · FILM + CLOSE</b> <span class="pill">30 min</span><br>${syl?`Tonight's assignment: <b>${esc(syl.title)}</b> (PUSH tab)`:'Syllabus complete — run any drill on opponent film'} · then the Daily Four. The undersized player's separation happens here, where nobody's watching.</div>
+    <div class="note" style="margin-top:6px">A+B+C+D ≈ 3 hours of daily attack. The kid doing one 3-hour grind is outworking you in hour three only — you're outworking him at breakfast, at 3pm, and at 9pm, every single day, without donating your mass to fatigue.</div>
   </div>`;
 }
 let pendingLift=null;
+/* v7.32 owner answer: "between sets, but make it faster" — one tap re-logs the last set
+   through logLift() itself, so sanity bounds and the PR flow still apply. */
+function repeatLast(){
+  const l=S.lifts[S.lifts.length-1]; if(!l){ toast('Nothing to repeat yet'); return; }
+  $('#lgEx').value=l.ex; $('#lgWt').value=l.wt; $('#lgRp').value=l.reps;
+  logLift();
+}
 function tglBlock(i){ const k=todayISO(); if(!S.sessions[k]) return; S.sessions[k][i]=!S.sessions[k][i]; save();
   if(S.sessions[k].every(Boolean)){ const c=ckToday(); if(!c[0]){c[0]=true; save();} toast('Session complete — Train box checked ✓'); }
   rTrain(); }
@@ -2320,7 +3093,7 @@ function logLift(){
     return;
   }
   pendingLift=null;
-  S.lifts.push({d:todayISO(),ex,wt,reps}); save();
+  S.lifts.push({d:liftYest?addDays(todayISO(),-1):todayISO(),ex,wt,reps}); liftYest=false; save();
   const e=epley(wt,reps), cur=S.prs[ex];
   if(cur&&e>cur){
     $('#prSuggest').innerHTML=`<div class="flag">⬆ Estimated 1RM <b class="mono">${e}</b> beats your ${esc(ex)} PR (<span class="mono">${cur}</span>).
@@ -2345,15 +3118,46 @@ function rPath(){
     ${SEASON_ENTRY.filmOps.map((x,i)=>`<div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5"><b style="color:var(--amber)">${i+1}.</b> ${esc(x)}</div>`).join('')}
   </div>`:''}
   ${(no=>no&&no.opp!=='TBD'&&no.days<=21?`<div class="card">
-    <h3>Next Opponent: ${esc(no.opp)} <span class="r">${no.days} day${no.days===1?'':'s'} out</span></h3>
-    <div class="note">Varsity players scout. Log what you see and hear — offense style, their best players, tendencies. Notes never expire: next season they are still here.</div>
-    <button class="btn" style="width:100%;margin:8px 0" onclick="addOpp('${esc(no.opp)}')">+ SCOUT NOTE</button>
+    <h3>Opponent Book: ${esc(no.opp)} <span class="r">${no.days} day${no.days===1?'':'s'} out · ${no.notes.length} career note${no.notes.length===1?'':'s'}</span></h3>
+    <div class="note">Varsity players scout. Everything ever logged on this school resurfaces here — freshman notes still paying off senior year. Four-year memory no opponent has on you.</div>
+    <div class="row" style="gap:6px;margin:8px 0"><input id="oppIn" placeholder="what you saw / heard" style="flex:1"><button class="btn sm amber" onclick="saveOpp('${esc(no.opp)}')">SAVE</button></div>
     ${no.notes.length?no.notes.map(n=>`<div class="note">• ${esc(n.text)} <span style="color:var(--faint)">(${esc(fmtD(n.d))})</span></div>`).join(''):'<div class="note" style="color:var(--faint)">No notes yet — start with their base offense the first time you see them warm up.</div>'}
   </div>`:'')(typeof nextOpponent==='function'?nextOpponent():null)}
+  ${typeof statCardHTML==='function'?statCardHTML():''}
+  ${typeof dossierCardHTML==='function'?dossierCardHTML():''}
+  <div class="card" style="border-color:#3f4a1f">
+    <h3>Vegas Exposure Map <span class="r">verified Jul 17 2026 · live web check</span></h3>
+    <div class="note" style="margin:0 0 8px"><b>The rule that shapes everything:</b> before Jun 15, 2028 coaches can't talk recruiting with you — but they CAN watch you at their own camps. Camps are the legal front door, and Vegas has the biggest one in the region.</div>
+    <div style="padding:8px 0;border-bottom:1px solid var(--line)">
+      <div class="row"><b class="grow" style="font-size:13px">UNLV LAS VEGAS MEGA CAMP <span class="pill amber">JUNE · YEARLY</span></b></div>
+      <div class="note" style="margin:2px 0 0">~900 players, 12+ hours, P4 staffs on site (Oregon, Minnesota, Cal at the last one) — and it takes <b style="color:var(--amber)">your class (2030)</b>. Verified: every recent local UNLV signee attended their camps first. This is THE exposure day in your market — June 2027 is your first shot with real numbers behind you.</div>
+    </div>
+    <div style="padding:8px 0;border-bottom:1px solid var(--line)">
+      <div class="row"><b class="grow" style="font-size:13px">NIKE FOOTBALL CAMP AT UNLV</b></div>
+      <div class="note" style="margin:2px 0 0">Skills camp on UNLV's campus with recruiting-education seminars — reps + recruiting literacy in one weekend.</div>
+    </div>
+    <div style="padding:8px 0;border-bottom:1px solid var(--line)">
+      <div class="row"><b class="grow" style="font-size:13px">QUESTIONNAIRES — VERIFIED DIRECT LINKS</b></div>
+      <div class="note" style="margin:2px 0 0">Wyoming: <a href="https://college.jumpforward.com/questionnaire.aspx?iid=556&sportid=54" target="_blank" style="color:var(--cyan)">official form ↗</a> · Nevada: <a href="https://nevadawolfpack.com/sb_output.aspx?form=6" target="_blank" style="color:var(--cyan)">official form ↗</a> · UNLV routes through camps + unlvrebels.com football page — their questionnaire link moves; the camp IS their front door.</div>
+    </div>
+    <div class="note" style="margin-top:8px">Exposure math for an undersized freshman: film (Aug 8 scrimmage) → questionnaires (tonight, free, legal) → Mega Camp June 2027 with a year of verified numbers. Each step feeds the next.</div>
+  </div>
+  <div class="card">
+    <h3>Recruiting Contacts <span class="r">Tier 1 · staff verified Jul 2026</span></h3>
+    <div class="note"><b>Step zero, legal at any age:</b> fill each school's recruiting questionnaire — it puts you in their database before coaches are even allowed to reply. Then the Board tracks every touch.</div>
+    ${SCHOOLS.filter(x=>x.tier===1).map(x=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)">
+      <div class="row"><b class="grow" style="font-size:13px">${esc(x.school)}</b><span class="pill">${esc(x.conf)}</span></div>
+      <div class="note" style="margin:2px 0 0">${esc(x.coach)}</div>
+      <div class="note">Questionnaire: ${x.school==='Nevada (Reno)'?'<a href="https://nevadawolfpack.com/sb_output.aspx?form=6" target="_blank" style="color:var(--cyan)">verified direct link ↗</a>':`search “${esc(x.school)} football recruiting questionnaire” — every program has one`}</div>
+    </div>`).join('')}
+    <div class="note">Staff names churn every winter — the app records when each was verified, and re-verifying is a 5-minute December ritual.</div>
+  </div>
   <div class="card">
     <h3>Recruiting Ops <span class="r">nothing gets forgotten</span></h3>
     ${(ro=>ro.items.map(i=>`<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span style="width:22px">${i.ok?'<b style="color:var(--green)">✓</b>':'<b style="color:var(--red)">!</b>'}</span><div class="grow"><b style="font-size:13px">${esc(i.k)}</b><div class="note" style="margin:1px 0 0">${esc(i.ev)}</div></div></div>`).join('')+(ro.missing.length?`<div class="note" style="margin-top:6px"><b style="color:var(--red)">${ro.missing.length} open item${ro.missing.length===1?'':'s'}</b> — a recruiting coordinator would be chasing these.</div>`:'<div class="note" style="margin-top:6px">All clear — coordinator-approved.</div>'))(recruitOps())}
-    <div class="row" style="gap:6px;margin-top:8px"><button class="btn sm grow" onclick="logHudl()">HUDL UPDATED ✓</button><button class="btn sm grow" onclick="addCamp()">+ CAMP/SHOWCASE</button></div>
+    ${pendCamp?`<div class="row" style="gap:6px;margin-top:8px"><input id="campN" placeholder="camp / showcase name" style="flex:1"><input id="campW" placeholder="when" style="width:90px"><button class="btn sm amber" onclick="saveCamp()">SAVE</button></div>`:''}
+    ${(hf=>`<div class="note" style="margin-top:6px"><b style="color:${hf.stale?'var(--red)':hf.last?'var(--green)':'var(--dim)'}">Reel freshness:</b> ${hf.last?'Hudl updated '+fmtD(hf.last)+' ('+hf.days+'d ago)':'no Hudl update on record'}${hf.stale?' — <b>stale in-season; recruiters bounce off old reels.</b>':''}</div>`)(hudlFresh())}
+    <div class="row" style="gap:6px;margin-top:8px"><button class="btn sm grow" onclick="logHudl()">HUDL UPDATED ✓</button><button class="btn sm grow ${pendCamp?'amber':''}" onclick="pendCamp=!pendCamp;rPath()">+ CAMP/SHOWCASE</button></div>
     ${(rv=>`<details style="margin-top:8px"><summary>Recruiting reality check</summary><div class="bd">
       ${rv.helps.length?`<div class="note"><b style="color:var(--green)">Helping now:</b> ${rv.helps.map(esc).join(' · ')}</div>`:'<div class="note">Nothing on the helps side yet — that changes with the first measurement.</div>'}
       ${rv.hurts.length?`<div class="note"><b style="color:var(--red)">Hurting now:</b> ${rv.hurts.map(esc).join(' · ')}</div>`:''}
@@ -2408,6 +3212,7 @@ function rPath(){
   </div>
   <div class="card">
     <h3>NCAA Timeline · Class of 2030</h3>
+    <div class="note"><b>What the gate actually gates:</b> YOU can always email coaches, fill questionnaires, and attend camps — the Jun 15 date limits when D1 coaches may initiate contact with you. Calendars shift: verify the current NCAA football recruiting calendar each season, same as coach names.</div>
     ${TIMELINE.map(t=>`<details ${t.now?'open':''}><summary>${t.g} ${t.now?'<span class="pill amber">NOW</span>':''}</summary>
       <div class="bd">${t.items.map(i=>'• '+i).join('<br>')}</div></details>`).join('')}
   </div>
@@ -2551,9 +3356,7 @@ function experiments(s=S){
   E.sort((a,b)=>b.score-a.score || b.value-a.value || a.key0-b.key0);
   return E;
 }
-function expLog(key,label){ const v=+prompt(label); if(v&&v>0){ (S.metrics=S.metrics||[]).push({d:todayISO(),key,val:v,src:'manual'}); logEvent('metric',{key,val:v}); save(); toast(key.toUpperCase()+' logged ✓ — engine re-ranking'); rTrack(); } }
-/* rateLog — 1–5 daily rating into the append-only log; feeds the knowledge graph */
-function rateLog(key,label){ let v=+prompt(label); if(v){ v=Math.max(1,Math.min(5,Math.round(v))); (S.metrics=S.metrics||[]).push({d:todayISO(),key,val:v,src:'manual'}); logEvent('metric',{key,val:v}); save(); toast(label.split(' (')[0]+' logged ✓'); rToday(); } }
+function expLog(key,label){ const ST={forty:[0.05,4.9],vert:[0.5,24],broad:[1,96],wt:[1,160],sleep:[0.5,8],gpa:[0.1,3.5],shuttle:[0.05,4.8],energy:[1,3]}; const c=ST[key]||[1,5]; numOpen(key,label,c[0],c[1]); }
 function expTop(e){ return `<div class="prio" style="margin-top:10px">
   <div class="k">SMALLEST TEST · LEARNING ${e.vBucket.toUpperCase()} · EFFORT ${e.effLabel.toUpperCase()}</div>
   <div class="t">${esc(e.title)}</div>
@@ -2598,7 +3401,7 @@ function spark(vals,o){o=o||{};const w=o.w||264,h=o.h||64,p=8;
 function radarSVG(s=S){
   const wp=currentWaypoint(), g=Model.gaps(s), mom=Model.momentum(s);
   const val=k=>{if(['squat','bench','dead','clean'].includes(k))return Math.max(s.prs[k]||0,(mom.bestE1rm&&mom.bestE1rm[k])||0)||0;return g.latest(k)||0;};
-  const dbt=k=>{const b=(typeof D1_BENCH!=='undefined')&&D1_BENCH.LB&&D1_BENCH.LB[k];return b?b.p50:null;};
+  const dbt=k=>{const pp=(s.settings&&s.settings.benchPos)||'LB';const b=(typeof D1_BENCH!=='undefined')&&D1_BENCH[pp]&&D1_BENCH[pp][k];return b?b.p50:null;};
   const A=[['squat','Squat',wp.targets.squat],['dead','Dead',wp.targets.dead],['bench','Bench',wp.targets.bench],['clean','Clean',wp.targets.clean],['wt','Weight',wp.targets.wt],['vert','Vert',dbt('vert')],['broad','Broad',dbt('broad')],['forty','40',dbt('forty')]]
     .map(([k,l,t])=>{const c=val(k);const lower=(k==='forty'||k==='shuttle');const has=!!(t&&c);return {k,l,t,cur:c,pct:has?(lower?Math.min(1,+(t/c).toFixed(3)):Math.min(1,+(c/t).toFixed(3))):0,untested:!has};});
   const N=A.length,cx=130,cy=118,R=82;
@@ -2665,23 +3468,26 @@ function rTrack(){
   <div class="card">
     <h3>Athlete Profile <span class="r">you vs this year's target</span></h3>
     ${radarSVG()}
-    <div class="note">The volt shape is you; the cyan ring is this year's freshman target. Your strength and mass axes are nearly full — and <b>any speed axis you haven't tested sits at dead center</b>. That empty wedge is your gap, and it's why getting a real 40 and broad jump matters more than anything else in this app.</div>
+    <div class="note">The volt shape is you; the cyan ring mixes two bars on purpose: <b>this-year freshman waypoints</b> for the lift/mass axes and <b>senior-recruit P50</b> for the speed axes (there is no honest freshman speed standard — so the ring shows the destination). Your strength and mass axes are nearly full — and <b>any speed axis you haven't tested sits at dead center</b>. That empty wedge is your gap, and it's why getting a real 40 and broad jump matters more than anything else in this app.</div>
   </div>
   <div class="card">
     <h3>Bodyweight <span class="r">mass mission → 174 lb</span></h3>
     ${(vs=>spark(vs,{goal:174,empty:'Log your weight weekly — the curve starts here.'}))(S.metrics.filter(m=>m.key==='wt').sort((a,b)=>a.d<b.d?-1:1).map(m=>({d:m.d,v:m.val})))}
-    ${(()=>{const wm=S.metrics.filter(m=>m.key==='wt').sort((a,b)=>a.d<b.d?-1:1);if(!wm.length)return '<div class="note">No weigh-in logged yet.</div>';const cur=wm[wm.length-1].val,gap=174-cur,dropping=wm.length>=2&&wm[wm.length-1].val<wm[wm.length-2].val;return `<div class="note">You're at <b>${cur} lb</b> — ${gap>0?`<b>${gap} lb under</b> your 174 mass target`:'at or over target'}. ${dropping?'<b style="color:var(--red)">Weight is trending DOWN on a mass mission — that\'s the alarm, not progress.</b> ':''}${gap>0?'If the scale isn\'t climbing, the surplus isn\'t real: add ~300 kcal/day and re-weigh in a week.':''}</div>`;})()}
+    ${(()=>{const wm=S.metrics.filter(m=>m.key==='wt').sort((a,b)=>a.d<b.d?-1:1);if(!wm.length)return '<div class="note">No weigh-in logged yet.</div>';const cur=wm[wm.length-1].val,gap=174-cur,dropping=wm.length>=2&&wm[wm.length-1].val<wm[wm.length-2].val;return `<div class="note">You're at <b>${cur} lb</b> — ${gap>0?`<b>${gap} lb under</b> your 174 mass target`:'at or over target'}. ${dropping?'<b style="color:var(--red)">Weight is trending DOWN on a mass mission — that\'s the alarm, not progress.</b> ':''}${gap>0?'If the scale isn\'t climbing, the surplus isn\'t real: add ~300 kcal/day and re-weigh in a week.':''}</div>
+    <div class="note" style="margin-top:4px"><b style="color:var(--txt)">"Feeling fatter" on a mass mission — read this cold:</b> maxes up + weight up slowly = muscle, and that's the ONLY version of lean that plays football. Cutting at your weight ends the D1 path and doesn't produce the look either — muscle does. The check is math, not the mirror: if strength climbs while weight climbs ~1–2 lb/month, it's working. Sprints stay in the program; abs are made by them, not by eating less.</div>`;})()}
   </div>
   <div class="card">
     <h3>Strength Trend <span class="r">e1RM over time</span></h3>
+    <div class="note" style="color:var(--faint)">Sets over 10 reps count as work but are not used to estimate maxes — high-rep max math lies, so the curve ignores it.</div>
     ${(()=>{if(!S.lifts.length)return `<div class="empty">No sets logged yet.<br><button class="btn amber sm" style="margin-top:10px" onclick="go('train')">LOG YOUR FIRST SET →</button></div><div class="note">One logged set turns this into a real strength curve — it's the single thing blocking your whole progress graph.</div>`;const byEx=k=>S.lifts.filter(l=>l.ex===k).map(l=>({d:l.d,v:epley(l.wt,l.reps)}));return ['squat','bench','dead','clean'].map(k=>byEx(k).length?`<div style="font-size:11px;letter-spacing:.1em;color:var(--faint);margin-top:8px">${k.toUpperCase()}</div>${spark(byEx(k),{})}`:'').join('')||'<div class="note">Log a main lift (squat/bench/dead/clean) to draw its curve.</div>';})()}
   </div>
   <div class="card">
-    <h3>D1 Benchmarks <span class="r">senior recruit · LB</span></h3>
+    <h3>D1 Benchmarks <span class="r">senior recruit · <button class="btn sm ${(S.settings.benchPos||'LB')==='LB'?'amber':'ghost'}" onclick="S.settings.benchPos='LB';save();rTrack()">LB</button> <button class="btn sm ${(S.settings.benchPos||'LB')==='RB'?'amber':'ghost'}" onclick="S.settings.benchPos='RB';save();rTrack()">RB</button></span></h3>
+    <div class="note" style="margin:0 0 4px;color:var(--faint)">You are recruited as RB/LB — the position gate is sophomore film. LB bars are much heavier; check both, believe neither exclusively.</div>
     <div class="note">Where you'd stack up against a <b>senior</b> D1 linebacker recruit — P50≈FCS, P75≈G5, P90≈Power-4. You're 14 with a 4-year runway, so gaps here are the destination bar, not a freshman scorecard (the radar above is your on-track measure for this year).</div>
     ${(rows=>`<table><tr><th>Metric</th><th>You</th><th>Tier</th><th>To next</th></tr>
       ${rows.map(r=>r.untested?`<tr><td>${r.label}${r.prov?'*':''}</td><td class="mono" style="color:var(--faint)">—</td><td colspan="2" style="color:var(--faint);font-size:12px">untested — run it</td></tr>`:`<tr><td style="font-weight:700">${r.label}${r.prov?'*':''}</td><td class="mono" style="color:var(--amber);font-weight:800">${r.val}</td><td style="font-size:12px;color:${r.tier==='P90'?'var(--green)':r.tier==='below P50'?'var(--faint)':'var(--cyan)'}">${r.tier}</td><td class="mono" style="font-size:11px;color:var(--faint)">${r.gapText}</td></tr>`).join('')}
-    </table>`)(benchTable('LB'))}
+    </table>`)(benchTable(S.settings.benchPos||'LB'))}
     <div class="note">Speed rows fill the day you test. <b>*</b> broad + shuttle thresholds are provisional (combine-derived), pending firmer HS-recruit sourcing.</div>
   </div>
   <div class="card">
@@ -2696,6 +3502,7 @@ function rTrack(){
     <div class="note">When something's unknown, the app gives one of four honest answers — never a guess: <b>we know</b> · <b>we don't</b> · <b>the smallest test that would tell us</b> · <b>the best call until then</b>. Ranked by what each unlocks ÷ how hard it is.</div>
     ${xp.length?expTop(xp[0])+(xp.length>1?`<details><summary>${xp.length-1} more experiment${xp.length>2?'s':''} in the queue</summary><div class="bd">${xp.slice(1).map(expRow).join('')}</div></details>`:''):'<div class="empty">Every core input is logged. The app is reasoning on real evidence end-to-end — keep logging to keep the trends sharp.</div>'}
   </div>
+  <details style="margin:0 0 10px"><summary style="font-weight:800;padding:10px 2px">🧠 Deep stats · knowledge + advice grading</summary>
   <div class="card">
     <h3>Knowledge Graph <span class="r">what your evidence has taught the app</span></h3>
     <div class="note">Experiments end in <b>knowledge</b>, not just data. Each link is built only from your own paired observations — and it's permanent: it lives in your exported log, survives any redesign, and the app never re-asks what it has already learned.</div>
@@ -2724,7 +3531,7 @@ function rTrack(){
       return `<div style="padding:9px 0;border-bottom:1px solid var(--line)"><div class="row"><b class="grow">${esc(e.label)}</b><span class="pill ${bmap[e.effect]}" style="${(e.effect==='insufficient'||e.effect==='not-measurable')?'opacity:.6':''}">${blabel[e.effect]}</span></div><div class="note" style="margin:3px 0 0">${esc(e.detail)}</div><div class="note">Followed ${e.followed}/${e.total}${e.lastConfirmed?` · last confirmed ${esc(e.lastConfirmed)}`:''}${e.retire?' · <b style="color:var(--red)">no longer recommended</b>':''}</div></div>`;
     }).join(''):'<div class="empty">No recommendations tracked yet.<br>On TODAY, answer <b>Did it / Partly / Didn\'t</b> under your one thing — that logs the first hypothesis.</div>')(typeof recEffectiveness==='function'?recEffectiveness():[])}
     ${(rs=>rs.length?`<details style="margin-top:8px"><summary>${rs.length} recommendation object${rs.length>1?'s':''} on record</summary><div class="bd">${rs.slice(-6).reverse().map(r=>`• <b>${esc(r.d)}</b> — ${esc(r.text)}<br><span style="color:var(--faint)">unknown at the time: ${esc(r.unc||'—')} · assumed: ${esc(r.asm||'—')} · <b style="color:${r.followed==='followed'?'var(--green)':r.followed==='ignored'?'var(--red)':'var(--faint)'}">${r.followed||'no answer yet'}</b> · outcome: ${esc((typeof recOutcome==='function'?recOutcome(r):{note:'—'}).note)}</span>`).join('<br><br>')}</div></details>`:'')(S.recs||[])}
-    <div class="note">Contradictions are kept, never overwritten — advice that stops working flips to "no longer recommended" on its own. Truth over consistency.</div>
+    <div class="note">Contradictions are kept, never overwritten — advice that stops working flips to "no longer recommended" on its own. Truth over consistency. <b>Known bias, on record:</b> only advice that surfaces gets graded, and what surfaces correlates with how your day already went — verdicts here skew optimistic until scheduled experiments (planned) fix the sampling.</div>
   </div>
   <div class="card">
     <h3>The Gap <span class="r">what separates you from the next level</span></h3>
@@ -2741,6 +3548,7 @@ function rTrack(){
         <div class="note" style="margin-top:6px"><b style="color:var(--${T[tier][1]||'faint'})">${T[tier][0]}</b></div>
         ${fs.map(f=>`<div style="padding:5px 0;border-bottom:1px solid var(--line)"><b style="font-size:13px">${esc(f.name)}</b><div class="note" style="margin:1px 0 0">${esc(f.ev)}</div></div>`).join('')}`:'';}).join('');})(gapEngine())}
     ${(gt=>`<div class="note" style="margin-top:8px"><b style="color:var(--dim)">Closing the gap?</b> ${esc(gt.note)}</div>`)(gapTrend())}
+    <div class="note"><b style="color:var(--amber)">Known tension, on record:</b> the mass mission (→174) can slow the 40 this card calls your keystone. PEAK 14 measures weight and speed on the same days so the trade shows up as data, and the RB-vs-LB fork gets decided on sophomore film — not by default.</div>
     <div class="note">Rungs between JV waypoints and D1 percentiles (All-Conference, All-State) have no honest published numbers — the ladder here runs stage waypoint → D1-recruit percentiles, and unknowns say so instead of inventing standards.</div>
   </div>
   <div class="card">
@@ -2760,6 +3568,8 @@ function rTrack(){
     <div class="note">Not a score. Seven things every varsity starter has handled — you either have the evidence or you don't yet.</div>
     ${(v=>v.items.map(i=>`<div class="row" style="padding:7px 0;border-bottom:1px solid var(--line)"><span style="width:22px">${i.ok?'<b style="color:var(--green)">✓</b>':'<span style="color:var(--faint)">☐</span>'}</span><div class="grow"><b style="font-size:13px">${esc(i.k)}</b><div class="note" style="margin:1px 0 0">${esc(i.ev)}</div></div></div>`).join('')+`<div class="note" style="margin-top:6px">${v.earned}/${v.items.length} earned. Nothing here is predicted — every check comes from your own record.</div>`)(varsityReady())}
   </div>
+  </details>
+  <details style="margin:0 0 10px"><summary style="font-weight:800;padding:10px 2px">⚖️ Deep stats · policy + calibration</summary>
   <div class="card">
     <h3>Policy <span class="r">when may the app change itself?</span></h3>
     <div class="note">Knowledge updates every day. <b>Behavior changes rarely — by design.</b> Evidence never rewires the engine directly: a change must pass five policy questions, then <b>you</b> approve it. ${esc(policyBar().note)}</div>
@@ -2799,6 +3609,7 @@ function rTrack(){
     `)(typeof calibration==='function'?calibration():{fam:[],counts:{improved:0,noEffect:0,mixed:0,unresolved:0,reversals:0,settled:0},reversals:[],settled:[],confidence:'',unresolved:[],strongest:null,weakest:null})}
     <div class="note">Every line above is derived from permanent observations — beliefs are replayed from the log, never stored, so the system can compare what it concluded then with what the evidence says now. No family borrows credibility from another.</div>
   </div>
+  </details>
   <div class="card">
     <h3>System Read <span class="r">what your own data says</span></h3>
     ${sr.days30<7?'<div class="empty">Needs ≥7 days of check-ins before the mirror is useful.</div>':`
@@ -2854,7 +3665,7 @@ function rTrack(){
       <div class="grow"><label>Metric</label><select id="mKey">
         <option value="wt">Body weight (lb)</option><option value="forty">40-yd (s)</option>
         <option value="vert">Vertical (in)</option><option value="broad">Broad jump (in)</option><option value="shuttle">Pro-agility shuttle (s)</option><option value="sleep">Sleep (hours)</option>
-        <option value="gpa">GPA</option></select></div>
+        <option value="gpa">GPA</option><option value="reach">Standing reach (in)</option><option value="wing">Wingspan (in)</option><option value="ht">Height (in)</option></select></div>
       <div style="width:100px"><label>Value</label><input id="mVal" type="number" step="0.01" inputmode="decimal"></div>
     </div>
     <div class="row" style="margin-top:12px">
@@ -2907,18 +3718,184 @@ function rTrack(){
       5. <b style="color:var(--dim)">Later: a 3-session sprint-mechanics block</b> with a real speed coach — once you have a baseline 40 to improve. Save it for when it'll move a measured number.</div>
     <div class="note">Notice what's NOT here: shoe-of-the-month, supplement stacks, gadgets. Spend only on what moves a real number.</div>
   </div>
+  ${typeof coreCardHTML==='function'?coreCardHTML():''}
+  ${typeof calCardHTML==='function'?calCardHTML():''}
   <div class="card">
     <h3>Data <span class="r">yours, protected</span></h3>
-    <div class="row">
+    <div id="syncStat">${syncCardHTML()}</div>
+    <div class="row" style="margin-top:8px">
       <button class="btn grow" onclick="exportS()">⬇ EXPORT BACKUP</button>
       <button class="btn ghost grow" onclick="pickImport()">⬆ IMPORT</button>
     </div>
+    <details style="margin-top:8px"><summary>Fix a bad entry (void — correction stays on record)</summary><div class="bd">
+      ${(S.lifts||[]).slice(-6).map((x,ii)=>{const idx=S.lifts.length-6>=0?S.lifts.length-6+ii:ii;
+        return `<div class="row" style="padding:4px 0;border-bottom:1px solid var(--line)"><span class="grow" style="font-size:12px">${esc(x.d)} · ${esc(x.ex)} ${x.wt}×${x.reps}</span><button class="btn sm ghost" onclick="armVoid('lift',${idx})">${pendVoid==='lift:'+idx?'SURE?':'VOID'}</button></div>`;}).join('')||'<div class="note">No lifts yet.</div>'}
+      ${(S.metrics||[]).slice(-6).map((x,ii)=>{const idx=S.metrics.length-6>=0?S.metrics.length-6+ii:ii;
+        return `<div class="row" style="padding:4px 0;border-bottom:1px solid var(--line)"><span class="grow" style="font-size:12px">${esc(x.d)} · ${esc(x.key)} ${x.val}</span><button class="btn sm ghost" onclick="armVoid('metric',${idx})">${pendVoid==='metric:'+idx?'SURE?':'VOID'}</button></div>`;}).join('')||'<div class="note">No metrics yet.</div>'}
+      <div class="note">Voiding removes the bad point so every stat heals, and logs a permanent correction event — history is never silently rewritten.</div>
+      <div class="note"><b>Mirror honesty:</b> the second on-phone copy protects against app-storage clears only. A lost, wiped, or dead phone kills both copies — the export file is the only real backup. Keep the TODAY chip green.</div>
+    </div></details>
     <input type="file" id="impFile" accept=".json" style="display:none" onchange="if(this.files[0])importS(this.files[0])">
     <div class="note">Export monthly, save to iCloud Files. Import replaces everything on this phone (a safety export runs first).</div>
+    ${typeof dumpCardHTML==='function'?dumpCardHTML():''}
   </div>`;
 }
+/* ---- cloud sync card (v7.32) — three states: no config / signed out / live ---- */
+const _syIn='width:100%;background:var(--bg2);color:var(--txt);border:1px solid var(--line);border-radius:10px;padding:9px 10px;font-family:inherit;font-size:13px;margin-top:6px';
+function syncCardHTML(){
+  const cfg=(typeof syncCfg==='function')?syncCfg():null;
+  const err=(typeof _syncErr!=='undefined'&&_syncErr)?`<div class="note" style="color:var(--red);margin-top:6px">⚠ ${esc(_syncErr)}</div>`:'';
+  if(!cfg) return `<div class="note" style="margin:0 0 2px"><b>Cloud sync: OFF.</b> One-time setup links iPhone + iPad + laptop to one account — every log lands on every device. Steps live in <b>SETUP-SYNC.md</b> (project folder). When you have the config snippet, paste it here:</div>
+    <textarea id="syncCfgIn" placeholder='Paste the whole firebaseConfig snippet — { apiKey: "...", ... }' style="${_syIn};min-height:64px"></textarea>
+    <button class="btn sm" style="margin-top:6px" onclick="syncSetup()">SAVE SYNC CONFIG</button>${err}`;
+  if(typeof _fbUser==='undefined'||!_fbUser) return `<div class="note" style="margin:0 0 2px"><b>Cloud sync:</b> config saved ✓ — sign in with the one shared athlete account (same email + password on all three devices).</div>
+    <input id="syncEm" type="email" autocomplete="username" placeholder="email" style="${_syIn}">
+    <input id="syncPw" type="password" autocomplete="current-password" placeholder="password (8+ characters)" style="${_syIn}">
+    <div class="row" style="margin-top:8px">
+      <button class="btn sm grow" onclick="syncGo(false)">SIGN IN</button>
+      <button class="btn sm ghost grow" onclick="syncGo(true)">CREATE ACCOUNT</button>
+    </div>
+    <button class="btn sm ghost" style="margin-top:6px" onclick="syncReset()">REMOVE CONFIG</button>${err}`;
+  const ago=(typeof _syncLast!=='undefined'&&_syncLast)?Math.round((Date.now()-_syncLast)/60000):null;
+  return `<div class="row" style="align-items:center">
+    <span class="note grow" style="margin:0">Cloud sync <b style="color:var(--green)">LIVE</b> — ${esc(_fbUser.email||'')}<br>${ago==null?'first sync pending…':ago<1?'synced just now':'synced '+ago+'m ago'} · logs land on all devices in seconds</span>
+    <button class="btn sm" onclick="pushCloud(true)">SYNC NOW</button></div>
+    <button class="btn sm ghost" style="margin-top:6px" onclick="cloudSignOut()">SIGN OUT ON THIS DEVICE</button>${err}
+    <div class="note" style="margin-top:6px">Sync is a convenience layer, not the backup. The export file still exists for a reason: it survives a dead account, a billing change, or Google itself. Keep exporting monthly.</div>`;
+}
+function syncSetup(){
+  const txt=(($('#syncCfgIn')||{}).value||'');
+  const cfg={}; const re=/(\w+)\s*:\s*["']([^"']+)["']/g; let mt;
+  while((mt=re.exec(txt))) cfg[mt[1]]=mt[2];
+  if(!cfg.apiKey||!cfg.projectId||!cfg.appId){ toast('That is not a full Firebase config — paste the whole snippet including apiKey, projectId, appId'); return; }
+  try{ localStorage.setItem(SYNC_KEY,JSON.stringify(cfg)); }catch(e){ toast('Could not store config'); return; }
+  toast('Config saved — now sign in');
+  rSyncUI(); cloudBoot();
+}
+function syncGo(create){
+  const em=(($('#syncEm')||{}).value||'').trim(), pw=(($('#syncPw')||{}).value||'');
+  if(!em||pw.length<8){ toast(pw.length<8?'Password needs 8+ characters':'Enter the account email'); return; }
+  cloudSignIn(em,pw,create);
+}
+function syncReset(){ try{ localStorage.removeItem(SYNC_KEY); }catch(e){} cloudSignOut(); rSyncUI(); toast('Sync config removed — your data on this device is untouched'); }
+
 function logMetric(){ const v=+$('#mVal').value; if(!v){toast('Enter a value');return;}
   S.metrics.push({d:todayISO(),key:$('#mKey').value,val:v,src:'manual'}); save(); rTrack(); toast('Logged ✓'); }
+
+/* ============ v7.41 ROADMAP-20 UI ============ */
+/* item 1 · NCAA core-course ledger */
+function coreCardHTML(){
+  const cr=coreRead();
+  return `<div class="card" style="border-color:#294551">
+    <h3>NCAA Core Ledger <span class="r">the quiet gate · rules verified Jul 2026</span></h3>
+    <div class="note" style="margin:0 0 6px">16 core courses decide eligibility, and 10 of them <b>lock forever</b> in <b class="mono" style="color:var(--amber)">${cr.lockDays}</b> days (start of senior fall). Freshman grades are permanent eligibility math — this semester counts.</div>
+    <div class="note" style="margin:0 0 8px"><b style="color:${cr.d1ok===false?'var(--red)':cr.d1ok?'var(--green)':'var(--dim)'}">${esc(cr.read)}</b></div>
+    ${cr.rows.map((c,i)=>`<div class="row" style="padding:4px 0;border-bottom:1px solid var(--line);font-size:12px"><span class="grow">${esc(c.name)} <span class="pill">${esc(c.subj)}</span></span><b class="mono">${esc(c.grade)}</b><span style="color:var(--faint)">${c.credit} cr</span></div>`).join('')}
+    <div class="row" style="gap:6px;margin-top:8px"><input id="coreN" placeholder="course (e.g. English 9)" style="flex:2"><select id="coreS" style="flex:1"><option value="EN">English</option><option value="MA">Math</option><option value="SC">Science</option><option value="SS">Social</option><option value="OT">Other</option></select></div>
+    <div class="row" style="gap:6px;margin-top:6px"><select id="coreG" style="flex:1"><option>A</option><option>B</option><option>C</option><option>D</option><option>F</option></select><select id="coreC" style="flex:1"><option value="0.5">0.5 credit (semester)</option><option value="1">1 credit (year)</option></select><button class="btn sm amber" onclick="addCore()">ADD</button></div>
+    <div class="note">Log each core course when the semester grade posts. Core GPA ≠ report card GPA — only NCAA-approved courses count (list: eligibilitycenter.org).</div>
+  </div>`;
+}
+function addCore(){
+  const n=(($('#coreN')||{}).value||'').trim(); if(n.length<2){ toast('Course name first'); return; }
+  S.core.push({d:todayISO(),name:n,subj:$('#coreS').value,grade:$('#coreG').value,credit:+$('#coreC').value});
+  save(); rTrack(); toast('Core course logged — GPA recomputed ✓');
+}
+/* item 8 · calibration — visible only once 90 days of telemetry earn it */
+function calCardHTML(){
+  const g=calGate();
+  if(!g.open) return `<div class="card"><h3>Calibration <span class="r">locked</span></h3>
+    <div class="note" style="margin:0">The app grades its own advice against your results — but only after <b>90 days of telemetry</b>. Unlocks <b style="color:var(--amber)">${g.unlock?fmtD(g.unlock):'after 90 logged days'}</b> (day ${g.have} now). Feed the log; the report card writes itself.</div></div>`;
+  const cal=(typeof calibration==='function')?calibration():[];
+  const rev=(typeof calReversals==='function')?calReversals():[];
+  return `<div class="card" style="border-color:#3f4a1f"><h3>Calibration <span class="r">the app's own report card</span></h3>
+    ${cal.length?cal.map(c=>`<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line);font-size:12px"><span class="grow">${esc(c.kind||c.family||'')}</span><span>${esc(c.verdict||c.note||'')}</span></div>`).join(''):'<div class="note">Not enough resolved predictions yet — keep logging outcomes.</div>'}
+    ${rev.length?`<div class="note" style="margin-top:6px">${rev.length} belief reversal${rev.length===1?'':'s'} on record — the system changed its mind in public. That's the feature.</div>`:''}
+  </div>`;
+}
+/* item 10 · brain-dump inbox — messy text in, approved entries out */
+let pendDump=null,pendDumpTxt='';
+function dumpGo(){
+  pendDumpTxt=(($('#dumpIn')||{}).value||'').trim();
+  if(pendDumpTxt.length<4){ toast('Dump something first'); return; }
+  pendDump=dumpParse(pendDumpTxt); rTrack();
+}
+function dumpApprove(i){
+  const x=(pendDump||[])[i]; if(!x) return;
+  if(x.kind==='lift') S.lifts.push({d:todayISO(),ex:x.ex,wt:x.wt,reps:x.reps});
+  else S.metrics.push({d:todayISO(),key:x.key,val:x.val,src:'manual'});
+  pendDump.splice(i,1); save(); rTrack(); toast(x.label+' ✓');
+}
+function dumpNote(){
+  if(!pendDumpTxt) return;
+  S.notes.push({d:todayISO(),text:pendDumpTxt});
+  pendDump=null; pendDumpTxt=''; const el=$('#dumpIn'); if(el) el.value='';
+  save(); rTrack(); toast('Saved as note — nothing lost ✓');
+}
+function dumpCardHTML(){
+  return `<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">
+    <div class="note" style="margin:0 0 6px"><b>Brain dump</b> — type it how you'd text it ("hit 210 on bench, weighed 158, slept 7"). The app suggests entries; you approve each one. Nothing writes itself.</div>
+    <div class="row" style="gap:6px"><input id="dumpIn" placeholder="what happened today, any format" style="flex:1"><button class="btn sm amber" onclick="dumpGo()">READ IT</button></div>
+    ${pendDump?`<div style="margin-top:6px">${pendDump.length?pendDump.map((x,i)=>`<div class="row" style="padding:4px 0"><span class="grow" style="font-size:13px">→ ${esc(x.label)}</span><button class="btn sm amber" onclick="dumpApprove(${i})">LOG IT ✓</button></div>`).join(''):'<div class="note">No numbers recognized — save it as a note so it still counts.</div>'}
+    <button class="btn sm ghost" style="margin-top:6px" onclick="dumpNote()">SAVE FULL TEXT AS NOTE</button></div>`:''}
+  </div>`;
+}
+/* item 2 · season stat line + item 9 · season report */
+function addGame(){
+  const opp=(($('#gOpp')||{}).value||'').trim()||'TBD';
+  const g={d:todayISO(),opp,car:+(($('#gCar')||{}).value||0),yds:+(($('#gYds')||{}).value||0),td:+(($('#gTd')||{}).value||0),tkl:+(($('#gTkl')||{}).value||0)};
+  S.games.push(g); save(); rPath(); toast('Game logged — season line updated ✓');
+}
+function statCardHTML(){
+  const ss=seasonStats();
+  return `<div class="card" style="border-color:#3f4a1f">
+    <h3>Season Stat Line <span class="r">verified, game by game</span></h3>
+    ${ss.n?`<div class="row" style="text-align:center;margin-bottom:8px">
+      <div class="grow"><div class="mono" style="font-size:22px;font-weight:800">${ss.t.car}</div><div class="note" style="margin:0">CARRIES</div></div>
+      <div class="grow"><div class="mono" style="font-size:22px;font-weight:800">${ss.t.yds}</div><div class="note" style="margin:0">YARDS${ss.ypc?' · '+ss.ypc+'/C':''}</div></div>
+      <div class="grow"><div class="mono" style="font-size:22px;font-weight:800;color:var(--amber)">${ss.t.td}</div><div class="note" style="margin:0">TD</div></div>
+      <div class="grow"><div class="mono" style="font-size:22px;font-weight:800">${ss.t.tkl}</div><div class="note" style="margin:0">TACKLES</div></div></div>
+      ${ss.games.map(g=>`<div class="row" style="padding:4px 0;border-bottom:1px solid var(--line);font-size:12px"><span class="grow">${fmtD(g.d)} · ${esc(g.opp)}</span><span class="mono">${g.car}c/${g.yds}y/${g.td}td/${g.tkl}tk</span></div>`).join('')}`
+    :'<div class="note" style="margin:0 0 6px">First game logs the first line. These verified numbers are what future coach emails are made of.</div>'}
+    <div class="row" style="gap:5px;margin-top:8px"><input id="gOpp" placeholder="opponent" style="flex:2"><input id="gCar" type="number" placeholder="car" style="width:52px"><input id="gYds" type="number" placeholder="yds" style="width:56px"><input id="gTd" type="number" placeholder="td" style="width:44px"><input id="gTkl" type="number" placeholder="tkl" style="width:48px"><button class="btn sm amber" onclick="addGame()">LOG</button></div>
+  </div>`;
+}
+/* item 6 · the dossier — rule-aware, built from the verified log only */
+function buildDossier(){
+  const p=S.profile, cr=coreRead(), ss=seasonStats(), mom=Model.momentum(), hf=hudlFresh();
+  const lift=k=>Math.max(S.prs[k]||0,(mom.bestE1rm||{})[k]||0)||null;
+  const lm=k=>{const a=(S.metrics||[]).filter(m2=>m2.key===k);return a.length?a[a.length-1].val:null;};
+  const pre=todayISO()<GATE_D1_CONTACT;
+  const L=[];
+  L.push((pre?'PROSPECT UPDATE (questionnaire follow-up format — direct contact opens '+GATE_D1_CONTACT+')':'PROSPECT DOSSIER'));
+  L.push(`${(p.name||'Zayden').toUpperCase()} — ${p.pos} · Class of ${p.classOf} · Henderson, NV (Basic Academy)`);
+  L.push('');
+  L.push('VERIFIED NUMBERS (logged with dates, not claimed):');
+  const rows=[['Squat',lift('squat'),'lb'],['Bench',lift('bench'),'lb'],['Deadlift',lift('dead'),'lb'],['Vertical',lm('vert'),'in'],['Bodyweight',lm('wt'),'lb'],['Height',lm('ht'),'in'],['Standing reach',lm('reach'),'in'],['Wingspan',lm('wing'),'in'],['40yd',lm('forty'),'s']];
+  for(const[k,v,u]of rows) if(v!=null) L.push(`  ${k}: ${v} ${u}`);
+  if(ss.n) L.push(`SEASON: ${ss.n} games — ${ss.t.car} car, ${ss.t.yds} yds${ss.ypc?' ('+ss.ypc+'/carry)':''}, ${ss.t.td} TD, ${ss.t.tkl} tackles`);
+  if(cr.gpa!=null) L.push(`ACADEMICS: NCAA core GPA ${cr.gpa.toFixed(2)} (${cr.credits}/16 credits logged)`);
+  L.push(`FILM: ${(S.clips||[]).length} tagged clips${hf.last?' · Hudl updated '+fmtD(hf.last):' · Hudl link goes here'}`);
+  L.push('');
+  L.push('Every number above comes from a timestamped training log kept since Jul 2026.');
+  return L.join('\n');
+}
+function copyDossier(){
+  const txt=buildDossier();
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){ navigator.clipboard.writeText(txt); toast('Dossier copied ✓'); return; } }catch(e){}
+  toast('Select + copy from the preview below');
+  const el=$('#dossPrev'); if(el){ el.textContent=txt; }
+  rPath();
+}
+function dossierCardHTML(){
+  const pre=todayISO()<GATE_D1_CONTACT;
+  return `<div class="card">
+    <h3>The Dossier <span class="r">${pre?'questionnaire era — contact opens Jun 15 2028':'contact is open'}</span></h3>
+    <div class="note" style="margin:0 0 8px">One tap builds the coach-ready summary from the verified log — nothing typed, nothing inflated. ${pre?'Until the gate, use it for questionnaires, camp registrations, and profile updates (all legal now).':''}</div>
+    <button class="btn grow" style="width:100%" onclick="copyDossier()">⎘ BUILD + COPY DOSSIER</button>
+    <details style="margin-top:8px"><summary>Preview</summary><div class="bd"><pre id="dossPrev" style="white-space:pre-wrap;font-size:11px;color:var(--dim)">${esc(buildDossier())}</pre></div></details>
+  </div>`;
+}
 function setGameDay(v){ S.settings.gameDay=+v; save(); trainDay=null; rTrain(); toast('Game day set — schedule rebuilt'); }
 function pickImport(){ $('#impFile').click(); }
 
@@ -2938,6 +3915,7 @@ function rPush(){
     <h3>IQ Reps This Week <span class="r">${iq.reps7}</span></h3>
     <div class="note" style="margin:0">Engine says today: <b style="color:var(--amber)">${esc(engIq?.title||'—')}</b><br>Any rep logged here also checks box 3 on TODAY.</div>
   </div>
+  ${typeof filmSyllabusCard==='function'?filmSyllabusCard():''}
   <div class="card">
     <h3>Film Room <span class="r">film becomes searchable</span></h3>
     <div class="note">Tag every clip the day you watch it. Weeks later: "show every missed-leverage rep" is one tap.</div>
@@ -3012,8 +3990,10 @@ function rPush(){
       <div class="bd"><i>${esc(v.use)}</i><br><br>${esc(v.script).replace(/\n/g,'<br>')}
       <button class="btn sm amber" style="margin-top:10px" onclick="logPush('viz')">COMPLETED ✓</button></div></details>`).join('')}
   </div>
+  ${typeof vaultCard==='function'?vaultCard():''}
   <div class="card">
     <h3>Injury Red Flags <span class="r">know these cold</span></h3>
+    <div class="note" style="color:var(--faint)">Reference, not medical advice. Your athletic trainer and physician make every return-to-play call — always tell them, always.</div>
     <div class="note" style="margin:0 0 8px">🚨 911 now: heat stroke (hot DRY skin + confusion) · second-impact concussion · collapse after chest hit · cola-colored urine. Never hide a head hit.</div>
     <details><summary>Full protocol reference <span class="pill">${INJURY_PROTOCOLS.length}</span></summary><div class="bd">
       ${INJURY_PROTOCOLS.map(p=>`<b style="color:${/CRITICAL/.test(p.grade)?'var(--red)':'var(--txt)'}">${esc(p.name)}</b> — ${esc(p.signs)}<br><span style="color:var(--faint)">RTP ${esc(p.rtn)} · Prevent: ${esc(p.prevention)}</span><br><br>`).join('')}
@@ -3027,6 +4007,44 @@ function copyScout(){
 function drawDR(){ drIdx=Math.floor(Math.random()*DARK_ROOM.length); rPush(); }
 function logPush(type){ S.pushLog.push({d:todayISO(),type}); const c=ckToday(); if(!c[2]) c[2]=true; completeTask('iq:'+todayISO()); save(); rPush(); toast('IQ rep logged ✓'); }
 
+/* ============ v7.34 FILM SYLLABUS UI — film becomes reps, not entertainment ============ */
+let _callHit=0,_callMiss=0;
+function sylNext(){ return FILM_SYLLABUS.find(a=>!taskDone('film:'+a.id))||null; }
+function sylDone(){ return FILM_SYLLABUS.filter(a=>taskDone('film:'+a.id)); }
+function sylAnswer(id){
+  const a=FILM_SYLLABUS.find(x=>x.id===id); if(!a) return;
+  const v=(($('#sylA')||{}).value||'').trim();
+  if(v.length<10){ toast('Real answer — one honest sentence minimum. The record keeps what you write.'); return; }
+  S.notes.push({d:todayISO(),text:'film: '+a.title+' — '+v}); // the answer is permanent and searchable
+  completeTask('film:'+id);
+  logPush('film');
+}
+function callTap(hit){ hit?_callHit++:_callMiss++; const el=$('#callN'); if(el) el.textContent=_callHit+' / '+(_callHit+_callMiss); }
+function callEnd(){
+  const n=_callHit+_callMiss;
+  if(n<10){ toast('Run at least 10 snaps before a rate counts'); return; }
+  const pct=Math.round(100*_callHit/n);
+  S.metrics.push({d:todayISO(),key:'callrate',val:pct,src:'manual'}); save();
+  _callHit=0;_callMiss=0; rPush();
+  toast('Call rate '+pct+'% on '+n+' snaps — logged. Watch this number climb all season.');
+}
+function filmSyllabusCard(){
+  const a=sylNext(), done=sylDone();
+  const hist=(S.metrics||[]).filter(m=>m.key==='callrate');
+  if(!a) return `<div class="card"><h3>Film Syllabus <span class="r">12/12 — in you now</span></h3><div class="note" style="margin:0">Curriculum complete. The drills are permanent equipment — re-run any of them on opponent film all season.${hist.length?` Call-rate arc: ${hist.map(h=>h.val+'%').join(' → ')}.`:''}</div></div>`;
+  return `<div class="card" style="border-color:#3f4a1f">
+    <h3>Film Syllabus <span class="r">assignment ${a.wk} of 12 · ${esc(a.tag)}</span></h3>
+    <div class="t" style="font-size:17px">${esc(a.title)}</div>
+    <div class="note" style="margin-top:4px"><b>Find it:</b> search "<i>${esc(a.find)}</i>" — ${esc(a.src)}</div>
+    <div style="margin-top:8px;font-size:13px;line-height:1.7"><b style="color:var(--cyan)">Your eyes, every rep:</b><br>${a.watch.map(w=>'• '+esc(w)).join('<br>')}</div>
+    <div class="note" style="margin-top:8px;border-left:3px solid var(--amber);padding-left:10px;font-style:normal"><b>THE DRILL:</b> ${esc(a.drill)}</div>
+    ${a.id==='call-it'?`<div class="row" style="gap:6px;margin-top:8px"><button class="btn sm grow" onclick="callTap(1)">HIT ✓</button><button class="btn sm ghost grow" onclick="callTap(0)">MISS ✗</button><span class="mono" id="callN" style="align-self:center;min-width:52px;text-align:center">0 / 0</span><button class="btn sm amber" onclick="callEnd()">LOG RATE</button></div>${hist.length?`<div class="note" style="margin-top:4px">Your call-rate arc: ${hist.slice(-5).map(h=>h.val+'%').join(' → ')}</div>`:''}`:''}
+    <div style="margin-top:8px"><b style="font-size:13px">${esc(a.q)}</b>
+    <div class="row" style="gap:6px;margin-top:6px"><input id="sylA" placeholder="your answer — it gets carved into the record" style="flex:1"><button class="btn sm amber" onclick="sylAnswer('${a.id}')">DONE ✓</button></div></div>
+    ${done.length?`<details style="margin-top:8px"><summary>Completed (${done.length}/12)</summary><div class="bd">${done.map(x=>`<div class="note" style="margin:2px 0">✓ ${x.wk}. ${esc(x.title)}</div>`).join('')}</div></details>`:''}
+  </div>`;
+}
+
 /* ===== Varsity Advantage actions (v7.23) — one-tap capture, append-only ===== */
 function missionAns(ok){ if((S.events||[]).some(e=>e.type==='mission'&&e.d===todayISO())) return;
   S.events.push({d:todayISO(),type:'mission',meta:{ok}}); save();
@@ -3034,8 +4052,6 @@ function missionAns(ok){ if((S.events||[]).some(e=>e.type==='mission'&&e.d===tod
 function freeWin(d,i){ const id='freewin:'+d+':'+i; if(!taskDone(id)){ logEvent('task',{id}); save(); } rToday(); }
 function coachAgainIdx(i){ const x=coachMemory().list[i]; if(!x) return;
   (S.coach=S.coach||[]).push({d:todayISO(),text:x.text}); save(); toast('Heard again — logged. Make it your mission.'); rPush(); }
-function addOpp(opp){ const t=prompt('Scout note for '+opp+' (what you saw or heard)');
-  if(t&&t.trim()){ (S.opp=S.opp||[]).push({d:todayISO(),opp,text:t.trim()}); save(); toast('Saved — scout notes outlive the season'); rPath(); } }
 function logPB(ok){ const pb=PLAYBOOK[pbIdx]; if(!pb) return;
   S.pushLog.push({d:todayISO(),type:'pb',ok,concept:pb.concept}); completeTask('iq:'+todayISO()); save();
   toast(ok?'Got it — on record':'Missed — the deck will bring it back until you own it'); drawPB(); }
@@ -3062,9 +4078,6 @@ function posCoachRead(){
 let filmTag=null;
 function setFilmTag(t){ filmTag=t; rPush(); }
 function logHudl(){ logEvent('hudl',{}); save(); toast('Hudl update on record'); rPath(); }
-function addCamp(){ const name=prompt('Camp / showcase name?'); if(!name||!name.trim()) return;
-  const when=prompt('When? (e.g. Jun 2027, or a date)')||'';
-  logEvent('camp',{name:name.trim(),when:when.trim()}); save(); toast('Tracked — it will not be forgotten'); rPath(); }
 function buildPosReport(){
   const cm=coachMemory(), ms=missionStats(), wc=weakConcepts(), fr=filmRead(), wg=Model.waypointGaps();
   const L=[]; L.push('POSITION REPORT — '+S.profile.name+' ('+S.profile.pos+') — week of '+todayISO());
@@ -3099,9 +4112,51 @@ function compRead(){
     <div class="note" style="color:var(--faint)">One bottleneck. One mission. Both from evidence.</div>
   </div>`;
 }
+
+/* ===== v7.30: ONE logging sheet — inline number bar, per-entry date chip, no native dialogs ===== */
+let pendNum=null, numDate='today', pendCamp=false, pendVoid=null, liftYest=false;
+function numOpen(key,label,step,fallback){
+  const last=[...(S.metrics||[])].reverse().find(m=>m.key===key);
+  pendNum={key,label,step,big:step>=1?5:+(step*10).toFixed(2),val:last?last.val:fallback}; numDate='today'; showNumBar();
+}
+function numCur(){ let el=null; try{ el=document.querySelector('#numVal'); }catch(e){}
+  const v=el?parseFloat(el.value):NaN; return isNaN(v)?pendNum.val:v; }
+function numStep(d){ if(!pendNum) return; pendNum.val=+(numCur()+d).toFixed(2); showNumBar(); }
+function numDateFlip(){ numDate=numDate==='today'?'yest':'today'; showNumBar(); }
+function numClose(){ pendNum=null; try{ const b=document.querySelector('#numBar'); if(b&&b.remove) b.remove(); }catch(e){} }
+function showNumBar(){ if(!pendNum) return;
+  const html=`<div id="numBar" style="position:fixed;left:0;right:0;bottom:58px;z-index:98;background:var(--card);border-top:1px solid var(--line);box-shadow:0 -6px 18px rgba(0,0,0,.4);padding:10px 12px">
+    <div class="row" style="gap:6px;align-items:center"><b style="font-size:12px;letter-spacing:.06em">${esc(pendNum.label.toUpperCase())}</b>
+      <button class="btn sm ${numDate==='yest'?'amber':'ghost'}" onclick="numDateFlip()">${numDate==='yest'?'YESTERDAY':'today'}</button>
+      <span class="grow"></span><button class="btn sm ghost" onclick="numClose()">✕</button></div>
+    <div class="row" style="gap:6px;align-items:center;margin-top:8px">
+      <button class="btn sm" onclick="numStep(-${pendNum.big})">−${pendNum.big}</button><button class="btn sm" onclick="numStep(-${pendNum.step})">−${pendNum.step}</button>
+      <input id="numVal" inputmode="decimal" value="${pendNum.val}" style="flex:1;text-align:center;font-size:18px;font-weight:800;min-width:70px">
+      <button class="btn sm" onclick="numStep(${pendNum.step})">+${pendNum.step}</button><button class="btn sm" onclick="numStep(${pendNum.big})">+${pendNum.big}</button>
+      <button class="btn amber sm" onclick="numSave()">SAVE</button></div></div>`;
+  try{ const old=document.querySelector('#numBar'); if(old&&old.remove) old.remove();
+    document.body.insertAdjacentHTML('beforeend',html); }catch(e){}
+}
+function numSave(){ if(!pendNum) return; const v=numCur(); if(!v||v<=0){ toast('Enter a real number'); return; }
+  const d=numDate==='yest'?addDays(todayISO(),-1):todayISO();
+  (S.metrics=S.metrics||[]).push({d,key:pendNum.key,val:v,src:'manual'}); logEvent('metric',{key:pendNum.key,val:v});
+  const k=pendNum.key, y=numDate==='yest'; numClose(); save();
+  toast(k.toUpperCase()+' '+v+(y?' → yesterday ✓':' ✓')); try{ RENDER[curView](); }catch(e){}
+}
+function armVoid(kind,idx){ const key=kind+':'+idx;
+  if(pendVoid!==key){ pendVoid=key; rTrack(); return; }
+  pendVoid=null; voidEntry(kind,idx); }
+function saveOpp(opp){ let el=null; try{ el=document.querySelector('#oppIn'); }catch(e){}
+  const t=el&&el.value; if(!t||!t.trim()){ toast('Type the note first'); return; }
+  (S.opp=S.opp||[]).push({d:todayISO(),opp,text:t.trim()}); save(); toast('Saved — scout notes outlive the season'); rPath(); }
+function saveCamp(){ let n=null,w=null; try{ n=document.querySelector('#campN'); w=document.querySelector('#campW'); }catch(e){}
+  if(!n||!n.value.trim()){ toast('Camp name first'); return; }
+  logEvent('camp',{name:n.value.trim(),when:(w&&w.value||'').trim()}); pendCamp=false; save(); toast('Tracked — it will not be forgotten'); rPath(); }
 /* ============ NAV + BOOT ============ */
 const RENDER={today:rToday,train:rTrain,path:rPath,track:rTrack,push:rPush};
+let curView='today';
 function go(v){
+  curView=v;
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
   $('#v-'+v).classList.add('on');
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
@@ -3110,7 +4165,35 @@ function go(v){
 }
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
 $('#hdrCd').innerHTML=`<b class="mono">${daysBetween(todayISO(),GATE_D1_CONTACT)}</b> days to Jun 15 gate<br>Class of 2030 · RB/LB`;
-go('today');
+/* storage armor (v7.30): persist request, then RESTORE-BEFORE-RENDER. The v7.29 order was a
+   real bug (first render saved defaults into localStorage before the check could see it empty).
+   Now nothing renders or saves until the mirror verdict is in (800ms cap). */
+if(typeof navigator!=='undefined'&&navigator.storage&&navigator.storage.persist){ try{ navigator.storage.persist(); }catch(e){} }
+/* v7.35 widget mode — the app's glanceable face. Open the same URL with #widget:
+   iPad split-view companion, or a small pinned always-on-top window on the laptop.
+   Same state, same truth, zero extra surface to maintain. */
+function rWidget(){
+  const gate=daysBetween(todayISO(),GATE_D1_CONTACT);
+  const L=(typeof weekLedger==='function')?weekLedger():{cur:{days:0,actions:0},bar:{days:0,actions:0}};
+  const ck=(S.checkins[todayISO()]||[]).filter(Boolean).length;
+  const col=L.cur.days>L.bar.days||(L.cur.days===L.bar.days&&L.cur.actions>L.bar.actions)?'var(--green)':'var(--amber)';
+  try{ document.body.classList.add('wm'); }catch(e){}
+  $('#v-today').innerHTML=`<div class="wj">
+    <div class="n mono">${gate}</div>
+    <div class="l">days · june 15 gate</div>
+    <div class="sub">
+      <div><div class="v mono" style="color:${col}">${L.cur.days}<span style="color:var(--faint);font-size:.55em">/${L.bar.days}</span></div><div class="k">days vs bar</div></div>
+      <div><div class="v mono" style="color:${col}">${L.cur.actions}<span style="color:var(--faint);font-size:.55em">/${L.bar.actions}</span></div><div class="k">work vs bar</div></div>
+      <div><div class="v mono" style="color:${ck===4?'var(--green)':'var(--txt)'}">${ck}<span style="color:var(--faint);font-size:.55em">/4</span></div><div class="k">daily four</div></div>
+    </div>
+    <div class="one">${(o=>o?`<b>ONE THING:</b> ${esc(o.t)}`:'')(typeof oneThing==='function'?oneThing(decide()):null)}</div>
+  </div>`;
+  $('#v-today').classList.add('on');
+}
+const _wm=(typeof location!=='undefined'&&/widget/.test(location.hash||''));
+function bootD1(){ if(_wm){ rWidget(); if(typeof cloudBoot==='function') cloudBoot(); return; } go('today'); if(typeof cloudBoot==='function') cloudBoot(); } // sync starts only after the mirror verdict — cloud merges with real local state, never with a placeholder
+idbRestoreCheck(bootD1);
+if(_wm&&typeof setInterval!=='undefined'){ setInterval(()=>{ try{ rWidget(); }catch(e){} },60000); } // widget stays fresh
 
 /* offline support — guarded so non-browser test environments ignore it */
 if(typeof navigator!=='undefined'&&'serviceWorker'in navigator){
