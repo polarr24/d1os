@@ -1,8 +1,8 @@
-<!DOCTYPE html><!-- d1os v7.42 -->
+<!DOCTYPE html><!-- d1os v7.43 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#0a0e14">
@@ -43,8 +43,11 @@ h1,h2,h3{font-weight:800;letter-spacing:.02em}
 #hdr .brand::after{content:'';display:inline-block;width:6px;height:6px;border-radius:99px;background:var(--amber);
   margin-left:7px;vertical-align:2px;box-shadow:0 0 10px 1px rgba(201,242,78,.8);animation:beacon 2.6s ease-in-out infinite}
 @keyframes beacon{0%,100%{opacity:1}50%{opacity:.35}}
-#hdr .cd{font-size:12px;color:var(--dim);text-align:right;line-height:1.35}
-#hdr .cd b{color:var(--amber);font-weight:900;font-size:14px;text-shadow:0 0 14px rgba(201,242,78,.45)}
+#hdr .cd{display:flex;gap:14px;align-items:center}
+.sb-cell{display:flex;flex-direction:column;align-items:center;min-width:34px}
+.sb-n{font-family:var(--disp);font-weight:400;font-size:19px;line-height:1;color:var(--amber);text-shadow:0 0 12px rgba(201,242,78,.35)}
+.sb-n .sb-sub{font-style:normal;font-size:12px;color:var(--faint)}
+.sb-k{font-size:7.5px;letter-spacing:.14em;color:var(--faint);font-weight:800;margin-top:2px}
 main{padding:16px;max-width:560px;margin:0 auto}
 .view{display:none}.view.on{display:block;animation:rise .28s cubic-bezier(.2,.8,.25,1)}
 @keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
@@ -137,6 +140,16 @@ details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
 .prio .t{font-size:16px;font-weight:800;margin-top:3px}
 .prio .w{font-size:12px;color:var(--dim);margin-top:4px;font-style:italic}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* v7.43 (audit #18): desktop is a real citizen — parents and coaches open this on laptops */
+@media (min-width:1000px){
+  html{font-size:17px}
+  main{max-width:760px;padding:28px 20px}
+  #hdr>*{max-width:760px}
+  #hdr{justify-content:center;gap:60px}
+  #nav{left:50%;right:auto;transform:translateX(-50%);width:760px;border-radius:16px 16px 0 0;
+    border-left:1px solid var(--line);border-right:1px solid var(--line)}
+  .statgrid{grid-template-columns:repeat(4,1fr)}
+}
 /* ============ player identity card — the hero (v7.36) ============ */
 .pcard{position:relative;overflow:hidden;border-radius:24px;padding:20px 20px 18px;margin-bottom:16px;
   background:
@@ -1092,10 +1105,10 @@ const FILM_SYLLABUS=[
   watch:['Eyes THROUGH the QB to the route distribution — he sees both at once','Depth is bought early so the break is downhill, never chasing','He passes routes off with his eyes before his feet'],
   drill:'Ten dropbacks: freeze at the QB\'s back foot. Point where Warner should be. Unfreeze and measure.',
   q:'What tells Warner to sink vs drive? One sentence.',concept:'coverage'},
- {id:'self-scout',wk:10,tag:'SELF',title:'Self-scout: the Aug 8 scrimmage tape',
-  find:'YOUR scrimmage film (tripod or team film)',src:'ZAYDEN-D1/01-FILM',
+ {id:'self-scout',wk:10,tag:'SELF',title:'Self-scout: your own Hudl film',
+  find:'YOUR Hudl — school film from last season is already there; the Aug 8 scrimmage adds fresh tape',src:'Hudl (logged in)',
   watch:['Apply the Kuechly order to YOURSELF: run game first, one position (you), full drives','Your first step on every snap: false steps are the undersized player\'s tax','Every rep where you disappeared — what were your eyes doing?'],
-  drill:'Tag every rep in the Film Room above with the honest tag. The 24-hour rule applies to scrimmages too.',
+  drill:'This one can start TODAY — old film counts. Tag every rep in the Film Room above with the honest tag. The 24-hour rule applies to new film.',
   q:'Your three most repeated mistakes, named without excuses. These become practice missions.',concept:'self'},
  {id:'situations',wk:11,tag:'META',title:'Situational IQ: chart a full game',
   find:'any full NFL/college game replay',src:'YouTube full game replays',
@@ -1108,6 +1121,10 @@ const FILM_SYLLABUS=[
   drill:'Write the three repeating survival skills as personal rules. They get carved into THE VAULT (save as vault: notes).',
   q:'Your three rules, in your words. These are yours now.',concept:'identity'}
 ];
+
+/* v7.43 (audit #15): staff verification date is DATA, not a comment — badges + the December
+   re-verify task compute from it. Update this one constant each re-verify. */
+const STAFF_VERIFIED='2026-07-12';
 /* ============ STATE — facts and events only; anything computable is computed ============ */
 const DB='d1os_v7';
 const DEFAULTS={
@@ -2335,12 +2352,15 @@ function hudlFresh(s=S,today=todayISO()){
   const days=last?daysBetween(last,today):null;
   return {last,days,stale:days!=null&&days>30&&phaseFor(today)==='inseason'};
 }
-/* 8 · calibration gate — the learning layer earns visibility at 90 days of telemetry */
+/* 8 · calibration gate — v7.43: gated on DATA VOLUME, not elapsed days. An empty unlock
+   burns the feature's credibility on first impression (external audit, Jul 2026). */
+const CAL_MIN_OBS=120;
 function calGate(s=S,today=todayISO()){
   const days=[...Object.keys(s.checkins||{}),...(s.lifts||[]).map(l=>l.d),...(s.metrics||[]).map(m=>m.d)].sort();
   const first=days.length?days[0]:null;
   const have=first?daysBetween(first,today):0;
-  return {first,have,open:have>=90,unlock:first?addDays(first,90):null};
+  const obs=policyObsCount(s);
+  return {first,have,obs,need:CAL_MIN_OBS,open:have>=90&&obs>=CAL_MIN_OBS,unlock:first?addDays(first,90):null};
 }
 /* 9 · season report — verified deltas over one season window */
 function seasonReport(s=S,from='2026-08-10',to='2026-10-31'){
@@ -2495,6 +2515,11 @@ function decide(s=S,dateISO=todayISO()){
   if(phaseFor(dateISO)==='offseason'&&dateISO>='2026-11-01'&&dateISO<='2026-11-30'&&!taskDone('seasonreport:2026')){
     plan.tasks.push({kind:'report',id:'seasonreport:2026',title:'Season Report Card: open PATH → Season, screenshot, archive it',
       why:'Freshman season is data now — verified deltas become the first chapter of the 2028 dossier.'});
+  }
+  // 9a-5 · DECEMBER STAFF RE-VERIFY (v7.43, audit #15): coach names churn Dec–Feb; the app schedules its own maintenance
+  if(dateISO.slice(5,7)==='12'&&!taskDone('staffverify:'+dateISO.slice(0,4))){
+    plan.tasks.push({kind:'recruit',id:'staffverify:'+dateISO.slice(0,4),title:'December ritual: re-verify Tier-1 coaching staffs (5 min)',
+      why:'Staffs turn over every winter. Check each school\'s site, fix names on the Board, update STAFF_VERIFIED — stale coach names in a questionnaire read as spam.'});
   }
   // 9a-2 · ANNUAL AUGUST AUDIT (v7.40 four-year survival): every new school year, the system
   // demands re-verification of its own assumptions. Trigger computable (August, once per year,
@@ -2698,7 +2723,7 @@ function playerCardHTML(){
     return 'no losses for gain'; })();
   const p=S.profile||{};
   return `<div class="pcard">
-    <div class="pc-num">${String(p.classOf||2030).slice(-2)}</div>
+    <div class="pc-num">’${String(p.classOf||2030).slice(-2)}</div>
     <div class="pc-top">
       <div class="pc-pos">${esc(p.pos||'RB/LB')}</div>
       <div class="pc-gate"><b class="mono">${gate}</b> days · Jun 15 gate</div>
@@ -2729,6 +2754,10 @@ function rToday(){
   const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊',prep:'🔥',earn:'🏈',film:'🎬'};
   $('#v-today').innerHTML=`
   ${typeof playerCardHTML==='function'?playerCardHTML():''}
+  ${(sil=>sil>=5?`<div class="card" style="border-color:#294551">
+    <h3>Re-Entry Protocol <span class="r">day one back — built for exactly this</span></h3>
+    <div class="note" style="margin:0">${sil} quiet days. Nobody rebuilds a season in one workout, and trying to is how comebacks die in a week. Today's ENTIRE assignment: one 20-minute session — anything — the Daily Four, one honest note. That's a won day. Loads below are already comeback-adjusted; the bar restarts from here to be beaten, not to punish.</div>
+  </div>`:'')(typeof silentDays==='function'?silentDays():0)}
   <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}${o1eff&&o1eff.retire?' <b style="color:var(--red)">· your own results haven\'t shown this helps — treat it as optional.</b>':o1eff&&o1eff.effect==='supported'?' <b style="color:var(--green)">· backed by your own results.</b>':''}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">DO IT →</button>`:''}
     <div class="row" style="gap:6px;margin-top:10px"><button class="btn sm grow ${o1rec&&o1rec.followed==='followed'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','followed')">Did it ✓</button><button class="btn sm grow ${o1rec&&o1rec.followed==='partial'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','partial')">Partly</button><button class="btn sm grow ${o1rec&&o1rec.followed==='ignored'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','ignored')">Didn't</button></div>
     ${(bn=>{const dup=bn&&((o1.kind==='speed'&&bn.id.indexOf('phys:')===0&&['forty','vert','broad'].includes(bn.key))||(o1.kind==='lift'&&bn.id.indexOf('phys:')===0)||(o1.kind==='board'&&bn.id==='recruiting')||(o1.kind==='fuel'&&bn.key==='wt'));return bn&&!dup?`<div class="note" style="margin-top:5px;font-style:normal"><b style="color:var(--cyan)">Your bottleneck:</b> ${esc(bn.name)} — ${esc(bn.ev)}. <span style="color:var(--faint)">Full read: TRACK → The Gap.</span></div>`:'';})(typeof gapBottleneck==='function'?gapBottleneck():null)}
@@ -2942,6 +2971,7 @@ function rTrain(){
     <div class="note"><b style="color:var(--cyan)">2026 dosing:</b> work sets end at 1–3 reps in reserve — grind the last rep speed, never the form. On accessory lifts, the last set can extend with lengthened partials (bottom-half reps after full-ROM failure): 2025 meta-analysis shows a small real edge for growth at long muscle lengths. Small edge, not magic — the surplus and sleep still outrank it.</div>
   </div>
   ${typeof fullDayCard==='function'?fullDayCard():''}
+  ${typeof plyoCardHTML==='function'?plyoCardHTML():''}
   ${(ph=>['preseason','inseason'].includes(ph)?`<div class="card" style="border-color:#294551">
     <h3>Injury Armor <span class="r">2×/week · evidence updated Jul 2026</span></h3>
     <div class="note" style="margin:0 0 6px">RB/LB is a hamstring-and-groin job. Two exercises, ~6 minutes after practice, twice a week — this is the closest thing to real armor the literature has:</div>
@@ -2964,7 +2994,7 @@ function rTrain(){
     ${S.lifts.length?(l=>`<button class="btn ghost" style="margin-top:8px;width:100%" onclick="repeatLast()">↻ SAME AS LAST · ${esc(l.ex)} ${l.wt}×${l.reps}</button>`)(S.lifts[S.lifts.length-1]):''}
     <div id="prSuggest"></div>
     ${recent.length?`<table style="margin-top:12px"><tr><th>Date</th><th>Lift</th><th>Set</th><th>e1RM</th></tr>
-      ${recent.map(l=>`<tr><td>${fmtD(l.d)}</td><td>${esc(l.ex)}</td><td class="mono">${l.wt}×${l.reps}</td><td class="mono">${epley(l.wt,l.reps)}</td></tr>`).join('')}</table>`:''}
+      ${recent.map(l=>`<tr><td>${fmtD(l.d)}</td><td>${esc(l.ex)}</td><td class="mono">${l.wt}×${l.reps}</td><td class="mono">${l.ex==='other'?'<span style="color:var(--faint)" title="other lifts never enter trend math">—</span>':epley(l.wt,l.reps)}</td></tr>`).join('')}</table>`:''}
   </div>
   <div class="card">
     <h3>Drill Library <span class="r">${RB_DRILLS.length+LB_DRILLS.length+WRESTLING_DRILLS.length} drills</span></h3>
@@ -3066,6 +3096,51 @@ function fullDayCard(){
     <div class="note" style="margin-top:6px">A+B+C+D ≈ 3 hours of daily attack. The kid doing one 3-hour grind is outworking you in hour three only — you're outworking him at breakfast, at 3pm, and at 9pm, every single day, without donating your mass to fatigue.</div>
   </div>`;
 }
+/* ============ v7.43 audit features ============ */
+/* plyo contact counter — the app enforces its OWN ~60/session adolescent cap */
+let _plyoN=0;
+function plyoTap(n){ _plyoN=Math.max(0,_plyoN+n); const el=$('#plyoN'); if(el){ el.textContent=_plyoN; if(el.style) el.style.color=_plyoN>60?'var(--red)':_plyoN>45?'var(--amber)':'var(--txt)'; } const w=$('#plyoW'); if(w) w.textContent=_plyoN>60?'OVER THE CAP — jumps are done for today. More contacts ≠ more bounce; they cost tendons.':_plyoN>45?'approaching the ~60 cap — finish the quality reps, skip the junk ones':''; }
+function plyoEnd(){ if(!_plyoN){ toast('No contacts counted'); return; } S.metrics.push({d:todayISO(),key:'plyo',val:_plyoN,src:'manual'}); save(); _plyoN=0; rTrain(); toast('Contacts logged ✓'); }
+function plyoCardHTML(){
+  return `<div class="card">
+    <h3>Plyo Contact Counter <span class="r">cap ~60/session · the program's own rule, enforced</span></h3>
+    <div class="row" style="align-items:center;gap:8px">
+      <button class="btn sm" onclick="plyoTap(1)">+1</button><button class="btn sm" onclick="plyoTap(5)">+5</button><button class="btn sm" onclick="plyoTap(10)">+10</button>
+      <span class="mono grow" id="plyoN" style="font-size:24px;font-weight:800;text-align:center">${_plyoN}</span>
+      <button class="btn sm ghost" onclick="plyoTap(-5)">−5</button><button class="btn sm amber" onclick="plyoEnd()">END + LOG</button>
+    </div>
+    <div class="note" id="plyoW" style="min-height:14px;margin-top:6px"></div>
+    <div class="note" style="margin-top:2px">Every jump, bound, and depth landing counts as one contact. Adolescent guideline the program set for itself — now it's counted, not remembered.</div>
+  </div>`;
+}
+/* sleep × session-quality — the promised correlation, shown only when the data can carry it */
+function sleepSqRead(s=S){
+  const by={}; (s.metrics||[]).forEach(m=>{ (by[m.d]=by[m.d]||{})[m.key]=m.val; });
+  const lo=[],hi=[];
+  for(const d in by){ const o=by[d]; if(o.sleep!=null&&o.sq!=null) (o.sleep>=8?hi:lo).push(o.sq); }
+  const avg=a=>a.length?+(a.reduce((x,y)=>x+y,0)/a.length).toFixed(2):null;
+  return {nLo:lo.length,nHi:hi.length,avgLo:avg(lo),avgHi:avg(hi),ready:lo.length>=4&&hi.length>=4};
+}
+function sleepSqCardHTML(){
+  const r=sleepSqRead();
+  return `<div class="card"><h3>Sleep → Session Quality <span class="r">your own data or nothing</span></h3>
+    ${r.ready?`<div class="row" style="text-align:center">
+      <div class="grow"><div class="mono" style="font-size:24px;font-weight:800;color:var(--green)">${r.avgHi}</div><div class="note" style="margin:0">avg session on 8h+ nights (${r.nHi})</div></div>
+      <div class="grow"><div class="mono" style="font-size:24px;font-weight:800;color:var(--red)">${r.avgLo}</div><div class="note" style="margin:0">avg session under 8h (${r.nLo})</div></div></div>
+      <div class="note" style="margin-top:6px">${r.avgHi>r.avgLo?'Your own log says sleep buys session quality — that\'s not a poster, it\'s your data.':'No clear gap in your data yet — honest answer; keep both logs running.'}</div>`
+    :`<div class="note" style="margin:0">This read unlocks at 4+ rated sessions on 8h+ nights AND 4+ on short nights. Now: ${r.nHi} long / ${r.nLo} short. Log sleep each morning + rate each session — the correlation writes itself or honestly refuses to.</div>`}
+  </div>`;
+}
+/* growth ledger — the fastest-moving measurable at 14, framed for camp forms */
+function growthCardHTML(){
+  const lm=k=>{const a=(S.metrics||[]).filter(m=>m.key===k);return a.length?a[a.length-1]:null;};
+  const rows=[['Height','ht','"'],['Weight','wt',' lb'],['Reach','reach','"'],['Wingspan','wing','"']].map(([n,k,u])=>{const m=lm(k);
+    return `<div class="grow" style="text-align:center"><div class="mono" style="font-size:20px;font-weight:800">${m?m.val+u:'—'}</div><div class="note" style="margin:0">${n}${m?' · '+fmtD(m.d):''}</div></div>`;}).join('');
+  return `<div class="card"><h3>The Frame <span class="r">growing — measure quarterly</span></h3>
+    <div class="row">${rows}</div>
+    <div class="note" style="margin-top:6px">Camp forms ask for every one of these. A growing frame is data coaches project on — log height every ~3 months and let the trend speak. No adult-height predictions here; guesses aren't data.</div>
+  </div>`;
+}
 let pendingLift=null;
 /* v7.32 owner answer: "between sets, but make it faster" — one tap re-logs the last set
    through logLift() itself, so sanity bounds and the PR flow still apply. */
@@ -3114,7 +3189,7 @@ function rPath(){
   ${rec.flags.map(p=>`<div class="flag">⚑ <b>${esc(p.school)}</b> — ${daysBetween(Model.lastContact(S,p.id),todayISO())} days since contact. Send an update email.</div>`).join('')}
   ${(todayISO()>=addDays(SEASON_ENTRY.scrim,-28)&&todayISO()<=addDays(SEASON_ENTRY.scrim,2))?`<div class="card">
     <h3>First Film — ${fmtD(SEASON_ENTRY.scrim)} scrimmage <span class="r">recruiting currency</span></h3>
-    <div class="note">Hudl exists, the reel does not. This scrimmage is the first chance to change that — but only if someone films it.</div>
+    <div class="note">Your school's film already lands on Hudl — the raw material exists. What doesn't exist yet is YOUR CUT: a reel with your best plays first. This scrimmage adds fresh tape; the job is cutting, tagging, and ordering it.</div>
     ${SEASON_ENTRY.filmOps.map((x,i)=>`<div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5"><b style="color:var(--amber)">${i+1}.</b> ${esc(x)}</div>`).join('')}
   </div>`:''}
   ${(no=>no&&no.opp!=='TBD'&&no.days<=21?`<div class="card">
@@ -3143,12 +3218,12 @@ function rPath(){
     <div class="note" style="margin-top:8px">Exposure math for an undersized freshman: film (Aug 8 scrimmage) → questionnaires (tonight, free, legal) → Mega Camp June 2027 with a year of verified numbers. Each step feeds the next.</div>
   </div>
   <div class="card">
-    <h3>Recruiting Contacts <span class="r">Tier 1 · staff verified Jul 2026</span></h3>
-    <div class="note"><b>Step zero, legal at any age:</b> fill each school's recruiting questionnaire — it puts you in their database before coaches are even allowed to reply. Then the Board tracks every touch.</div>
+    <h3>Recruiting Contacts <span class="r">${(d=>{const m=Math.floor(daysBetween(STAFF_VERIFIED,todayISO())/30);const c=m<6?'var(--green)':m<12?'var(--amber)':'var(--red)';return `Tier 1 · staff <b style="color:${c}">verified ${fmtD(STAFF_VERIFIED)}</b>${m>=6?' · re-verify due':''}`;})()}</span></h3>
+    <div class="note"><b>Step zero, legal at any age:</b> fill each school's recruiting questionnaire — it puts you in their database before coaches are even allowed to reply. Two links below are live-verified; the rest churn, so find them from each school's official football page (unverified links are worse than none). Then the Board tracks every touch.</div>
     ${SCHOOLS.filter(x=>x.tier===1).map(x=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)">
       <div class="row"><b class="grow" style="font-size:13px">${esc(x.school)}</b><span class="pill">${esc(x.conf)}</span></div>
       <div class="note" style="margin:2px 0 0">${esc(x.coach)}</div>
-      <div class="note">Questionnaire: ${x.school==='Nevada (Reno)'?'<a href="https://nevadawolfpack.com/sb_output.aspx?form=6" target="_blank" style="color:var(--cyan)">verified direct link ↗</a>':`search “${esc(x.school)} football recruiting questionnaire” — every program has one`}</div>
+      ${x.school==='Nevada (Reno)'?'<div class="note">Questionnaire: <a href="https://nevadawolfpack.com/sb_output.aspx?form=6" target="_blank" style="color:var(--cyan)">verified direct link ↗</a></div>':x.school==='Wyoming'?'<div class="note">Questionnaire: <a href="https://college.jumpforward.com/questionnaire.aspx?iid=556&sportid=54" target="_blank" style="color:var(--cyan)">verified direct link ↗</a></div>':''}
     </div>`).join('')}
     <div class="note">Staff names churn every winter — the app records when each was verified, and re-verifying is a 5-minute December ritual.</div>
   </div>
@@ -3698,7 +3773,7 @@ function rTrack(){
     <div class="note">Food first — supplements are the last 5%. Clear anything you take with a parent.</div>
     <div style="font-size:11px;letter-spacing:.1em;color:var(--green);margin-top:10px;font-weight:800">TIER 1 · WORTH IT</div>
     <div style="font-size:13px;color:var(--dim);line-height:1.7;margin-top:4px">
-      • <b style="color:var(--txt)">Creatine monohydrate</b> — 3–5 g/day, any time. The most-studied, most-effective legal supplement there is; safe for teen athletes.<br>
+      • <b style="color:var(--txt)">Creatine monohydrate</b> — 3–5 g/day, NEVER loading doses, and at 14 only with a parent + doctor sign-off first. Most-studied legal supplement there is; more than 5 g does nothing but strain the honesty of whoever sold it.<br>
       • <b style="color:var(--txt)">Whey protein</b> — a tool to hit your protein target when whole food is hard, not magic. 1–2 scoops as needed.<br>
       • <b style="color:var(--txt)">Vitamin D3</b> — only if bloodwork shows you're low. Get tested first, don't guess.</div>
     <div style="font-size:11px;letter-spacing:.1em;color:var(--red);margin-top:12px;font-weight:800">SKIP · WASTE OR RISK</div>
@@ -3718,6 +3793,8 @@ function rTrack(){
       5. <b style="color:var(--dim)">Later: a 3-session sprint-mechanics block</b> with a real speed coach — once you have a baseline 40 to improve. Save it for when it'll move a measured number.</div>
     <div class="note">Notice what's NOT here: shoe-of-the-month, supplement stacks, gadgets. Spend only on what moves a real number.</div>
   </div>
+  ${typeof growthCardHTML==='function'?growthCardHTML():''}
+  ${typeof sleepSqCardHTML==='function'?sleepSqCardHTML():''}
   ${typeof coreCardHTML==='function'?coreCardHTML():''}
   ${typeof calCardHTML==='function'?calCardHTML():''}
   <div class="card">
@@ -3804,8 +3881,8 @@ function addCore(){
 /* item 8 · calibration — visible only once 90 days of telemetry earn it */
 function calCardHTML(){
   const g=calGate();
-  if(!g.open) return `<div class="card"><h3>Calibration <span class="r">locked</span></h3>
-    <div class="note" style="margin:0">The app grades its own advice against your results — but only after <b>90 days of telemetry</b>. Unlocks <b style="color:var(--amber)">${g.unlock?fmtD(g.unlock):'after 90 logged days'}</b> (day ${g.have} now). Feed the log; the report card writes itself.</div></div>`;
+  if(!g.open) return `<div class="card"><h3>Calibration <span class="r">locked · earned by data, not time</span></h3>
+    <div class="note" style="margin:0">The app grades its own advice against your results — but an empty report card is worthless, so this opens on <b>volume, not a date</b>: 90+ days AND ${g.need}+ logged observations. Now: day ${g.have}, <b style="color:var(--amber)">${g.obs}/${g.need} observations</b>. Every set, box, and metric moves the bar.</div></div>`;
   const cal=(typeof calibration==='function')?calibration():[];
   const rev=(typeof calReversals==='function')?calReversals():[];
   return `<div class="card" style="border-color:#3f4a1f"><h3>Calibration <span class="r">the app's own report card</span></h3>
@@ -3871,7 +3948,7 @@ function buildDossier(){
   L.push(`${(p.name||'Zayden').toUpperCase()} — ${p.pos} · Class of ${p.classOf} · Henderson, NV (Basic Academy)`);
   L.push('');
   L.push('VERIFIED NUMBERS (logged with dates, not claimed):');
-  const rows=[['Squat',lift('squat'),'lb'],['Bench',lift('bench'),'lb'],['Deadlift',lift('dead'),'lb'],['Vertical',lm('vert'),'in'],['Bodyweight',lm('wt'),'lb'],['Height',lm('ht'),'in'],['Standing reach',lm('reach'),'in'],['Wingspan',lm('wing'),'in'],['40yd',lm('forty'),'s']];
+  const rows=[['Squat',lift('squat'),'lb'],['Bench',lift('bench'),'lb'],['Deadlift',lift('dead'),'lb'],['Vertical',lm('vert'),'in'],['Bodyweight',lm('wt'),'lb'],['Height',lm('ht'),'in'],['Standing reach',lm('reach'),'in'],['Wingspan',lm('wing'),'in'],['40yd',lm('forty'),'s (hand-timed)']];
   for(const[k,v,u]of rows) if(v!=null) L.push(`  ${k}: ${v} ${u}`);
   if(ss.n) L.push(`SEASON: ${ss.n} games — ${ss.t.car} car, ${ss.t.yds} yds${ss.ypc?' ('+ss.ypc+'/carry)':''}, ${ss.t.td} TD, ${ss.t.tkl} tackles`);
   if(cr.gpa!=null) L.push(`ACADEMICS: NCAA core GPA ${cr.gpa.toFixed(2)} (${cr.credits}/16 credits logged)`);
@@ -4161,10 +4238,34 @@ function go(v){
   $('#v-'+v).classList.add('on');
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   RENDER[v]();
+  if(typeof renderHdr==='function') renderHdr(); // scoreboard updates with every screen + every log
   window.scrollTo(0,0);
 }
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
-$('#hdrCd').innerHTML=`<b class="mono">${daysBetween(todayISO(),GATE_D1_CONTACT)}</b> days to Jun 15 gate<br>Class of 2030 · RB/LB`;
+/* v7.43 SCOREBOARD HUD (audit: "average AI web builder hud") — the header is now a live
+   stadium scoreboard: the gate, this week vs the bar, the streak. Psychology on purpose:
+   the three numbers that define the mission are visible on EVERY screen, updating with
+   every log — the cost of an empty day is never off-screen. */
+let _wasOffline=false;
+function renderHdr(){
+  try{
+    const gate=daysBetween(todayISO(),GATE_D1_CONTACT);
+    const L=(typeof weekLedger==='function')?weekLedger():{cur:{days:0,actions:0},bar:{days:0,actions:0}};
+    const won=L.cur.days>L.bar.days||(L.cur.days===L.bar.days&&L.cur.actions>L.bar.actions);
+    let streak=0; for(let i=0;i<400;i++){ const c=S.checkins[addDays(todayISO(),-i)]||[]; if(c.some(Boolean)) streak++; else if(i>0) break; }
+    const off=(typeof navigator!=='undefined'&&navigator.onLine===false);
+    $('#hdrCd').innerHTML=
+      `<span class="sb-cell"><span class="sb-n mono">${gate}</span><span class="sb-k">GATE</span></span>`+
+      `<span class="sb-cell"><span class="sb-n mono" style="color:${won?'var(--green)':'var(--txt)'}">${L.cur.days}<i class="sb-sub">/${L.bar.days}</i></span><span class="sb-k">WK·BAR</span></span>`+
+      `<span class="sb-cell"><span class="sb-n mono" style="color:${streak>0?'var(--amber)':'var(--faint)'}">${streak}</span><span class="sb-k">STREAK</span></span>`+
+      (off?`<span class="sb-cell"><span class="sb-n" style="color:var(--cyan)">●</span><span class="sb-k">OFFLINE·OK</span></span>`:'');
+  }catch(e){}
+}
+if(typeof window!=='undefined'&&window.addEventListener){
+  window.addEventListener('online',()=>{ _wasOffline=false; renderHdr(); });
+  window.addEventListener('offline',()=>{ _wasOffline=true; renderHdr(); toast('Offline — everything still logs and saves on this device ✓'); });
+}
+renderHdr();
 /* storage armor (v7.30): persist request, then RESTORE-BEFORE-RENDER. The v7.29 order was a
    real bug (first render saved defaults into localStorage before the check could see it empty).
    Now nothing renders or saves until the mirror verdict is in (800ms cap). */
