@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.52 -->
+<!DOCTYPE html><!-- d1os v7.53 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1365,6 +1365,47 @@ const FOOTHILL_PLAN=[
 ];
 function foothillPhase(today=todayISO()){
   return FOOTHILL_PLAN.find(p=>today>=p.from&&today<=p.to)||null;
+}
+
+/* ============ v7.53 · THE GRIND — the full day, built from his stated reality ==========
+   Confirmed Jul 19 2026: 3+ free hours daily, CFB 27 on console (released Jul 9 2026,
+   PS5/Xbox/PC, 1,500+ new plays, Road to Glory, and Coach Mode), a football, a yard/garage,
+   an apartment gym reachable on foot any time, ALL TEAM PLAYS ON HUDL, and a QB who knows
+   the whole playbook. That last pair is the largest untapped asset he owns. */
+const GRIND_BLOCKS=[
+ {k:'BODY',   min:'60–75', hdr:'Train — the session in TRAIN, capped on purpose',
+  body:'Full intensity, 1–3 reps in reserve, contrast pairs timed. Apartment gym counts: the walk is free warm-up. This block does not grow in the 33 days before Foothill — it holds.'},
+ {k:'BALL',   min:'25–30', hdr:'Ball security + footwork — the yard, every day, no excuses',
+  body:'100 high-and-tight carries: 5 sets of 20 through a gauntlet (chairs, siblings, anything that swipes), switching hands each set, finishing every rep at a sprint. Then 10 min footwork: jump cuts off the outside foot, one-step plants, 5-yard bursts out of a two-point stance. Research is blunt — ball security is the #1 gate on a running back playing. This block is why you start.'},
+ {k:'BRAIN',  min:'35–45', hdr:'Film + CFB 27 — knowledge reps, not entertainment',
+  body:'20 min on the current PUSH assignment (the syllabus runs the order). Then 20 min of CFB 27 with a job, not vibes — see the daily task below.'},
+ {k:'PLAYBOOK',min:'20–30',hdr:'Your playbook + your QB — the asset nobody else is using',
+  body:'The plays are on Hudl and your QB knows them cold. Study 5 plays a day off Hudl until you can draw your assignment blind, then text the QB and go throw. Learn the PROTECTIONS from him — who you block on each call. A back who knows protections gets on the field; a back who does not, does not.'}
+];
+/* CFB 27 — a 14-day curriculum. Each session has ONE job. Coach Mode is the sleeper:
+   you call plays and the AI executes, so your whole attention goes to reading the defense
+   instead of your thumbs. That is exactly the skill a freshman RB is missing. */
+const CFB27=[
+ {d:1, mode:'Coach Mode', job:'Call 20 run plays. Before each snap, say out loud: how many in the box? 6 or fewer = run. That single read is what your coordinator is doing all game.'},
+ {d:2, mode:'Coach Mode', job:'Same, but call the run AWAY from the extra defender. You are learning why plays get checked — the exact thing that makes a back look smart.'},
+ {d:3, mode:'Road to Glory · RB', job:'Play 1 half. On EVERY snap, find the free rusher before the ball is snapped. Do not run yet — just find him. This is the pass-pro eye you need.'},
+ {d:4, mode:'Road to Glory · RB', job:'Half a game where you deliberately pick up the blitz instead of releasing. Get comfortable being the blocker; that is the rep that earns trust.'},
+ {d:5, mode:'Coach Mode', job:'20 pass plays. Name the coverage before the snap: 1 high safety or 2? Cover 1/3 vs Cover 2/4. Get to 15/20 correct.'},
+ {d:6, mode:'Practice / Play Designer', job:'Run YOUR school’s concepts (pull them off Hudl) in practice mode 20× each. Seeing your own offense at game speed is the closest thing to extra reps.'},
+ {d:7, mode:'Road to Glory · RB', job:'Full game. One rule: zero fumbles. Restart if you fumble. Ball security is the same habit on a controller and on grass — the decision to protect it is mental.'},
+ {d:8, mode:'Coach Mode', job:'Third downs only. What does the defense do on 3rd-and-long vs 3rd-and-short? Chart it. This is the tendency work real coordinators live in.'},
+ {d:9, mode:'Road to Glory · RB', job:'Half a game reading the SECOND level: after the line, which linebacker is unblocked? Your cut is decided by him, not by the hole.'},
+ {d:10,mode:'Coach Mode', job:'Red zone only, 15 plays. The field shrinks and spacing changes — learn what disappears inside the 20.'},
+ {d:11,mode:'Road to Glory · RB', job:'Full game, hardest difficulty you can handle. Play for the grade, not the yards.'},
+ {d:12,mode:'Coach Mode', job:'2-minute drill, 5 reps. Tempo changes what defenses can call — feel it.'},
+ {d:13,mode:'Practice', job:'Pass protection drill only, 30 reps. Identify, set, strike. Boring, and it is the difference between playing and watching.'},
+ {d:14,mode:'Free', job:'Play a full game applying all of it. Then write in the app what you now see pre-snap that you could not see 14 days ago.'}
+];
+function cfb27Today(s){
+  const days=[...Object.keys((s||S).checkins||{})].sort();
+  const start=days.length?days[0]:todayISO();
+  const n=Math.max(0,daysBetween(start,todayISO()))%CFB27.length;
+  return CFB27[n];
 }
 /* ============ STATE — facts and events only; anything computable is computed ============ */
 const DB='d1os_v7';
@@ -3025,6 +3066,7 @@ function rToday(){
   $('#v-today').innerHTML=`
   ${typeof playerCardHTML==='function'?playerCardHTML():''}
   ${typeof foothillHTML==='function'?foothillHTML():''}
+  ${typeof grindHTML==='function'?grindHTML():''}
   ${typeof statusCardHTML==='function'?statusCardHTML():''}
   ${typeof sundayNudgeHTML==='function'?sundayNudgeHTML():''}
   ${(sil=>sil>=5?`<div class="card" style="border-color:#294551">
@@ -3389,6 +3431,37 @@ function fullDayCard(){
   </div>`;
 }
 
+
+
+/* ============ v7.53 · THE GRIND — the whole day, one card ============ */
+function grindHTML(){
+  const c=cfb27Today(S), syl=(typeof sylNext==='function')?sylNext():null;
+  const done=k=>taskDone('grind:'+k+':'+todayISO());
+  const cell=(b)=>`<div style="border-top:1px solid var(--line);padding:13px 0">
+    <div class="row" style="align-items:flex-start">
+      <div class="grow">
+        <div style="font-family:var(--disp);font-weight:400;font-size:21px;letter-spacing:.04em;${done(b.k)?'color:var(--faint)':''}">${b.k}<span style="font-family:inherit;font-size:10px;letter-spacing:.14em;color:var(--faint);margin-left:9px">${b.min} MIN</span></div>
+        <div style="font-size:13px;font-weight:700;margin-top:5px;color:${done(b.k)?'var(--faint)':'var(--txt)'}">${esc(b.hdr)}</div>
+        <div class="note" style="margin-top:5px">${esc(b.body)}</div>
+        ${b.k==='BRAIN'?`<div class="note" style="margin-top:8px;border-left:2px solid var(--amber);padding-left:10px">
+          <b style="color:var(--amber)">CFB 27 today · ${esc(c.mode)}:</b> ${esc(c.job)}
+          ${syl?`<br><b style="color:var(--amber)">Film today:</b> ${esc(syl.title)} (PUSH)`:''}</div>`:''}
+      </div>
+      <button class="btn sm ${done(b.k)?'':'amber'}" style="flex-shrink:0" onclick="grindDone('${b.k}')">${done(b.k)?'DONE':'MARK'}</button>
+    </div></div>`;
+  const n=GRIND_BLOCKS.filter(b=>done(b.k)).length;
+  return `<div class="card">
+    <h3>The Grind <span class="r">${n}/4 blocks today · ~3 hours, spread</span></h3>
+    <div class="note" style="margin:0">Four blocks, not one long session. Research is clear that a single 3-hour grind trains fatigue and costs you the mass you are chasing — spread across a day, the same hours compound instead of cannibalizing.</div>
+    ${GRIND_BLOCKS.map(cell).join('')}
+    ${n===4?'<div class="note" style="margin-top:12px;color:var(--green)"><b>All four blocks. That is a full day of work almost nobody your age is doing.</b></div>':''}
+  </div>`;
+}
+function grindDone(k){
+  const id='grind:'+k+':'+todayISO();
+  if(!taskDone(id)){ completeTask(id); if(k==='BALL'||k==='BODY'){ const ck=ckToday(); if(!ck[0]){ck[0]=true;} } save(); }
+  rToday(); toast(k+' block logged');
+}
 
 /* ============ v7.52 · THE FOOTHILL PLAN — the 33-day campaign, dated and honest ============ */
 function foothillHTML(){
