@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.45 -->
+<!DOCTYPE html><!-- d1os v7.46 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2436,6 +2436,35 @@ function dumpParse(txt){
   if(m&&+m[1]>=3&&+m[1]<=14) out.push({kind:'metric',key:'sleep',val:+m[1],label:`sleep ${m[1]}h`});
   return out;
 }
+
+/* ============ v7.46 FINAL-PASS MODEL (roadmap adds 1–10) ============ */
+/* PR history — every accepted PR with its date: the recruiting artifact of progression */
+function prHistory(s=S){
+  return (s.events||[]).filter(e=>e.type==='pr'&&e.meta).map(e=>({d:e.d,lift:e.meta.lift||e.meta.ex,to:e.meta.to||e.meta.val}))
+    .filter(x=>x.lift&&x.to).sort((a,b)=>a.d<b.d?-1:1);
+}
+/* honest status override: hurt/sick pauses the RATCHET without erasing the record.
+   Safety beats streaks; an app that punishes an injured 14-year-old for resting is broken. */
+function statusToday(s=S,today=todayISO()){
+  const e=[...(s.events||[])].reverse().find(x=>x.type==='status'&&x.d===today);
+  return e?e.meta.k:null;
+}
+/* Vegas heat: August practice in Henderson is a real medical risk, not a vibe */
+function heatRisk(today=todayISO()){
+  const m=+today.slice(5,7);
+  return (m>=5&&m<=9);
+}
+/* full-log search — four years of notes/clips/coach/opponent, one query */
+function searchLog(q,s=S){
+  const t=String(q||'').toLowerCase().trim(); if(t.length<2) return [];
+  const hit=[];
+  (s.notes||[]).forEach(n=>{ if((n.text||'').toLowerCase().includes(t)) hit.push({d:n.d,kind:'note',text:n.text}); });
+  (s.coach||[]).forEach(n=>{ if((n.text||'').toLowerCase().includes(t)) hit.push({d:n.d,kind:'coach',text:n.text}); });
+  (s.opp||[]).forEach(n=>{ if((n.text+' '+n.opp).toLowerCase().includes(t)) hit.push({d:n.d,kind:'opponent',text:n.opp+': '+n.text}); });
+  (s.clips||[]).forEach(c=>{ if((c.tag+' '+(c.note||'')+' '+(c.opp||'')).toLowerCase().includes(t)) hit.push({d:c.d,kind:'clip',text:c.tag+(c.note?' — '+c.note:'')}); });
+  (s.reviews||[]).forEach(r=>{ const b=[r.worked,r.broke,r.fix].join(' '); if(b.toLowerCase().includes(t)) hit.push({d:r.d,kind:'review',text:b.slice(0,120)}); });
+  return hit.sort((a,b)=>a.d<b.d?1:-1).slice(0,40);
+}
 /* ============ DECISION ENGINE — decide(S,date) → plan. Deterministic. Every item has a why. ============ */
 function weekFor(s,dateISO){
   const ph=phaseFor(dateISO);
@@ -2795,6 +2824,8 @@ function rToday(){
   const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊',prep:'🔥',earn:'🏈',film:'🎬'};
   $('#v-today').innerHTML=`
   ${typeof playerCardHTML==='function'?playerCardHTML():''}
+  ${typeof statusCardHTML==='function'?statusCardHTML():''}
+  ${typeof sundayNudgeHTML==='function'?sundayNudgeHTML():''}
   ${(sil=>sil>=5?`<div class="card" style="border-color:#294551">
     <h3>Re-Entry Protocol <span class="r">day one back — built for exactly this</span></h3>
     <div class="note" style="margin:0">${sil} quiet days. Nobody rebuilds a season in one workout, and trying to is how comebacks die in a week. Today's ENTIRE assignment: one 20-minute session — anything — the Daily Four, one honest note. That's a won day. Loads below are already comeback-adjusted; the bar restarts from here to be beaten, not to punish.</div>
@@ -2849,6 +2880,7 @@ function rToday(){
     ${(fw=>fw.weakest&&fw.weakest.secured<fw.weakest.of?`<div class="note" style="margin-top:6px">Most-missed: <b>${esc(fw.weakest.item)}</b> (${fw.weakest.secured}/${fw.weakest.of} days) — fix the pattern.</div>`:'')(freeWinsRead())}
   </div>`;})(practiceDay(todayISO())?todayISO():(practiceDay(addDays(todayISO(),1))?addDays(todayISO(),1):null))}
   <div class="card"><h3>Quick Log <span class="r">taps, not typing</span></h3><div class="row" style="align-items:center;gap:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Energy</span>${rate5('energy','today')}</div>${((S.lifts||[]).some(l=>l.d===todayISO())||((S.sessions&&S.sessions[todayISO()])||[]).some(Boolean))?`<div class="row" style="align-items:center;gap:6px;margin-top:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Session</span>${rate5('sq','today')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn grow" onclick="numOpen('wt','Bodyweight (lb)',1,160)">Weight</button><button class="btn grow" onclick="numOpen('sleep','Sleep (h)',0.5,8)">Sleep</button><button class="btn grow" onclick="go('train')">Lift →</button></div>
+  ${statusToday()?'':`<div class="row" style="gap:6px;margin-top:6px"><span class="note grow" style="margin:0">Hurt or sick today? Say so — the bar pauses, the streak holds, and the reason is on record.</span><button class="btn sm ghost" onclick="setStatus('hurt')">HURT</button><button class="btn sm ghost" onclick="setStatus('sick')">SICK</button></div>`}
   ${(be=>{const last=be.length?be[be.length-1]:null;const days=last!=null?daysBetween(last,todayISO()):null;const col=days==null||days>30?'var(--red)':days>14?'var(--amber)':'var(--green)';
     return `<div class="row" style="margin-top:8px;align-items:center"><span class="note grow" style="margin:0">Off-device backup: <b style="color:${col}">${days==null?'NEVER':days===0?'today':days+'d ago'}</b> — the export file is the only thing that survives a lost phone</span>${(days==null||days>7)?`<button class="btn sm" onclick="exportS()">EXPORT</button>`:''}</div>`;})((S.events||[]).filter(e=>e.type==='task'&&e.meta&&String(e.meta.id).indexOf('backup:')===0).map(e=>e.d).sort())}<div class="note" style="margin-top:6px">One tap each — this is what lets the app learn what works for <b>you</b>.</div></div>
   <div class="prio"><div class="k">TODAY'S PRIORITY${plan.focus?` · ATTACKING: ${esc(plan.focus.key.toUpperCase())}`:''}</div>
@@ -3027,6 +3059,8 @@ function rTrain(){
     </div><div class="note">Contrast pairs: jump within ~15s of racking. Between full sets: 2–3 min. The timing IS the method.<br>Solo at the apartment gym today? Skip anything marked SPOTTER/EOS — swap in the pause variant or DB work. Max attempts happen at EOS only, cousin present.</div>`:''}
     <div class="note"><b style="color:var(--cyan)">2026 dosing:</b> work sets end at 1–3 reps in reserve — grind the last rep speed, never the form. On accessory lifts, the last set can extend with lengthened partials (bottom-half reps after full-ROM failure): 2025 meta-analysis shows a small real edge for growth at long muscle lengths. Small edge, not magic — the surplus and sleep still outrank it.</div>
   </div>
+  ${typeof sessionClockHTML==='function'?sessionClockHTML():''}
+  ${typeof heatCardHTML==='function'?heatCardHTML():''}
   ${typeof fullDayCard==='function'?fullDayCard():''}
   ${typeof plyoCardHTML==='function'?plyoCardHTML():''}
   ${(ph=>['preseason','inseason'].includes(ph)?`<div class="card" style="border-color:#294551">
@@ -3152,6 +3186,92 @@ function fullDayCard(){
     <div style="padding:7px 0;font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK D · FILM + CLOSE</b> <span class="pill">30 min</span><br>${syl?`Tonight's assignment: <b>${esc(syl.title)}</b> (PUSH tab)`:'Syllabus complete — run any drill on opponent film'} · then the Daily Four. The undersized player's separation happens here, where nobody's watching.</div>
     <div class="note" style="margin-top:6px">A+B+C+D ≈ 3 hours of daily attack. The kid doing one 3-hour grind is outworking you in hour three only — you're outworking him at breakfast, at 3pm, and at 9pm, every single day, without donating your mass to fatigue.</div>
   </div>`;
+}
+/* ============ v7.46 FINAL PASS — ten must-adds, built as one layer ============ */
+/* 1 · HONEST STATUS: hurt/sick pauses the ratchet. Safety outranks the streak, always. */
+function setStatus(k){
+  logEvent('status',{k});
+  if(k==='hurt') S.body.push({d:todayISO(),area:'self-reported',lvl:3});
+  save(); rToday();
+  toast(k==='hurt'?'Logged — the bar pauses. Tell a parent and your trainer today.':k==='sick'?'Logged — rest is the training today.':'Back on. The bar is live again.');
+}
+function statusCardHTML(){
+  const st=statusToday();
+  if(st) return `<div class="card" style="border-color:#294551"><h3>Status: ${st==='hurt'?'HURT':'SICK'} <span class="r">bar paused — not broken</span></h3>
+    <div class="note" style="margin:0">${st==='hurt'
+      ?'Recorded. <b>Tell a parent and your athletic trainer today</b> — return-to-play is a medical call, never this app\'s. The week\'s bar is paused, your streak is protected, and the log shows exactly why. Playing hurt at 14 is how careers end early; resting is the move that keeps 2030 alive.'
+      :'Recorded. Sleep, fluids, food. Training through illness buys nothing and costs a week. The bar is paused — it will be there when you are.'}</div>
+    <button class="btn sm" style="margin-top:8px" onclick="setStatus('ok')">I'M BACK ✓</button></div>`;
+  return '';
+}
+/* 2 · SESSION CLOCK: enforces the 75-minute quality window from the 3-Hour Day */
+let _sesStart=null,_sesTick=null;
+function sesToggle(){
+  if(_sesStart){ const min=Math.round((Date.now()-_sesStart)/60000); _sesStart=null; clearInterval(_sesTick);
+    if(min>=5){ S.metrics.push({d:todayISO(),key:'sesmin',val:min,src:'manual'}); save(); }
+    rTrain(); toast('Session: '+min+' min — logged'); return; }
+  _sesStart=Date.now(); rTrain();
+  _sesTick=setInterval(()=>{ const el=$('#sesClock'); if(!el){ clearInterval(_sesTick); return; }
+    const m=Math.floor((Date.now()-_sesStart)/60000), s2=String(Math.floor(((Date.now()-_sesStart)%60000)/1000)).padStart(2,'0');
+    el.textContent=m+':'+s2; el.style.color=m>=75?'var(--red)':m>=60?'var(--amber)':'var(--txt)';
+    const w=$('#sesWarn'); if(w) w.textContent=m>=75?'Past 75 min — the quality that makes you faster is gone. Finish the lift you are on and go eat.':m>=60?'60 min in — start closing. Block B is where the mass comes from.':'';
+  },1000);
+  toast('Clock running — Block A is a 75-minute window');
+}
+function sessionClockHTML(){
+  return `<div class="card"><h3>Session Clock <span class="r">Block A = 60–75 min, on purpose</span></h3>
+    <div class="row" style="align-items:center">
+      <span class="mono grow" id="sesClock" style="font-family:var(--disp);font-size:38px;line-height:1">${_sesStart?'0:00':'—'}</span>
+      <button class="btn ${_sesStart?'':'amber'}" onclick="sesToggle()">${_sesStart?'END + LOG':'START SESSION'}</button>
+    </div>
+    <div class="note" id="sesWarn" style="min-height:14px"></div>
+    <div class="note" style="margin-top:2px">Duration is a cap, not a goal. Long sessions train fatigue; short violent ones train speed.</div>
+  </div>`;
+}
+/* 3 · VEGAS HEAT PROTOCOL — real medical risk, May–Sep, Henderson */
+function heatCardHTML(){
+  if(!heatRisk()) return '';
+  return `<div class="card" style="border-color:#6b2b2b">
+    <h3>Heat Protocol <span class="r">Vegas · May–Sep · not optional</span></h3>
+    <div class="note" style="margin:0 0 6px">Exertional heat illness is one of the few things that kills healthy high-school athletes, and Henderson in August is the exact setting. This is the protocol, not a suggestion:</div>
+    <div style="font-size:13px;line-height:1.7">
+      • <b style="color:var(--amber)">Pre-hydrate:</b> 16–20 oz two hours before, 8 oz right before. Urine pale = ready.<br>
+      • <b style="color:var(--amber)">During:</b> 4–8 oz every 15–20 min, whether or not you're thirsty. Thirst lags dehydration.<br>
+      • <b style="color:var(--amber)">Train early:</b> outdoor work before 9am or after 7pm in July–August.<br>
+      • <b style="color:var(--amber)">Salt back:</b> heavy sweater in dry heat = add salt to food, not just water.<br>
+      • <b style="color:var(--red)">STOP + get help NOW:</b> confusion, stumbling, stops sweating, hot dry skin, vomiting, cramping that won't release. Heat stroke is a 911 call — cool first, transport second.
+    </div>
+    <div class="note">Weighing before and after practice is the pro move: every 1 lb lost = ~16 oz to replace before the next session.</div>
+  </div>`;
+}
+/* 4 · PR HISTORY — the progression artifact coaches actually want */
+function prHistoryHTML(){
+  const h=prHistory();
+  return `<div class="card"><h3>PR History <span class="r">${h.length} accepted · dated forever</span></h3>
+    ${h.length?h.slice(-12).reverse().map(x=>`<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line);font-size:13px"><span class="grow">${fmtD(x.d)} · <b>${esc(x.lift)}</b></span><b class="mono" style="color:var(--amber)">${x.to} lb</b></div>`).join('')
+      :'<div class="note" style="margin:0">No PRs accepted yet. When a logged set beats your approved max, TRAIN offers the update — approving it writes a permanent, dated record. That record is the progression curve no other recruit can fake.</div>'}
+  </div>`;
+}
+/* 5 · LOG SEARCH — four years, one query */
+let _srch='';
+function doSearch(){ _srch=(($('#srchIn')||{}).value||''); rTrack(); }
+function searchCardHTML(){
+  const res=_srch.length>=2?searchLog(_srch):[];
+  return `<div class="card"><h3>Search the Record <span class="r">every note, clip, coach line, scout report</span></h3>
+    <div class="row" style="gap:6px"><input id="srchIn" placeholder="e.g. leverage, foothill, coach said…" value="${esc(_srch)}" style="flex:1"><button class="btn sm amber" onclick="doSearch()">FIND</button></div>
+    ${_srch.length>=2?(res.length?`<div style="margin-top:8px">${res.map(r=>`<div style="padding:5px 0;border-bottom:1px solid var(--line);font-size:12px"><span class="pill">${esc(r.kind)}</span> <span style="color:var(--faint)">${fmtD(r.d)}</span><br>${esc(r.text)}</div>`).join('')}</div>`
+      :'<div class="note">Nothing matches yet — the archive grows every time you log.</div>'):''}
+  </div>`;
+}
+/* 6 · SUNDAY EXPORT NUDGE — the dispatch can only read what got exported */
+function sundayNudgeHTML(){
+  if(new Date(todayISO()+'T12:00').getDay()!==0) return '';
+  const last=(S.events||[]).filter(e=>e.type==='task'&&e.meta&&String(e.meta.id).indexOf('backup:')===0).map(e=>e.d).sort().pop();
+  const days=last?daysBetween(last,todayISO()):null;
+  if(days!=null&&days<6) return '';
+  return `<div class="card" style="border-color:#3f4a1f"><h3>Sunday <span class="r">two minutes, then the week is safe</span></h3>
+    <div class="note" style="margin:0">Export tonight and the 7pm dispatch reads a real week instead of guessing. Backup vault on the laptop files it automatically.</div>
+    <button class="btn amber" style="width:100%;margin-top:8px" onclick="exportS()">EXPORT THIS WEEK</button></div>`;
 }
 /* ============ v7.43 audit features ============ */
 /* plyo contact counter — the app enforces its OWN ~60/session adolescent cap */
@@ -3602,7 +3722,7 @@ function rTrack(){
   <div class="card">
     <h3>Your Waypoints <span class="r">${esc(Model.waypointGaps().label)}</span></h3>
     ${(wg=>`
-    ${wg.primary?`<div class="flag">🎯 Biggest gap: <b>${esc(wg.primary.key.toUpperCase())}</b> — ${Math.round((wg.primary.progress||0)*100)}% of your waypoint. The engine is adding focus work for this automatically.</div>`:''}
+    ${wg.primary?`<div class="flag"><b style="color:var(--amber)">▲</b> Biggest gap: <b>${esc(wg.primary.key.toUpperCase())}</b> — ${Math.round((wg.primary.progress||0)*100)}% of your waypoint. The engine is adding focus work for this automatically.</div>`:''}
     <table><tr><th></th><th>Now</th><th>Target</th><th>There</th></tr>
     ${wg.rows.map(r=>{
       const names={squat:'Squat',bench:'Bench',dead:'Deadlift',clean:'Hang clean',wt:'Body weight',gpa:'GPA',forty:'40-yd',vert:'Vertical',broad:'Broad jump'};
@@ -3871,6 +3991,8 @@ function rTrack(){
       5. <b style="color:var(--dim)">Later: a 3-session sprint-mechanics block</b> with a real speed coach — once you have a baseline 40 to improve. Save it for when it'll move a measured number.</div>
     <div class="note">Notice what's NOT here: shoe-of-the-month, supplement stacks, gadgets. Spend only on what moves a real number.</div>
   </div>
+  ${typeof prHistoryHTML==='function'?prHistoryHTML():''}
+  ${typeof searchCardHTML==='function'?searchCardHTML():''}
   ${typeof growthCardHTML==='function'?growthCardHTML():''}
   ${typeof sleepSqCardHTML==='function'?sleepSqCardHTML():''}
   ${typeof coreCardHTML==='function'?coreCardHTML():''}
@@ -4012,7 +4134,14 @@ function statCardHTML(){
       <div class="grow"><div class="mono" style="font-size:22px;font-weight:800">${ss.t.tkl}</div><div class="note" style="margin:0">TACKLES</div></div></div>
       ${ss.games.map(g=>`<div class="row" style="padding:4px 0;border-bottom:1px solid var(--line);font-size:12px"><span class="grow">${fmtD(g.d)} · ${esc(g.opp)}</span><span class="mono">${g.car}c/${g.yds}y/${g.td}td/${g.tkl}tk</span></div>`).join('')}`
     :'<div class="note" style="margin:0 0 6px">First game logs the first line. These verified numbers are what future coach emails are made of.</div>'}
-    <div class="row" style="gap:5px;margin-top:8px"><input id="gOpp" placeholder="opponent" style="flex:2"><input id="gCar" type="number" placeholder="car" style="width:52px"><input id="gYds" type="number" placeholder="yds" style="width:56px"><input id="gTd" type="number" placeholder="td" style="width:44px"><input id="gTkl" type="number" placeholder="tkl" style="width:48px"><button class="btn sm amber" onclick="addGame()">LOG</button></div>
+    <input id="gOpp" placeholder="opponent" style="margin-top:8px">
+    <div class="row" style="gap:6px;margin-top:6px">
+      <div class="grow"><label style="margin:0 0 3px">CAR</label><input id="gCar" type="number" inputmode="numeric" placeholder="0"></div>
+      <div class="grow"><label style="margin:0 0 3px">YDS</label><input id="gYds" type="number" inputmode="numeric" placeholder="0"></div>
+      <div class="grow"><label style="margin:0 0 3px">TD</label><input id="gTd" type="number" inputmode="numeric" placeholder="0"></div>
+      <div class="grow"><label style="margin:0 0 3px">TKL</label><input id="gTkl" type="number" inputmode="numeric" placeholder="0"></div>
+    </div>
+    <button class="btn amber" style="width:100%;margin-top:8px" onclick="addGame()">LOG THE GAME</button>
   </div>`;
 }
 /* item 6 · the dossier — rule-aware, built from the verified log only */
@@ -4047,7 +4176,7 @@ function dossierCardHTML(){
   return `<div class="card">
     <h3>The Dossier <span class="r">${pre?'questionnaire era — contact opens Jun 15 2028':'contact is open'}</span></h3>
     <div class="note" style="margin:0 0 8px">One tap builds the coach-ready summary from the verified log — nothing typed, nothing inflated. ${pre?'Until the gate, use it for questionnaires, camp registrations, and profile updates (all legal now).':''}</div>
-    <button class="btn grow" style="width:100%" onclick="copyDossier()">⎘ BUILD + COPY DOSSIER</button>
+    <button class="btn amber" style="width:100%" onclick="copyDossier()">BUILD + COPY DOSSIER</button>
     <details style="margin-top:8px"><summary>Preview</summary><div class="bd"><pre id="dossPrev" style="white-space:pre-wrap;font-size:11px;color:var(--dim)">${esc(buildDossier())}</pre></div></details>
   </div>`;
 }
@@ -4073,7 +4202,7 @@ function rPush(){
   ${typeof filmSyllabusCard==='function'?filmSyllabusCard():''}
   <div class="card">
     <h3>Film Room <span class="r">film becomes searchable</span></h3>
-    <div class="note">Tag every clip the day you watch it. Weeks later: "show every missed-leverage rep" is one tap.</div>
+    <div class="note">Your Hudl already holds school film — tagging can start tonight on last season's tape, no waiting. Tag the day you watch. Weeks later: "show every missed-leverage rep" is one tap.</div>
     <div style="margin:8px 0;display:flex;flex-wrap:wrap;gap:6px">${CLIP_TAGS.map(t=>`<button class="btn sm ${pendClip===t?'amber':'ghost'}" onclick="clipTag('${t}')">+ ${esc(t)}</button>`).join('')}</div>
     ${pendClip?`<div class="row" style="gap:6px;margin:8px 0"><input id="clipNote" placeholder="what happened? (optional)" style="flex:1"><button class="btn sm amber" onclick="saveClip()">SAVE</button><button class="btn sm ghost" onclick="pendClip=null;rPush()">✕</button></div><div class="note" style="margin:0 0 6px">Opponent auto-filled from the schedule — one tap + save.</div>`:''}
     ${(fr=>fr.n?`
@@ -4081,7 +4210,7 @@ function rPush(){
       ${(S.clips||[]).filter(c=>!filmTag||c.tag===filmTag).slice(-12).reverse().map(c=>`<div class="note" style="border-bottom:1px solid var(--line);padding:5px 0">${CLIP_BAD.includes(c.tag)?'<b style="color:var(--red)">'+esc(c.tag)+'</b>':'<b style="color:var(--green)">'+esc(c.tag)+'</b>'} — ${esc(c.note||'')} <span style="color:var(--faint)">${esc(c.opp||'')} · ${esc(fmtD(c.d))}</span></div>`).join('')}
       ${fr.trend?`<div class="note" style="margin-top:6px"><b style="color:var(--dim)">Improvement check:</b> ${esc(fr.trend.note)}</div>`:''}
       ${fr.byOpp.length?`<div class="note"><b style="color:var(--dim)">Most trouble vs:</b> ${fr.byOpp.slice(0,2).map(x=>esc(x.opp)+' ('+x.bad+' miss-tags)').join(' · ')}</div>`:''}`
-    :'<div class="empty">No clips tagged yet. First film: the Aug 8 scrimmage.</div>')(filmRead())}
+    :'<div class="empty">No clips tagged yet — and you don\'t have to wait for new film. Open Hudl, pull last season, tag five reps tonight.</div>')(filmRead())}
   </div>
   <div class="card">
     <h3>Coach Memory <span class="r">coaching accumulates here</span></h3>
