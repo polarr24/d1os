@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.48 -->
+<!DOCTYPE html><!-- d1os v7.49 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -249,6 +249,73 @@ body.wm main{max-width:none;padding:0;min-height:100vh;display:grid;place-items:
 .wj .l{font-family:var(--disp);font-weight:400}
 .seg button{font-family:var(--disp);font-weight:400;letter-spacing:.14em;font-size:13.5px}
 .pill{font-family:var(--disp);font-weight:400;letter-spacing:.1em;font-size:12px}
+
+/* ============================================================================
+   v7.49 — EDITORIAL. The defect was never the palette: it was ELEVEN IDENTICAL
+   ROUNDED RECTANGLES stacked down a page. Uniform card grids are the signature
+   of generated UI. Real product design has rhythm — full-bleed moments, sections
+   that carry no chrome at all, one dramatic scale jump per screen, and borders
+   only where they do work. This layer establishes that rhythm.
+   ========================================================================== */
+
+/* 1 · HERO — the identity is not a card. It sits on the page. */
+.pcard{background:none!important;border:none!important;border-radius:0!important;
+  padding:6px 2px 0!important;margin:0 0 26px!important;box-shadow:none!important;overflow:visible!important}
+.pc-top{margin-bottom:2px}
+.pc-pos{background:none;border:none;padding:0;font-size:12px;letter-spacing:.3em;color:var(--amber)}
+.pc-gate{font-size:10.5px;letter-spacing:.12em;color:var(--faint);text-transform:uppercase}
+.pc-gate b{font-size:10.5px;color:var(--faint);font-family:inherit;font-weight:800;letter-spacing:.12em}
+.pc-name{font-size:clamp(64px,19vw,104px)!important;line-height:.82!important;margin-top:6px!important;
+  letter-spacing:.005em!important}
+.pc-sub{font-size:10px;letter-spacing:.2em;color:var(--faint);margin-top:10px}
+.pc-rail{border-top:1px solid var(--line2)!important;border-bottom:1px solid var(--line2);
+  margin-top:22px!important;padding:20px 0 18px!important}
+.pc-v{font-size:38px!important}
+.pc-k{font-size:7.5px!important;letter-spacing:.18em!important;margin-top:9px!important}
+.pc-stat+.pc-stat::before{top:2px;bottom:26%}
+.pc-foot{margin-top:16px!important}
+.pc-verif{font-size:9px;letter-spacing:.16em;text-transform:uppercase}
+.pc-motto{border-top:none!important;padding-top:0!important;margin-top:20px!important;
+  font-size:15px;font-style:normal;color:var(--dim);letter-spacing:.01em}
+
+/* 2 · THE ONE THING — a full-bleed statement, not a widget in a box */
+.prio{background:none!important;border:none!important;border-left:none!important;border-radius:0!important;
+  padding:0 0 26px!important;margin:0 0 26px!important;border-bottom:1px solid var(--line)!important}
+.prio .k{color:var(--amber);font-size:9.5px;letter-spacing:.24em}
+.prio .t{font-family:var(--disp);font-weight:400;font-size:clamp(30px,7.6vw,40px);
+  letter-spacing:.012em;line-height:1.02;margin-top:12px;color:var(--txt)}
+.prio .w{font-size:13.5px;line-height:1.6;color:var(--dim);margin-top:12px;max-width:46ch}
+
+/* 3 · CARDS — chrome only where a card is genuinely a container.
+      Borderless by default, separated by rule + space. */
+.card{background:none;border:none;border-radius:0;padding:0 0 24px;margin:0 0 24px;
+  border-bottom:1px solid var(--line)}
+.card:last-child{border-bottom:none}
+.card h3{font-size:9.5px;letter-spacing:.24em;color:var(--faint);margin-bottom:16px;font-weight:800}
+.card h3 .r{font-size:10.5px;color:var(--faint);letter-spacing:.02em;font-weight:600;text-transform:none}
+/* raised variant, used sparingly for true panels */
+.card.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;
+  margin-bottom:24px}
+
+/* 4 · BUTTONS — a primary action is a full-width bar with real presence */
+.btn{border-radius:8px;font-size:13px;letter-spacing:.06em;font-weight:800;padding:13px 16px}
+.btn.amber{letter-spacing:.16em;font-size:12.5px;padding:16px}
+.btn.sm{padding:8px 11px;font-size:11.5px;letter-spacing:.05em;border-radius:7px}
+
+/* 5 · NUMBERS lead everywhere they appear */
+.stat{background:none;border:none;border-radius:0;padding:0}
+.statgrid{gap:20px 14px}
+.stat .v{font-family:var(--disp);font-weight:400;font-size:34px;line-height:1;color:var(--txt)}
+.stat .k{font-size:7.5px;letter-spacing:.18em;margin-top:6px}
+
+/* 6 · rhythm + air */
+main{padding:26px 20px 12px}
+.note{font-size:12.5px;line-height:1.65;color:var(--faint)}
+details{border-top:1px solid var(--line);padding:14px 0}
+details summary{font-size:13px;letter-spacing:.01em}
+table{font-size:12.5px}
+th{font-size:8.5px;letter-spacing:.16em}
+@media (min-width:1000px){ main{padding:36px 20px 12px} }
 </style>
 </head>
 <body>
