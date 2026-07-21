@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.56 -->
+<!DOCTYPE html><!-- d1os v7.57 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -25,7 +25,8 @@
   --green:#4ADE80; --red:#F87171; --radius:14px; --glow:none;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html{font-size:16px}
+html{font-size:100%}  /* v7.57: was 16px — that silently overrode the user's text-size
+   preference (WCAG 1.4.4). 100% respects it; every size below is rem/px-relative and scales. */
 body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   padding-bottom:calc(84px + env(safe-area-inset-bottom));min-height:100vh;
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;position:relative}
@@ -431,10 +432,21 @@ body{overscroll-behavior-y:none}
 @media (prefers-reduced-motion:reduce){.celebrate,.celebrate .cel-t{animation-duration:.4s}}
 /* counters must not reflow while ticking — reserve the digit box */
 [data-count]{font-variant-numeric:tabular-nums;display:inline-block}
+
+/* v7.57 · FIRST PAINT — the app used to show nothing until ~490KB of JS parsed.
+   A blank screen reads as "slow" no matter how fast the parse is. This shell paints
+   with the HTML, matches the real layout's rhythm exactly (so there is zero shift when
+   content replaces it), and is removed by the first render. */
+.sk{padding:6px 2px 0;animation:skin .3s var(--e-out,ease) both}
+@keyframes skin{from{opacity:0}to{opacity:1}}
+.sk-l{background:linear-gradient(90deg,var(--card) 25%,var(--card2) 37%,var(--card) 63%);
+  background-size:400% 100%;border-radius:6px;animation:shim 1.4s ease-in-out infinite}
+@keyframes shim{0%{background-position:100% 0}100%{background-position:-100% 0}}
+@media (prefers-reduced-motion:reduce){.sk-l{animation:none;background:var(--card)}}
 </style>
 </head>
 <body>
-<header id="hdr">
+<header id="hdr" role="banner">
   <div class="hudwrap">
     <div class="hud-brand"><div class="bw">ZAYDEN</div><div class="bs">D1 OS</div></div>
     <div class="hud-cells" id="hdrCd"></div>
@@ -442,20 +454,28 @@ body{overscroll-behavior-y:none}
   <div id="hudRail"><i style="width:0"></i></div>
 </header>
 <main>
-  <section class="view" id="v-today"></section>
+  <section class="view on" id="v-today"><div class="sk" id="skel">
+  <div class="sk-l" style="height:13px;width:34%"></div>
+  <div class="sk-l" style="height:74px;width:78%;margin-top:14px"></div>
+  <div class="sk-l" style="height:11px;width:52%;margin-top:12px"></div>
+  <div class="sk-l" style="height:58px;width:100%;margin-top:24px;border-radius:10px"></div>
+  <div class="sk-l" style="height:13px;width:28%;margin-top:26px"></div>
+  <div class="sk-l" style="height:34px;width:88%;margin-top:12px"></div>
+  <div class="sk-l" style="height:48px;width:100%;margin-top:18px;border-radius:10px"></div>
+</div></section>
   <section class="view" id="v-train"></section>
   <section class="view" id="v-path"></section>
   <section class="view" id="v-track"></section>
   <section class="view" id="v-push"></section>
 </main>
-<nav id="nav">
-  <button data-v="today"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg></span>TODAY</button>
-  <button data-v="train"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg></span>TRAIN</button>
-  <button data-v="path"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4l9 3-3 4 8 2"/></svg></span>PATH</button>
-  <button data-v="track"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span>TRACK</button>
-  <button data-v="push"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 6.2L21 12l-6.8 2.8L12 21l-2.2-6.2L3 12l6.8-2.8z"/></svg></span>PUSH</button>
+<nav id="nav" aria-label="Main">
+  <button data-v="today" aria-label="Today"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg></span>TODAY</button>
+  <button data-v="train" aria-label="Train"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg></span>TRAIN</button>
+  <button data-v="path" aria-label="Path — recruiting"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4l9 3-3 4 8 2"/></svg></span>PATH</button>
+  <button data-v="track" aria-label="Track — data"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span>TRACK</button>
+  <button data-v="push" aria-label="Push — football IQ"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 6.2L21 12l-6.8 2.8L12 21l-2.2-6.2L3 12l6.8-2.8z"/></svg></span>PUSH</button>
 </nav>
-<div class="toast" id="toast"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 const PLAYBOOK = [
   {"n": 1, "cat": "coach", "name": "Stack Arizona", "formation": "10 pers 2x2 with stack left Z motion across", "concept": "Outside zone weak-to-strong off motion", "job": "Press C-gap outside playside tackle. Read EMOL. Widens equals BANG inside. Squeezes equals BOUNCE around him. One cut, get vertical fast.", "tags": "OZ motion read"},
@@ -4311,7 +4331,7 @@ function rTrack(){
   <div class="card">
     <h3>Strength Trend <span class="r">e1RM over time</span></h3>
     <div class="note" style="color:var(--faint)">Sets over 10 reps count as work but are not used to estimate maxes — high-rep max math lies, so the curve ignores it.</div>
-    ${(()=>{if(!S.lifts.length)return `<div class="empty">No sets logged yet.<br><button class="btn amber sm" style="margin-top:10px" onclick="go('train')">LOG YOUR FIRST SET →</button></div><div class="note">One logged set turns this into a real strength curve — it's the single thing blocking your whole progress graph.</div>`;const byEx=k=>S.lifts.filter(l=>l.ex===k).map(l=>({d:l.d,v:epley(l.wt,l.reps)}));return ['squat','bench','dead','clean'].map(k=>byEx(k).length?`<div style="font-size:11px;letter-spacing:.1em;color:var(--faint);margin-top:8px">${k.toUpperCase()}</div>${spark(byEx(k),{})}`:'').join('')||'<div class="note">Log a main lift (squat/bench/dead/clean) to draw its curve.</div>';})()}
+    ${(()=>{if(!S.lifts.length)return `<div class="empty">Nothing logged yet. Your first set starts the strength curve every coach eventually asks to see, and SAME AS LAST makes every one after it a single tap.<br><button class="btn amber sm" style="margin-top:10px" onclick="go('train')">LOG YOUR FIRST SET →</button></div><div class="note">One logged set turns this into a real strength curve — it's the single thing blocking your whole progress graph.</div>`;const byEx=k=>S.lifts.filter(l=>l.ex===k).map(l=>({d:l.d,v:epley(l.wt,l.reps)}));return ['squat','bench','dead','clean'].map(k=>byEx(k).length?`<div style="font-size:11px;letter-spacing:.1em;color:var(--faint);margin-top:8px">${k.toUpperCase()}</div>${spark(byEx(k),{})}`:'').join('')||'<div class="note">Log a main lift (squat/bench/dead/clean) to draw its curve.</div>';})()}
   </div>
   <div class="card">
     <h3>D1 Benchmarks <span class="r">senior recruit · <button class="btn sm ${(S.settings.benchPos||'LB')==='LB'?'amber':'ghost'}" onclick="S.settings.benchPos='LB';save();rTrack()">LB</button> <button class="btn sm ${(S.settings.benchPos||'LB')==='RB'?'amber':'ghost'}" onclick="S.settings.benchPos='RB';save();rTrack()">RB</button></span></h3>
@@ -4361,7 +4381,7 @@ function rTrack(){
       const bmap={supported:'green',mixed:'amber',none:'red','not-measurable':'',insufficient:''};
       const blabel={supported:'supported',mixed:'mixed',none:'no effect','not-measurable':'tracking',insufficient:'gathering'};
       return `<div style="padding:9px 0;border-bottom:1px solid var(--line)"><div class="row"><b class="grow">${esc(e.label)}</b><span class="pill ${bmap[e.effect]}" style="${(e.effect==='insufficient'||e.effect==='not-measurable')?'opacity:.6':''}">${blabel[e.effect]}</span></div><div class="note" style="margin:3px 0 0">${esc(e.detail)}</div><div class="note">Followed ${e.followed}/${e.total}${e.lastConfirmed?` · last confirmed ${esc(e.lastConfirmed)}`:''}${e.retire?' · <b style="color:var(--red)">no longer recommended</b>':''}</div></div>`;
-    }).join(''):'<div class="empty">No recommendations tracked yet.<br>On TODAY, answer <b>Did it / Partly / Didn\'t</b> under your one thing — that logs the first hypothesis.</div>')(typeof recEffectiveness==='function'?recEffectiveness():[])}
+    }).join(''):'<div class="empty">Nothing to grade yet. Every suggestion here is a prediction. Once you mark them Did it or Didn’t, the app starts scoring its own advice against your results, and retires whatever fails.<br>On TODAY, answer <b>Did it / Partly / Didn\'t</b> under your one thing — that logs the first hypothesis.</div>')(typeof recEffectiveness==='function'?recEffectiveness():[])}
     ${(rs=>rs.length?`<details style="margin-top:8px"><summary>${rs.length} recommendation object${rs.length>1?'s':''} on record</summary><div class="bd">${rs.slice(-6).reverse().map(r=>`• <b>${esc(r.d)}</b> — ${esc(r.text)}<br><span style="color:var(--faint)">unknown at the time: ${esc(r.unc||'—')} · assumed: ${esc(r.asm||'—')} · <b style="color:${r.followed==='followed'?'var(--green)':r.followed==='ignored'?'var(--red)':'var(--faint)'}">${r.followed||'no answer yet'}</b> · outcome: ${esc((typeof recOutcome==='function'?recOutcome(r):{note:'—'}).note)}</span>`).join('<br><br>')}</div></details>`:'')(S.recs||[])}
     <div class="note">Contradictions are kept, never overwritten — advice that stops working flips to "no longer recommended" on its own. Truth over consistency. <b>Known bias, on record:</b> only advice that surfaces gets graded, and what surfaces correlates with how your day already went — verdicts here skew optimistic until scheduled experiments (planned) fix the sampling.</div>
   </div>
@@ -4374,7 +4394,7 @@ function rTrack(){
       <div class="note"><b style="color:var(--dim)">It blocks:</b> ${bn.blocks.map(esc).join(' · ')}</div>
       <div class="note"><b style="color:var(--dim)">Remove it:</b> ${esc(bn.fix)}</div>
       <div class="note" style="margin-top:4px;border-top:1px solid var(--line);padding-top:4px"><b style="color:var(--cyan)">Systems pointing here:</b> ${bn.consensus.map(esc).join(' · ')}</div>
-    </div>`:'<div class="empty">No gap read yet.</div>')(typeof gapBottleneck==='function'?gapBottleneck():null)}
+    </div>`:'<div class="empty">No gap read yet, and it takes exactly one number. Log a 40, a vert, or a weigh-in and every tier target in this app switches on at once.</div>')(typeof gapBottleneck==='function'?gapBottleneck():null)}
     ${(ge=>{const T={LIMITING:['LIMITING','red'],UNKNOWN:['EVIDENCE REQUIRED',''],COMPETITIVE:['COMPETITIVE','amber'],READY:['READY','green']};
       return ['LIMITING','UNKNOWN','COMPETITIVE','READY'].map(tier=>{const fs=ge.factors.filter(f=>f.tier===tier); return fs.length?`
         <div class="note" style="margin-top:6px"><b style="color:var(--${T[tier][1]||'faint'})">${T[tier][0]}</b></div>
@@ -4418,7 +4438,7 @@ function rTrack(){
         <div class="note" style="margin-top:4px"><i>${esc(p.verdictNote)}</i></div>
         ${p.verdict==='eligible'?`<div class="row" style="gap:6px;margin-top:8px"><button class="btn amber sm grow" onclick="approveProposal('${p.id}')">APPROVE CHANGE</button><button class="btn ghost sm grow" onclick="rejectProposal('${p.id}')">REJECT</button></div>`:''}
       </div>`;
-    }).join(''):`<div class="empty">No proposal has earned a behavior change.<br>That is the policy working, not the app failing — it must demonstrate, not guess.</div>`)(typeof revisions==='function'?revisions():[])}
+    }).join(''):`<div class="empty">Nothing has earned a change yet, by design. The engine clears five evidence tests before it may ask you to change anything, and the bar rises as your log grows.<br>That is the policy working, not the app failing — it must demonstrate, not guess.</div>`)(typeof revisions==='function'?revisions():[])}
     ${(evs=>evs.length?`<details style="margin-top:8px"><summary>Reasoning history — ${evs.length} decision${evs.length>1?'s':''} on permanent record</summary><div class="bd">${evs.slice(-8).reverse().map(ev=>`• <b>${esc(ev.d)}</b> — ${esc(ev.meta.action)} <b>${esc(ev.meta.id)}</b>${ev.meta.evidence?` · evidence ${esc(ev.meta.evidence)}`:''}${ev.meta.bar?` · bar: ${esc(ev.meta.bar)}`:''} · v${esc(ev.meta.ver||'?')}`).join('<br>')}</div></details>`:'')((S.events||[]).filter(ev=>ev.type==='policy'&&ev.meta))}
     <div class="note">The system knows things. Policy decides when it has <b>earned the right</b> to act on them.</div>
   </div>
@@ -4444,7 +4464,7 @@ function rTrack(){
   </details>
   <div class="card">
     <h3>System Read <span class="r">what your own data says</span></h3>
-    ${sr.days30<7?'<div class="empty">Needs ≥7 days of check-ins before the mirror is useful.</div>':`
+    ${sr.days30<7?'<div class="empty">Seven days of check-ins turns this into a mirror. Below that it would be guessing, and this app does not guess.</div>':`
     <div style="font-size:13px;line-height:1.7;color:var(--dim)">
       ${sr.worstSkip?`• Most-skipped box (30d): <b style="color:var(--txt)">${sr.worstSkip.name}</b> — missed ${sr.worstSkip.pct}% of days<br>`:'• No box stands out as weak — keep it that way<br>'}
       • Adherence: <b style="color:${sr.trendUp?'var(--green)':'var(--red)'}">${Math.round(sr.rate7*100)}%</b> this week vs ${Math.round(sr.rate30*100)}% over 30d — ${sr.trendUp?'trending up':'trending down'}<br>
@@ -5070,7 +5090,8 @@ function rWidget(){
   $('#v-today').classList.add('on');
 }
 const _wm=(typeof location!=='undefined'&&/widget/.test(location.hash||''));
-function bootD1(){ if(_wm){ rWidget(); if(typeof cloudBoot==='function') cloudBoot(); return; } go('today'); if(typeof cloudBoot==='function') cloudBoot(); } // sync starts only after the mirror verdict — cloud merges with real local state, never with a placeholder
+function killSkeleton(){ try{ const k=document.querySelector('#skel'); if(k) k.remove(); }catch(e){} }
+function bootD1(){ killSkeleton(); if(_wm){ rWidget(); if(typeof cloudBoot==='function') cloudBoot(); return; } go('today'); if(typeof cloudBoot==='function') cloudBoot(); } // sync starts only after the mirror verdict — cloud merges with real local state, never with a placeholder
 idbRestoreCheck(bootD1);
 if(_wm&&typeof setInterval!=='undefined'){ setInterval(()=>{ try{ rWidget(); }catch(e){} },60000); } // widget stays fresh
 
