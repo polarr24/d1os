@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.50 -->
+<!DOCTYPE html><!-- d1os v7.51 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1262,6 +1262,54 @@ const FILM_SYLLABUS=[
 /* v7.43 (audit #15): staff verification date is DATA, not a comment — badges + the December
    re-verify task compute from it. Update this one constant each re-verify. */
 const STAFF_VERIFIED='2026-07-12';
+
+/* ============ v7.51 · THE FRESHMAN TEN ============================================
+   Ranked by return-per-hour on the D1 path for THIS athlete: 14, RB/LB, 158 lb,
+   Basic Academy, class of 2030, already wrestles + runs track, has Hudl film, no
+   40 on record. Verified Jul 2026 where a claim is empirical. Ordered so #1 is the
+   thing that unlocks the most downstream value per unit of time spent. */
+const FRESHMAN10=[
+ {id:'f-teams',n:1,tag:'FILM ACCESS',t:'Own special teams — the freshman fast lane to varsity film',
+  why:'You cannot be recruited off film that does not exist, and freshmen rarely get offensive varsity reps. Kick/punt coverage is where coaches hand a freshman real varsity snaps, because most kids do not want it. It is 100% effort and zero depth-chart politics — the two things you already control.',
+  do:'Tell the coach this week, in these words: "I want every special teams rep you will give me — coverage, wedge, anything." Then be the loudest, fastest man on every unit in practice.',
+  win:'Varsity snaps on film as a freshman. Almost nobody in your class will have that.'},
+ {id:'f-coach',n:2,tag:'GATEKEEPER',t:'Your head coach is the single most important recruiter you have',
+  why:'College staffs call the HS coach before they ever call you — for character, coachability, and whether you are worth the scholarship. Verified Jul 2026: character evaluation is decisive in recruiting; talent gets noticed, character gets recruited. This relationship is free and almost nobody works it deliberately.',
+  do:'One question a week, in person, never by text: "What is the one thing I should fix this week?" Log his answer in COACH MEMORY. Then show the fix next practice — that is the whole play.',
+  win:'When a college calls, your coach reaches for you first. That call cannot be bought.'},
+ {id:'f-wrestle',n:3,tag:'MULTI-SPORT',t:'Wrestling season IS football season — you are already paying for it',
+  why:'Verified Jul 2026: 66.5% of high-school signees to 13 Texas FBS programs played another varsity sport, and coaches actively prefer multi-sport athletes for versatility and character. You already wrestle. Right now you get zero recruiting credit for it and only half the physical transfer.',
+  do:'Train wrestling like a football block: hand fighting = shed technique, sprawls = tackling hips, mat returns = leg drive after contact. Log wrestling days as training days. Tell coaches you wrestle — it is a plus, not a scheduling problem.',
+  win:'Free leverage, grip, hip explosion, and a documented multi-sport profile.'},
+ {id:'f-track',n:4,tag:'SPEED',t:'Track = a free professional speed coach for one season a year',
+  why:'The 40 is the first number every recruiter reads for an RB, and sprint mechanics are the hardest thing to self-coach. You already run track in spring — that is a certified coach fixing your mechanics for months, at no cost, on the calendar.',
+  do:'Run the 100 and treat the coach as your speed coach: ask specifically about start mechanics, shin angle, and arm action. Log every timed 100 — the app converts progress there into 40 projection context.',
+  win:'The one metric that opens or closes RB recruiting, coached by a professional.'},
+ {id:'f-forty',n:5,tag:'BASELINE',t:'Get a 40 on record without needing anybody',
+  why:'You deferred this because it needed a timer and a partner. That excuse is now dead: a phone at 60fps plus frame counting is more accurate than a hand-held stopwatch, and you can do it alone.',
+  do:'Mark 40 yards. Phone on the ground filming the whole run at 60fps. Sprint. Count frames from first movement to crossing the line, divide by 60. Log it. Do it once — every target, gap, and chart in this app switches on the moment you do.',
+  win:'Unlocks the entire speed engine that is currently sitting dark.'},
+ {id:'f-frame',n:6,tag:'HONEST FIT',t:'Know which position your frame is actually projecting to',
+  why:'At 158 lb, D1 LB (typical 205–228) is a long reach; D1 RB (175–195) is reachable with the mass you are already chasing. Playing everywhere is fine as a freshman, but training and film should aim where your body is going, not where it is today.',
+  do:'Use TRACK → The Gap with the RB toggle as your primary read. Keep playing LB for the reps and the tape, but build the body of an RB/S — that is where your reach, wingspan, and speed profile fit.',
+  win:'Two years of training pointed at a target you can actually hit.'},
+ {id:'f-mass',n:7,tag:'MASS',t:'The 16 pounds — solved structurally, not by tracking food',
+  why:'You are 158 chasing 174, and you have said food logging will not happen. Fine: it does not have to. Bodyweight is the only metric that matters, and structure beats tracking every time.',
+  do:'Four fixed anchors, every day, no counting: (1) breakfast before school, non-negotiable, (2) a second lunch or post-practice shake, (3) protein at every meal, (4) weigh in Sunday morning only. If Sunday is not up ~0.5 lb, add one more anchor.',
+  win:'The single biggest physical gap you have, closed by habit instead of willpower.'},
+ {id:'f-callup',n:8,tag:'PROMOTION',t:'Know exactly what gets a freshman pulled up',
+  why:'Coaches promote for reasons they rarely say out loud: knowing every assignment cold, special teams effort, weight-room numbers, and being impossible to ignore in team periods. None of that requires being the biggest kid.',
+  do:'Own the playbook so completely that you can play two positions. Be the first one lined up in every drill. Never lose a conditioning rep — coaches watch the end of practice more than the start.',
+  win:'Varsity reps come from the coach deciding you are ready before you are big.'},
+ {id:'f-reel',n:9,tag:'CURRENCY',t:'Cut the reel that actually gets watched',
+  why:'You have Hudl film and no reel. Coaches decide in the first 10 seconds and rarely watch past 2 minutes. A great reel is a cutting job, not a talent job — it is the highest-leverage hour you can spend at a laptop.',
+  do:'Best play FIRST, no exceptions. 15–20 plays max, under 3 minutes. Spotlight yourself on every clip. No music, no intro graphics, jersey number in the title. Full games available behind the reel for the staffs that want more.',
+  win:'The difference between film existing and film working.'},
+ {id:'f-stack',n:10,tag:'CALENDAR',t:'Stack the year so nothing competes with anything',
+  why:'Your year already has a shape — football fall, wrestling winter, track spring, build summer. The mistake is treating them as interruptions. Sequenced right, each one feeds the next and you never have an off-season or a burnout month.',
+  do:'FALL: football + maintain strength (2 heavy days). WINTER: wrestling + build mass (the best strength window you get). SPRING: track for speed + technique. SUMMER: camps, film, and the biggest mass push. Same body, four different jobs.',
+  win:'Four compounding blocks a year instead of one season and three gaps.'}
+];
 /* ============ STATE — facts and events only; anything computable is computed ============ */
 const DB='d1os_v7';
 const DEFAULTS={
@@ -3283,6 +3331,42 @@ function fullDayCard(){
     <div class="note" style="margin-top:6px">A+B+C+D ≈ 3 hours of daily attack. The kid doing one 3-hour grind is outworking you in hour three only — you're outworking him at breakfast, at 3pm, and at 9pm, every single day, without donating your mass to fatigue.</div>
   </div>`;
 }
+
+/* ============ v7.51 · THE FRESHMAN TEN — highest return per hour on the D1 path ============ */
+let _f10=null;
+function f10Open(i){ _f10=(_f10===i?null:i); rPath(); }
+function f10Done(id){
+  completeTask('f10:'+id);
+  const x=FRESHMAN10.find(y=>y.id===id);
+  S.notes.push({d:todayISO(),text:'freshman10: committed to — '+(x?x.t:id)});
+  save(); rPath(); toast('Committed. It is on the record now.');
+}
+function freshman10HTML(){
+  const done=FRESHMAN10.filter(x=>taskDone('f10:'+x.id)).length;
+  return `<div class="card">
+    <h3>The Freshman Ten <span class="r">${done}/10 committed · ranked by return per hour</span></h3>
+    <div class="note" style="margin:0 0 14px">Not ten more things to do — the ten that pay the most for the time they cost, in order, for a 14-year-old at 158 lb with one goal. Most of them are free and nobody in your class is running them.</div>
+    ${FRESHMAN10.map((x,i)=>{const d=taskDone('f10:'+x.id); const open=_f10===i;
+      return `<div style="border-top:1px solid var(--line);padding:12px 0">
+        <div class="row" style="align-items:flex-start;cursor:pointer" onclick="f10Open(${i})">
+          <span class="mono" style="font-family:var(--disp);font-size:22px;color:${d?'var(--faint)':'var(--amber)'};width:30px;flex-shrink:0;line-height:1">${x.n}</span>
+          <div class="grow">
+            <div style="font-weight:800;font-size:14px;line-height:1.35;${d?'color:var(--faint)':''}">${esc(x.t)}</div>
+            <span class="pill" style="margin-top:6px">${esc(x.tag)}</span>${d?' <span class="pill green">COMMITTED</span>':''}
+          </div>
+          <span style="color:var(--faint);font-size:18px;flex-shrink:0">${open?'–':'+'}</span>
+        </div>
+        ${open?`<div style="padding:10px 0 4px 30px">
+          <div style="font-size:13px;line-height:1.65;color:var(--dim)">${esc(x.why)}</div>
+          <div style="margin-top:12px;font-size:13.5px;line-height:1.6"><b style="color:var(--amber)">DO THIS:</b> ${esc(x.do)}</div>
+          <div class="note" style="margin-top:10px"><b>Payoff:</b> ${esc(x.win)}</div>
+          ${d?'':`<button class="btn amber sm" style="margin-top:12px" onclick="event.stopPropagation();f10Done('${x.id}')">I'M RUNNING THIS</button>`}
+        </div>`:''}
+      </div>`;}).join('')}
+    <div class="note" style="margin-top:14px">Commit to one at a time. Committing writes it to your permanent record — the app will not let you quietly forget it.</div>
+  </div>`;
+}
+
 /* ============ v7.46 FINAL PASS — ten must-adds, built as one layer ============ */
 /* 1 · HONEST STATUS: hurt/sick pauses the ratchet. Safety outranks the streak, always. */
 function setStatus(k){
@@ -3492,6 +3576,7 @@ function rPath(){
     <div class="row" style="gap:6px;margin:8px 0"><input id="oppIn" placeholder="what you saw / heard" style="flex:1"><button class="btn sm amber" onclick="saveOpp('${esc(no.opp)}')">SAVE</button></div>
     ${no.notes.length?no.notes.map(n=>`<div class="note">• ${esc(n.text)} <span style="color:var(--faint)">(${esc(fmtD(n.d))})</span></div>`).join(''):'<div class="note" style="color:var(--faint)">No notes yet — start with their base offense the first time you see them warm up.</div>'}
   </div>`:'')(typeof nextOpponent==='function'?nextOpponent():null)}
+  ${typeof freshman10HTML==='function'?freshman10HTML():''}
   ${typeof statCardHTML==='function'?statCardHTML():''}
   ${typeof dossierCardHTML==='function'?dossierCardHTML():''}
   <div class="card" style="border-color:#3f4a1f">
