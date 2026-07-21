@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.43 -->
+<!DOCTYPE html><!-- d1os v7.44 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -140,6 +140,25 @@ details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
 .prio .t{font-size:16px;font-weight:800;margin-top:3px}
 .prio .w{font-size:12px;color:var(--dim);margin-top:4px;font-style:italic}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+/* v7.44 GYM MODE — the workout screen reads at arm's length, mid-set, with a pump */
+.exrow{padding:13px 0;border-bottom:1px solid var(--line);transition:opacity .2s}
+.exrow.is-done{opacity:.42}
+.exrow.is-live{background:linear-gradient(90deg,rgba(201,242,78,.07),transparent 60%);
+  box-shadow:inset 3px 0 0 var(--amber);padding-left:11px;border-radius:0 10px 10px 0}
+.exname{font-family:var(--disp);font-weight:400;font-size:19px;letter-spacing:.03em;line-height:1.1}
+.exsets{font-size:13px;color:var(--dim);margin-top:2px;font-weight:600}
+.setrow{display:flex;align-items:center;gap:7px;margin-top:8px}
+.setdot{width:26px;height:26px;border-radius:8px;border:2px solid var(--line);background:var(--bg2);
+  cursor:pointer;flex-shrink:0;transition:transform .12s,background .12s,border-color .12s}
+.setdot:active{transform:scale(.88)}
+.setdot.on{background:linear-gradient(150deg,#dcff66,var(--amber));border-color:var(--amber);
+  box-shadow:0 0 10px -2px var(--amber)}
+.setct{font-size:11px;color:var(--faint);margin-left:2px;font-weight:800}
+.exwt{text-align:right;flex-shrink:0;padding-left:10px}
+.exwt-n{font-family:var(--disp);font-weight:400;font-size:34px;line-height:.95;color:var(--cyan);
+  text-shadow:0 0 18px rgba(116,180,198,.35)}
+.exwt-k{font-size:8.5px;letter-spacing:.1em;color:var(--faint);font-weight:800;margin-top:1px}
+.exwt-p{font-size:10px;color:var(--dim);margin-top:3px;font-variant-numeric:tabular-nums}
 /* v7.43 (audit #18): desktop is a real citizen — parents and coaches open this on laptops */
 @media (min-width:1000px){
   html{font-size:17px}
@@ -160,8 +179,8 @@ details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
   box-shadow:0 0 40px -14px rgba(201,242,78,.34),0 20px 40px -24px #000,0 1px 0 rgba(255,255,255,.06) inset}
 .pcard::after{content:'';position:absolute;inset:0;pointer-events:none;
   background:repeating-linear-gradient(0deg,transparent 0 33px,rgba(255,255,255,.02) 33px 34px)}
-.pc-num{position:absolute;top:52px;right:6px;font-family:var(--disp);font-weight:400;
-  font-size:168px;line-height:1;color:rgba(255,255,255,.05);letter-spacing:-.03em;pointer-events:none;z-index:0}
+.pc-num{position:absolute;top:36px;right:10px;font-family:var(--disp);font-weight:400;
+  font-size:120px;line-height:1;color:rgba(255,255,255,.035);letter-spacing:-.03em;pointer-events:none;z-index:0}
 .pc-top,.pc-name,.pc-sub,.pc-rail,.pc-foot,.pc-motto{position:relative;z-index:1}
 .pc-top{display:flex;justify-content:space-between;align-items:center;position:relative}
 .pc-pos{font-family:var(--disp);font-weight:400;font-size:16px;letter-spacing:.22em;color:var(--amber);
@@ -2715,9 +2734,9 @@ function playerCardHTML(){
   // stat rail — verified numbers only; a null shows as a prompt to go log it, never a fake value
   const cells=[
     ['SQUAT',lift('squat'),'lb'],['BENCH',lift('bench'),'lb'],['DEAD',lift('dead'),'lb'],
-    ['VERT',vert,'"'],['BW',bw,'lb']
+    ['VERT',vert,'in'],['BW',bw,'lb']
   ];
-  const rail=cells.map(([k,v,u])=>`<div class="pc-stat"><div class="pc-v mono">${v!=null?v:'<span class="pc-none">—</span>'}${v!=null&&u==='"'?'<span class="pc-u">"</span>':''}</div><div class="pc-k">${k}${v!=null&&u==='lb'?' <span class="pc-u">lb</span>':''}</div></div>`).join('');
+  const rail=cells.map(([k,v,u])=>`<div class="pc-stat"><div class="pc-v mono">${v!=null?v:'<span class="pc-none">—</span>'}</div><div class="pc-k">${k}${v!=null?' <span class="pc-u">'+u+'</span>':''}</div></div>`).join('');
   const motto=(()=>{ const v=(S.notes||[]).filter(n=>/^vault:/i.test(n.text||''));
     if(v.length) return v[v.length-1].text.replace(/^vault:\s*/i,'');
     return 'no losses for gain'; })();
@@ -2760,6 +2779,7 @@ function rToday(){
   </div>`:'')(typeof silentDays==='function'?silentDays():0)}
   <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}${o1eff&&o1eff.retire?' <b style="color:var(--red)">· your own results haven\'t shown this helps — treat it as optional.</b>':o1eff&&o1eff.effect==='supported'?' <b style="color:var(--green)">· backed by your own results.</b>':''}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">DO IT →</button>`:''}
     <div class="row" style="gap:6px;margin-top:10px"><button class="btn sm grow ${o1rec&&o1rec.followed==='followed'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','followed')">Did it ✓</button><button class="btn sm grow ${o1rec&&o1rec.followed==='partial'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','partial')">Partly</button><button class="btn sm grow ${o1rec&&o1rec.followed==='ignored'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','ignored')">Didn't</button></div>
+    <div style="text-align:right;margin-top:6px"><button class="btn sm ghost" style="font-size:10px;padding:4px 8px" onclick="retireRec('${esc(o1.kind)}')">stop suggesting this →</button></div>
     ${(bn=>{const dup=bn&&((o1.kind==='speed'&&bn.id.indexOf('phys:')===0&&['forty','vert','broad'].includes(bn.key))||(o1.kind==='lift'&&bn.id.indexOf('phys:')===0)||(o1.kind==='board'&&bn.id==='recruiting')||(o1.kind==='fuel'&&bn.key==='wt'));return bn&&!dup?`<div class="note" style="margin-top:5px;font-style:normal"><b style="color:var(--cyan)">Your bottleneck:</b> ${esc(bn.name)} — ${esc(bn.ev)}. <span style="color:var(--faint)">Full read: TRACK → The Gap.</span></div>`:'';})(typeof gapBottleneck==='function'?gapBottleneck():null)}
     ${(tr=>/performed well|did not|mixed/.test(tr)?`<div class="note" style="margin-top:5px;font-style:normal;color:var(--faint)">Track record: ${esc(tr)}</div>`:'')(typeof calNote==='function'?calNote(o1.kind):'')}</div>
   ${typeof weekLedgerCard==='function'?weekLedgerCard():''}
@@ -2959,11 +2979,26 @@ function rTrain(){
       if(b.pct&&b.lift&&S.prs[b.lift]){ const t=Math.round((S.prs[b.lift]*b.pct*dl)/5)*5;
         load=`<div class="note mono">→ <b style="color:var(--cyan)">${t} lb</b> (${Math.round(b.pct*100)}%${dl<1?' ×'+Math.round(dl*100)+'%':''} of ${S.prs[b.lift]}) · ${plates(t)}</div>`; }
       const done=sess&&sess[i];
-      return `<div style="padding:10px 0;border-bottom:1px solid var(--line);${done?'opacity:.45':''}" ${isToday?`onclick="tglBlock(${i})"`:''}>
-        <div class="row"><div class="grow">
-        <div style="font-weight:700;font-size:14px">${done?'✓ ':''}${esc(b.n)}</div>
-        <div style="font-size:13px;color:var(--dim);margin-top:2px">${esc(b.s)}</div>${(w2=>w2?`<div class="note" style="margin-top:2px;color:var(--faint)">⚡ ${esc(w2)}</div>`:'')(liftWhy(b.n))}${load}</div>
-        ${isToday?`<div class="box" style="width:22px;height:22px;border:2px solid ${done?'var(--amber)':'var(--line)'};border-radius:6px;background:${done?'var(--amber)':'transparent'};flex-shrink:0"></div>`:''}</div></div>`;}).join('');})()}
+      /* v7.44 GYM MODE: the screen a strength coach and a product designer would build together.
+         Sets are DOTS you tap one at a time (not one checkbox for a whole exercise), the
+         prescribed weight is the biggest thing on the row, and completing a set auto-starts
+         rest. Reading a wall of text mid-workout is how sessions decay. */
+      const nSets=(m=>m?+m[1]:0)(String(b.s).match(/^(\d+)\s*[×x]/));
+      const setKey=todayISO()+':'+i;
+      const doneSets=(_setDots[setKey]||0);
+      const dots=nSets?Array.from({length:nSets},(_,k)=>`<i class="setdot ${k<doneSets?'on':''}" onclick="event.stopPropagation();tapSet(${i},${nSets})"></i>`).join(''):'';
+      const wt=(b.pct&&b.lift&&S.prs[b.lift])?Math.round((S.prs[b.lift]*b.pct*dl)/5)*5:null;
+      return `<div class="exrow ${done?'is-done':''} ${(!done&&isToday&&doneSets>0&&doneSets<nSets)?'is-live':''}" ${isToday?`onclick="tglBlock(${i})"`:''}>
+        <div class="row" style="align-items:flex-start">
+          <div class="grow">
+            <div class="exname">${done?'✓ ':''}${esc(b.n)}</div>
+            <div class="exsets">${esc(b.s)}</div>
+            ${(w2=>w2?`<div class="note" style="margin-top:3px;color:var(--faint)">⚡ ${esc(w2)}</div>`:'')(liftWhy(b.n))}
+            ${dots?`<div class="setrow">${dots}<span class="setct mono">${doneSets}/${nSets}</span></div>`:''}
+          </div>
+          ${wt!=null?`<div class="exwt"><div class="exwt-n mono">${wt}</div><div class="exwt-k">LB · ${Math.round(b.pct*100)}%${dl<1?' ×'+Math.round(dl*100)+'%':''}</div><div class="exwt-p">${plates(wt)}</div></div>`:''}
+          ${isToday?`<div class="box" style="width:22px;height:22px;border:2px solid ${done?'var(--amber)':'var(--line)'};border-radius:6px;background:${done?'var(--amber)':'transparent'};flex-shrink:0;margin-left:8px"></div>`:''}
+        </div></div>`;}).join('');})()}
     ${!w.recovery?`<div class="row" style="margin-top:12px">
       <button class="btn grow" id="restBtn" onclick="restTimer(150)">⏱ REST 2:30</button>
       <button class="btn ghost" onclick="restTimer(15)">CONTRAST 0:15</button>
@@ -3148,6 +3183,27 @@ function repeatLast(){
   const l=S.lifts[S.lifts.length-1]; if(!l){ toast('Nothing to repeat yet'); return; }
   $('#lgEx').value=l.ex; $('#lgWt').value=l.wt; $('#lgRp').value=l.reps;
   logLift();
+}
+/* v7.44 — owner control over the ladder, IN-APP (was previously only possible by editing a
+   backup). Uses the app's own approved-params mechanism, with the decision on permanent record. */
+function retireRec(kind){
+  if(!kind) return;
+  S.params.demotedRecs=S.params.demotedRecs||{v:[],basis:'default'};
+  if(!S.params.demotedRecs.v.includes(kind)) S.params.demotedRecs.v.push(kind);
+  S.params.demotedRecs.basis='owner '+todayISO()+' · retired from TODAY (re-approve any time in TRACK)';
+  logEvent('policy',{id:'demote:'+kind,by:'owner',why:'retired from the ONE THING ladder in-app'});
+  save(); rToday(); toast('Retired — the app will stop leading with that. Decision is on the record.');
+}
+/* v7.44 set dots — session-scoped (not persisted state: sets are execution, the block flag is the fact) */
+let _setDots={};
+function tapSet(i,n){
+  const k=todayISO()+':'+i;
+  _setDots[k]=((_setDots[k]||0)+1)>n?0:(_setDots[k]||0)+1;
+  const full=_setDots[k]===n;
+  if(full){ const s=S.sessions[todayISO()]; if(s&&!s[i]){ s[i]=true; save(); } }
+  rTrain();
+  if(!full&&_setDots[k]>0){ setTimeout(()=>{ try{ restTimer(150); }catch(e){} },30); toast('Set '+_setDots[k]+'/'+n+' — rest running'); }
+  else if(full) toast('All '+n+' sets done ✓');
 }
 function tglBlock(i){ const k=todayISO(); if(!S.sessions[k]) return; S.sessions[k][i]=!S.sessions[k][i]; save();
   if(S.sessions[k].every(Boolean)){ const c=ckToday(); if(!c[0]){c[0]=true; save();} toast('Session complete — Train box checked ✓'); }
