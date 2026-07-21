@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.47 -->
+<!DOCTYPE html><!-- d1os v7.48 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -70,12 +70,12 @@ h1,h2,h3{font-weight:800;letter-spacing:.02em}
 #hudRail i{position:absolute;left:0;top:0;bottom:0;background:var(--amber);
   box-shadow:none;transition:width .5s cubic-bezier(.2,.8,.25,1)}
 @media (min-width:1000px){ .hudwrap{max-width:760px} }
-main{padding:16px;max-width:560px;margin:0 auto}
+main{padding:18px 16px 8px;max-width:560px;margin:0 auto}
 .view{display:none}.view.on{display:block;animation:rise .28s cubic-bezier(.2,.8,.25,1)}
 @keyframes rise{from{opacity:0;transform:translateY(7px)}to{opacity:1;transform:none}}
 .card{background:var(--card);
   border:1px solid var(--line);border-radius:var(--radius);padding:18px;margin-bottom:12px}
-.card h3{font-size:12px;letter-spacing:.15em;color:var(--dim);margin-bottom:12px;text-transform:uppercase}
+.card h3{font-size:10.5px;letter-spacing:.19em;color:var(--faint);margin-bottom:14px;text-transform:uppercase;font-weight:800}
 .card h3 .r{float:right;color:var(--faint);font-weight:600;letter-spacing:0;text-transform:none}
 .big{font-size:38px;font-weight:900;letter-spacing:-.02em}
 .row{display:flex;gap:10px;align-items:center}
@@ -139,7 +139,7 @@ details summary{cursor:pointer;font-size:14px;font-weight:700;list-style:none;di
 details summary::after{content:'+';color:var(--faint);font-size:18px}
 details[open] summary::after{content:'–'}
 details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
-.note{font-size:12px;color:var(--faint);line-height:1.5;margin-top:8px}
+.note{font-size:12px;color:var(--faint);line-height:1.6;margin-top:9px}
 .flag{background:#14180f;border:1px solid #33401d;border-radius:10px;padding:10px 12px;font-size:13px;margin-bottom:10px}
 .toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--card2);border:1px solid var(--amber-dim);
   color:var(--txt);padding:11px 18px;border-radius:12px;font-size:14px;font-weight:700;z-index:99;opacity:0;transition:opacity .25s;pointer-events:none;white-space:nowrap}
@@ -149,14 +149,14 @@ details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
 .stat .v{font-size:22px;font-weight:900}
 .stat .k{font-size:10px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-top:2px}
 .empty{text-align:center;color:var(--faint);font-size:13px;padding:24px 0}
-.prio{background:var(--card);border:1px solid var(--amber-dim);border-radius:var(--radius);padding:16px 16px 16px 18px;margin-bottom:14px;position:relative;overflow:hidden;
+.prio{background:var(--card);border:1px solid var(--line2);border-radius:var(--radius);padding:20px;margin-bottom:12px;position:relative;overflow:hidden;
   box-shadow:0 1px 0 rgba(255,255,255,.05) inset}
-.prio::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--amber)}
+
 
 
 .prio .k{font-size:10px;letter-spacing:.14em;color:var(--amber);font-weight:900}
-.prio .t{font-size:16px;font-weight:800;margin-top:3px}
-.prio .w{font-size:12px;color:var(--dim);margin-top:4px;font-style:italic}
+.prio .t{font-size:16px;font-weight:800;margin-top:6px;line-height:1.3}
+.prio .w{font-size:12.5px;color:var(--dim);margin-top:7px;font-style:normal;line-height:1.55}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 /* v7.44 GYM MODE — the workout screen reads at arm's length, mid-set, with a pump */
 .exrow{padding:13px 0;border-bottom:1px solid var(--line);transition:opacity .2s}
@@ -188,13 +188,12 @@ details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
   .statgrid{grid-template-columns:repeat(4,1fr)}
 }
 /* ============ player identity card — the hero (v7.36) ============ */
-.pcard{position:relative;overflow:hidden;border-radius:24px;padding:20px 20px 18px;margin-bottom:16px;
+.pcard{position:relative;overflow:hidden;border-radius:16px;padding:24px 22px 20px;margin-bottom:14px;
   background:var(--card2);
   border:1px solid var(--line2);
   box-shadow:0 20px 40px -24px #000,0 1px 0 rgba(255,255,255,.06) inset}
 
-.pc-num{position:absolute;top:36px;right:10px;font-family:var(--disp);font-weight:400;
-  font-size:120px;line-height:1;color:rgba(255,255,255,.035);letter-spacing:-.03em;pointer-events:none;z-index:0}
+.pc-num{display:none} /* v7.48: a cropped ghost numeral read as an artifact, not as design */
 .pc-top,.pc-name,.pc-sub,.pc-rail,.pc-foot,.pc-motto{position:relative;z-index:1}
 .pc-top{display:flex;justify-content:space-between;align-items:center;position:relative}
 .pc-pos{font-family:var(--disp);font-weight:400;font-size:16px;letter-spacing:.22em;color:var(--amber);
@@ -205,17 +204,19 @@ details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
   letter-spacing:.02em;margin-top:12px;position:relative;
   color:var(--txt))}
 .pc-sub{font-size:11px;letter-spacing:.14em;color:var(--faint);margin-top:5px;font-weight:800;position:relative}
-.pc-rail{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:16px;position:relative}
-.pc-stat{background:rgba(9,11,15,.55);border:1px solid var(--line);border-radius:11px;padding:9px 4px 7px;text-align:center}
-.pc-v{font-family:var(--disp);font-weight:400;font-size:25px;letter-spacing:.02em;color:var(--txt);line-height:1}
+.pc-rail{display:grid;grid-template-columns:repeat(5,1fr);margin-top:22px;position:relative;
+  border-top:1px solid var(--line);padding-top:18px}
+.pc-stat{text-align:center;position:relative;padding:0 2px}
+.pc-stat+.pc-stat::before{content:'';position:absolute;left:0;top:6%;bottom:34%;width:1px;background:var(--line)}
+.pc-v{font-family:var(--disp);font-weight:400;font-size:33px;letter-spacing:.01em;color:var(--txt);line-height:1}
 .pc-u{font-size:11px;color:var(--faint);letter-spacing:0}
 .pc-none{color:var(--faint)}
-.pc-k{font-size:8.5px;letter-spacing:.1em;color:var(--faint);text-transform:uppercase;margin-top:4px;font-weight:800}
+.pc-k{font-size:8px;letter-spacing:.13em;color:var(--faint);text-transform:uppercase;margin-top:7px;font-weight:800}
 .pc-foot{display:flex;justify-content:space-between;align-items:center;margin-top:14px;position:relative}
-.pc-verif{font-size:9.5px;letter-spacing:.06em;color:var(--green);font-weight:800}
-.pc-ready{font-family:var(--disp);font-weight:400;font-size:14px;letter-spacing:.08em;color:var(--cyan)}
-.pc-motto{margin-top:9px;font-size:13px;font-style:italic;color:var(--dim);position:relative;
-  border-top:1px solid var(--line);padding-top:9px}
+.pc-verif{font-size:9.5px;letter-spacing:.06em;color:var(--faint);font-weight:800}
+.pc-ready{font-family:var(--disp);font-weight:400;font-size:14px;letter-spacing:.08em;color:var(--faint)}
+.pc-motto{margin-top:14px;font-size:13px;font-style:italic;color:var(--dim);position:relative;
+  border-top:1px solid var(--line);padding-top:12px}
 /* widget mode (#widget): the glanceable face — iPad split-view / pinned desktop window */
 body.wm{padding-bottom:0}
 body.wm #hdr,body.wm #nav{display:none}
@@ -239,10 +240,10 @@ body.wm main{max-width:none;padding:0;min-height:100vh;display:grid;place-items:
 #hdr .cd b{font-family:var(--disp);font-weight:400;font-size:18px;letter-spacing:.04em}
 .big{font-family:var(--disp);font-weight:400;font-size:46px;letter-spacing:.03em}
 .stat .v{font-family:var(--disp);font-weight:400;font-size:31px;letter-spacing:.03em}
-.card h3{font-family:var(--disp);font-weight:400;font-size:15px;letter-spacing:.22em}
+.card h3{font-family:inherit;font-weight:800;font-size:10.5px;letter-spacing:.19em}
 .card h3 .r{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:11px}
 #nav button{font-family:var(--disp);font-weight:400;font-size:12.5px;letter-spacing:.18em}
-.prio .k{font-family:var(--disp);font-weight:400;font-size:13px;letter-spacing:.26em}
+.prio .k{font-family:inherit;font-weight:800;font-size:10.5px;letter-spacing:.19em}
 .prio .t{font-family:var(--disp);font-weight:400;font-size:23px;letter-spacing:.045em}
 .wj .n{font-family:var(--disp);font-weight:400}
 .wj .l{font-family:var(--disp);font-weight:400}
@@ -2795,8 +2796,8 @@ function playerCardHTML(){
     <div class="pc-sub">CLASS OF ${esc(p.classOf||2030)} · HENDERSON, NV${streak>0?` · <span style="color:var(--amber)">${streak}-DAY STREAK</span>`:''}</div>
     <div class="pc-rail">${rail}</div>
     <div class="pc-foot">
-      <span class="pc-verif">✓ VERIFIED — every number logged, none claimed</span>
-      <span class="pc-ready">${vr.earned}/7 varsity-ready</span>
+      <span class="pc-verif">VERIFIED &mdash; every number logged, none claimed</span>
+      <span class="pc-ready">${vr.earned>0?vr.earned+'/7 VARSITY-READY':''}</span>
     </div>
     <div class="pc-motto">“${esc(motto)}”</div>
   </div>`;
@@ -2823,9 +2824,9 @@ function rToday(){
     <h3>Re-Entry Protocol <span class="r">day one back — built for exactly this</span></h3>
     <div class="note" style="margin:0">${sil} quiet days. Nobody rebuilds a season in one workout, and trying to is how comebacks die in a week. Today's ENTIRE assignment: one 20-minute session — anything — the Daily Four, one honest note. That's a won day. Loads below are already comeback-adjusted; the bar restarts from here to be beaten, not to punish.</div>
   </div>`:'')(typeof silentDays==='function'?silentDays():0)}
-  <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}${o1eff&&o1eff.retire?' <b style="color:var(--red)">· your own results haven\'t shown this helps — treat it as optional.</b>':o1eff&&o1eff.effect==='supported'?' <b style="color:var(--green)">· backed by your own results.</b>':''}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">DO IT →</button>`:''}
-    <div class="row" style="gap:6px;margin-top:10px"><button class="btn sm grow ${o1rec&&o1rec.followed==='followed'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','followed')">Did it ✓</button><button class="btn sm grow ${o1rec&&o1rec.followed==='partial'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','partial')">Partly</button><button class="btn sm grow ${o1rec&&o1rec.followed==='ignored'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','ignored')">Didn't</button></div>
-    <div style="text-align:right;margin-top:6px"><button class="btn sm ghost" style="font-size:10px;padding:4px 8px" onclick="retireRec('${esc(o1.kind)}')">stop suggesting this →</button></div>
+  <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}${o1eff&&o1eff.retire?' <b style="color:var(--red)">· your own results haven\'t shown this helps — treat it as optional.</b>':o1eff&&o1eff.effect==='supported'?' <b style="color:var(--green)">· backed by your own results.</b>':''}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">START</button>`:''}
+    <div class="row" style="gap:6px;margin-top:10px"><button class="btn sm grow ${o1rec&&o1rec.followed==='followed'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','followed')">Did it</button><button class="btn sm grow ${o1rec&&o1rec.followed==='partial'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','partial')">Partly</button><button class="btn sm grow ${o1rec&&o1rec.followed==='ignored'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','ignored')">Didn't</button></div>
+    <div style="text-align:right;margin-top:6px"><button class="btn sm ghost" style="font-size:10px;padding:4px 8px" onclick="retireRec('${esc(o1.kind)}')">stop suggesting this</button></div>
     ${(bn=>{const dup=bn&&((o1.kind==='speed'&&bn.id.indexOf('phys:')===0&&['forty','vert','broad'].includes(bn.key))||(o1.kind==='lift'&&bn.id.indexOf('phys:')===0)||(o1.kind==='board'&&bn.id==='recruiting')||(o1.kind==='fuel'&&bn.key==='wt'));return bn&&!dup?`<div class="note" style="margin-top:5px;font-style:normal"><b style="color:var(--cyan)">Your bottleneck:</b> ${esc(bn.name)} — ${esc(bn.ev)}. <span style="color:var(--faint)">Full read: TRACK → The Gap.</span></div>`:'';})(typeof gapBottleneck==='function'?gapBottleneck():null)}
     ${(tr=>/performed well|did not|mixed/.test(tr)?`<div class="note" style="margin-top:5px;font-style:normal;color:var(--faint)">Track record: ${esc(tr)}</div>`:'')(typeof calNote==='function'?calNote(o1.kind):'')}</div>
   ${typeof weekLedgerCard==='function'?weekLedgerCard():''}
@@ -2872,7 +2873,7 @@ function rToday(){
       return `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><button class="btn sm ${done?'amber':'ghost'}" onclick="freeWin('${fd}',${i})">${done?'✓':'☐'}</button><span class="grow" style="font-size:13px;margin-left:8px">${esc(w)}</span></div>`;}).join('')}
     ${(fw=>fw.weakest&&fw.weakest.secured<fw.weakest.of?`<div class="note" style="margin-top:6px">Most-missed: <b>${esc(fw.weakest.item)}</b> (${fw.weakest.secured}/${fw.weakest.of} days) — fix the pattern.</div>`:'')(freeWinsRead())}
   </div>`;})(practiceDay(todayISO())?todayISO():(practiceDay(addDays(todayISO(),1))?addDays(todayISO(),1):null))}
-  <div class="card"><h3>Quick Log <span class="r">taps, not typing</span></h3><div class="row" style="align-items:center;gap:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Energy</span>${rate5('energy','today')}</div>${((S.lifts||[]).some(l=>l.d===todayISO())||((S.sessions&&S.sessions[todayISO()])||[]).some(Boolean))?`<div class="row" style="align-items:center;gap:6px;margin-top:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Session</span>${rate5('sq','today')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn grow" onclick="numOpen('wt','Bodyweight (lb)',1,160)">Weight</button><button class="btn grow" onclick="numOpen('sleep','Sleep (h)',0.5,8)">Sleep</button><button class="btn grow" onclick="go('train')">Lift →</button></div>
+  <div class="card"><h3>Quick Log <span class="r">taps, not typing</span></h3><div class="row" style="align-items:center;gap:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Energy</span>${rate5('energy','today')}</div>${((S.lifts||[]).some(l=>l.d===todayISO())||((S.sessions&&S.sessions[todayISO()])||[]).some(Boolean))?`<div class="row" style="align-items:center;gap:6px;margin-top:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Session</span>${rate5('sq','today')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn grow" onclick="numOpen('wt','Bodyweight (lb)',1,160)">Weight</button><button class="btn grow" onclick="numOpen('sleep','Sleep (h)',0.5,8)">Sleep</button><button class="btn grow" onclick="go('train')">Lift</button></div>
   ${statusToday()?'':`<div class="row" style="gap:6px;margin-top:6px"><span class="note grow" style="margin:0">Hurt or sick today? Say so — the bar pauses, the streak holds, and the reason is on record.</span><button class="btn sm ghost" onclick="setStatus('hurt')">HURT</button><button class="btn sm ghost" onclick="setStatus('sick')">SICK</button></div>`}
   ${(be=>{const last=be.length?be[be.length-1]:null;const days=last!=null?daysBetween(last,todayISO()):null;const col=days==null||days>30?'var(--red)':days>14?'var(--amber)':'var(--green)';
     return `<div class="row" style="margin-top:8px;align-items:center"><span class="note grow" style="margin:0">Off-device backup: <b style="color:${col}">${days==null?'NEVER':days===0?'today':days+'d ago'}</b> — the export file is the only thing that survives a lost phone</span>${(days==null||days>7)?`<button class="btn sm" onclick="exportS()">EXPORT</button>`:''}</div>`;})((S.events||[]).filter(e=>e.type==='task'&&e.meta&&String(e.meta.id).indexOf('backup:')===0).map(e=>e.d).sort())}<div class="note" style="margin-top:6px">One tap each — this is what lets the app learn what works for <b>you</b>.</div></div>
@@ -2884,7 +2885,7 @@ function rToday(){
     <div style="font-size:18px;font-weight:900;color:var(--cyan);margin-bottom:6px">${esc(plan.workout.title)}</div>
     <div style="font-size:13px;color:var(--dim);line-height:1.6">${plan.workout.blocks.map(b=>'• '+esc(b.n)).join('<br>')}</div>
     <div class="note">${esc(plan.workout.why)}</div>
-    <button class="btn amber" style="width:100%;margin-top:12px" onclick="go('train')">OPEN SESSION →</button>
+    <button class="btn amber" style="width:100%;margin-top:12px" onclick="go('train')">OPEN SESSION</button>
   </div>
   ${plan.tasks.length?`<div class="card"><h3>Also Today <span class="r">${plan.tasks.length}</span></h3>
     ${plan.tasks.map(t=>`<div style="padding:10px 0;border-bottom:1px solid var(--line)">
@@ -3175,7 +3176,7 @@ function fullDayCard(){
     <div class="note" style="margin:0 0 8px">One long grind trains fatigue, eats your surplus, and past ~16 hrs/week the injury data turns ugly. Four blocks, spread across the day, is MORE total war — and every block multiplies the others. Better than everyone on the field = the only one who did all four.</div>
     <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK A · MAIN SESSION</b> <span class="pill">60–75 min</span><br>The session above, at full intensity — bar speed honest, 1–3 RIR, contrast pairs timed. Intensity is capped by duration ON PURPOSE: past ~75 min the quality that makes you faster is gone.</div>
     <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK B · THE ANABOLIC BLOCK</b> <span class="pill">45–60 min</span><br>Eat the biggest meal of the day + get horizontal. On a mass mission at 158 lb, THIS is training — the only block that makes you bigger than the kid across from you. Skipping it to lift longer is how you stay small.</div>
-    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK C · SKILLS (PM)</b> <span class="pill">30–40 min</span><br>Today's rotation:<br>${drills.map(d=>`• <b>${esc(d.name)}</b> — ${esc(d.reps)} <span style="color:var(--faint)">(${esc(d.key)})</span>`).join('<br>')}<br>${pmDone?'<b style="color:var(--green)">PM block done ✓</b>':`<button class="btn sm amber" style="margin-top:6px" onclick="completeTask('pm:'+todayISO());rTrain();toast('PM block logged — the full day is real ✓')">PM BLOCK DONE ✓</button>`}</div>
+    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK C · SKILLS (PM)</b> <span class="pill">30–40 min</span><br>Today's rotation:<br>${drills.map(d=>`• <b>${esc(d.name)}</b> — ${esc(d.reps)} <span style="color:var(--faint)">(${esc(d.key)})</span>`).join('<br>')}<br>${pmDone?'<b style="color:var(--green)">PM block done ✓</b>':`<button class="btn sm amber" style="margin-top:6px" onclick="completeTask('pm:'+todayISO());rTrain();toast('PM block logged — the full day is real ✓')">PM BLOCK DONE</button>`}</div>
     <div style="padding:7px 0;font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK D · FILM + CLOSE</b> <span class="pill">30 min</span><br>${syl?`Tonight's assignment: <b>${esc(syl.title)}</b> (PUSH tab)`:'Syllabus complete — run any drill on opponent film'} · then the Daily Four. The undersized player's separation happens here, where nobody's watching.</div>
     <div class="note" style="margin-top:6px">A+B+C+D ≈ 3 hours of daily attack. The kid doing one 3-hour grind is outworking you in hour three only — you're outworking him at breakfast, at 3pm, and at 9pm, every single day, without donating your mass to fatigue.</div>
   </div>`;
@@ -3194,7 +3195,7 @@ function statusCardHTML(){
     <div class="note" style="margin:0">${st==='hurt'
       ?'Recorded. <b>Tell a parent and your athletic trainer today</b> — return-to-play is a medical call, never this app\'s. The week\'s bar is paused, your streak is protected, and the log shows exactly why. Playing hurt at 14 is how careers end early; resting is the move that keeps 2030 alive.'
       :'Recorded. Sleep, fluids, food. Training through illness buys nothing and costs a week. The bar is paused — it will be there when you are.'}</div>
-    <button class="btn sm" style="margin-top:8px" onclick="setStatus('ok')">I'M BACK ✓</button></div>`;
+    <button class="btn sm" style="margin-top:8px" onclick="setStatus('ok')">I'M BACK</button></div>`;
   return '';
 }
 /* 2 · SESSION CLOCK: enforces the 75-minute quality window from the 3-Hour Day */
@@ -3423,7 +3424,7 @@ function rPath(){
     ${(ro=>ro.items.map(i=>`<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span style="width:22px">${i.ok?'<b style="color:var(--green)">✓</b>':'<b style="color:var(--red)">!</b>'}</span><div class="grow"><b style="font-size:13px">${esc(i.k)}</b><div class="note" style="margin:1px 0 0">${esc(i.ev)}</div></div></div>`).join('')+(ro.missing.length?`<div class="note" style="margin-top:6px"><b style="color:var(--red)">${ro.missing.length} open item${ro.missing.length===1?'':'s'}</b> — a recruiting coordinator would be chasing these.</div>`:'<div class="note" style="margin-top:6px">All clear — coordinator-approved.</div>'))(recruitOps())}
     ${pendCamp?`<div class="row" style="gap:6px;margin-top:8px"><input id="campN" placeholder="camp / showcase name" style="flex:1"><input id="campW" placeholder="when" style="width:90px"><button class="btn sm amber" onclick="saveCamp()">SAVE</button></div>`:''}
     ${(hf=>`<div class="note" style="margin-top:6px"><b style="color:${hf.stale?'var(--red)':hf.last?'var(--green)':'var(--dim)'}">Reel freshness:</b> ${hf.last?'Hudl updated '+fmtD(hf.last)+' ('+hf.days+'d ago)':'no Hudl update on record'}${hf.stale?' — <b>stale in-season; recruiters bounce off old reels.</b>':''}</div>`)(hudlFresh())}
-    <div class="row" style="gap:6px;margin-top:8px"><button class="btn sm grow" onclick="logHudl()">HUDL UPDATED ✓</button><button class="btn sm grow ${pendCamp?'amber':''}" onclick="pendCamp=!pendCamp;rPath()">+ CAMP/SHOWCASE</button></div>
+    <div class="row" style="gap:6px;margin-top:8px"><button class="btn sm grow" onclick="logHudl()">HUDL UPDATED</button><button class="btn sm grow ${pendCamp?'amber':''}" onclick="pendCamp=!pendCamp;rPath()">+ CAMP/SHOWCASE</button></div>
     ${(rv=>`<details style="margin-top:8px"><summary>Recruiting reality check</summary><div class="bd">
       ${rv.helps.length?`<div class="note"><b style="color:var(--green)">Helping now:</b> ${rv.helps.map(esc).join(' · ')}</div>`:'<div class="note">Nothing on the helps side yet — that changes with the first measurement.</div>'}
       ${rv.hurts.length?`<div class="note"><b style="color:var(--red)">Hurting now:</b> ${rv.hurts.map(esc).join(' · ')}</div>`:''}
@@ -4106,7 +4107,7 @@ function dumpCardHTML(){
   return `<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">
     <div class="note" style="margin:0 0 6px"><b>Brain dump</b> — type it how you'd text it ("hit 210 on bench, weighed 158, slept 7"). The app suggests entries; you approve each one. Nothing writes itself.</div>
     <div class="row" style="gap:6px"><input id="dumpIn" placeholder="what happened today, any format" style="flex:1"><button class="btn sm amber" onclick="dumpGo()">READ IT</button></div>
-    ${pendDump?`<div style="margin-top:6px">${pendDump.length?pendDump.map((x,i)=>`<div class="row" style="padding:4px 0"><span class="grow" style="font-size:13px">→ ${esc(x.label)}</span><button class="btn sm amber" onclick="dumpApprove(${i})">LOG IT ✓</button></div>`).join(''):'<div class="note">No numbers recognized — save it as a note so it still counts.</div>'}
+    ${pendDump?`<div style="margin-top:6px">${pendDump.length?pendDump.map((x,i)=>`<div class="row" style="padding:4px 0"><span class="grow" style="font-size:13px">→ ${esc(x.label)}</span><button class="btn sm amber" onclick="dumpApprove(${i})">LOG IT</button></div>`).join(''):'<div class="note">No numbers recognized — save it as a note so it still counts.</div>'}
     <button class="btn sm ghost" style="margin-top:6px" onclick="dumpNote()">SAVE FULL TEXT AS NOTE</button></div>`:''}
   </div>`;
 }
@@ -4317,7 +4318,7 @@ function filmSyllabusCard(){
     <div class="note" style="margin-top:8px;border-left:3px solid var(--amber);padding-left:10px;font-style:normal"><b>THE DRILL:</b> ${esc(a.drill)}</div>
     ${a.id==='call-it'?`<div class="row" style="gap:6px;margin-top:8px"><button class="btn sm grow" onclick="callTap(1)">HIT ✓</button><button class="btn sm ghost grow" onclick="callTap(0)">MISS ✗</button><span class="mono" id="callN" style="align-self:center;min-width:52px;text-align:center">0 / 0</span><button class="btn sm amber" onclick="callEnd()">LOG RATE</button></div>${hist.length?`<div class="note" style="margin-top:4px">Your call-rate arc: ${hist.slice(-5).map(h=>h.val+'%').join(' → ')}</div>`:''}`:''}
     <div style="margin-top:8px"><b style="font-size:13px">${esc(a.q)}</b>
-    <div class="row" style="gap:6px;margin-top:6px"><input id="sylA" placeholder="your answer — it gets carved into the record" style="flex:1"><button class="btn sm amber" onclick="sylAnswer('${a.id}')">DONE ✓</button></div></div>
+    <div class="row" style="gap:6px;margin-top:6px"><input id="sylA" placeholder="your answer — it gets carved into the record" style="flex:1"><button class="btn sm amber" onclick="sylAnswer('${a.id}')">DONE</button></div></div>
     ${done.length?`<details style="margin-top:8px"><summary>Completed (${done.length}/12)</summary><div class="bd">${done.map(x=>`<div class="note" style="margin:2px 0">✓ ${x.wk}. ${esc(x.title)}</div>`).join('')}</div></details>`:''}
   </div>`;
 }
