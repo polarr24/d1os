@@ -1,28 +1,28 @@
-<!DOCTYPE html><!-- d1os v7.49 -->
+<!DOCTYPE html><!-- d1os v7.50 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="theme-color" content="#0A0B0D">
+<meta name="theme-color" content="#08090C">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-180.png">
 <title>D1 OS</title>
 <style>
 :root{
-  /* v7.47 EMBER — redesigned Jul 2026. Design brief: elite athletic product, not a dashboard.
-     Rules: near-monochrome, ONE warm accent used sparingly, ZERO glows (glow = the cheap tell),
-     flat surfaces with hairline separation, dramatic type contrast. Every value WCAG-verified. */
-  --bg:#0A0B0D; --bg2:#0F1114; --card:#131519; --card2:#1A1D22;
-  --line:#24272E; --line2:#2E323A;
-  --txt:#F5F5F4; --dim:#A9AAB0; --faint:#8A8B92;
-  --amber:#FF6B2C;        /* ember — stadium light, used sparingly and never as a glow */
-  --amber-dim:#4A2415;
-  --cyan:#7FA8D9;         /* steel — targets, data, the destination */
-  --cyan-dim:#26374D;
-  --green:#4ADE80; --red:#F87171; --radius:14px;
-  --glow:none;
+  /* v7.50 — BLUE / BLACK. Palette verified with computed WCAG ratios, not by eye:
+     accent text #60A5FA 7.3:1 on card · primary fill #2563EB carries white at 5.2:1
+     · faint 5.6:1 · dim 8.3:1. One hue, one neutral ramp, nothing decorative. */
+  --bg:#08090C; --bg2:#0C0F14; --card:#101319; --card2:#161A22;
+  --line:#20242C; --line2:#2B313B;
+  --txt:#F4F6F8; --dim:#A7AEB8; --faint:#868E9A;
+  --amber:#60A5FA;         /* accent (name kept for API stability across 4 years of code) */
+  --amber-dim:#1E3A5F;
+  --fill:#2563EB;          /* primary action fill — white text, 5.17:1 */
+  --cyan:#94A3B8;          /* steel: targets + secondary data */
+  --cyan-dim:#2B3948;
+  --green:#4ADE80; --red:#F87171; --radius:14px; --glow:none;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{font-size:16px}
@@ -31,13 +31,13 @@ body{background:var(--bg);color:var(--txt);font-family:-apple-system,BlinkMacSys
   -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;position:relative}
 /* stadium-at-night ambience: two distant light sources + a field-grid whisper. Pure CSS, zero assets. */
 body::before{content:'';position:fixed;inset:0;z-index:-2;pointer-events:none;
-  background:linear-gradient(180deg,#0D0F13 0%,var(--bg) 42%)}
+  background:linear-gradient(180deg,#0B0E14 0%,var(--bg) 44%)}
 body::after{content:'';position:fixed;inset:0;z-index:-1;pointer-events:none;opacity:.5;
   background:repeating-linear-gradient(0deg,transparent 0 63px,rgba(255,255,255,.011) 63px 64px)}
 h1,h2,h3{font-weight:800;letter-spacing:.02em}
 .mono{font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-::selection{background:var(--amber);color:#0b1000}
-#hdr{position:sticky;top:0;z-index:50;background:rgba(10,11,13,.90);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
+::selection{background:var(--fill);color:#fff}
+#hdr{position:sticky;top:0;z-index:50;background:rgba(8,9,12,.92);backdrop-filter:blur(18px) saturate(1.4);-webkit-backdrop-filter:blur(18px) saturate(1.4);
   border-bottom:1px solid var(--line);
   padding:calc(10px + env(safe-area-inset-top)) 16px 10px;
   display:flex;justify-content:space-between;align-items:center}
@@ -84,7 +84,7 @@ main{padding:18px 16px 8px;max-width:560px;margin:0 auto}
   border:1px solid var(--line2);color:var(--txt);border-radius:10px;
   padding:11px 14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;
   transition:transform .12s,box-shadow .12s,border-color .12s}
-.btn.amber{background:var(--amber);border-color:var(--amber);color:#140700;
+.btn.amber{background:var(--fill);border-color:var(--fill);color:#fff;
   box-shadow:none;text-shadow:none}
 .btn.ghost{background:transparent}
 .btn.sm{padding:7px 10px;font-size:12px;border-radius:9px}
@@ -100,7 +100,7 @@ label{font-size:11px;letter-spacing:.08em;color:var(--dim);text-transform:upperc
 .pill.cyan{color:var(--cyan);border-color:var(--cyan-dim)}
 .pill.green{color:var(--green);border-color:#2b5c44}
 .pill.red{color:var(--red);border-color:#6b2b2b}
-#nav{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;background:rgba(10,11,13,.92);
+#nav{position:fixed;bottom:0;left:0;right:0;z-index:50;display:flex;background:rgba(8,9,12,.94);
   backdrop-filter:blur(20px) saturate(1.5);-webkit-backdrop-filter:blur(20px) saturate(1.5);
   border-top:1px solid var(--line);
   padding-bottom:env(safe-area-inset-bottom)}
@@ -197,7 +197,7 @@ details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
 .pc-top,.pc-name,.pc-sub,.pc-rail,.pc-foot,.pc-motto{position:relative;z-index:1}
 .pc-top{display:flex;justify-content:space-between;align-items:center;position:relative}
 .pc-pos{font-family:var(--disp);font-weight:400;font-size:16px;letter-spacing:.22em;color:var(--amber);
-  border:1px solid var(--amber-dim);border-radius:7px;padding:3px 10px 2px;background:rgba(255,107,44,.06)}
+  border:1px solid var(--amber-dim);border-radius:7px;padding:3px 10px 2px;background:rgba(96,165,250,.06)}
 .pc-gate{font-size:11px;color:var(--dim)}
 .pc-gate b{color:var(--amber);font-size:15px;font-family:var(--disp);font-weight:400;letter-spacing:.03em}
 .pc-name{font-family:var(--disp);font-weight:400;font-size:clamp(52px,15vw,74px);line-height:.9;
@@ -316,6 +316,41 @@ details summary{font-size:13px;letter-spacing:.01em}
 table{font-size:12.5px}
 th{font-size:8.5px;letter-spacing:.16em}
 @media (min-width:1000px){ main{padding:36px 20px 12px} }
+
+/* ===== v7.50 · TEN HIGHEST-ROI FIXES (found by walking the live app) ===== */
+/* 1 · content was being clipped behind the fixed bottom nav — the last card of every
+      screen was unreadable. This is the single most-hit defect in the app. */
+body{padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}
+/* 2 · sticky header was covering anchored content on jump */
+.view{scroll-margin-top:78px}
+/* 3 · touch targets below 44px fail on a phone mid-workout, gloves or sweat */
+.btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+.btn.sm{min-height:36px}
+.setdot{width:30px;height:30px}
+#nav button{min-height:56px}
+/* 4 · keyboard + switch-control users had no visible focus anywhere (a11y gap) */
+:focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:6px}
+.btn:focus-visible,.setdot:focus-visible{outline:2px solid var(--amber);outline-offset:3px}
+/* 5 · every number in the app now aligns on the same width — mixed-width digits
+      made the stat rail and tables read as sloppy at a glance */
+.sb-n,.pc-v,.stat .v,.exwt-n,.mono,table td,.setct{font-variant-numeric:tabular-nums;
+  font-feature-settings:"tnum" 1}
+/* 6 · desktop was a narrow column stranded in a dark field */
+@media (min-width:1000px){
+  main{max-width:1080px;padding:40px 32px 16px}
+  .t2col{display:grid;grid-template-columns:1.15fr .85fr;gap:0 44px;align-items:start}
+  .t2col>*{min-width:0}
+  #nav{width:520px;border-radius:14px 14px 0 0}
+}
+/* 7 · the priority body copy ran the full width and became hard to track */
+.prio .w,.note{max-width:62ch}
+/* 8 · long values (school names, notes) overflowed their rows */
+.grow,.exname,.pc-name{overflow-wrap:anywhere}
+/* 9 · disabled/complete states relied on opacity alone (invisible to some users) */
+.exrow.is-done .exname::after{content:' — done';font-size:10px;letter-spacing:.14em;color:var(--faint)}
+/* 10 · motion respected, and no layout shift when the display font loads */
+@media (prefers-reduced-motion:reduce){.view.on{animation:none}}
+.pc-name,.sb-n,.exname{font-display:swap}
 </style>
 </head>
 <body>
