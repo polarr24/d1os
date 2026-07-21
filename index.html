@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.55 -->
+<!DOCTYPE html><!-- d1os v7.56 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -415,6 +415,22 @@ img,svg{max-width:100%;height:auto}
 /* prevent the iOS rubber-band from revealing white behind the app */
 html{background:var(--bg);overscroll-behavior-y:none}
 body{overscroll-behavior-y:none}
+
+/* v7.56 · CELEBRATION — earned moments, stated with confidence, never confetti */
+.celebrate{position:fixed;inset:0;z-index:200;display:grid;place-items:center;pointer-events:none;
+  background:radial-gradient(60% 40% at 50% 50%,rgba(37,99,235,.16),transparent 70%);
+  animation:celbg 1.9s var(--e-out) forwards}
+.celebrate .cel-t{font-family:var(--disp);font-weight:400;font-size:clamp(30px,8vw,52px);
+  letter-spacing:.05em;color:var(--txt);text-align:center;padding:0 24px;
+  animation:celtx 1.9s var(--e-snap) forwards}
+.celebrate.big .cel-t{color:var(--amber)}
+@keyframes celbg{0%{opacity:0}18%{opacity:1}72%{opacity:1}100%{opacity:0}}
+@keyframes celtx{0%{opacity:0;transform:scale(.86) translateY(10px)}
+  22%{opacity:1;transform:scale(1.02) translateY(0)}34%{transform:scale(1)}
+  72%{opacity:1}100%{opacity:0;transform:scale(1.04)}}
+@media (prefers-reduced-motion:reduce){.celebrate,.celebrate .cel-t{animation-duration:.4s}}
+/* counters must not reflow while ticking — reserve the digit box */
+[data-count]{font-variant-numeric:tabular-nums;display:inline-block}
 </style>
 </head>
 <body>
@@ -1856,6 +1872,72 @@ function cloudSignOut(){
 function rSyncUI(){ try{ const el=document.querySelector('#syncStat'); if(el&&typeof syncCardHTML==='function') el.innerHTML=syncCardHTML(); }catch(e){} }
 if(typeof document!=='undefined'&&document.addEventListener)
   document.addEventListener('visibilitychange',()=>{ if(!document.hidden&&_fbUser) pushCloud(true); });
+
+/* ============================================================================
+   v7.56 · FEEL LAYER — counters, haptics, celebration
+   Audit: every number in the app appeared instantly and every tap was silent.
+   Instant numbers read as "static document." Silent taps read as "web page."
+   Both are fixed here, at the platform level, so every screen inherits them.
+   ========================================================================== */
+
+/* HAPTICS — the single fastest way a PWA stops feeling like a website.
+   Vibration API is iOS-limited but free where supported; guarded everywhere. */
+const HAPTIC={tap:8, ok:[12,40,18], big:[18,50,24,50,32]};
+function haptic(kind){
+  try{ if(typeof navigator!=='undefined'&&navigator.vibrate) navigator.vibrate(HAPTIC[kind]||HAPTIC.tap); }catch(e){}
+}
+
+/* ANIMATED COUNTERS — numbers count to their value instead of snapping.
+   rAF-driven, easeOutExpo, respects reduced-motion, and self-cancels so a
+   re-render mid-count never leaves two loops fighting over one element.
+   Marks elements as counted so repeat renders do not re-animate (that would
+   be noise, not delight — a number should animate when it CHANGES). */
+const _counted=new WeakSet();
+function countUp(el,to,dur){
+  if(!el) return;
+  const reduce=(typeof matchMedia!=='undefined'&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const dec=(String(to).split('.')[1]||'').length;
+  if(reduce||_counted.has(el)){ el.textContent=to.toFixed(dec); _counted.add(el); return; }
+  _counted.add(el);
+  const from=0, t0=(typeof performance!=='undefined'?performance.now():Date.now()), D=dur||900;
+  if(el._raf&&typeof cancelAnimationFrame!=='undefined') cancelAnimationFrame(el._raf);
+  const step=now=>{
+    const p=Math.min(1,(now-t0)/D);
+    const e=1-Math.pow(2,-10*p);                 // easeOutExpo — fast start, soft landing
+    el.textContent=(from+(to-from)*e).toFixed(dec);
+    if(p<1&&typeof requestAnimationFrame!=='undefined') el._raf=requestAnimationFrame(step);
+    else el.textContent=to.toFixed(dec);
+  };
+  if(typeof requestAnimationFrame!=='undefined') el._raf=requestAnimationFrame(step);
+  else el.textContent=to.toFixed(dec);
+}
+/* run after any render: any [data-count] element animates to its value once */
+function runCounters(root){
+  try{
+    const scope=root||document;
+    if(!scope||!scope.querySelectorAll) return;
+    scope.querySelectorAll('[data-count]').forEach(el=>{
+      const v=parseFloat(el.getAttribute('data-count'));
+      if(!isNaN(v)) countUp(el,v);
+    });
+  }catch(e){}
+}
+
+/* CELEBRATION — earned moments only. Fires on the Daily Four completing and on
+   an accepted PR. Deliberately restrained: a brief bloom, never confetti.
+   Elite products celebrate with confidence, not noise. */
+function celebrate(msg,big){
+  haptic(big?'big':'ok');
+  try{
+    if(typeof document==='undefined'||!document.body) return;
+    const reduce=(typeof matchMedia!=='undefined'&&matchMedia('(prefers-reduced-motion: reduce)').matches);
+    const n=document.createElement('div');
+    n.className='celebrate'+(big?' big':'');
+    n.innerHTML='<div class="cel-t">'+String(msg||'').replace(/</g,'&lt;')+'</div>';
+    document.body.appendChild(n);
+    setTimeout(()=>{ try{ n.remove(); }catch(e){} }, reduce?900:1900);
+  }catch(e){}
+}
 /* ============ ATHLETE STATE MODEL — pure derived views. Never stored. ============
    Only dimensions the logged data can support (ARCHITECTURE.md). */
 const Model={
@@ -3127,7 +3209,7 @@ function playerCardHTML(){
     ['SQUAT',lift('squat'),'lb'],['BENCH',lift('bench'),'lb'],['DEAD',lift('dead'),'lb'],
     ['VERT',vert,'in'],['BW',bw,'lb']
   ];
-  const rail=cells.map(([k,v,u])=>`<div class="pc-stat"><div class="pc-v mono">${v!=null?v:'<span class="pc-none">—</span>'}</div><div class="pc-k">${k}${v!=null?' <span class="pc-u">'+u+'</span>':''}</div></div>`).join('');
+  const rail=cells.map(([k,v,u])=>`<div class="pc-stat"><div class="pc-v mono">${v!=null?`<span data-count="${v}">0</span>`:'<span class="pc-none">—</span>'}</div><div class="pc-k">${k}${v!=null?' <span class="pc-u">'+u+'</span>':''}</div></div>`).join('');
   const motto=(()=>{ const v=(S.notes||[]).filter(n=>/^vault:/i.test(n.text||''));
     if(v.length) return v[v.length-1].text.replace(/^vault:\s*/i,'');
     return 'no losses for gain'; })();
@@ -3310,7 +3392,14 @@ function saveReview(){
   S.reviews.push({d:todayISO(),worked:$('#rvW').value.trim(),broke:$('#rvB').value.trim(),fix:$('#rvF').value.trim()});
   save(); rToday(); toast('Logged. Next week starts informed.');
 }
-function tglCk(i){ const c=ckToday(); c[i]=!c[i]; save(); rToday(); if(c.every(Boolean)) toast('Daily Four complete ✓'); }
+function tglCk(i){
+  const c=ckToday(); const was=c.every(Boolean);
+  c[i]=!c[i]; save(); rToday();
+  if(c.every(Boolean)&&!was){
+    const st=(typeof Model!=='undefined'&&Model.consistency)?(Model.consistency().streak||0):0;
+    celebrate(st>1?st+' DAYS. UNBROKEN.':'DAILY FOUR. CLEAN SHEET.', st>=7);
+  } else haptic('tap');
+}
 function doneTask(id,apply){
   completeTask(id);
   if(apply==='kcal300'){ S.params.kcalAdj.v+=300; S.params.kcalAdj.basis='stall response '+todayISO(); save();
@@ -3840,9 +3929,13 @@ function logLift(){
   } else { toast('Set logged ✓'); rTrain(); }
 }
 function acceptPR(ex,e){
+  const old=S.prs[ex]||0;
   S.prs[ex]=e;
-  logEvent('pr',{ex,val:e,dow:new Date().getDay()});
-  save(); toast(ex.toUpperCase()+' PR → '+e+' lb'); rTrain();
+  logEvent('pr',{ex,val:e,to:e,lift:ex,dow:new Date().getDay()});
+  save();
+  /* the single most earned moment in the product — it gets the biggest response */
+  celebrate('NEW '+ex.toUpperCase()+' — '+e+' LB'+(old?'  (+'+(e-old)+')':''), true);
+  rTrain();
 }
 
 /* ---- PATH ---- */
@@ -4912,6 +5005,8 @@ function go(v){
   document.querySelectorAll('#nav button').forEach(b=>b.classList.toggle('on',b.dataset.v===v));
   RENDER[v]();
   if(typeof renderHdr==='function') renderHdr(); // scoreboard updates with every screen + every log
+  if(typeof runCounters==='function') runCounters($('#v-'+v)); // numbers count up, once, on arrival
+  if(typeof haptic==='function') haptic('tap');
   window.scrollTo(0,0);
 }
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
@@ -4929,13 +5024,14 @@ function renderHdr(){
     const off=(typeof navigator!=='undefined'&&navigator.onLine===false);
     const ck=(S.checkins[todayISO()]||[]).filter(Boolean).length;
     $('#hdrCd').innerHTML=
-      `<span class="sb-cell hero"><span class="sb-n mono">${gate}</span><span class="sb-k">DAYS · GATE</span></span>`+
+      `<span class="sb-cell hero"><span class="sb-n mono" data-count="${gate}">0</span><span class="sb-k">DAYS · GATE</span></span>`+
       `<span class="sb-cell"><span class="sb-n mono" style="color:${won?'var(--green)':'var(--txt)'}">${L.cur.days}<i class="sb-sub">/${L.bar.days}</i></span><span class="sb-k">WK vs BAR</span></span>`+
       `<span class="sb-cell"><span class="sb-n mono" style="color:${ck===4?'var(--green)':'var(--txt)'}">${ck}<i class="sb-sub">/4</i></span><span class="sb-k">TODAY</span></span>`+
       `<span class="sb-cell"><span class="sb-n mono" style="color:${streak>0?'var(--amber)':'var(--faint)'}">${streak}</span><span class="sb-k">STREAK</span></span>`+
       (off?`<span class="sb-cell"><span class="sb-n" style="color:var(--cyan);font-size:16px">●</span><span class="sb-k">OFFLINE OK</span></span>`:'');
     /* ambient week rail: progress toward beating the bar, always visible, never nagging */
     const rail=document.querySelector('#hudRail i');
+    if(typeof runCounters==='function') runCounters(document.querySelector('#hdrCd'));
     if(rail){ const need=Math.max(L.bar.actions+1,1);
       const pct=Math.max(0,Math.min(100,Math.round(100*L.cur.actions/need)));
       rail.style.transform='scaleX('+(pct/100)+')';
