@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.62 -->
+<!DOCTYPE html><!-- d1os v7.63 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2453,7 +2453,8 @@ function calibration(s=S){
     return {kind,label:(typeof REC_KINDS!=='undefined'&&REC_KINDS[kind]?REC_KINDS[kind].label:kind),
       n:rs.length,answered:rs.filter(r=>r.followed).length,
       graded:e.pairs?e.pairs.f.length+e.pairs.i.length:0,resolution:res,detail:e.detail||'',
-      firstD:rs[0].d,lastD:rs[rs.length-1].d,asm:[...new Set(rs.map(r=>r.asm).filter(Boolean))]};
+      /* v7.63 I5: sort by date — a backfilled rec would otherwise mis-report the family span */
+      firstD:[...rs].sort((a,b)=>a.d<b.d?-1:1)[0].d,lastD:[...rs].sort((a,b)=>a.d<b.d?-1:1).at(-1).d,asm:[...new Set(rs.map(r=>r.asm).filter(Boolean))]};
   });
   const rv=calReversals(s);
   const counts={improved:fam.filter(f=>f.resolution==='supported').length,
@@ -2919,7 +2920,8 @@ function seasonReport(s=S,from='2026-08-10',to='2026-10-31'){
   const adh=ck.length?Math.round(100*ck.filter(([,v])=>v.some(Boolean)).length/ck.length):null;
   return {stats:seasonStats(s),e1:{squat:e1('squat'),bench:e1('bench'),dead:e1('dead')},
     clips:(s.clips||[]).filter(c=>inW(c.d)).length,adherence:adh,
-    weight:(k=>{const w=(s.metrics||[]).filter(m=>m.key==='wt'&&inW(m.d)); return w.length>=2?{a:w[0].val,b:w[w.length-1].val}:null;})()};
+    /* v7.63 I5: sort by date before taking first/last — backfill-safe weight delta */
+    weight:(k=>{const w=(s.metrics||[]).filter(m=>m.key==='wt'&&inW(m.d)).sort((a,b)=>a.d<b.d?-1:(a.d>b.d?1:(a.t||0)-(b.t||0))); return w.length>=2?{a:w[0].val,b:w[w.length-1].val}:null;})()};
 }
 /* 10 · brain-dump parser — messy text in, SUGGESTIONS out. Suggest-and-approve only:
    nothing writes without a tap. Patterns cover how the owner actually writes. */
