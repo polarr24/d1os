@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.57 -->
+<!DOCTYPE html><!-- d1os v7.61 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -443,6 +443,18 @@ body{overscroll-behavior-y:none}
   background-size:400% 100%;border-radius:6px;animation:shim 1.4s ease-in-out infinite}
 @keyframes shim{0%{background-position:100% 0}100%{background-position:-100% 0}}
 @media (prefers-reduced-motion:reduce){.sk-l{animation:none;background:var(--card)}}
+
+/* v7.58 · first-run intro + scoreboard tap target */
+.sb-tap{background:none;border:none;cursor:pointer;font-family:inherit;color:inherit}
+.intro{position:fixed;inset:0;z-index:300;background:rgba(8,9,12,.96);
+  backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);
+  display:grid;place-items:center;animation:skin .4s var(--e-out) both}
+.intro-in{max-width:340px;width:88%;text-align:center;padding:20px 0}
+.intro-k{font-family:var(--disp);font-weight:400;font-size:34px;letter-spacing:.05em;color:var(--txt)}
+.intro-t{font-size:14.5px;line-height:1.7;color:var(--dim);margin-top:14px;min-height:96px}
+.intro-dots{display:flex;gap:7px;justify-content:center;margin-top:6px}
+.intro-dots i{width:7px;height:7px;border-radius:99px;background:var(--line2);transition:background var(--t-fast) linear}
+.intro-dots i.on{background:var(--amber)}
 </style>
 </head>
 <body>
@@ -865,9 +877,19 @@ const WAYPOINTS=[
    rel:{forty:-0.40,vert:6,broad:12}},
   {until:'2029-07-31',label:'JUNIOR · by Jun 2029',
    targets:{squat:405,bench:285,dead:495,clean:225,wt:195,gpa:3.5},
-   rel:{forty:-0.55,vert:9,broad:16}}
+   rel:{forty:-0.55,vert:9,broad:16}},
+  /* v7.58 (audit 1.1): SENIOR was missing — from Aug 2029 the app silently reused the junior
+     row through the single most important recruiting year. This is the destination-year row. */
+  {until:'2030-07-31',label:'SENIOR · by Jun 2030',
+   targets:{squat:435,bench:315,dead:525,clean:245,wt:200,gpa:3.5},
+   rel:{forty:-0.65,vert:11,broad:20}}
 ];
-function currentWaypoint(iso=null){ const d=iso||todayISO(); return WAYPOINTS.find(w=>d<=w.until)||WAYPOINTS.at(-1); }
+function currentWaypoint(iso=null){ const d=iso||todayISO();
+  const w=WAYPOINTS.find(x=>d<=x.until);
+  if(w) return w;
+  /* past the final checkpoint: return the last row flagged done, so screens can say
+     'timeline complete' instead of reporting stale targets as current (audit 1.1) */
+  return Object.assign({},WAYPOINTS[WAYPOINTS.length-1],{done:true}); }
 
 /* ============ FOCUS BLOCKS — one bounded extra block targeting the biggest gap ============
    Never added in-season (maintain is law) or on recovery days. One block, not a new program. */
@@ -1638,6 +1660,10 @@ function save(){
   }
   idbMirror();
   if(typeof pushCloud==='function') pushCloud(); // v7.32: debounced cloud push (no-op when sync is off)
+  /* v7.60 · the scoreboard is the feedback loop — it updates the INSTANT a fact is saved,
+     not on the next navigation. A stale HUD at the moment of logging breaks the exact
+     dopamine circuit the product is built on. Cheap (string build), always safe. */
+  try{ if(typeof renderHdr==='function') renderHdr(); }catch(e){}
 }
 /* IndexedDB mirror (v7.29) — second copy of the entire state on every save. localStorage is the
    most evictable store a browser has; this survives many clears that kill it. Fire-and-forget. */
@@ -1665,6 +1691,10 @@ function idbRestoreCheck(cb){
       } else fin(false); }catch(e){ fin(false); } };
     rq.onerror=()=>fin(false);
   }catch(e){ fin(false); } }); }
+
+/* v7.58 (audit 1.7 / 2.6): every metric carries a write timestamp. Enables same-day
+   tie-break by time and future time-of-day analysis. One helper so no write site forgets. */
+function pushMetric(o){ o.t=Date.now(); if(!o.src) o.src='manual'; S.metrics.push(o); return o; }
 function logEvent(type,meta){ S.events.push({d:todayISO(),type,meta}); }
 
 /* ---- export / import (DISCOVERY.md A4 — the data's escape hatch) ---- */
@@ -2025,7 +2055,10 @@ const Model={
     if(before.length<3) return {plateaued:false,weeks:0};
     const prior=Math.max(...before.map(l=>epley(l.wt,l.reps)));
     const stuck=best<=prior;
-    return {plateaued:stuck, weeks:stuck?Math.floor(daysBetween(before.at(-1).d,today)/7):0};
+    /* v7.58 (1.8): sort by date — append-only is usually chronological, but the first
+       backfilled lift (audit 4.1) would otherwise make .at(-1) the wrong row. */
+    const beforeLast=[...before].sort((a,b)=>a.d<b.d?-1:1).at(-1);
+    return {plateaued:stuck, weeks:stuck?Math.floor(daysBetween(beforeLast.d,today)/7):0};
   },
   iq(s=S,today=todayISO()){
     const wk=s.pushLog.filter(p=>daysBetween(p.d,today)<7);
@@ -2099,19 +2132,30 @@ const Model={
   baselineDone(s=S){
     return ['forty','vert','broad'].every(k=>s.metrics.some(m=>m.key===k));
   },
-  /* percentile gap vs senior-recruit thresholds (D1_BENCH). Descriptive, not predictive. */
-  percentileGap(metric,value,pos='LB'){
+  /* v7.58 (audit 1.3): timing method of a sprint reading. D1_BENCH is a laser/FAT standard;
+     a hand-timed 40 reads ~0.24s FAST, so it must be converted UP before any percentile call
+     or the app reports a gap that is 0.24s too small. Read the method off the metric's cond. */
+  sprintTiming(s,key){ const a=(s.metrics||[]).filter(m=>m.key===key&&m.cond); if(!a.length) return 'hand';
+    const c=String(a[a.length-1].cond).toLowerCase();
+    return /laser|fat|electronic/.test(c)?'laser':/phone|frame|fps/.test(c)?'phone':'hand'; },
+  laserEquiv(metric,value,timing){ if(value==null) return value;
+    if((metric==='forty'||metric==='shuttle')&&timing==='hand') return +(value+0.24).toFixed(2); return value; },
+  /* percentile gap vs senior-recruit thresholds (D1_BENCH). Descriptive, not predictive.
+     timing converts hand-timed sprints to the laser basis of the table before comparing. */
+  percentileGap(metric,value,pos='LB',timing='hand'){
     const b=(typeof D1_BENCH!=='undefined')&&D1_BENCH[pos]&&D1_BENCH[pos][metric];
     if(!b||value==null) return null;
     const lower=(metric==='forty'||metric==='shuttle');
+    const cmp=lower?this.laserEquiv(metric,value,timing):value;   // compare on the laser basis
     const meets=(v,t)=>lower?v<=t:v>=t;
     let tier='below P50', chase='P50';
-    if(meets(value,b.p90)){tier='P90';chase=null;}
-    else if(meets(value,b.p75)){tier='P75';chase='P90';}
-    else if(meets(value,b.p50)){tier='P50';chase='P75';}
-    const target=chase?(chase==='P90'?b.p90:chase==='P75'?b.p75:b.p50):null;
-    const gap=target==null?null:+Math.abs(value-target).toFixed(2);
-    return {tier,chase,target,gap,lower,prov:!!b.prov};
+    if(meets(cmp,b.p90)){tier='P90';chase=null;}
+    else if(meets(cmp,b.p75)){tier='P75';chase='P90';}
+    else if(meets(cmp,b.p50)){tier='P50';chase='P75';}
+    const target=chase?(chase==='P90'?b.p90:chase==='P75'?b.p50:b.p50):null;
+    const gap=target==null?null:+Math.abs(cmp-target).toFixed(2);
+    return {tier,chase,target,gap,lower,prov:!!b.prov,
+      timing:lower?timing:null, laserEquiv:lower&&timing==='hand'?cmp:null};  // UI shows both
   },
   /* descriptive instrumentation — mirrors, not oracles */
   systemRead(s=S,today=todayISO()){
@@ -2186,14 +2230,18 @@ function knowledgeCite(id,s=S){ const e=knowledgeGraph(s).find(x=>x.id===id); if
    Outcome is read at an EXACT offset day (off) so adjacent recommendations never share evidence. */
 const REC_KINDS={
   speed:  {label:'Test-day (40 / vert / broad)', outKey:null,     off:3},
-  lift:   {label:'Log your lifts',               outKey:null,     off:2},
+  lift:   {label:'Log your lifts',               outKey:'sq',     off:1},  // v7.58 (1.6): a lift day HAS a next-day outcome — session quality
   fuel:   {label:'Eat more / hit the surplus',   outKey:'wt',     off:7},
   train:  {label:'Train + log the session',      outKey:'sq',     off:0},
   board:  {label:'Build the recruiting board',   outKey:null,     off:14},
   daily4: {label:'Finish the Daily Four',         outKey:'energy', off:1},
   recover:{label:'Recover / bank sleep',         outKey:'sq',     off:1}
 };
-function metricOn(s,key,dateISO){ const m=(s.metrics||[]).filter(x=>x.key===key&&x.d===dateISO); return m.length?m[m.length-1].val:null; }
+function metricOn(s,key,dateISO){ const m=(s.metrics||[]).filter(x=>x.key===key&&x.d===dateISO);
+  if(!m.length) return null;
+  /* v7.58 (audit 1.7): pick the latest by timestamp, not array insertion order. Same-day
+     duplicates (a 6am + 9pm weigh-in, or a mistaken re-entry) were resolving arbitrarily. */
+  m.sort((a,b)=>(a.t||0)-(b.t||0)); return m[m.length-1].val; }
 function recEffectiveness(s=S){
   const today=todayISO(), byKind={};
   (s.recs||[]).forEach(r=>{ (byKind[r.kind]=byKind[r.kind]||[]).push(r); });
@@ -2203,15 +2251,17 @@ function recEffectiveness(s=S){
     const meta=REC_KINDS[kind]||{label:kind,outKey:null,off:2};
     const recs=byKind[kind], total=recs.length;
     const followed=recs.filter(r=>r.followed==='followed').length;
+    const partial=recs.filter(r=>r.followed==='partial').length;   // v7.58 (1.4): was silently dropped
     const ignored=recs.filter(r=>r.followed==='ignored').length;
     let effect='insufficient', detail='', lastConfirmed=null, retire=false;
     const fv=[], iv=[];
     if(!meta.outKey){ effect='not-measurable';
-      detail='No daily outcome to measure yet — recording whether you follow it ('+followed+'/'+total+').'; }
+      detail='No daily outcome to measure yet — recording whether you follow it ('+followed+'/'+total+(partial?', '+partial+' partly':'')+').'; }
     else {
       recs.forEach(r=>{ if(daysBetween(r.d,today)<meta.off) return;           // outcome day not reached
         const v=metricOn(s,meta.outKey,addDays(r.d,meta.off)); if(v==null) return;
-        (r.followed==='followed'?fv:(r.followed==='ignored'?iv:null))?.push({d:r.d,v}); });
+        /* v7.58 (1.4): 'partial' counts toward followed for outcome — dropping it discarded a third of answers */
+        ((r.followed==='followed'||r.followed==='partial')?fv:(r.followed==='ignored'?iv:null))?.push({d:r.d,v}); });
       if(fv.length>=4 && iv.length>=2){
         const mf=med(fv.map(x=>x.v)), mi=med(iv.map(x=>x.v));
         lastConfirmed=fv.map(x=>x.d).sort().at(-1);
@@ -2223,7 +2273,7 @@ function recEffectiveness(s=S){
         detail='Need '+nf+' more followed + '+ni+' more skipped day'+(ni===1?'':'s')+' with a logged '+nm(meta.outKey).toLowerCase()+' to judge.';
       }
     }
-    return {kind,label:meta.label,total,followed,ignored,outKey:meta.outKey,off:meta.off,effect,detail,lastConfirmed,retire,pairs:meta.outKey?{f:fv,i:iv}:null};
+    return {kind,label:meta.label,total,followed,partial,ignored,outKey:meta.outKey,off:meta.off,effect,detail,lastConfirmed,retire,pairs:meta.outKey?{f:fv,i:iv}:null};
   });
 }
 function recEffFor(kind,s=S){ return recEffectiveness(s).find(e=>e.kind===kind)||null; }
@@ -2638,7 +2688,7 @@ function gapEngine(s=S,today=todayISO()){
   for(const r of wg.rows){
     if(r.key==='gpa') continue;
     const gw=GAP_WHY[r.key]||{why:'',blocks:[]};
-    const pg=r.cur!=null?Model.percentileGap(r.key,r.cur,pos):null;
+    const pg=r.cur!=null?Model.percentileGap(r.key,r.cur,pos,Model.sprintTiming(s,r.key)):null;
     let tier,ev,fix;
     if(r.progress==null){ tier='UNKNOWN';
       ev=r.rel&&r.cur==null?'no measurement on record — evidence required; no standard invented':'no target computable yet';
@@ -2849,7 +2899,7 @@ function calGate(s=S,today=todayISO()){
 function seasonReport(s=S,from='2026-08-10',to='2026-10-31'){
   const inW=d=>d>=from&&d<=to;
   const lifts=(s.lifts||[]).filter(l=>inW(l.d));
-  const e1=ex=>{const L2=lifts.filter(l=>l.ex===ex); return L2.length?{a:epley(L2[0].wt,L2[0].reps),b:Math.max(...L2.map(x=>epley(x.wt,x.reps)))}:null;};
+  const e1=ex=>{const L2=lifts.filter(l=>l.ex===ex).sort((a,b)=>a.d<b.d?-1:1); return L2.length?{a:epley(L2[0].wt,L2[0].reps),b:Math.max(...L2.map(x=>epley(x.wt,x.reps)))}:null;}; // v7.58 (1.8): earliest = first chronologically, not first in array
   const ck=Object.entries(s.checkins||{}).filter(([d])=>inW(d));
   const adh=ck.length?Math.round(100*ck.filter(([,v])=>v.some(Boolean)).length/ck.length):null;
   return {stats:seasonStats(s),e1:{squat:e1('squat'),bench:e1('bench'),dead:e1('dead')},
@@ -3238,7 +3288,6 @@ function playerCardHTML(){
     <div class="pc-num">’${String(p.classOf||2030).slice(-2)}</div>
     <div class="pc-top">
       <div class="pc-pos">${esc(p.pos||'RB/LB')}</div>
-      <div class="pc-gate"><b class="mono">${gate}</b> days · Jun 15 gate</div>
     </div>
     <div class="pc-name">${esc((p.name||'ZAYDEN')).toUpperCase()}</div>
     <div class="pc-sub">CLASS OF ${esc(p.classOf||2030)} · HENDERSON, NV${streak>0?` · <span style="color:var(--amber)">${streak}-DAY STREAK</span>`:''}</div>
@@ -3268,19 +3317,23 @@ function rToday(){
   ${typeof playerCardHTML==='function'?playerCardHTML():''}
   ${typeof foothillHTML==='function'?foothillHTML():''}
   ${typeof assignHTML==='function'?assignHTML():''}
-  ${typeof grindHTML==='function'?grindHTML():''}
   ${typeof statusCardHTML==='function'?statusCardHTML():''}
   ${typeof sundayNudgeHTML==='function'?sundayNudgeHTML():''}
   ${(sil=>sil>=5?`<div class="card" style="border-color:#294551">
     <h3>Re-Entry Protocol <span class="r">day one back — built for exactly this</span></h3>
     <div class="note" style="margin:0">${sil} quiet days. Nobody rebuilds a season in one workout, and trying to is how comebacks die in a week. Today's ENTIRE assignment: one 20-minute session — anything — the Daily Four, one honest note. That's a won day. Loads below are already comeback-adjusted; the bar restarts from here to be beaten, not to punish.</div>
   </div>`:'')(typeof silentDays==='function'?silentDays():0)}
-  <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}${o1eff&&o1eff.retire?' <b style="color:var(--red)">· your own results haven\'t shown this helps — treat it as optional.</b>':o1eff&&o1eff.effect==='supported'?' <b style="color:var(--green)">· backed by your own results.</b>':''}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">START</button>`:''}
-    <div class="row" style="gap:6px;margin-top:10px"><button class="btn sm grow ${o1rec&&o1rec.followed==='followed'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','followed')">Did it</button><button class="btn sm grow ${o1rec&&o1rec.followed==='partial'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','partial')">Partly</button><button class="btn sm grow ${o1rec&&o1rec.followed==='ignored'?'amber':'ghost'}" onclick="setRecFollow('${o1rec?o1rec.id:''}','ignored')">Didn't</button></div>
+  ${(camp=>camp?'':`  <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}${o1eff&&o1eff.retire?' <b style="color:var(--red)">· your own results haven\'t shown this helps — treat it as optional.</b>':o1eff&&o1eff.effect==='supported'?' <b style="color:var(--green)">· backed by your own results.</b>':''}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">START</button>`:''}
+    ${o1rec?`<div class="row" style="gap:6px;margin-top:10px"><button class="btn sm grow ${o1rec.followed==='followed'?'amber':'ghost'}" onclick="setRecFollow('${o1rec.id}','followed')">Did it</button><button class="btn sm grow ${o1rec.followed==='partial'?'amber':'ghost'}" onclick="setRecFollow('${o1rec.id}','partial')">Partly</button><button class="btn sm grow ${o1rec.followed==='ignored'?'amber':'ghost'}" onclick="setRecFollow('${o1rec.id}','ignored')">Didn't</button></div>`:''}
     <div style="text-align:right;margin-top:6px"><button class="btn sm ghost" style="font-size:10px;padding:4px 8px" onclick="retireRec('${esc(o1.kind)}')">stop suggesting this</button></div>
     ${(bn=>{const dup=bn&&((o1.kind==='speed'&&bn.id.indexOf('phys:')===0&&['forty','vert','broad'].includes(bn.key))||(o1.kind==='lift'&&bn.id.indexOf('phys:')===0)||(o1.kind==='board'&&bn.id==='recruiting')||(o1.kind==='fuel'&&bn.key==='wt'));return bn&&!dup?`<div class="note" style="margin-top:5px;font-style:normal"><b style="color:var(--cyan)">Your bottleneck:</b> ${esc(bn.name)} — ${esc(bn.ev)}. <span style="color:var(--faint)">Full read: TRACK → The Gap.</span></div>`:'';})(typeof gapBottleneck==='function'?gapBottleneck():null)}
-    ${(tr=>/performed well|did not|mixed/.test(tr)?`<div class="note" style="margin-top:5px;font-style:normal;color:var(--faint)">Track record: ${esc(tr)}</div>`:'')(typeof calNote==='function'?calNote(o1.kind):'')}</div>
+    ${(tr=>/performed well|did not|mixed/.test(tr)?`<div class="note" style="margin-top:5px;font-style:normal;color:var(--faint)">Track record: ${esc(tr)}</div>`:'')(typeof calNote==='function'?calNote(o1.kind):'')}</div>`)(typeof foothillPhase==='function'&&foothillPhase())}
   ${typeof weekLedgerCard==='function'?weekLedgerCard():''}
+  ${(camp=>camp?`  <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}${o1eff&&o1eff.retire?' <b style="color:var(--red)">· your own results haven\'t shown this helps — treat it as optional.</b>':o1eff&&o1eff.effect==='supported'?' <b style="color:var(--green)">· backed by your own results.</b>':''}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">START</button>`:''}
+    ${o1rec?`<div class="row" style="gap:6px;margin-top:10px"><button class="btn sm grow ${o1rec.followed==='followed'?'amber':'ghost'}" onclick="setRecFollow('${o1rec.id}','followed')">Did it</button><button class="btn sm grow ${o1rec.followed==='partial'?'amber':'ghost'}" onclick="setRecFollow('${o1rec.id}','partial')">Partly</button><button class="btn sm grow ${o1rec.followed==='ignored'?'amber':'ghost'}" onclick="setRecFollow('${o1rec.id}','ignored')">Didn't</button></div>`:''}
+    <div style="text-align:right;margin-top:6px"><button class="btn sm ghost" style="font-size:10px;padding:4px 8px" onclick="retireRec('${esc(o1.kind)}')">stop suggesting this</button></div>
+    ${(bn=>{const dup=bn&&((o1.kind==='speed'&&bn.id.indexOf('phys:')===0&&['forty','vert','broad'].includes(bn.key))||(o1.kind==='lift'&&bn.id.indexOf('phys:')===0)||(o1.kind==='board'&&bn.id==='recruiting')||(o1.kind==='fuel'&&bn.key==='wt'));return bn&&!dup?`<div class="note" style="margin-top:5px;font-style:normal"><b style="color:var(--cyan)">Your bottleneck:</b> ${esc(bn.name)} — ${esc(bn.ev)}. <span style="color:var(--faint)">Full read: TRACK → The Gap.</span></div>`:'';})(typeof gapBottleneck==='function'?gapBottleneck():null)}
+    ${(tr=>/performed well|did not|mixed/.test(tr)?`<div class="note" style="margin-top:5px;font-style:normal;color:var(--faint)">Track record: ${esc(tr)}</div>`:'')(typeof calNote==='function'?calNote(o1.kind):'')}</div>`:'')(typeof foothillPhase==='function'&&foothillPhase())}
   ${(pk=>pk?`<div class="card" style="border-color:#3f4a1f">
     <h3>PEAK 14 <span class="r">day ${Math.min(pk.day,14)} of 14 · measured, not promised</span></h3>
     ${pk.phase==='testA'?`<div class="t" style="font-size:16px">TEST DAY A — set the baseline</div>
@@ -3324,7 +3377,7 @@ function rToday(){
       return `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><button class="btn sm ${done?'amber':'ghost'}" onclick="freeWin('${fd}',${i})">${done?'✓':'☐'}</button><span class="grow" style="font-size:13px;margin-left:8px">${esc(w)}</span></div>`;}).join('')}
     ${(fw=>fw.weakest&&fw.weakest.secured<fw.weakest.of?`<div class="note" style="margin-top:6px">Most-missed: <b>${esc(fw.weakest.item)}</b> (${fw.weakest.secured}/${fw.weakest.of} days) — fix the pattern.</div>`:'')(freeWinsRead())}
   </div>`;})(practiceDay(todayISO())?todayISO():(practiceDay(addDays(todayISO(),1))?addDays(todayISO(),1):null))}
-  <div class="card"><h3>Quick Log <span class="r">taps, not typing</span></h3><div class="row" style="align-items:center;gap:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Energy</span>${rate5('energy','today')}</div>${((S.lifts||[]).some(l=>l.d===todayISO())||((S.sessions&&S.sessions[todayISO()])||[]).some(Boolean))?`<div class="row" style="align-items:center;gap:6px;margin-top:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Session</span>${rate5('sq','today')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn grow" onclick="numOpen('wt','Bodyweight (lb)',1,160)">Weight</button><button class="btn grow" onclick="numOpen('sleep','Sleep (h)',0.5,8)">Sleep</button><button class="btn grow" onclick="go('train')">Lift</button></div>
+  <div class="card"><h3>Quick Log <span class="r">taps, not typing</span></h3><div class="row" style="align-items:center;gap:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Energy</span>${rate5('energy','today')}</div>${((S.lifts||[]).some(l=>l.d===todayISO())||((S.sessions&&S.sessions[todayISO()])||[]).some(Boolean))?`<div class="row" style="align-items:center;gap:6px;margin-top:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Session</span>${rate5('sq','today')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn grow" onclick="numOpen('wt','Bodyweight (lb)',1,160)">Weight</button><button class="btn grow" onclick="numOpen('sleep','Sleep (h)',0.5,8)">Sleep</button><button class="btn grow" onclick="jumpLift()">Lift</button></div>
   ${statusToday()?'':`<div class="row" style="gap:6px;margin-top:6px"><span class="note grow" style="margin:0">Hurt or sick today? Say so — the bar pauses, the streak holds, and the reason is on record.</span><button class="btn sm ghost" onclick="setStatus('hurt')">HURT</button><button class="btn sm ghost" onclick="setStatus('sick')">SICK</button></div>`}
   ${(be=>{const last=be.length?be[be.length-1]:null;const days=last!=null?daysBetween(last,todayISO()):null;const col=days==null||days>30?'var(--red)':days>14?'var(--amber)':'var(--green)';
     return `<div class="row" style="margin-top:8px;align-items:center"><span class="note grow" style="margin:0">Off-device backup: <b style="color:${col}">${days==null?'NEVER':days===0?'today':days+'d ago'}</b> — the export file is the only thing that survives a lost phone</span>${(days==null||days>7)?`<button class="btn sm" onclick="exportS()">EXPORT</button>`:''}</div>`;})((S.events||[]).filter(e=>e.type==='task'&&e.meta&&String(e.meta.id).indexOf('backup:')===0).map(e=>e.d).sort())}<div class="note" style="margin-top:6px">One tap each — this is what lets the app learn what works for <b>you</b>.</div></div>
@@ -3345,7 +3398,7 @@ function rToday(){
         <div class="note" style="margin-top:3px">${esc(t.why)}</div></div>
       ${t.kind!=='iq'?`<button class="btn sm" onclick="doneTask('${t.id}','${t.apply||''}')">DONE</button>`:''}</div></div>`).join('')}</div>`:''}
   <div class="card">
-    <h3>Daily Four <span class="r">${done}/4</span></h3>
+    <h3 id="ckAnchor">Daily Four <span class="r">${done}/4</span></h3>
     ${CHECKS.map((c,i)=>`<div class="chk ${ck[i]?'done':''}" onclick="tglCk(${i})">
       <div class="box">${ck[i]?'✓':''}</div>
       <div><div class="t">${c.t}</div><div class="s">${c.s}</div></div></div>`).join('')}
@@ -3524,7 +3577,7 @@ function rTrain(){
     ${(sr=>`<div class="note" style="margin-top:6px;border-top:1px solid var(--line);padding-top:6px"><b style="color:${sr.ok?'var(--green)':sr.n?'var(--red)':'var(--dim)'}">Sleep is armor too:</b> ${sr.avg!=null?`${sr.avg}h average this week (${sr.n} nights logged)`:'no sleep logged this week'} — under 8h, adolescent injury risk runs 1.7× (Milewski 2014). The cheapest protection on this card.</div>`)(sleepRead())}
   </div>`:'')(phaseFor(todayISO()))}
   <div class="card">
-    <h3>Log a Lift</h3>
+    <h3 id="liftAnchor">Log a Lift</h3>
     <div class="row">
       <div class="grow"><label>Lift</label><select id="lgEx"><option value="squat">Squat</option><option value="dead">Deadlift</option><option value="bench">Bench</option><option value="clean">Hang clean</option><option value="other">Other</option></select></div>
       <div style="width:86px"><label>Weight</label><input id="lgWt" type="number" inputmode="numeric" placeholder="lb"></div>
@@ -3643,6 +3696,13 @@ function fullDayCard(){
 
 
 
+
+/* v7.59 · hesitation fix H1: a watch assignment must be one tap, not a memory task */
+function ytq(w){
+  const m=String(w).match(/"([^"]+)"/);
+  const q=(m?m[1]:String(w).replace(/\([^)]*\)/g,'')).trim();
+  return 'https://www.youtube.com/results?search_query='+encodeURIComponent(q);
+}
 /* ============ v7.54 · TODAY'S ASSIGNMENT — one day, one order, no choosing ============ */
 function assignHTML(){
   const {out,a}=day33(); const c=cfb27Today(S);
@@ -3660,10 +3720,12 @@ function assignHTML(){
   return `<div class="card">
     <h3>Today's Assignment <span class="r">${out} days to Foothill · ${n}/3</span></h3>
     <div class="note" style="margin:0">You do not pick. Three things, in this order, every day until the opener. Watching sets up the rep — the rep is what makes you the starter.</div>
-    ${row('W','① WATCH · ~10 MIN',esc(a.w),`<div class="note" style="margin-top:5px"><b style="color:var(--amber)">Look for:</b> ${esc(a.l)}</div>`)}
+    ${row('W','① WATCH · ~10 MIN',`<a href="${ytq(a.w)}" target="_blank" rel="noopener" style="color:var(--txt);text-decoration:underline;text-decoration-color:var(--amber);text-underline-offset:3px">${esc(a.w)}</a>`,`<div class="note" style="margin-top:5px"><b style="color:var(--amber)">Look for:</b> ${esc(a.l)} · tap the title, it opens the search for you</div>`)}
     ${row('D','② DO · ~25 MIN',esc(a.d))}
     ${row('G','③ CFB 27 · ~20 MIN','<b>'+esc(c.mode)+':</b> '+esc(c.job))}
-    ${n===3?'<div class="note" style="margin-top:12px;color:var(--green)"><b>Assignment complete. That is three ways better in one day.</b></div>':''}
+    ${(b=>`<div style="border-top:1px solid var(--line);padding:12px 0"><div class="row" style="align-items:flex-start"><div class="grow"><div style="font-size:9.5px;letter-spacing:.22em;color:var(--faint);font-weight:800">④ TRAIN · 60–75 MIN</div><div style="font-size:13.5px;line-height:1.55;margin-top:6px;${b?'color:var(--faint)':''}">The session in TRAIN, full intensity, capped on purpose. Apartment gym counts.</div></div><button class="btn sm ${b?'':'amber'}" style="flex-shrink:0" onclick="${b?'':"grindDone('BODY')"}">${b?'DONE':'OPEN'}</button></div></div>`)(taskDone('grind:BODY:'+todayISO()))}
+    ${(b=>`<div style="border-top:1px solid var(--line);padding:12px 0"><div class="row" style="align-items:flex-start"><div class="grow"><div style="font-size:9.5px;letter-spacing:.22em;color:var(--faint);font-weight:800">⑤ PLAYBOOK · 20 MIN</div><div style="font-size:13.5px;line-height:1.55;margin-top:6px;${b?'color:var(--faint)':''}">Five plays off Hudl until you can draw your assignment blind. Protections come from your QB.</div></div><button class="btn sm ${b?'':'amber'}" style="flex-shrink:0" onclick="${b?'':"grindDone('PLAYBOOK')"}">${b?'DONE':'DID IT'}</button></div></div>`)(taskDone('grind:PLAYBOOK:'+todayISO()))}
+    ${(n===3&&taskDone('grind:BODY:'+todayISO())&&taskDone('grind:PLAYBOOK:'+todayISO()))?'<div class="note" style="margin-top:12px;color:var(--green)"><b>Full day complete. Five ways better, one day.</b> Now close the Daily Four below — the streak and the bar update themselves.</div>':''}
   </div>`;
 }
 function asgDone(k){
@@ -3716,7 +3778,7 @@ function foothillHTML(){
     <h3>The Foothill Plan <span class="r">${d>0?d+' days out':d===0?'TODAY':'played'}</span></h3>
     ${ph?`<div style="font-family:var(--disp);font-weight:400;font-size:26px;letter-spacing:.03em;line-height:1.05">${esc(ph.ph)} <span style="color:var(--faint);font-size:13px;font-family:inherit;letter-spacing:.02em">${esc(ph.head)}</span></div>
     <div class="note" style="margin-top:8px;color:var(--dim);font-size:13px">${esc(ph.focus)}</div>
-    <div style="margin-top:14px">${ph.daily.map(x=>`<div style="display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:13px;line-height:1.55"><span style="color:var(--amber);flex-shrink:0">—</span><span>${esc(x)}</span></div>`).join('')}</div>`
+    <details style="margin-top:10px"><summary>Phase detail — what this block demands</summary><div class="bd">${ph.daily.map(x=>`<div style="display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:13px;line-height:1.55"><span style="color:var(--amber);flex-shrink:0">—</span><span>${esc(x)}</span></div>`).join('')}</div></details>`
     :'<div class="note" style="margin:0">Outside the campaign window.</div>'}
     <details style="margin-top:14px"><summary>The honest math (read this once)</summary><div class="bd" style="font-size:12.5px;line-height:1.7">
       <b style="color:var(--txt)">You will not be 174 lb on Aug 21.</b> You are ${bw!=null?bw+' lb':'un-weighed'}, and adolescent lean gain runs ~0.5–1 lb/week. Honest projection for game day: <b style="color:var(--amber)">${proj!=null?'~'+proj+' lb':'log a weigh-in'}</b>. Chasing 174 in ${Math.max(d,0)} days would mean fat, not muscle.<br><br>
@@ -3782,7 +3844,7 @@ function statusCardHTML(){
 let _sesStart=null,_sesTick=null;
 function sesToggle(){
   if(_sesStart){ const min=Math.round((Date.now()-_sesStart)/60000); _sesStart=null; clearInterval(_sesTick);
-    if(min>=5){ S.metrics.push({d:todayISO(),key:'sesmin',val:min,src:'manual'}); save(); }
+    if(min>=5){ pushMetric({d:todayISO(),key:'sesmin',val:min}); save(); }
     rTrain(); toast('Session: '+min+' min — logged'); return; }
   _sesStart=Date.now(); rTrain();
   _sesTick=setInterval(()=>{ const el=$('#sesClock'); if(!el){ clearInterval(_sesTick); return; }
@@ -3851,7 +3913,7 @@ function sundayNudgeHTML(){
 /* plyo contact counter — the app enforces its OWN ~60/session adolescent cap */
 let _plyoN=0;
 function plyoTap(n){ _plyoN=Math.max(0,_plyoN+n); const el=$('#plyoN'); if(el){ el.textContent=_plyoN; if(el.style) el.style.color=_plyoN>60?'var(--red)':_plyoN>45?'var(--amber)':'var(--txt)'; } const w=$('#plyoW'); if(w) w.textContent=_plyoN>60?'OVER THE CAP — jumps are done for today. More contacts ≠ more bounce; they cost tendons.':_plyoN>45?'approaching the ~60 cap — finish the quality reps, skip the junk ones':''; }
-function plyoEnd(){ if(!_plyoN){ toast('No contacts counted'); return; } S.metrics.push({d:todayISO(),key:'plyo',val:_plyoN,src:'manual'}); save(); _plyoN=0; rTrain(); toast('Contacts logged ✓'); }
+function plyoEnd(){ if(!_plyoN){ toast('No contacts counted'); return; } pushMetric({d:todayISO(),key:'plyo',val:_plyoN}); save(); _plyoN=0; rTrain(); toast('Contacts logged ✓'); }
 function plyoCardHTML(){
   return `<div class="card">
     <h3>Plyo Contact Counter <span class="r">cap ~60/session · the program's own rule, enforced</span></h3>
@@ -4232,9 +4294,9 @@ function benchTable(pos='LB',s=S){
   return M.map(([k,label,unit])=>{
     const prov=(k==='broad'||k==='shuttle');
     const val=['squat','bench'].includes(k)?(Math.max(s.prs[k]||0,(mom.bestE1rm&&mom.bestE1rm[k])||0)||null):g.latest(k);
-    const pg=Model.percentileGap(k,val,pos);
+    const pg=Model.percentileGap(k,val,pos,Model.sprintTiming(s,k));
     if(val==null||!pg) return {label,unit,prov,untested:true};
-    const gapText=pg.chase?`${pg.gap}${unit==='s'?'s':' '+unit} to ${pg.chase}`:'P90 hit';
+    const gapText=(pg.chase?`${pg.gap}${unit==='s'?'s':' '+unit} to ${pg.chase}`:'P90 hit')+(pg.laserEquiv?` · ${val}s hand ≈ ${pg.laserEquiv}s laser`:'');
     return {label,unit,val,tier:pg.tier,gapText,prov};
   });
 }
@@ -4636,7 +4698,7 @@ function syncGo(create){
 function syncReset(){ try{ localStorage.removeItem(SYNC_KEY); }catch(e){} cloudSignOut(); rSyncUI(); toast('Sync config removed — your data on this device is untouched'); }
 
 function logMetric(){ const v=+$('#mVal').value; if(!v){toast('Enter a value');return;}
-  S.metrics.push({d:todayISO(),key:$('#mKey').value,val:v,src:'manual'}); save(); rTrack(); toast('Logged ✓'); }
+  pushMetric({d:todayISO(),key:$('#mKey').value,val:v}); save(); rTrack(); toast('Logged ✓'); }
 
 /* ============ v7.41 ROADMAP-20 UI ============ */
 /* item 1 · NCAA core-course ledger */
@@ -4679,7 +4741,7 @@ function dumpGo(){
 function dumpApprove(i){
   const x=(pendDump||[])[i]; if(!x) return;
   if(x.kind==='lift') S.lifts.push({d:todayISO(),ex:x.ex,wt:x.wt,reps:x.reps});
-  else S.metrics.push({d:todayISO(),key:x.key,val:x.val,src:'manual'});
+  else pushMetric({d:todayISO(),key:x.key,val:x.val});
   pendDump.splice(i,1); save(); rTrack(); toast(x.label+' ✓');
 }
 function dumpNote(){
@@ -4887,7 +4949,7 @@ function callEnd(){
   const n=_callHit+_callMiss;
   if(n<10){ toast('Run at least 10 snaps before a rate counts'); return; }
   const pct=Math.round(100*_callHit/n);
-  S.metrics.push({d:todayISO(),key:'callrate',val:pct,src:'manual'}); save();
+  pushMetric({d:todayISO(),key:'callrate',val:pct}); save();
   _callHit=0;_callMiss=0; rPush();
   toast('Call rate '+pct+'% on '+n+' snaps — logged. Watch this number climb all season.');
 }
@@ -4898,7 +4960,7 @@ function filmSyllabusCard(){
   return `<div class="card" style="border-color:#3f4a1f">
     <h3>Film Syllabus <span class="r">assignment ${a.wk} of 12 · ${esc(a.tag)}</span></h3>
     <div class="t" style="font-size:17px">${esc(a.title)}</div>
-    <div class="note" style="margin-top:4px"><b>Find it:</b> search "<i>${esc(a.find)}</i>" — ${esc(a.src)}</div>
+    <div class="note" style="margin-top:4px"><b>Find it:</b> <a href="${ytq(a.find)}" target="_blank" rel="noopener" style="color:var(--cyan)">${esc(a.find)} ↗</a> — ${esc(a.src)}</div>
     <div style="margin-top:8px;font-size:13px;line-height:1.7"><b style="color:var(--cyan)">Your eyes, every rep:</b><br>${a.watch.map(w=>'• '+esc(w)).join('<br>')}</div>
     <div class="note" style="margin-top:8px;border-left:3px solid var(--amber);padding-left:10px;font-style:normal"><b>THE DRILL:</b> ${esc(a.drill)}</div>
     ${a.id==='call-it'?`<div class="row" style="gap:6px;margin-top:8px"><button class="btn sm grow" onclick="callTap(1)">HIT ✓</button><button class="btn sm ghost grow" onclick="callTap(0)">MISS ✗</button><span class="mono" id="callN" style="align-self:center;min-width:52px;text-align:center">0 / 0</span><button class="btn sm amber" onclick="callEnd()">LOG RATE</button></div>${hist.length?`<div class="note" style="margin-top:4px">Your call-rate arc: ${hist.slice(-5).map(h=>h.val+'%').join(' → ')}</div>`:''}`:''}
@@ -5045,8 +5107,8 @@ function renderHdr(){
     const ck=(S.checkins[todayISO()]||[]).filter(Boolean).length;
     $('#hdrCd').innerHTML=
       `<span class="sb-cell hero"><span class="sb-n mono" data-count="${gate}">0</span><span class="sb-k">DAYS · GATE</span></span>`+
-      `<span class="sb-cell"><span class="sb-n mono" style="color:${won?'var(--green)':'var(--txt)'}">${L.cur.days}<i class="sb-sub">/${L.bar.days}</i></span><span class="sb-k">WK vs BAR</span></span>`+
-      `<span class="sb-cell"><span class="sb-n mono" style="color:${ck===4?'var(--green)':'var(--txt)'}">${ck}<i class="sb-sub">/4</i></span><span class="sb-k">TODAY</span></span>`+
+      `<span class="sb-cell"><span class="sb-n mono" style="color:${won?'var(--green)':'var(--txt)'}">${L.cur.days}<i class="sb-sub">/${L.bar.days}</i></span><span class="sb-k">VS LAST WK</span></span>`+
+      `<button class="sb-cell sb-tap" aria-label="Jump to Daily Four" onclick="jumpCk()"><span class="sb-n mono" style="color:${ck===4?'var(--green)':'var(--txt)'}">${ck}<i class="sb-sub">/4</i></span><span class="sb-k">TODAY</span></button>`+
       `<span class="sb-cell"><span class="sb-n mono" style="color:${streak>0?'var(--amber)':'var(--faint)'}">${streak}</span><span class="sb-k">STREAK</span></span>`+
       (off?`<span class="sb-cell"><span class="sb-n" style="color:var(--cyan);font-size:16px">●</span><span class="sb-k">OFFLINE OK</span></span>`:'');
     /* ambient week rail: progress toward beating the bar, always visible, never nagging */
@@ -5064,6 +5126,45 @@ if(typeof window!=='undefined'&&window.addEventListener){
   window.addEventListener('offline',()=>{ _wasOffline=true; renderHdr(); toast('Offline — everything still logs and saves on this device ✓'); });
 }
 renderHdr();
+/* RT-3: the most-used action, one tap from any screen */
+function jumpCk(){
+  if(curView!=='today') go('today');
+  try{ const el=document.querySelector('#ckAnchor'); if(el&&el.scrollIntoView) el.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
+}
+function jumpLift(){
+  if(curView!=='train') go('train');
+  try{ const el=document.querySelector('#liftAnchor'); if(el&&el.scrollIntoView) el.scrollIntoView({behavior:'smooth',block:'start'}); }catch(e){}
+}
+/* RT-2 · FIRST RUN — 20 seconds from "what is this" to first action. Shown once, ever.
+   Flag lives in localStorage (device-level), NOT synced state: seeing the intro is a
+   property of a device, not of the athlete. */
+function introMaybe(){
+  try{
+    if(typeof localStorage==='undefined'||localStorage.getItem('d1os_intro')) return;
+    if(typeof document==='undefined'||!document.body||!document.body.insertAdjacentHTML) return;
+    const steps=[
+      {k:'THIS IS D1 OS',t:'One athlete. One goal. Every controllable on the road to Division I, measured and worked, every day until 2030.'},
+      {k:'THE LOOP',t:'The top card tells you today\u2019s exact work. Do it, log it, and the scoreboard bar fills. Beat last week. That is the whole system.'},
+      {k:'EVERYTHING IS EARNED',t:'Every number in here is logged, never claimed. Coaches can trust it because you cannot fake it. Start with the Daily Four.'}];
+    let i=0;
+    document.body.insertAdjacentHTML('beforeend',
+      '<div class="intro" id="intro" role="dialog" aria-modal="true" aria-label="Welcome to D1 OS"><div class="intro-in">'+
+      '<div class="intro-k" id="inK"></div><div class="intro-t" id="inT"></div>'+
+      '<div class="intro-dots" id="inD"></div>'+
+      '<button class="btn amber" style="width:100%;margin-top:22px" id="inB"></button>'+
+      '<button class="btn ghost sm" style="width:100%;margin-top:8px" id="inS">Skip</button></div></div>');
+    const paint=()=>{ const st=steps[i];
+      document.querySelector('#inK').textContent=st.k;
+      document.querySelector('#inT').textContent=st.t;
+      document.querySelector('#inD').innerHTML=steps.map((_,j)=>'<i class="'+(j===i?'on':'')+'"></i>').join('');
+      document.querySelector('#inB').textContent=i<steps.length-1?'NEXT':'START THE DAILY FOUR'; };
+    const done=jump=>{ try{ localStorage.setItem('d1os_intro','1'); const n=document.querySelector('#intro'); if(n) n.remove(); }catch(e){} if(jump) jumpCk(); };
+    document.querySelector('#inB').onclick=()=>{ if(i<steps.length-1){ i++; paint(); if(typeof haptic==='function') haptic('tap'); } else done(true); };
+    document.querySelector('#inS').onclick=()=>done(false);
+    paint();
+    try{ document.querySelector('#inB').focus(); }catch(e){}
+  }catch(e){}
+}
 /* storage armor (v7.30): persist request, then RESTORE-BEFORE-RENDER. The v7.29 order was a
    real bug (first render saved defaults into localStorage before the check could see it empty).
    Now nothing renders or saves until the mirror verdict is in (800ms cap). */
@@ -5091,7 +5192,7 @@ function rWidget(){
 }
 const _wm=(typeof location!=='undefined'&&/widget/.test(location.hash||''));
 function killSkeleton(){ try{ const k=document.querySelector('#skel'); if(k) k.remove(); }catch(e){} }
-function bootD1(){ killSkeleton(); if(_wm){ rWidget(); if(typeof cloudBoot==='function') cloudBoot(); return; } go('today'); if(typeof cloudBoot==='function') cloudBoot(); } // sync starts only after the mirror verdict — cloud merges with real local state, never with a placeholder
+function bootD1(){ killSkeleton(); if(!_wm) introMaybe(); if(_wm){ rWidget(); if(typeof cloudBoot==='function') cloudBoot(); return; } go('today'); if(typeof cloudBoot==='function') cloudBoot(); } // sync starts only after the mirror verdict — cloud merges with real local state, never with a placeholder
 idbRestoreCheck(bootD1);
 if(_wm&&typeof setInterval!=='undefined'){ setInterval(()=>{ try{ rWidget(); }catch(e){} },60000); } // widget stays fresh
 
