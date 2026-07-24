@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.61 -->
+<!DOCTYPE html><!-- d1os v7.62 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1595,7 +1595,8 @@ const DEFAULTS={
   sessions:{},   // {ISO:[bool per block]} — set-by-set execution, feeds adherence-by-block
   core:[],       // v7.41 {d,name,subj,grade,credit} — NCAA core courses, append-only; core GPA is COMPUTED
   games:[],      // v7.41 {d,opp,car,yds,td,tkl} — season stat line, append-only; totals are COMPUTED
-  meta:{mod:{}}  // v7.32 sync bookkeeping: per-group last-write timestamps (prs/profile/settings/params)
+  meta:{mod:{}}, // v7.32 sync bookkeeping: per-group last-write timestamps (prs/profile/settings/params)
+  _tBackfill:0   // v7.62 A.2: one-time synthetic-timestamp migration flag
 };
 if(typeof structuredClone!=='function'){ globalThis.structuredClone=o=>JSON.parse(JSON.stringify(o)); }
 /* v7.32 sync identity — MUST precede loadS(): migrate() calls normIds(), and consts do not
@@ -1642,6 +1643,14 @@ function migrate(p){
     }
   }
   if(!s.meta||!s.meta.mod) s.meta={mod:{}};
+  /* v7.62 A.2: pre-v7.61 metrics have no write-time, so metricOn's timestamp sort collapses
+     to insertion order — the exact bug 1.7 set out to fix, for the data that motivated it.
+     Backfill deterministic day-derived stamps (+index tiebreak). Real Date.now() is ~1.7e12,
+     far above any day-parse, so genuine timestamps always outrank these. Runs once. */
+  if(!s._tBackfill){
+    (s.metrics||[]).forEach((m,i)=>{ if(m.t==null) m.t=Date.parse(m.d+'T12:00:00Z')+i; });
+    s._tBackfill=1;
+  }
   normIds(s); // v7.32: persistent deterministic entry ids (sync identity)
   return s;
 }
@@ -2136,7 +2145,13 @@ const Model={
      a hand-timed 40 reads ~0.24s FAST, so it must be converted UP before any percentile call
      or the app reports a gap that is 0.24s too small. Read the method off the metric's cond. */
   sprintTiming(s,key){ const a=(s.metrics||[]).filter(m=>m.key===key&&m.cond); if(!a.length) return 'hand';
-    const c=String(a[a.length-1].cond).toLowerCase();
+    /* v7.62 A.3: resolve by (date, write-time), NOT array order — else a backfilled older
+       reading's cond could set the basis for a newer value. Documented assumptions:
+       no cond -> 'hand' (conservative today; a laser time logged without a cond would be
+       penalised +0.24 — revisit when a real timing gate exists). 'phone' -> no conversion:
+       frame-counting triggers on first movement like FAT, so it is treated laser-equivalent. */
+    const last=[...a].sort((x,y)=>(x.d<y.d?-1:x.d>y.d?1:(x.t||0)-(y.t||0))).at(-1);
+    const c=String(last.cond).toLowerCase();
     return /laser|fat|electronic/.test(c)?'laser':/phone|frame|fps/.test(c)?'phone':'hand'; },
   laserEquiv(metric,value,timing){ if(value==null) return value;
     if((metric==='forty'||metric==='shuttle')&&timing==='hand') return +(value+0.24).toFixed(2); return value; },
@@ -2152,7 +2167,7 @@ const Model={
     if(meets(cmp,b.p90)){tier='P90';chase=null;}
     else if(meets(cmp,b.p75)){tier='P75';chase='P90';}
     else if(meets(cmp,b.p50)){tier='P50';chase='P75';}
-    const target=chase?(chase==='P90'?b.p90:chase==='P75'?b.p50:b.p50):null;
+    const target=chase?(chase==='P90'?b.p90:chase==='P75'?b.p75:b.p50):null;  // v7.62 A.1: was b.p50 — a regression that reported the P50→P75 band as already closed
     const gap=target==null?null:+Math.abs(cmp-target).toFixed(2);
     return {tier,chase,target,gap,lower,prov:!!b.prov,
       timing:lower?timing:null, laserEquiv:lower&&timing==='hand'?cmp:null};  // UI shows both
