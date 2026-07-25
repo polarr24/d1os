@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.70 -->
+<!DOCTYPE html><!-- d1os v7.71 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -3614,7 +3614,9 @@ function rToday(){
   }
   const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊',prep:'🔥',earn:'🏈',film:'🎬'};
   $('#v-today').innerHTML=`
+  ${typeof captureStripHTML==='function'?captureStripHTML():''}
   ${typeof playerCardHTML==='function'?playerCardHTML():''}
+  ${typeof installCardHTML==='function'?installCardHTML():''}
   ${typeof closeoutCardHTML==='function'?closeoutCardHTML(o1rec):''}
   ${typeof foothillHTML==='function'?foothillHTML():''}
   ${typeof assignHTML==='function'?assignHTML():''}
@@ -4300,6 +4302,48 @@ function cutRiskCardHTML(){
     <h3 style="color:var(--red)">Weight is dropping fast <span class="r">safety, not performance</span></h3>
     <div class="note" style="margin:0;font-style:normal">You're down from <b>${c.from} lb</b> to <b>${c.to} lb</b> over ${c.days} day${c.days===1?'':'s'} — about <b>${c.pctWk}% per week</b>. The high-school wrestling standard caps weight loss at <b>1.5% of bodyweight per week</b>, and cutting weight during puberty is associated with stunted growth, plus real risks to heart rhythm, hydration and bone.</div>
     <div class="note" style="margin-top:8px;font-style:normal"><b>Tell a parent and your coach today.</b> You're still growing — the weight class should move to fit you, not the other way around. This app will never give you a weight target.</div></div>`;
+}
+/* ===== v7.71 CAPTURE STRIP — the fix for "opens it, doesn't log much" =====
+   The Daily Four sat below six cards. An athlete who opens the app and scrolls past everything
+   logs nothing, and every engine downstream starves. This puts the four taps in the first
+   screenful, before any card, sized for a thumb in a locker room. Nothing new is stored — it
+   drives the existing checkins through tglCk, so streaks, consistency and sync are untouched. */
+function captureStripHTML(){
+  try{
+    const c=ckToday(), done=c.filter(Boolean).length;
+    const st=(typeof Model!=='undefined'&&Model.consistency)?(Model.consistency().streak||0):0;
+    const cells=CHECKS.map((k,i)=>`<button class="btn ${c[i]?'amber':'ghost'}" style="flex:1;min-width:0;flex-direction:column;gap:2px;padding:10px 4px;min-height:56px" onclick="tglCk(${i})" aria-pressed="${c[i]?'true':'false'}" aria-label="${esc(k.t)}${c[i]?' — done':''}">
+      <span style="font-size:17px;line-height:1">${c[i]?'✓':'○'}</span>
+      <span style="font-size:9.5px;letter-spacing:.03em;font-weight:800;opacity:.9">${esc(k.t.split(' ')[0].toUpperCase())}</span></button>`).join('');
+    const msg=done===4?'Day won. That\'s the whole job.':done===0?'Four taps. That\'s today\'s minimum.':`${done}/4 — ${4-done} tap${4-done===1?'':'s'} from a won day.`;
+    return `<div class="card" style="padding:10px 12px;border-color:${done===4?'#3f4a1f':'var(--line)'};background:${done===4?'linear-gradient(150deg,rgba(201,242,78,.14),var(--card) 60%)':'var(--card)'}">
+      <div class="row" style="align-items:baseline;gap:6px;margin-bottom:8px">
+        <b style="font-size:12px;letter-spacing:.06em">TODAY</b>
+        <span class="grow"></span>
+        <span class="mono" style="font-size:12px;color:${done===4?'var(--green)':'var(--faint)'}">${esc(msg)}</span>
+        ${st>0?`<span class="pill green" style="font-size:11px">${st}d</span>`:''}</div>
+      <div class="row" style="gap:6px">${cells}</div></div>`;
+  }catch(e){ return ''; }
+}
+/* ===== v7.71 INSTALL PROMPT — Safari evicts un-installed site data after 7 unused days.
+   Installed PWAs are exempt. This is data protection first, engagement second. One-time,
+   dismissible, remembered forever via an append-only event. ===== */
+function installDismissed(s=S){ return (s.events||[]).some(e=>e.type==='task'&&e.meta&&e.meta.id==='setup:install'); }
+function dismissInstall(){ completeTask('setup:install'); toast('Hidden — TRACK → Data has it if you change your mind'); try{ RENDER[curView](); }catch(e){} }
+function installCardHTML(){
+  try{
+    if(installDismissed()) return '';
+    const standalone=(typeof navigator!=='undefined'&&navigator.standalone===true)||
+      (typeof matchMedia!=='undefined'&&matchMedia('(display-mode: standalone)').matches);
+    if(standalone){ return ''; }
+    return `<div class="card" style="border-color:#294551">
+      <h3>Put this on the home screen <span class="r">2 minutes · protects your data</span></h3>
+      <div class="note" style="margin:0;font-style:normal">Safari deletes site data after <b>7 unused days</b>. Installed apps are exempt — so this is the difference between a season of logs surviving and vanishing. It also opens in one tap instead of four.</div>
+      <div class="note" style="margin-top:6px">iPhone: Share button → <b>Add to Home Screen</b> → Add. Android: menu → <b>Install app</b>.</div>
+      <div class="row" style="gap:6px;margin-top:8px">
+        <button class="btn sm grow amber" onclick="dismissInstall()">Done — it's installed</button>
+        <button class="btn sm ghost" onclick="dismissInstall()">Don't show again</button></div></div>`;
+  }catch(e){ return ''; }
 }
 /* ===== v7.70 PROTOCOLS — one tap logs a dose; adherence is the point ===== */
 function logProto(id){ logEvent('proto',{id}); save();
