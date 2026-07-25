@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.72 -->
+<!DOCTYPE html><!-- d1os v7.73 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1409,6 +1409,18 @@ const DEEP={
     b:'Most teenage aches are ordinary. Hips are the exception worth naming: in a still-growing athlete, hip pain can come from a growth-plate structure rather than a muscle, and a couple of those causes are time-sensitive — they do better when caught early and worse when trained through for months. Hip problems can also refer pain to the knee. So the rule for hips is different from the rule for a tight hamstring: persistent or worsening hip pain, or a limp, gets a doctor rather than a foam roller. Not a diagnosis — a reason not to wait.'},
   heat:{t:'Vegas heat is an adaptation you already own',
     b:'Heat acclimatization expands blood plasma volume roughly 10–25%, most of it inside about 3 days, which lowers heart rate and raises stroke volume at the same workload. Whether that carries over to performance in COOL conditions is genuinely debated — early positive studies were criticised for weak controls. So: train the heat safely for the safety benefit, which is certain, and treat any cool-weather bonus as a maybe.'},
+  extfocus:{t:'Protect what you already do right (pre-snap)',
+    b:'You said that before the snap you\'re thinking about the defender, the hole, where you\'re going. That is an EXTERNAL focus, and the research is consistent: attention on the movement EFFECT rather than on your own body parts produces faster, more automatic movement with less muscular co-contraction. Most athletes have to be taught this and most coaches accidentally cue the opposite. So: when a coach says "watch your feet" or "drive your hips", translate it in your head into what it does to the ground or the defender. Do not let anyone talk you into thinking about your body parts mid-play.'},
+  asym:{t:'Your plant foot is a training target',
+    b:'You plant LEFT to cut right, which means your left leg is your braking leg on that cut and your right side does less of that work. Braking force has to be built on BOTH limbs \u2014 asymmetry costs change-of-direction performance and raises injury risk. Practically: do single-leg landings, sprint-to-stops and lateral decelerations leading with your weaker side first, and do one extra set on it.'},
+  doms:{t:'Your soreness peaks on day TWO',
+    b:'You said the first day is mediocre and the second is worse. That is textbook delayed-onset soreness, which peaks roughly 24\u201348 hours after the session. The practical consequence: a heavy lower-body day placed two days before a game lands its worst soreness ON game day. Heavy legs go early in the week or right after a game \u2014 never 48 hours before one.'},
+  venue:{t:'Your training venues, and what each is for',
+    b:'Apartment gym any time, a park five minutes away, plus a commercial gym. That is more access than most athletes have, so access is not your limiter \u2014 starting is. Use it like this: the apartment gym is for anything loaded and weather-proof, the park is for sprint, deceleration and jump work when it is not dangerous outside, and in Vegas that means before 9am or after sundown. Heat is a medical risk, not a toughness test.'},
+  recog:{t:'"I saw it late" is the fastest thing you can fix',
+    b:'You said what beats you is guys being bigger/stronger and seeing it late. The size half changes on its own as you mature \u2014 it is not a character flaw and not under your control this year. The recognition half is trainable NOW and it is the cheapest edge available: pause film before the snap, call the front, the coverage and the Mike out loud, then play it and see if you were right. Perceptual training reliably improves anticipation and decision-making, and it improves it most in athletes who are early in the skill.'},
+  start:{t:'The barrier is starting, not working',
+    b:'Your words: "I\'m fine doing the workout alone, it\'s just actually going and doing it." That is a starting problem, not a discipline problem, and it has a different fix. Shrink step one until it is stupid \u2014 shoes on, or the first set only, or five minutes with permission to stop. Nearly every session you start, you will finish. So the app should only ever ask you for the first thing.'},
   acadroute:{t:'The high-academic route — the widest door for an under-sized back',
     b:'Academically selective football programs — the Ivy League, Patriot League, NESCAC and the high-academic FBS and FCS schools — recruit from a much smaller pool, because a coach there needs a player who ALSO clears an academic bar most recruits cannot. The Ivies formally band recruits by an academic index built from grades and test scores. That inverts the usual disadvantage: where a P4 program screens on measurables first, these programs screen on academics first and then ask if you can play. For an athlete whose size or 40 lags the P4 filter but whose transcript is top-decile, this is the widest door available — and unlike a growth spurt, it is fully under your control. Build the transcript from grade 9 and the list of programs that can say yes gets longer every semester.'},
   acadlever:{t:'Academics are a RECRUITING lever now, not just a gate',
@@ -2810,6 +2822,71 @@ function maturityRead(s=S){
   return {have:true,ht,d:h.d,predAdult,pah,lo,hi,band:b.key,label:b.label,read:b.read,
           err:MATURITY.err,boneWindow:(b.key==='pre'||b.key==='circa')};
 }
+/* ===== v7.73 THE SCRIPT — one ordered list, no menu =====
+   Athlete's own words: "it's all jumbled, 10 layers of questions asked at different times — the
+   app should show what to do IN ORDER and then have a discovery area." He also said the barrier
+   is starting, not doing: "I'm fine doing the workout alone, it's just actually going and doing
+   it." So this returns a numbered sequence with ONE next action, never a menu of competing cards.
+   It composes existing engines — decide(), protocolRead(), checkins — and adds no new state. */
+function dayScript(s=S,today=todayISO()){
+  const out=[];
+  const ck=(s.checkins||{})[today]||[false,false,false,false];
+  const plan=(typeof decide==='function')?decide(s,today):null;
+  const status=(typeof statusToday==='function')?statusToday(s,today):null;
+  // 1 · hurt/sick overrides everything — safety before streaks, always
+  if(status==='hurt'||status==='sick'){
+    out.push({k:'status',t:status==='hurt'?'Train around it today':'Rest — you logged sick',
+      d:'Status is set. Nothing below is required today and the streak is held. Return-to-play is a medical call, never the app\'s.',done:true,go:null});
+    return {rows:out,next:null,done:1,total:1,restDay:true};
+  }
+  // 2 · the session (the thing he said he's fine doing once he starts)
+  if(plan&&plan.workout){
+    out.push({k:'train',t:plan.workout.recovery?'Recovery: '+plan.workout.title:plan.workout.title,
+      d:plan.workout.recovery?'Easy day by design. Moving counts.':'Open TRAIN and log sets as you go — that\'s the whole ask.',
+      done:!!ck[0],go:"go('train')"});
+  }
+  // 3 · protective protocols that are short of dose — the cheapest availability you can buy
+  if(typeof protocolRead==='function'){
+    const pr=protocolRead(s,today);
+    const short=pr.rows.filter(r=>r.cat==='protect'&&!r.met).sort((a,b)=>a.mins-b.mins)[0];
+    if(short) out.push({k:'proto',t:short.name+' · '+short.mins+' min',
+      d:short.wk+'/'+short.per+' this week. '+short.how,done:false,go:"go('train')"});
+  }
+  // 4 · one IQ rep — free, indoors, weather-proof
+  if(!ck[2]) out.push({k:'iq',t:'One football IQ rep',
+    d:'Film set, playbook card, or a visualization script. Five minutes, no equipment, no weather.',done:false,go:"go('push')"});
+  // 5 · fuel + sleep close the day
+  if(!ck[1]) out.push({k:'fuel',t:'Eat like you train',d:'Three real meals and water. Under-fuelling during a growth spurt costs growth itself.',done:false,go:null});
+  const stgt=(typeof sleepTargetRead==='function')?sleepTargetRead(s):{have:false};
+  if(!ck[3]) out.push({k:'sleep',t:stgt.have?('Lights out by '+stgt.lightsOutTxt):'Lights out',
+    d:stgt.have?('Your '+stgt.wakeTxt+' wake needs that bedtime for '+stgt.need+' hours. This is the highest-return thing on the list.'):'Log your wake time and the app will work out the real bedtime.',done:false,go:null});
+  const done=out.filter(r=>r.done).length;
+  return {rows:out,next:out.find(r=>!r.done)||null,done,total:out.length,restDay:false};
+}
+/* ===== v7.73 SLEEP TARGET — derived from the wake time, not a fixed number =====
+   Found by audit: the Daily Four said "lights out by 10:30" while sleepRead grades against an
+   8h bar. On a 6:15am wake that target is 7h45 — the app was guaranteeing a fail against its own
+   standard. Adolescents need 8–10h; the clock also runs ~2h late at puberty, so the honest move
+   is to derive lights-out from when he ACTUALLY has to get up. */
+const SLEEP_NEED=9;           // mid-point of the 8–10h adolescent range
+const SLEEP_LATENCY=0.25;     // ~15 min to actually fall asleep
+function hhmm(dec){ if(dec==null||isNaN(dec)) return '—';
+  let h=Math.floor(((dec%24)+24)%24), m=Math.round((dec-Math.floor(dec))*60);
+  if(m===60){h=(h+1)%24;m=0;}
+  const ap=h>=12?'pm':'am', h12=(h%12)||12;
+  return h12+':'+String(m).padStart(2,'0')+ap; }
+function sleepTargetRead(s=S,need=SLEEP_NEED){
+  const w=(typeof latestMetric==='function')?latestMetric(s,'wake'):null;
+  if(!w) return {have:false,need};
+  const wake=+w.val;
+  if(isNaN(wake)) return {have:false,need};
+  const lightsOut=((wake-need-SLEEP_LATENCY)%24+24)%24;
+  const legacy=22.5;                                   // the old fixed 10:30 target
+  const legacyHrs=+(((wake-legacy)%24+24)%24 - SLEEP_LATENCY).toFixed(2);
+  return {have:true,wake,need,lightsOut,
+    wakeTxt:hhmm(wake),lightsOutTxt:hhmm(lightsOut),
+    legacyHrs,legacyShort:legacyHrs<8,d:w.d};
+}
 /* ===== v7.72 THE RECORD — visible progression, honestly built =====
    Owner insight: he loves SEEING self-improvement and quits when progress feels invisible.
    So this is a rank that rises with VERIFIED WORK BANKED — never a prediction of how good he is,
@@ -3412,6 +3489,32 @@ function decide(s=S,dateISO=todayISO()){
       title:'Verify Eligibility Center status before April',
       why:'Missing core course or an unsubmitted final grade is the #1 reason borderline recruits lose offers. Check the transcript is on file and every core course is approved — March, every year.'});
   }
+  // 9a-3e · v7.73 ANSWER-DERIVED TASKS. Each one exists because the athlete or parent said so.
+  // Coach corrections: coach[] is empty and the Session-quality -> Coach-feedback -> Playing-time
+  // chain cannot run without a single entry. He said the coach hasn't named anything yet, so the
+  // task is to ASK — a coach's exact words are the highest-value thing he can bring home.
+  if(!(s.coach||[]).length&&!taskDone('coach:ask:'+dateISO.slice(0,7))){
+    plan.tasks.push({kind:'coach',id:'coach:ask:'+dateISO.slice(0,7),
+      title:'Ask a coach: "what is the ONE thing you want me to fix?"',
+      why:'His exact words, logged the same day. It unlocks the coach-feedback chain and it is the single most useful sentence you can bring home from practice.'});
+  }
+  // Recruiting accounts exist but are empty — a dormant profile reads worse than none.
+  if(!taskDone('recruit:hudl:setup')){
+    plan.tasks.push({kind:'recruit',id:'recruit:hudl:setup',
+      title:'Fill out the Hudl profile completely (height, weight, GPA, contact, coach)',
+      why:'The account exists but is blank. Coaches open Hudl first — an empty profile wastes the click. Film lands here from the Foothill opener onward.'});
+  }
+  if(!taskDone('recruit:x:setup')){
+    plan.tasks.push({kind:'recruit',id:'recruit:x:setup',
+      title:'Finish the @zaydenbowen2030 profile: class, position, height/weight, school, Hudl link',
+      why:'Set up but nothing posted. A dead recruiting account is worse than no account — bio and pinned Hudl link first, posts second.'});
+  }
+  // No school list yet — build it rather than assume it.
+  if(!(s.pipeline||[]).length&&!taskDone('recruit:list:'+dateISO.slice(0,7))){
+    plan.tasks.push({kind:'recruit',id:'recruit:list:'+dateISO.slice(0,7),
+      title:'Name 5 schools: 2 local pipeline, 2 academic-route, 1 dream',
+      why:'A list you built beats a list you inherited. With a top-decile transcript the academic route is genuinely open — PATH explains why.'});
+  }
   // 9a-3d · COURSE-LIST CHECK (v7.67): the highest-leverage academic act of grade 9, and it has a
   // deadline. A class can carry full credit, lift the school GPA, and still not count toward the 16
   // because the school never got it NCAA-approved — discovered in the senior audit, too late to fix.
@@ -3670,17 +3773,19 @@ function rToday(){
     const n=c.filter(Boolean).length;
     dots+=`<i class="${n===4?'hit':n>0?'part':''}"></i>`;
   }
-  const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊',prep:'🔥',earn:'🏈',film:'🎬'};
+  const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊',prep:'🔥',earn:'🏈',film:'🎬',coach:'📣'};
   $('#v-today').innerHTML=`
   ${typeof captureStripHTML==='function'?captureStripHTML():''}
+  ${typeof scriptCardHTML==='function'?scriptCardHTML():''}
   ${typeof recordCardHTML==='function'?recordCardHTML():''}
+  ${typeof cutRiskCardHTML==='function'?cutRiskCardHTML():''}
+  ${typeof statusCardHTML==='function'?statusCardHTML():''}
+  <details id="todayMore" style="margin-top:10px"><summary style="cursor:pointer;font-size:12px;color:var(--cyan);padding:8px 2px">Everything else &rsaquo;</summary>
   ${typeof playerCardHTML==='function'?playerCardHTML():''}
   ${typeof installCardHTML==='function'?installCardHTML():''}
   ${typeof closeoutCardHTML==='function'?closeoutCardHTML(o1rec):''}
   ${typeof foothillHTML==='function'?foothillHTML():''}
   ${typeof assignHTML==='function'?assignHTML():''}
-  ${typeof cutRiskCardHTML==='function'?cutRiskCardHTML():''}
-  ${typeof statusCardHTML==='function'?statusCardHTML():''}
   ${typeof sundayNudgeHTML==='function'?sundayNudgeHTML():''}
   ${(sil=>sil>=5?`<div class="card" style="border-color:#294551">
     <h3>Re-Entry Protocol <span class="r">day one back — built for exactly this</span></h3>
@@ -3691,6 +3796,7 @@ function rToday(){
     <div style="text-align:right;margin-top:6px"><button class="btn sm ghost" style="font-size:10px;padding:4px 8px" onclick="retireRec('${esc(o1.kind)}')">stop suggesting this</button></div>
     ${(bn=>{const dup=bn&&((o1.kind==='speed'&&bn.id.indexOf('phys:')===0&&['forty','vert','broad'].includes(bn.key))||(o1.kind==='lift'&&bn.id.indexOf('phys:')===0)||(o1.kind==='board'&&bn.id==='recruiting')||(o1.kind==='fuel'&&bn.key==='wt'));return bn&&!dup?`<div class="note" style="margin-top:5px;font-style:normal"><b style="color:var(--cyan)">Your bottleneck:</b> ${esc(bn.name)} — ${esc(bn.ev)}. <span style="color:var(--faint)">Full read: TRACK → The Gap.</span></div>`:'';})(typeof gapBottleneck==='function'?gapBottleneck():null)}
     ${(tr=>/performed well|did not|mixed/.test(tr)?`<div class="note" style="margin-top:5px;font-style:normal;color:var(--faint)">Track record: ${esc(tr)}</div>`:'')(typeof calNote==='function'?calNote(o1.kind):'')}</div>`)(typeof foothillPhase==='function'&&foothillPhase())}
+  </details>
   ${typeof weekLedgerCard==='function'?weekLedgerCard():''}
   ${(camp=>camp?`  <div class="prio" style="background:linear-gradient(150deg,rgba(201,242,78,.17),var(--card) 55%);border-color:#3f4a1f"><div class="k">TODAY'S ONE THING</div><div class="t" style="font-size:19px;margin-top:4px">${esc(o1.t)}</div><div class="w" style="font-style:normal">${o1.w}${o1eff&&o1eff.retire?' <b style="color:var(--red)">· your own results haven\'t shown this helps — treat it as optional.</b>':o1eff&&o1eff.effect==='supported'?' <b style="color:var(--green)">· backed by your own results.</b>':''}</div>${o1.go?`<button class="btn amber" style="width:100%;margin-top:12px" onclick="${o1.go}">START</button>`:''}
     ${o1rec?`<div class="row" style="gap:6px;margin-top:10px"><button class="btn sm grow ${o1rec.followed==='followed'?'amber':'ghost'}" onclick="setRecFollow('${o1rec.id}','followed')">Did it</button><button class="btn sm grow ${o1rec.followed==='partial'?'amber':'ghost'}" onclick="setRecFollow('${o1rec.id}','partial')">Partly</button><button class="btn sm grow ${o1rec.followed==='ignored'?'amber':'ghost'}" onclick="setRecFollow('${o1rec.id}','ignored')">Didn't</button></div>`:''}
@@ -3740,7 +3846,7 @@ function rToday(){
       return `<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><button class="btn sm ${done?'amber':'ghost'}" onclick="freeWin('${fd}',${i})">${done?'✓':'☐'}</button><span class="grow" style="font-size:13px;margin-left:8px">${esc(w)}</span></div>`;}).join('')}
     ${(fw=>fw.weakest&&fw.weakest.secured<fw.weakest.of?`<div class="note" style="margin-top:6px">Most-missed: <b>${esc(fw.weakest.item)}</b> (${fw.weakest.secured}/${fw.weakest.of} days) — fix the pattern.</div>`:'')(freeWinsRead())}
   </div>`;})(practiceDay(todayISO())?todayISO():(practiceDay(addDays(todayISO(),1))?addDays(todayISO(),1):null))}
-  <div class="card"><h3>Quick Log <span class="r">taps, not typing</span></h3><div class="row" style="align-items:center;gap:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Energy</span>${rate5('energy','today')}</div>${((S.lifts||[]).some(l=>l.d===todayISO())||((S.sessions&&S.sessions[todayISO()])||[]).some(Boolean))?`<div class="row" style="align-items:center;gap:6px;margin-top:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Session</span>${rate5('sq','today')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn grow" onclick="numOpen('wt','Bodyweight (lb)',1,160)">Weight</button><button class="btn grow" onclick="numOpen('sleep','Sleep (h)',0.5,8)">Sleep</button><button class="btn grow" onclick="jumpLift()">Lift</button></div>
+  <div class="card"><h3>Quick Log <span class="r">taps, not typing</span></h3><div class="row" style="align-items:center;gap:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Energy</span>${rate5('energy','today')}</div>${((S.lifts||[]).some(l=>l.d===todayISO())||((S.sessions&&S.sessions[todayISO()])||[]).some(Boolean))?`<div class="row" style="align-items:center;gap:6px;margin-top:6px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Session</span>${rate5('sq','today')}</div>`:''}<div class="row" style="margin-top:8px"><button class="btn grow" onclick="numOpen('wt','Bodyweight (lb)',1,160)">Weight</button><button class="btn grow" onclick="numOpen('sleep','Sleep (h)',0.5,8)">Sleep</button><button class="btn grow" onclick="numOpen('bfast','Breakfast? 1 = yes, 0 = no',1,1)">Breakfast</button><button class="btn grow" onclick="jumpLift()">Lift</button></div>
   ${statusToday()?'':`<div class="row" style="gap:6px;margin-top:6px"><span class="note grow" style="margin:0">Hurt or sick today? Say so — the bar pauses, the streak holds, and the reason is on record.</span><button class="btn sm ghost" onclick="setStatus('hurt')">HURT</button><button class="btn sm ghost" onclick="setStatus('sick')">SICK</button></div>`}
   ${(be=>{const last=be.length?be[be.length-1]:null;const days=last!=null?daysBetween(last,todayISO()):null;const col=days==null||days>30?'var(--red)':days>14?'var(--amber)':'var(--green)';
     return `<div class="row" style="margin-top:8px;align-items:center"><span class="note grow" style="margin:0">Off-device backup: <b style="color:${col}">${days==null?'NEVER':days===0?'today':days+'d ago'}</b> — the export file is the only thing that survives a lost phone</span>${(days==null||days>7)?`<button class="btn sm" onclick="exportS()">EXPORT</button>`:''}</div>`;})((S.events||[]).filter(e=>e.type==='task'&&e.meta&&String(e.meta.id).indexOf('backup:')===0).map(e=>e.d).sort())}<div class="note" style="margin-top:6px">One tap each — this is what lets the app learn what works for <b>you</b>.</div></div>
@@ -4308,6 +4414,7 @@ function sleepSqCardHTML(){
       <div class="grow"><div class="mono" style="font-size:24px;font-weight:800;color:var(--red)">${r.avgLo}</div><div class="note" style="margin:0">avg session under 8h (${r.nLo})</div></div></div>
       <div class="note" style="margin-top:6px">${r.avgHi>r.avgLo?'Your own log says sleep buys session quality — that\'s not a poster, it\'s your data.':'No clear gap in your data yet — honest answer; keep both logs running.'}</div>`
     :`<div class="note" style="margin:0">This read unlocks at 4+ rated sessions on 8h+ nights AND 4+ on short nights. Now: ${r.nHi} long / ${r.nLo} short. Log sleep each morning + rate each session — the correlation writes itself or honestly refuses to.</div>`}
+    ${(st=>st.have?`<div class="note" style="margin-top:8px;font-style:normal"><b style="color:var(--cyan)">Your bedtime, derived:</b> a ${esc(st.wakeTxt)} wake needs lights out by <b>${esc(st.lightsOutTxt)}</b> for ${st.need}h.${st.legacyShort?` The old fixed 10:30 target only gave you ${st.legacyHrs}h — under this app's own 8h bar.`:''}</div>`:`<div class="row" style="gap:6px;margin-top:8px"><button class="btn sm grow" onclick="numOpen('wake','Wake time (e.g. 6.25 = 6:15am)',0.25,6.25)">Log wake time → get your real bedtime</button></div>`)(typeof sleepTargetRead==='function'?sleepTargetRead(S):{have:false})}
     ${typeof deepNote==='function'?deepNote('circ'):''}
   </div>`;
 }
@@ -4361,6 +4468,33 @@ function cutRiskCardHTML(){
     <h3 style="color:var(--red)">Weight is dropping fast <span class="r">safety, not performance</span></h3>
     <div class="note" style="margin:0;font-style:normal">You're down from <b>${c.from} lb</b> to <b>${c.to} lb</b> over ${c.days} day${c.days===1?'':'s'} — about <b>${c.pctWk}% per week</b>. The high-school wrestling standard caps weight loss at <b>1.5% of bodyweight per week</b>, and cutting weight during puberty is associated with stunted growth, plus real risks to heart rhythm, hydration and bone.</div>
     <div class="note" style="margin-top:8px;font-style:normal"><b>Tell a parent and your coach today.</b> You're still growing — the weight class should move to fit you, not the other way around. This app will never give you a weight target.</div></div>`;
+}
+/* ===== v7.73 THE SCRIPT — the ordered list the athlete asked for =====
+   "Show what to do in order, then have a discovery area." One numbered sequence, the next
+   undone step highlighted, everything else quiet. No competing cards above it. */
+function scriptCardHTML(){
+  if(typeof dayScript!=='function') return '';
+  const sc=dayScript(S);
+  if(!sc.rows.length) return '';
+  const rows=sc.rows.map((r,i)=>{
+    const isNext=sc.next&&sc.next.k===r.k;
+    return `<div style="display:flex;gap:9px;align-items:flex-start;padding:9px 0;${i?'border-top:1px solid var(--line)':''};opacity:${r.done?.55:1}">
+      <div class="mono" style="flex:0 0 22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;background:${r.done?'var(--green)':isNext?'var(--amber)':'var(--line)'};color:${r.done||isNext?'#0b0f0c':'var(--faint)'}">${r.done?'✓':i+1}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:14px;font-weight:${isNext?'800':'600'};${r.done?'text-decoration:line-through':''}">${esc(r.t)}</div>
+        ${isNext?`<div class="note" style="margin:3px 0 0;font-style:normal">${esc(r.d)}</div>`:''}
+      </div>
+      ${isNext&&r.go?`<button class="btn sm amber" onclick="${r.go}">GO</button>`:''}
+    </div>`;}).join('');
+  const head=sc.restDay?'Today is a rest/return day.'
+    :sc.next?`Next: <b>${esc(sc.next.t)}</b>`
+    :'Everything on today\'s list is done.';
+  return `<div class="card" style="border-color:${sc.next?'#3f4a1f':'#294551'}">
+    <h3>Today, in order <span class="r">${sc.done}/${sc.total} done</span></h3>
+    <div class="note" style="margin:0 0 6px;font-style:normal">${head}</div>
+    ${rows}
+    ${!sc.next&&!sc.restDay?'<div class="note" style="margin-top:8px;color:var(--green)">That\'s the day. Nothing else is required.</div>':''}
+  </div>`;
 }
 /* ===== v7.72 THE RECORD — the screen he opens when bored =====
    Owner: he loves seeing self-improvement and quits when progress goes invisible. This is the
@@ -4551,7 +4685,7 @@ function realityCardHTML(){
 /* ===== v7.65 training knowledge, placed where it's used ===== */
 function trainKnowHTML(){
   return `<div class="card"><h3>Why this works <span class="r">the layer most programs skip</span></h3>
-    ${deepNote('tendon')}${deepNote('neck')}${deepNote('rsa')}${deepNote('acl')}${deepNote('feedback')}${deepNote('img')}</div>`;
+    ${deepNote('start')}${deepNote('extfocus')}${deepNote('asym')}${deepNote('doms')}${deepNote('venue')}${deepNote('recog')}${deepNote('tendon')}${deepNote('neck')}${deepNote('rsa')}${deepNote('acl')}${deepNote('feedback')}${deepNote('img')}</div>`;
 }
 let pendingLift=null;
 /* v7.32 owner answer: "between sets, but make it faster" — one tap re-logs the last set
