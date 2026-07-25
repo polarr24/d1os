@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.75 -->
+<!DOCTYPE html><!-- d1os v7.76 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2883,6 +2883,25 @@ function maturityRead(s=S){
   return {have:true,ht,d:h.d,predAdult,pah,lo,hi,band:b.key,label:b.label,read:b.read,
           err:MATURITY.err,boneWindow:(b.key==='pre'||b.key==='circa')};
 }
+/* ===== v7.76 VERIFICATION GATE =====
+   The app was badging the 40 as an estimate in one card while still feeding it to
+   percentileGap and printing a percentile off it. Documenting a problem is not fixing it.
+   A metric is USABLE for a percentile claim only if it was actually measured and is not stale.
+   This does not hide the number — it refuses to dress a guess up as a measurement. */
+const STALE_DAYS=365;
+function metricVerified(s,key,today){
+  today=today||todayISO();
+  const m=(typeof latestMetric==='function')?latestMetric(s,key):null;
+  if(!m) return {have:false,ok:false,why:'nothing logged'};
+  const src=String(m.src||'manual').toLowerCase();
+  const cond=String(m.cond||'').toLowerCase();
+  const estimated=src==='estimate'||/estimate|never timed|guess/.test(cond);
+  const age=daysBetween(m.d,today);
+  const stale=age>STALE_DAYS;
+  return {have:true,val:m.val,d:m.d,age,estimated,stale,
+    ok:!estimated&&!stale,
+    why:estimated?'estimated, never measured':stale?('measured '+Math.round(age/30)+' months ago'):'measured'};
+}
 /* ===== v7.73 THE SCRIPT — one ordered list, no menu =====
    Athlete's own words: "it's all jumbled, 10 layers of questions asked at different times — the
    app should show what to do IN ORDER and then have a discovery area." He also said the barrier
@@ -3100,6 +3119,40 @@ function cutRisk(s=S,today=todayISO()){
   const pctWk=+((((+ref.val)-(+last.val))/(+ref.val))*100*(7/days)).toFixed(2);
   return {have:true,pctWk,from:+ref.val,to:+last.val,days,d:last.d,
           over:pctWk>1.5,phase:(typeof phaseFor==='function'?phaseFor(today):null)};
+}
+/* ===== v7.76 TEST-DAY PRIORITY =====
+   Ranks the missing/unverified measurements by what each unblocks. Descriptive: it states what
+   the app cannot currently claim and what one measurement would fix. */
+function testPriority(s=S,today=todayISO()){
+  const items=[
+    {key:'forty',name:'40-yard dash',mins:20,unlocks:'Every speed percentile, the laser conversion, and the whole speed recommendation. The current 4.9 was never run against a clock.'},
+    {key:'broad',name:'Broad jump',mins:10,unlocks:'The last missing baseline piece — it is actively blocking the speed read. Current value is from 6th-grade track.'},
+    {key:'ten',name:'10-yard split',mins:10,unlocks:'More predictive for football than the 40, and fairer while still growing. Nothing logged.'},
+    {key:'shuttle',name:'Pro agility 5-10-5',mins:10,unlocks:'With the 10-yard split it yields change-of-direction deficit — turning ability separated from straight-line speed.'},
+    {key:'vert',name:'Vertical (jump-and-touch)',mins:10,unlocks:'Cleaner than box clearance against the tape-measured 89" reach.'}
+  ];
+  const rows=items.map(it=>{
+    const v=(typeof metricVerified==='function')?metricVerified(s,it.key,today):{have:false,ok:false,why:'unknown'};
+    return {...it,...v,priority:!v.have?3:v.estimated?3:v.stale?2:0};
+  }).sort((a,b)=>b.priority-a.priority||a.mins-b.mins);
+  const need=rows.filter(r=>r.priority>0);
+  return {rows,need,mins:need.reduce((a,r)=>a+r.mins,0),allGood:need.length===0};
+}
+/* ===== v7.76 RETURN TO PRACTICE =====
+   Two weeks off, first practice 2026-07-28, Vegas, 8:00–10:30am. Both risks stack here:
+   detraining plus unacclimatised heat. NATA defines the first 14 consecutive practice days as
+   the heat-acclimatisation period and it applies REGARDLESS of prior conditioning. Sickle-cell
+   status is negative on record, which removes one specific catastrophic risk — not the rest. */
+function returnRead(s=S,today=todayISO()){
+  const start=(typeof FIRST_PRACTICE!=='undefined')?FIRST_PRACTICE:null;
+  if(!start) return {have:false};
+  const days=daysBetween(today,start);
+  const acclDay=days<=0?(1-days):0;                     // day 1..14 once practice starts
+  const inAccl=acclDay>=1&&acclDay<=14;
+  const gap=(typeof Model!=='undefined'&&Model.momentum)?Model.momentum(s,today).trainGap:null;
+  const deload=(typeof Model!=='undefined'&&Model.deloadFactor)?Model.deloadFactor(s,today):1;
+  return {have:true,start,days,acclDay,inAccl,gap,deload,
+    pre:days>0&&days<=7};
 }
 /* Athletic trainer: recurring-soreness pattern — preparation, never diagnosis */
 function bodyRead(s=S,today=todayISO()){
@@ -3838,7 +3891,9 @@ function rToday(){
   $('#v-today').innerHTML=`
   ${typeof captureStripHTML==='function'?captureStripHTML():''}
   ${typeof scriptCardHTML==='function'?scriptCardHTML():''}
+  ${typeof returnCardHTML==='function'?returnCardHTML():''}
   ${typeof recordCardHTML==='function'?recordCardHTML():''}
+  ${typeof testDayCardHTML==='function'?testDayCardHTML():''}
   ${typeof cutRiskCardHTML==='function'?cutRiskCardHTML():''}
   ${typeof statusCardHTML==='function'?statusCardHTML():''}
   <details id="todayMore" style="margin-top:10px"><summary style="cursor:pointer;font-size:12px;color:var(--cyan);padding:8px 2px">Everything else &rsaquo;</summary>
@@ -4559,6 +4614,43 @@ function scriptCardHTML(){
     ${!sc.next&&!sc.restDay?'<div class="note" style="margin-top:8px;color:var(--green)">That\'s the day. Nothing else is required.</div>':''}
   </div>`;
 }
+/* ===== v7.76 TEST DAY + RETURN TO PRACTICE ===== */
+function testDayCardHTML(){
+  if(typeof testPriority!=='function') return '';
+  const tp=testPriority(S);
+  if(tp.allGood) return '';
+  const rows=tp.need.map(r=>{
+    const col=r.priority===3?'var(--red)':'var(--amber)';
+    const state=!r.have?'never logged':r.estimated?'ESTIMATE only':'stale ('+Math.round(r.age/30)+' months)';
+    return `<div style="border-top:1px solid var(--line);padding:8px 0">
+      <div class="row" style="align-items:center;gap:6px"><b style="font-size:13px">${esc(r.name)}</b>
+        <span class="grow"></span><span class="pill" style="font-size:9.5px;border-color:${col};color:${col}">${esc(state)}</span>
+        <span class="note" style="margin:0">${r.mins}m</span></div>
+      <div class="note" style="margin:4px 0 0">${esc(r.unlocks)}</div></div>`;}).join('');
+  return `<div class="card" style="border-color:#3f4a1f"><h3>Test day <span class="r">${tp.need.length} numbers · about ${tp.mins} minutes</span></h3>
+    <div class="note" style="margin:0">One session on fresh legs replaces every guess below. Same shoes, same surface, best of three with full recovery — conditions are part of the measurement.</div>
+    ${rows}
+    <div class="note" style="margin-top:8px;font-style:normal;color:var(--cyan)">Do it BEFORE the 28th. Once practice starts you will never again have fresh legs on a free morning.</div></div>`;
+}
+function returnCardHTML(){
+  if(typeof returnRead!=='function') return '';
+  const r=returnRead(S); if(!r.have) return '';
+  if(r.pre){
+    return `<div class="card" style="border-color:#294551;background:linear-gradient(150deg,rgba(90,169,214,.12),var(--card) 60%)">
+      <h3>First practice in ${r.days} day${r.days===1?'':'s'} <span class="r">${esc(fmtD(r.start))}</span></h3>
+      <div class="note" style="margin:0;font-style:normal">Two things stack against you on day one: time off, and Vegas heat you are not acclimatised to. Both are survivable and both are planned for.</div>
+      <div class="note" style="margin-top:6px">· Ramp now — easy running and movement each of the next ${r.days} day${r.days===1?'':'s'}, not a max-effort session. Loads come back at ${Math.round(r.deload*100)}% while you re-enter.<br>
+      · Hydrate the day BEFORE, not just the morning of.<br>
+      · The first 14 practice days are the heat-acclimatisation period — that standard applies no matter how fit you are, and it exists because heat illness kills fit athletes too.<br>
+      · Sickle-cell trait is negative on your record, which rules out one specific catastrophic risk in early conditioning. It does not rule out heat illness.</div>
+      <div class="note" style="margin-top:6px;font-style:normal;color:var(--amber)">If you feel dizzy, stop sweating, get a headache or your legs go weak — stop and tell someone immediately. That is not toughness, it is a medical emergency in the making.</div></div>`;
+  }
+  if(r.inAccl){
+    return `<div class="card" style="border-color:#294551"><h3>Heat acclimatisation · day ${r.acclDay} of 14 <span class="r">the window that protects you</span></h3>
+      <div class="note" style="margin:0">Days 1–5 are single-practice days, helmets only for the first two, no more than 3 hours in a day, and a 3-hour break before any walk-through. The standard applies to everyone regardless of conditioning.</div></div>`;
+  }
+  return '';
+}
 /* ===== v7.75 PROVENANCE — what is measured vs what is guessed =====
    Owner audit: the 40 was an ESTIMATE reasoned from lifts and bodyweight, yet the app converted
    it to a laser equivalent and compared it to D1 percentiles as though it were tested. Every
@@ -5142,6 +5234,14 @@ function benchTable(pos='LB',s=S){
     const val=['squat','bench'].includes(k)?(Math.max(s.prs[k]||0,(mom.bestE1rm&&mom.bestE1rm[k])||0)||null):g.latest(k);
     const pg=Model.percentileGap(k,val,pos,Model.sprintTiming(s,k));
     if(val==null||!pg) return {label,unit,prov,untested:true};
+    /* v7.76 VERIFICATION GATE: a percentile is a claim about a MEASUREMENT. If the underlying
+       number was estimated or is stale, the app shows the value and states why it cannot make
+       the claim — rather than printing a tier off a guess. Lifts are excluded: those come from
+       the PR/e1RM path, which has its own provenance. */
+    const vf=(typeof metricVerified==='function'&&!['squat','bench'].includes(k))
+      ? metricVerified(s,k) : {ok:true};
+    if(vf.have&&!vf.ok) return {label,unit,val,prov,unverified:true,why:vf.why,
+      tier:'UNVERIFIED',gapText:`no percentile from a number that was ${vf.why} — get it measured and this fills in`};
     const gapText=(pg.chase?`${pg.gap}${unit==='s'?'s':' '+unit} to ${pg.chase}`:'P90 hit')+(pg.laserEquiv?` · ${val}s hand ≈ ${pg.laserEquiv}s laser`:'');
     return {label,unit,val,tier:pg.tier,gapText,prov};
   });
@@ -5244,6 +5344,7 @@ function rTrack(){
   </div>
   <div class="card">
     <h3>D1 Benchmarks <span class="r">senior recruit · <button class="btn sm ${(S.settings.benchPos||'LB')==='LB'?'amber':'ghost'}" onclick="S.settings.benchPos='LB';save();rTrack()">LB</button> <button class="btn sm ${(S.settings.benchPos||'LB')==='RB'?'amber':'ghost'}" onclick="S.settings.benchPos='RB';save();rTrack()">RB</button></span></h3>
+    ${(mt=>mt.have?`<div class="note" style="margin:0 0 8px;font-style:normal;border-left:2px solid var(--cyan);padding-left:8px">These compare you to <b>senior</b> recruits who are done growing. You are at <b>${mt.pah}% of projected adult height</b> — ${esc(mt.label)} — with roughly <b>${Math.max(0,Math.round((mt.predAdult-mt.ht)*10)/10)}"</b> of growth still ahead. The gaps below are real and they are shown straight, but they are gaps between a 14-year-old mid-spurt and a finished 18-year-old. Read them as distance to cover, not as a verdict.</div>`:'')(typeof maturityRead==='function'?maturityRead(S):{have:false})}
     <div class="note" style="margin:0 0 4px;color:var(--faint)">You are recruited as RB/LB — the position gate is sophomore film. LB bars are much heavier; check both, believe neither exclusively.</div>
     <div class="note">Where you'd stack up against a <b>senior</b> D1 linebacker recruit — P50≈FCS, P75≈G5, P90≈Power-4. You're 14 with a 4-year runway, so gaps here are the destination bar, not a freshman scorecard (the radar above is your on-track measure for this year).</div>
     ${(rows=>`<table><tr><th>Metric</th><th>You</th><th>Tier</th><th>To next</th></tr>
