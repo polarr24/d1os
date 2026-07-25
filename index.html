@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.69 -->
+<!DOCTYPE html><!-- d1os v7.70 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1331,6 +1331,35 @@ const MED_ITEMS=[
   {k:'vitd', label:'Vitamin D', opts:['done','not yet'], deep:null,
    why:'Commonly low even in sunny climates; ask at the same blood draw as ferritin.'}
 ];
+/* ===== v7.70 PROTOCOLS — the research made executable =====
+   Every finding that came with a DOSE becomes a tracked protocol instead of a paragraph.
+   One primitive, seven protocols: each carries its weekly dose, the evidence behind it (with the
+   caveat intact), and how to actually do it. Adherence is tracked because for the prevention
+   programs adherence IS the effect — a program done twice is worth nothing. */
+const PROTOCOLS=[
+  {id:'neck',cat:'protect',name:'Neck — 4-way',per:2,mins:6,
+   why:'About 5% lower concussion odds per pound of neck strength; a cervical program cut concussions ~45% in male rugby. Evidence is limited and does not cover every sport — consensus says train it anyway.',
+   how:'Banded or manual 4-way: flexion, extension, both sides. 2×10 slow controlled reps each. No ballistic movement.'},
+  {id:'nmt',cat:'protect',name:'Neuromuscular prep (ACL)',per:3,mins:10,
+   why:'~42% lower injury risk in youth athletes across 16 trials; non-contact ACL reductions of 64–73%. Programs work when they are multi-part and consistent — adherence is the whole ballgame.',
+   how:'At least three types: jump-landing technique (soft, knees out), single-leg balance, plyometrics, core. Do it as the warm-up, not an extra.'},
+  {id:'ham',cat:'protect',name:'Hamstring eccentrics',per:2,mins:8,
+   why:'Conditionally recommended: the famous ~51% figure was methodologically challenged and is now considered inconclusive. Eccentrics PLUS sprinting and technique beat any of them alone (56–94%).',
+   how:'2–3 sets × 4–6 slow lowers. End the set the moment you can no longer control the descent.'},
+  {id:'tendon',cat:'build',name:'Tendon isometrics',per:3,mins:8,
+   why:'Tendon adapts slower than muscle and detrains faster — stiffness fell back to untrained levels after two months off. This is the growth-spurt knee and heel answer.',
+   how:'~5 sets × 4 holds at about 90% of an isometric max, roughly 3 seconds each. Heavy and slow. This is not jumping.'},
+  {id:'decel',cat:'build',name:'Deceleration / braking',per:2,mins:10,
+   why:'Athletes with faster change-of-direction times produce greater braking force in the step before the cut. Almost nobody trains stopping — and for a back, the cut is the position.',
+   how:'Sprint-to-stop from build-ups, lateral shuffle-to-stop, single-leg landings. BOTH legs — asymmetry costs performance and raises risk. Quality over volume.'},
+  {id:'img',cat:'mind',name:'Imagery',per:3,mins:10,
+   why:'Imagery averages about g=0.75 across studies, strongest at ~10 minutes, 3×/week, sustained near 100 days. Honest caveat: under the strictest designs the effect loses significance — cheap and worth doing, not a guarantee.',
+   how:'First-person, full speed, real opponents. Include the mistake and the fix, not just highlights.'},
+  {id:'light',cat:'recover',name:'Morning light',per:7,mins:10,
+   why:'The adolescent clock runs up to ~2 hours late and keeps making sleep hormones until around 9:30am. Morning light produced measurable phase advances — this pulls bedtime earlier without willpower.',
+   how:'10 minutes of OUTDOOR light within about 30 minutes of waking. Overcast still counts; through a window does not.'}
+];
+const PROTO_CATS={protect:'Protect',build:'Build',mind:'Mind',recover:'Recover'};
 const MATURITY={
   err:2.0, // inches, honest uncertainty on a mid-parental estimate
   bands:[
@@ -2777,6 +2806,59 @@ function maturityRead(s=S){
   return {have:true,ht,d:h.d,predAdult,pah,lo,hi,band:b.key,label:b.label,read:b.read,
           err:MATURITY.err,boneWindow:(b.key==='pre'||b.key==='circa')};
 }
+/* ===== v7.70 PROTOCOL ADHERENCE — descriptive, dose-aware =====
+   For the prevention protocols, adherence IS the effect: a program done twice produces nothing.
+   So the app reports dose-met, never a score, and never nags more than once per protocol. */
+function protocolRead(s=S,today=todayISO()){
+  const items=(typeof PROTOCOLS!=='undefined')?PROTOCOLS:[];
+  const evs=(s.events||[]).filter(e=>e.type==='proto'&&e.meta&&e.meta.id);
+  const rows=items.map(p=>{
+    const mine=evs.filter(e=>e.meta.id===p.id);
+    const wk=mine.filter(e=>daysBetween(e.d,today)<7).length;
+    const days=[...new Set(mine.map(e=>e.d))].sort();
+    const last=days.length?days[days.length-1]:null;
+    const since=last?daysBetween(last,today):null;
+    return {...p,wk,last,since,met:wk>=p.per,pct:p.per?Math.min(1,wk/p.per):0,ever:mine.length};
+  });
+  const prot=rows.filter(r=>r.cat==='protect');
+  return {rows,
+    met:rows.filter(r=>r.met).length,total:rows.length,
+    protectMet:prot.filter(r=>r.met).length,protectTotal:prot.length,
+    minutesLeft:rows.reduce((a,r)=>a+Math.max(0,r.per-r.wk)*r.mins,0),
+    coldest:rows.filter(r=>!r.met).sort((a,b)=>((b.since==null?999:b.since)-(a.since==null?999:a.since)))[0]||null};
+}
+/* Age from class year — used only for the specialization ceiling, never for benchmarking. */
+function athleteAge(s=S,today=todayISO()){
+  const cls=(s.profile&&s.profile.classOf)||null; if(!cls) return null;
+  return 18-(cls-(+String(today).slice(0,4)));
+}
+/* Specialization ceiling: organised-sport hours per week should not exceed age in years, and
+   stay under ~16h. Exceeding the hours-vs-age rule carries significantly higher serious
+   overuse-injury risk. Descriptive flag on logged hours — never a training prescription. */
+function specializationRead(s=S,today=todayISO()){
+  const age=athleteAge(s,today);
+  const wk=(s.metrics||[]).filter(m=>m.key==='hrs'&&m.val!=null&&daysBetween(m.d,today)<7);
+  if(!wk.length) return {have:false,age};
+  const hrs=+wk.reduce((a,b)=>a+(+b.val||0),0).toFixed(1);
+  return {have:true,age,hrs,n:wk.length,
+    overAge:age!=null&&hrs>age,over16:hrs>16,
+    ok:!(age!=null&&hrs>age)&&hrs<=16};
+}
+/* Overtraining early warning: mood moves BEFORE performance. Over 70% of athletes with
+   non-functional overreaching reported the emotional change themselves. Purely descriptive —
+   it reports a run of low energy against maintained training, and never diagnoses anything. */
+function moodWarn(s=S,today=todayISO()){
+  const en=(s.metrics||[]).filter(m=>m.key==='energy'&&m.val!=null)
+    .sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:((a.t||0)-(b.t||0)));
+  if(en.length<6) return {have:false,n:en.length,need:6};
+  const last=en.slice(-3), prior=en.slice(-9,-3);
+  if(prior.length<3) return {have:false,n:en.length,need:6};
+  const avg=a=>a.reduce((x,y)=>x+(+y.val||0),0)/a.length;
+  const recent=+avg(last).toFixed(2), base=+avg(prior).toFixed(2);
+  const sets=(s.lifts||[]).filter(l=>daysBetween(l.d,today)<7).length;
+  return {have:true,recent,base,drop:+(base-recent).toFixed(2),sets,
+    flag:(base-recent)>=1&&recent<=2.7&&sets>0};
+}
 /* v7.66 medical baseline — latest recorded status per item. Append-only events, correctable by
    a later entry. The app records WHAT WAS TESTED and what the athlete was told; it never
    diagnoses, never interprets a result, and never replaces a clinician. */
@@ -3786,6 +3868,8 @@ function rTrain(){
   </div>
   ${typeof sessionClockHTML==='function'?sessionClockHTML():''}
   ${typeof heatCardHTML==='function'?heatCardHTML():''}
+  ${typeof protocolCardHTML==='function'?protocolCardHTML():''}
+  ${typeof loadGuardHTML==='function'?loadGuardHTML():''}
   ${typeof trainKnowHTML==='function'?trainKnowHTML():''}
   ${typeof fullDayCard==='function'?fullDayCard():''}
   ${typeof plyoCardHTML==='function'?plyoCardHTML():''}
@@ -4216,6 +4300,52 @@ function cutRiskCardHTML(){
     <h3 style="color:var(--red)">Weight is dropping fast <span class="r">safety, not performance</span></h3>
     <div class="note" style="margin:0;font-style:normal">You're down from <b>${c.from} lb</b> to <b>${c.to} lb</b> over ${c.days} day${c.days===1?'':'s'} — about <b>${c.pctWk}% per week</b>. The high-school wrestling standard caps weight loss at <b>1.5% of bodyweight per week</b>, and cutting weight during puberty is associated with stunted growth, plus real risks to heart rhythm, hydration and bone.</div>
     <div class="note" style="margin-top:8px;font-style:normal"><b>Tell a parent and your coach today.</b> You're still growing — the weight class should move to fit you, not the other way around. This app will never give you a weight target.</div></div>`;
+}
+/* ===== v7.70 PROTOCOLS — one tap logs a dose; adherence is the point ===== */
+function logProto(id){ logEvent('proto',{id}); save();
+  const p=(typeof PROTOCOLS!=='undefined')?PROTOCOLS.find(x=>x.id===id):null;
+  toast((p?p.name:'Protocol')+' logged ✓'); try{ RENDER[curView](); }catch(e){} }
+function protocolCardHTML(){
+  if(typeof protocolRead!=='function'||typeof PROTOCOLS==='undefined') return '';
+  const r=protocolRead(S);
+  const cats={};
+  r.rows.forEach(p=>{ (cats[p.cat]=cats[p.cat]||[]).push(p); });
+  const body=Object.keys(cats).map(c=>{
+    const rows=cats[c].map(p=>{
+      const col=p.met?'var(--green)':p.wk>0?'var(--amber)':'var(--faint)';
+      const stale=p.since==null?'never':p.since===0?'today':p.since+'d ago';
+      return `<div style="border-top:1px solid var(--line);padding:8px 0">
+        <div class="row" style="align-items:center;gap:6px">
+          <b style="font-size:13px">${esc(p.name)}</b>
+          <span class="grow"></span>
+          <span class="mono" style="font-size:12px;color:${col}">${p.wk}/${p.per} this week</span>
+          <button class="btn sm ${p.met?'ghost':'amber'}" onclick="logProto('${p.id}')">+ ${p.mins}m</button></div>
+        <div class="note" style="margin:4px 0 0">Last: ${esc(stale)} · ${esc(p.how)}</div>
+        <details style="margin-top:4px"><summary style="cursor:pointer;font-size:11px;color:var(--cyan)">why this is in the list</summary><div class="note" style="margin-top:4px;font-style:normal">${esc(p.why)}</div></details>
+      </div>`;}).join('');
+    return `<div style="margin-top:10px"><div class="k" style="font-size:11px;letter-spacing:.08em;color:var(--faint)">${esc(PROTO_CATS[c]||c)}</div>${rows}</div>`;
+  }).join('');
+  const head=r.protectMet===r.protectTotal
+    ? `<div class="note" style="margin:0;color:var(--green)">Every protective protocol met this week. This is the part that shows up as availability in November.</div>`
+    : `<div class="note" style="margin:0">${r.protectMet}/${r.protectTotal} protective protocols met this week · about ${r.minutesLeft} minutes left to close the whole board. For the prevention work, adherence <b>is</b> the effect — a program done twice a season does nothing.</div>`;
+  return `<div class="card"><h3>Protocols <span class="r">${r.met}/${r.total} dosed this week</span></h3>
+    ${head}${body}</div>`;
+}
+/* specialization ceiling + mood early-warning — both descriptive */
+function loadGuardHTML(){
+  const sp=(typeof specializationRead==='function')?specializationRead(S):{have:false};
+  const mw=(typeof moodWarn==='function')?moodWarn(S):{have:false};
+  if(!sp.have&&!mw.have&&!(sp.age)) return '';
+  const spBlock=sp.have
+    ? `<div class="row" style="align-items:center;gap:8px"><div><div class="mono" style="font-size:20px;font-weight:800;color:${sp.ok?'var(--green)':'var(--amber)'}">${sp.hrs}h</div><div class="note" style="margin:0">organised sport · 7d</div></div>
+       <div class="grow"><div class="note" style="margin:0;font-style:normal">${sp.overAge?`<b style="color:var(--amber)">Above the hours-vs-age line (${sp.age}h).</b> Exceeding it is linked to significantly higher serious overuse-injury risk.`:sp.over16?'<b style="color:var(--amber)">Above the ~16h/week ceiling.</b>':`Under the age line (${sp.age}h) and the 16h ceiling — where you want to be.`}</div></div></div>`
+    : `<div class="note" style="margin:0">Log weekly organised-sport hours to track the ceiling: hours per week should not exceed your age in years (${sp.age||'—'}), and stay under ~16h.</div>
+       <div class="row" style="margin-top:6px"><button class="btn sm grow" onclick="numOpen('hrs','Organised sport hours this week',1,10)">Log weekly hours</button></div>`;
+  const mwBlock=mw.have&&mw.flag
+    ? `<div class="note" style="margin-top:8px;font-style:normal;color:var(--amber)"><b>Energy has dropped ${mw.drop} points</b> (${mw.base} → ${mw.recent}) while training continued. Mood moves before performance does — over 70% of athletes who overreached noticed it themselves first. Not a diagnosis: it's a prompt to look at sleep, fuel and load this week, and to say something if it persists.</div>`
+    : '';
+  return `<div class="card"><h3>Load ceiling <span class="r">the line most kids cross</span></h3>${spBlock}${mwBlock}
+    ${typeof deepNote==='function'?deepNote('spec')+deepNote('otr'):''}</div>`;
 }
 /* ===== v7.66 MEDICAL BASELINE — the record that gets lost between seasons =====
    Records what was TESTED, never a diagnosis. This is the card you hand a trainer. */
