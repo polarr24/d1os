@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.71 -->
+<!DOCTYPE html><!-- d1os v7.72 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -2135,11 +2135,15 @@ const Model={
     const day=iso=>s.checkins[iso]||null;
     const full=iso=>{ const c=day(iso); return !!c&&c.every(Boolean); };
     const three=iso=>{ const c=day(iso); return !!c&&c.filter(Boolean).length===3; };
-    let streak=0, shields=[], d=today;
-    if(!full(d)&&!three(d)) d=addDays(d,-1); // today in progress doesn't count against you
+    /* v7.72: an AWAY day (marked, off routine — a night at a cousin's) holds the chain on one
+       honest box instead of four. Marked days only, minimum one real box, so nothing is invented. */
+    const away=iso=>{ const c=day(iso); return !!c&&c.some(Boolean)&&(typeof isAway==='function')&&isAway(s,iso); };
+    let streak=0, shields=[], awayDays=[], d=today;
+    if(!full(d)&&!three(d)&&!away(d)) d=addDays(d,-1); // today in progress doesn't count against you
     while(true){
       if(full(d)){ streak++; }
       else if(three(d) && !shields.some(x=>daysBetween(d,x)<7)){ shields.push(d); streak++; }
+      else if(away(d)){ awayDays.push(d); streak++; }
       else break;
       d=addDays(d,-1);
     }
@@ -2154,7 +2158,7 @@ const Model={
     // gap = days since last day that counted (for comeback rule)
     const dates=Object.keys(s.checkins).filter(k=>full(k)||three(k)).sort();
     const lastGood=dates.at(-1)||null;
-    return {streak, shieldsUsed:shields.length, rate7:s7.rate, rate30:s30.rate,
+    return {streak, shieldsUsed:shields.length, awayUsed:awayDays.length, rate7:s7.rate, rate30:s30.rate,
             skips30:s30.skips, days30:s30.tot,
             gapDays:lastGood?Math.max(0,daysBetween(lastGood,today)-1):null,
             everComplete:dates.length>0};
@@ -2806,6 +2810,60 @@ function maturityRead(s=S){
   return {have:true,ht,d:h.d,predAdult,pah,lo,hi,band:b.key,label:b.label,read:b.read,
           err:MATURITY.err,boneWindow:(b.key==='pre'||b.key==='circa')};
 }
+/* ===== v7.72 THE RECORD — visible progression, honestly built =====
+   Owner insight: he loves SEEING self-improvement and quits when progress feels invisible.
+   So this is a rank that rises with VERIFIED WORK BANKED — never a prediction of how good he is,
+   never a recruiting grade. It counts what actually exists in the log, and it always names the
+   single cheapest next thing, which is the whole loop that makes a rank ladder work. */
+const RECORD_TIERS=[
+  {min:0,   key:'blank',  label:'NO RECORD YET',   read:'Nothing banked. Every rank below is bought with logged work, not talent.'},
+  {min:25,  label:'ON THE BOARD',  key:'board',    read:'The record exists. Most athletes never get past this line.'},
+  {min:80,  label:'BUILDING',      key:'build',    read:'Enough history that the app can start seeing patterns in it.'},
+  {min:200, label:'REAL EVIDENCE', key:'real',     read:'Engines have what they need. This is where the app starts telling you things you did not know.'},
+  {min:450, label:'DEEP RECORD',   key:'deep',     read:'A record most college staffs would respect on sight.'},
+  {min:900, label:'FOUR-YEAR ARCHIVE',key:'arch',  read:'The thing almost nobody has: a documented four-year climb.'}
+];
+function recordRead(s=S,today=todayISO()){
+  const ck=Object.keys(s.checkins||{}).filter(d=>((s.checkins||{})[d]||[]).some(Boolean)).length;
+  const full=Object.keys(s.checkins||{}).filter(d=>((s.checkins||{})[d]||[]).every(Boolean)).length;
+  const sets=(s.lifts||[]).length, iq=(s.pushLog||[]).length;
+  const ev=t=>(s.events||[]).filter(e=>e.type===t).length;
+  const proto=ev('proto'), closeouts=ev('closeout');
+  const testKeys=['forty','vert','broad','shuttle','ten'];
+  const tested=new Set((s.metrics||[]).filter(m=>testKeys.includes(m.key)).map(m=>m.key)).size;
+  const notes=(s.notes||[]).length, clips=(s.clips||[]).length;
+  const coach=(s.coach||[]).length, core=(s.core||[]).length, games=(s.games||[]).length;
+  const parts=[
+    {k:'days',    n:ck,        w:2, label:'days logged'},
+    {k:'full',    n:full,      w:1, label:'complete days'},
+    {k:'sets',    n:sets,      w:1, label:'lift sets'},
+    {k:'iq',      n:iq,        w:1, label:'IQ reps'},
+    {k:'proto',   n:proto,     w:1, label:'protocol doses'},
+    {k:'closeout',n:closeouts, w:2, label:'nights closed out'},
+    {k:'tested',  n:tested,    w:8, label:'tests on record'},
+    {k:'clips',   n:clips,     w:4, label:'film clips tagged'},
+    {k:'coach',   n:coach,     w:4, label:'coach corrections'},
+    {k:'core',    n:core,      w:3, label:'core courses'},
+    {k:'games',   n:games,     w:5, label:'games logged'},
+    {k:'notes',   n:notes,     w:1, label:'notes'}
+  ];
+  const pts=parts.reduce((a,p)=>a+p.n*p.w,0);
+  let tier=RECORD_TIERS[0], next=null;
+  for(const t of RECORD_TIERS) if(pts>=t.min) tier=t;
+  next=RECORD_TIERS[RECORD_TIERS.indexOf(tier)+1]||null;
+  // the cheapest genuine gap — what a rank ladder needs to feel alive
+  const empties=parts.filter(p=>p.n===0).sort((a,b)=>b.w-a.w);
+  return {pts,tier,next,toNext:next?next.min-pts:0,
+    pct:next?Math.min(1,(pts-tier.min)/Math.max(1,next.min-tier.min)):1,
+    parts:parts.filter(p=>p.n>0).sort((a,b)=>(b.n*b.w)-(a.n*a.w)),
+    missing:empties.slice(0,3)};
+}
+/* ===== v7.72 AWAY DAY — the named streak-killer =====
+   Owner: "stays the night at his cousin's house and ruins the streak." A chain broken by a
+   sleepover teaches the athlete the chain is fake. An away day marked in advance (or same day)
+   lowers the bar to ONE box — real work, honestly smaller — and shields the streak. It cannot be
+   backdated onto an already-empty past day, so it can never be used to invent history. */
+function isAway(s,iso){ return (s.events||[]).some(e=>e.type==='away'&&e.d===iso); }
 /* ===== v7.70 PROTOCOL ADHERENCE — descriptive, dose-aware =====
    For the prevention protocols, adherence IS the effect: a program done twice produces nothing.
    So the app reports dose-met, never a score, and never nags more than once per protocol. */
@@ -3615,6 +3673,7 @@ function rToday(){
   const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊',prep:'🔥',earn:'🏈',film:'🎬'};
   $('#v-today').innerHTML=`
   ${typeof captureStripHTML==='function'?captureStripHTML():''}
+  ${typeof recordCardHTML==='function'?recordCardHTML():''}
   ${typeof playerCardHTML==='function'?playerCardHTML():''}
   ${typeof installCardHTML==='function'?installCardHTML():''}
   ${typeof closeoutCardHTML==='function'?closeoutCardHTML(o1rec):''}
@@ -4303,6 +4362,48 @@ function cutRiskCardHTML(){
     <div class="note" style="margin:0;font-style:normal">You're down from <b>${c.from} lb</b> to <b>${c.to} lb</b> over ${c.days} day${c.days===1?'':'s'} — about <b>${c.pctWk}% per week</b>. The high-school wrestling standard caps weight loss at <b>1.5% of bodyweight per week</b>, and cutting weight during puberty is associated with stunted growth, plus real risks to heart rhythm, hydration and bone.</div>
     <div class="note" style="margin-top:8px;font-style:normal"><b>Tell a parent and your coach today.</b> You're still growing — the weight class should move to fit you, not the other way around. This app will never give you a weight target.</div></div>`;
 }
+/* ===== v7.72 THE RECORD — the screen he opens when bored =====
+   Owner: he loves seeing self-improvement and quits when progress goes invisible. This is the
+   progression surface, built honestly: the bar rises with work BANKED, never with a guess about
+   how good he is, and it always names the cheapest next thing. */
+function recordCardHTML(){
+  if(typeof recordRead!=='function') return '';
+  const r=recordRead(S);
+  const bar=Math.round(r.pct*100);
+  const top=r.parts.slice(0,4).map(p=>`<div class="grow" style="text-align:center;min-width:0">
+    <div class="mono" style="font-size:18px;font-weight:800">${p.n}</div>
+    <div class="note" style="margin:0;font-size:10px">${esc(p.label)}</div></div>`).join('');
+  const nextUp=r.next?`<div class="note" style="margin-top:8px">
+      <b style="color:var(--cyan)">${r.toNext} points to ${esc(r.next.label)}</b> — ${esc(r.next.read)}</div>
+    <div style="height:7px;border-radius:4px;background:var(--line);overflow:hidden;margin-top:6px">
+      <div style="height:100%;width:${bar}%;background:linear-gradient(90deg,var(--cyan),var(--amber));transition:width .6s ease"></div></div>`
+    :`<div class="note" style="margin-top:8px;color:var(--green)">Top of the ladder. Now it just gets deeper.</div>`;
+  const gaps=r.missing.length?`<div class="note" style="margin-top:8px;font-style:normal">Cheapest points on the board right now: <b>${esc(r.missing.map(m=>m.label).join(' · '))}</b> — nothing logged there yet, and they're worth the most each.</div>`:'';
+  return `<div class="card" style="border-color:#3f4a1f;background:linear-gradient(150deg,rgba(201,242,78,.10),var(--card) 62%)">
+    <h3>The Record <span class="r">${esc(r.tier.label)}</span></h3>
+    <div class="row" style="align-items:center;gap:8px">
+      <div><div class="mono" style="font-size:28px;font-weight:800;color:var(--amber)" data-count="${r.pts}">${r.pts}</div>
+        <div class="note" style="margin:0">points banked</div></div>
+      <div class="grow"><div class="note" style="margin:0;font-style:normal">${esc(r.tier.read)}</div></div></div>
+    ${r.parts.length?`<div class="row" style="gap:6px;margin-top:10px;border-top:1px solid var(--line);padding-top:8px">${top}</div>`:''}
+    ${nextUp}${gaps}
+    <div class="note" style="margin-top:8px;color:var(--faint)">This is a record of work done — not a rating of how good you are. Nobody can give you these points and nobody can take them.</div></div>`;
+}
+/* ===== v7.72 AWAY DAY — the sleepover that used to kill the chain ===== */
+function awayToday(){ return (typeof isAway==='function')&&isAway(S,todayISO()); }
+function markAway(){
+  if(awayToday()){ toast('Already marked'); return; }
+  logEvent('away',{}); save(); toast('Away day — one box holds the chain ✓');
+  try{ RENDER[curView](); }catch(e){}
+}
+function awayCardHTML(){
+  try{
+    const c=ckToday(), done=c.filter(Boolean).length, on=awayToday();
+    if(done>=4) return '';
+    if(on) return `<div class="note" style="margin:6px 0 0;font-style:normal;color:var(--cyan)"><b>Away day.</b> One honest box holds the streak — ${done>0?'already got it ✓':'still need one'}. Off-routine days were never supposed to erase the work.</div>`;
+    return `<div style="text-align:right;margin-top:6px"><button class="btn sm ghost" style="font-size:10px;padding:5px 9px" onclick="markAway()">away from routine today?</button></div>`;
+  }catch(e){ return ''; }
+}
 /* ===== v7.71 CAPTURE STRIP — the fix for "opens it, doesn't log much" =====
    The Daily Four sat below six cards. An athlete who opens the app and scrolls past everything
    logs nothing, and every engine downstream starves. This puts the four taps in the first
@@ -4322,7 +4423,8 @@ function captureStripHTML(){
         <span class="grow"></span>
         <span class="mono" style="font-size:12px;color:${done===4?'var(--green)':'var(--faint)'}">${esc(msg)}</span>
         ${st>0?`<span class="pill green" style="font-size:11px">${st}d</span>`:''}</div>
-      <div class="row" style="gap:6px">${cells}</div></div>`;
+      <div class="row" style="gap:6px">${cells}</div>
+      ${typeof awayCardHTML==='function'?awayCardHTML():''}</div>`;
   }catch(e){ return ''; }
 }
 /* ===== v7.71 INSTALL PROMPT — Safari evicts un-installed site data after 7 unused days.
