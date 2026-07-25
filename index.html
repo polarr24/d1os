@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.77 -->
+<!DOCTYPE html><!-- d1os v7.78 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1840,15 +1840,17 @@ const DEFAULTS={
   recs:[],       // {id,d,kind,text,why,ev,unc,asm,outKey,win,followed,followedOn} — recommendation objects (the learning loop): every rec is a testable hypothesis, append-only
   sessions:{},   // {ISO:[bool per block]} — set-by-set execution, feeds adherence-by-block
   core:[],       // v7.41 {d,name,subj,grade,credit} — NCAA core courses, append-only; core GPA is COMPUTED
+  depth:[],      // v7.78 {d,pos,unit,note} — position + depth-chart record, append-only; the freshman question, answered over time
   games:[],      // v7.41 {d,opp,car,yds,td,tkl} — season stat line, append-only; totals are COMPUTED
   meta:{mod:{}}, // v7.32 sync bookkeeping: per-group last-write timestamps (prs/profile/settings/params)
-  _tBackfill:0   // v7.62 A.2: one-time synthetic-timestamp migration flag
+  _tBackfill:0,  // v7.62 A.2: one-time synthetic-timestamp migration flag
+  _jvDay:0       // v7.78: one-time JV game-day correction flag
 };
 if(typeof structuredClone!=='function'){ globalThis.structuredClone=o=>JSON.parse(JSON.stringify(o)); }
 /* v7.32 sync identity — MUST precede loadS(): migrate() calls normIds(), and consts do not
    hoist. (Learned the hard way: with these below, migrating real state threw in the TDZ,
    loadS() swallowed it, and a loaded phone booted looking empty.) */
-const SYNC_APPEND=['lifts','metrics','pushLog','events','reviews','notes','coach','opp','clips','body','recs','core','games'];
+const SYNC_APPEND=['lifts','metrics','pushLog','events','reviews','notes','coach','opp','clips','body','recs','core','games','depth'];
 const SYNC_KEYED=['checkins','sessions'];
 const SYNC_LWW=['profile','prs','settings','params'];
 /* deterministic entry id: content hash + nth-occurrence-of-identical-content. Two devices
@@ -1896,6 +1898,19 @@ function migrate(p){
   if(!s._tBackfill){
     (s.metrics||[]).forEach((m,i)=>{ if(m.t==null) m.t=Date.parse(m.d+'T12:00:00Z')+i; });
     s._tBackfill=1;
+  }
+  /* v7.78: the Friday game day was the OLD DEFAULT, not a decision he made — and it is wrong for
+     him. Verified from the MaxPreps JV page: JV played Thursday in 8 of 9 games in 2025 and the
+     one published 2026 fixture is a Thursday. Correct it ONCE, only if it is still sitting on the
+     old default, and leave a record so it is never mistaken for the app overriding a real choice.
+     If he deliberately sets it back, the flag stops this ever running again. */
+  if(!s._jvDay){
+    if(s.settings&&s.settings.gameDay===5){
+      s.settings.gameDay=4;
+      (s.events=s.events||[]).push({d:todayISO(),type:'note',meta:{sys:'gameday',from:5,to:4,
+        why:'JV plays Thursday (verified from the team JV schedule). Change it in TRACK if your team differs.'}});
+    }
+    s._jvDay=1;
   }
   normIds(s); // v7.32: persistent deterministic entry ids (sync identity)
   return s;
@@ -2944,6 +2959,25 @@ function maturityRead(s=S){
   const b=MATURITY.bands.find(x=>pah<=x.max)||MATURITY.bands[MATURITY.bands.length-1];
   return {have:true,ht,d:h.d,predAdult,pah,lo,hi,band:b.key,label:b.label,read:b.read,
           err:MATURITY.err,boneWindow:(b.key==='pre'||b.key==='circa')};
+}
+/* ===== v7.78 DEPTH CHART — the freshman question, answered over time =====
+   Positions and reps get decided in the first weeks of practice and then nobody writes any of it
+   down. This is the record: what he was listed at, which unit, and how it moved. Descriptive —
+   it reports the trajectory, never predicts playing time. */
+const UNITS=[{k:'1',label:'1s'},{k:'2',label:'2s'},{k:'3',label:'3s'},{k:'st',label:'Special teams'},{k:'scout',label:'Scout team'}];
+function depthRead(s=S,today=todayISO()){
+  const rows=[...(s.depth||[])].sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:((a.t||0)-(b.t||0)));
+  if(!rows.length) return {have:false,rows:[]};
+  const cur=rows[rows.length-1];
+  const byPos={};
+  rows.forEach(r=>{ (byPos[r.pos]=byPos[r.pos]||[]).push(r); });
+  const rank=u=>({'1':1,'2':2,'3':3,'st':2.5,'scout':4})[u]??9;
+  const samePos=rows.filter(r=>r.pos===cur.pos);
+  const prev=samePos.length>1?samePos[samePos.length-2]:null;
+  const moved=prev?(rank(cur.unit)<rank(prev.unit)?'up':rank(cur.unit)>rank(prev.unit)?'down':'same'):null;
+  const st=rows.some(r=>r.unit==='st');
+  return {have:true,rows,cur,prev,moved,positions:Object.keys(byPos),st,
+    days:daysBetween(rows[0].d,today)};
 }
 /* ===== v7.77 CURRICULUM ENGINE =====
    A list is not a curriculum. What makes it one: prerequisites gate what is available, exactly
@@ -4004,6 +4038,7 @@ function rToday(){
   ${typeof captureStripHTML==='function'?captureStripHTML():''}
   ${typeof scriptCardHTML==='function'?scriptCardHTML():''}
   ${typeof returnCardHTML==='function'?returnCardHTML():''}
+  ${typeof depthCardHTML==='function'?depthCardHTML():''}
   ${typeof curriculumCardHTML==='function'?curriculumCardHTML():''}
   ${typeof recordCardHTML==='function'?recordCardHTML():''}
   ${typeof testDayCardHTML==='function'?testDayCardHTML():''}
@@ -4726,6 +4761,49 @@ function scriptCardHTML(){
     ${rows}
     ${!sc.next&&!sc.restDay?'<div class="note" style="margin-top:8px;color:var(--green)">That\'s the day. Nothing else is required.</div>':''}
   </div>`;
+}
+/* ===== v7.78 DEPTH CHART — capture what practice decides ===== */
+let pendDepth=null;
+function depthOpen(){ pendDepth={pos:null,unit:null}; rToday(); }
+function depthSet(f,v){ if(pendDepth){ pendDepth[f]=v; rToday(); } }
+function depthCancel(){ pendDepth=null; rToday(); }
+function depthSave(){
+  if(!pendDepth||!pendDepth.pos||!pendDepth.unit){ toast('Position and unit both'); return; }
+  (S.depth=S.depth||[]).push({d:todayISO(),pos:pendDepth.pos,unit:pendDepth.unit,t:Date.now()});
+  pendDepth=null; save(); toast('Logged — this is the record nobody else keeps');
+  try{ RENDER[curView](); }catch(e){}
+}
+function depthCardHTML(){
+  if(typeof depthRead!=='function') return '';
+  const d=depthRead(S);
+  const POS=['RB','LB','ST','WR','DB','TE','OL','DL'];
+  if(pendDepth){
+    const pick=(f,v)=>`<button class="btn sm ${pendDepth[f]===v?'amber':'ghost'}" onclick="depthSet('${f}','${v}')">${esc(v==='1'?'1s':v==='2'?'2s':v==='3'?'3s':v==='st'?'Special teams':v==='scout'?'Scout team':v)}</button>`;
+    return `<div class="card" style="border-color:#3f4a1f"><h3>Where did they put you? <span class="r">today</span></h3>
+      <div class="note" style="margin:0 0 6px;font-style:normal">Position</div>
+      <div class="row" style="gap:6px;flex-wrap:wrap">${POS.map(p=>pick('pos',p)).join('')}</div>
+      <div class="note" style="margin:10px 0 6px;font-style:normal">Unit</div>
+      <div class="row" style="gap:6px;flex-wrap:wrap">${UNITS.map(u=>pick('unit',u.k)).join('')}</div>
+      <div class="row" style="gap:6px;margin-top:12px">
+        <button class="btn grow amber" onclick="depthSave()">Log it</button>
+        <button class="btn sm ghost" onclick="depthCancel()">Cancel</button></div></div>`;
+  }
+  if(!d.have){
+    const wk=(typeof returnRead==='function')?returnRead(S):{have:false};
+    if(!(wk.have&&(wk.days<=7||wk.inAccl))) return '';   // only surface around practice starting
+    return `<div class="card" style="border-color:#294551"><h3>Depth chart <span class="r">nobody writes this down</span></h3>
+      <div class="note" style="margin:0;font-style:normal">Positions and reps get decided in the first two weeks and then everyone relies on memory. Log where they put you each time it changes — by October it is the only honest record of your season, and it is what tells you whether the work is moving you.</div>
+      <button class="btn amber" style="width:100%;margin-top:10px" onclick="depthOpen()">Log today's position + unit</button></div>`;
+  }
+  const label=u=>(UNITS.find(x=>x.k===u)||{label:u}).label;
+  const arrow=d.moved==='up'?'<span style="color:var(--green)">▲ moved up</span>':d.moved==='down'?'<span style="color:var(--amber)">▼ moved down</span>':d.moved==='same'?'<span style="color:var(--faint)">holding</span>':'';
+  const hist=d.rows.slice(-4).reverse().map(r=>`<div class="note" style="margin:2px 0 0">${esc(fmtD(r.d))} · <b>${esc(r.pos)}</b> ${esc(label(r.unit))}</div>`).join('');
+  return `<div class="card"><h3>Depth chart <span class="r">${esc(d.cur.pos)} · ${esc(label(d.cur.unit))}</span></h3>
+    <div class="row" style="align-items:center;gap:8px">
+      <div><div class="mono" style="font-size:20px;font-weight:800">${esc(d.cur.pos)}</div><div class="note" style="margin:0">${esc(label(d.cur.unit))}</div></div>
+      <div class="grow"><div class="note" style="margin:0;font-style:normal">${arrow||'First entry on the record.'}${d.st?' · on special teams — that is the fastest freshman path to real reps':''}</div></div></div>
+    <div style="margin-top:8px;border-top:1px solid var(--line);padding-top:6px">${hist}</div>
+    <button class="btn sm ghost" style="width:100%;margin-top:8px" onclick="depthOpen()">Log a change</button></div>`;
 }
 /* ===== v7.77 CURRICULUM — one lesson at a time, four years deep ===== */
 function markLearned(id){ logEvent('learn',{id}); save();
