@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.63 -->
+<!DOCTYPE html><!-- d1os v7.65 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1310,6 +1310,53 @@ const PEAK14={start:'2026-07-13',testA:'2026-07-13',testB:'2026-07-25',end:'2026
   tests:[['forty','40-yard (s)','s',true,0.05,4.9],['vert','Vertical (in)','in',false,0.5,25],['broad','Broad jump (in)','in',false,1,100],['wt','Bodyweight (lb)','lb',false,1,160]],
   protocol:['Full warm-up: 10 min + 3–4 build-up sprints','40: hand-timed, best of 3, full rest between','Vert: 3 attempts, best counts','Broad: 3 attempts, heel-to-line','Same surface, same shoes, same time of day on retest — conditions are part of the measurement']};
 
+/* ============ v7.65 MATURATION + DEEP-DOMAIN KNOWLEDGE ============
+   Everything here is descriptive and sourced (CLAUDE-PROJECT-KIT/DEEP-DOMAIN-RESEARCH*.md).
+   The maturity read uses the TANNER MID-PARENTAL estimate — named honestly, because it is
+   NOT Khamis-Roche (which needs published coefficient tables we do not ship). Mid-parental
+   carries roughly ±2in of error, so the app reports a BAND and never a single adult height.
+   Purpose is context for the benchmark gaps, never a forecast of what he will become. */
+const MATURITY={
+  err:2.0, // inches, honest uncertainty on a mid-parental estimate
+  bands:[
+    {max:87, key:'pre',   label:'PRE-PHV',   read:'growth spurt still ahead — the neural window: sprint, jump, skill'},
+    {max:95, key:'circa', label:'CIRCA-PHV', read:'in the spurt — highest injury-risk window AND the bone-building window'},
+    {max:999,key:'post',  label:'POST-PHV',  read:'spurt largely complete — muscular training pays compounding returns now'}
+  ]
+};
+/* Educational content. Each states the finding, the number, and the caveat — the caveat is
+   not optional, it is what separates this from every other app's motivational copy. */
+const DEEP={
+  bone:{t:'The bone bank — a window that closes',
+    b:'About a third of your adult bone mass is laid down in the four years around your growth spurt (~39% of total-body mineral across that window), and total-body bone plateaus roughly two years after it. Bone answers best to impact — jumping beats lifting for bone in adolescents. The jumping, sprinting and cutting you do NOW is permanent structure you cannot come back and build later. This is the single strongest reason these four years are not interchangeable with any other four.'},
+  tendon:{t:'Tendon runs on a different clock than muscle',
+    b:'Tendon adapts slower than muscle and detrains faster — stiffness fell back to untrained levels after two months off. That lag is why knees and heels hurt during a growth spurt: bone lengthens, muscle catches up, tendon is last in line. The dose that actually builds tendon is heavy and slow, not more jumping: about 5 sets × 4 holds at ~90% of an isometric max, ~3 seconds each. Most programs never separate the two.'},
+  decel:{t:'Brakes, not just engine',
+    b:"Almost everyone trains acceleration and top speed. Almost nobody trains stopping — yet athletes with faster change-of-direction times produce greater braking force in the step before the cut. For a back, the cut IS the position. Braking has to be built on BOTH legs; asymmetry costs performance and raises injury risk."},
+  mvel:{t:'Sprinting is the hamstring insurance',
+    b:'Sprinting is both the main cause of hamstring injury and its main protection — and the relationship is non-linear: too little exposure and too much both raise risk. Hitting >95% of max velocity at least once in training beat topping out at 85%. Consistency matters more than volume; long pauses are the danger. Sprint + eccentric work + technique together produced far larger reductions than any one alone.'},
+  neck:{t:'The cheapest protection nobody programs',
+    b:'Stronger, thicker necks reduce how fast the head accelerates when it gets hit. Reported: about 5% lower concussion odds per pound of neck strength, and a cervical program cut concussions ~45% in male rugby. Evidence quality is limited and does not extend to every sport — but the consensus is to train it anyway. Four-way neck, twice a week.'},
+  rsa:{t:'Condition like the game, not like a punishment',
+    b:'Football is repeated short maximal efforts with incomplete recovery — not distance running. Repeated-sprint work: 3–4 sets × 6–7 all-out efforts of 3–7 seconds, ~20s between reps, 2.5–4 min between sets. Game-demand ratios run about 2:1 work:rest for skill positions, 1:1 for linemen.'},
+  circ:{t:"You're not lazy — your clock moved",
+    b:'At puberty the adolescent body clock shifts LATER by up to about two hours; the teenage brain keeps making sleep hormones until roughly 9:30am while school starts at 8. Teens need 8–10 hours and the average US high schooler gets about 7. So the lever is not "try harder to fall asleep" — it is morning light, a consistent wake time, and dark evenings, which pull the clock earlier.'},
+  roster:{t:'The math of a roster spot just changed',
+    b:'Under the House settlement the NCAA replaced scholarship caps with hard ROSTER limits — football moves to 105, and every spot now counts against it. Walk-ons are not banned, but when a program can fund all 105 there is little reason to give a spot away unpaid, so preferred-walk-on paths narrowed. The offset: scholarships no longer have to be full rides, so partial offers are real offers. Plan for evaluation early rather than a late walk-on rescue.'},
+  spec:{t:'Multi-sport is the protective choice',
+    b:'Hours of organized sport per week should not exceed your age in years, total organized training stays under about 16h/week, one competitive sport per season, and at least 3 non-consecutive months per year off any one sport. Exceeding the hours-vs-age rule carries significantly higher serious overuse-injury risk. Wrestling in winter and track in spring already satisfies this — and track is the most common second sport among college football signees.'},
+  ten:{t:'The first ten yards say more than the forty',
+    b:'Most football plays last under five seconds, so short-area burst outruns top-end speed as a predictor of football speed — the 10-yard split is what tells a scout whether you are a two-stepper or a strider. It is also the fairer number while you are still growing into your top end.'},
+  img:{t:'Mental reps have a dose',
+    b:'Imagery and psychological skills training show moderate-to-large average effects (imagery about g=0.75), with the strongest gains around 10 minutes, 3×/week, sustained across ~100 days. Honest caveat: when weaker study designs are removed the effects lose significance — so treat this as cheap and worth doing, not as a guarantee.'},
+  nil:{t:'NIL is legal for you in Nevada',
+    b:'The NIAA approved NIL language making Nevada one of the states permitting high-school name/image/likeness without forfeiting amateur status, with the usual excluded categories (adult entertainment, tobacco, cannabis, controlled substances, weapons, gambling). Worth knowing; worth nothing until there is something real to sign.'},
+  acl:{t:'Prevention programs actually work',
+    b:'Neuromuscular training programs cut injury risk roughly 42% in youth athletes across 16 trials, with non-contact ACL reductions reported from 64% up to 73%. What makes them work: multi-faceted (at least three exercise types), started in preseason, and done consistently — adherence is the whole ballgame.'},
+  feedback:{t:'Ask for feedback — do not ration it',
+    b:'Coaching lore says less feedback teaches more (the "guidance hypothesis"). Recent meta-analysis does not support it. What does hold up is SELF-CONTROLLED feedback: retention was highest when the athlete chose when to receive it. So call for the coach\'s eyes when you want them, rather than following a fixed schedule.'}
+};
+
 /* ============ v7.34 FILM SYLLABUS — exact assignments, not "watch film" ============
    Owner directive (2026-07-17): "exact videos to go through in film, literally everything to do."
    Twelve assignments, ordered. Each names WHO to watch, HOW to find it (search strings verified
@@ -1576,7 +1623,7 @@ const DEFAULTS={
   pushLog:[],    // {d,type}                           append-only
   pipeline:[],   // {id,school,coach,stage,notes}      entities (stage = current truth)
   events:[],     // {d,type,meta}                      append-only: contact|stage|pr|task
-  settings:{gameDay:5}, // gameDay: user-set fact (verify at practice); phase is COMPUTED, never stored
+  settings:{gameDay:5,closeoutHour:21}, // gameDay: user-set fact (verify at practice); phase is COMPUTED, never stored. closeoutHour: local hour the nightly close-out card appears
   /* engine parameters with provenance — the learning surface. Changed ONLY by
      approved calibration (suggest-and-approve, like PRs). basis records why. */
   params:{
@@ -1673,6 +1720,10 @@ function save(){
      not on the next navigation. A stale HUD at the moment of logging breaks the exact
      dopamine circuit the product is built on. Cheap (string build), always safe. */
   try{ if(typeof renderHdr==='function') renderHdr(); }catch(e){}
+  /* v7.64 (I6): the write result is observable. A silent failed save is the one bug that
+     loses data without a trace — save.ok + the sticky #saveFail banner make it impossible
+     to miss, and let the suite assert that a failed write is surfaced, not swallowed. */
+  save.ok=ok; return ok;
 }
 /* IndexedDB mirror (v7.29) — second copy of the entire state on every save. localStorage is the
    most evictable store a browser has; this survives many clears that kill it. Fire-and-forget. */
@@ -1809,7 +1860,12 @@ function mergeStates(a,b){
       if(k==='recs'){ const ck=entKey(x); if(seenCk[ck]) continue; seenCk[ck]=1; } // engine recs: same content ⇒ same rec, uid notwithstanding
       seen[x.id]=1; out.push(structuredClone(x));
     }
-    out.sort((x,y)=>((x&&x.d)||'')<((y&&y.d)||'')?-1:((x&&x.d)||'')>((y&&y.d)||'')?1:0);
+    /* v7.64 (I4): TOTAL order — date, then write-time, then id. A date-only sort was stable,
+       so intra-day order fell to concat order and merge(a,b) !== merge(b,a) for same-day rows.
+       (d,t,id) is content-derived and identical regardless of which state came first. */
+    out.sort((x,y)=>{ const dx=(x&&x.d)||'', dy=(y&&y.d)||''; if(dx!==dy) return dx<dy?-1:1;
+      const tx=(x&&x.t)||0, ty=(y&&y.t)||0; if(tx!==ty) return tx-ty;
+      const ix=(x&&x.id)||'', iy=(y&&y.id)||''; return ix<iy?-1:ix>iy?1:0; });
     m[k]=out;
   }
   // voids with a target id apply on every device, exactly once, forever (idempotent by id)
@@ -1831,16 +1887,26 @@ function mergeStates(a,b){
     m[k]=out;
   }
   // pipeline: union of schools; same school edited on both → latest write wins per entity
+  // v7.64 (I4): on a mu tie, break deterministically by content so order can't decide the winner;
+  // emit sorted by id so the array itself is order-independent too.
   const byId={};
-  for(const p of a.pipeline||[]) byId[p.id]=p;
-  for(const p of b.pipeline||[]){ const q=byId[p.id]; if(!q||(p.mu||0)>(q.mu||0)) byId[p.id]=p; }
-  m.pipeline=Object.keys(byId).map(id=>structuredClone(byId[id]));
+  for(const p of (a.pipeline||[]).concat(b.pipeline||[])){
+    const q=byId[p.id];
+    if(!q){ byId[p.id]=p; continue; }
+    const pm=p.mu||0, qm=q.mu||0;
+    if(pm>qm||(pm===qm&&JSON.stringify(p)>JSON.stringify(q))) byId[p.id]=p;
+  }
+  m.pipeline=Object.keys(byId).sort().map(id=>structuredClone(byId[id]));
   // scalar groups: per-group latest write via meta.mod
   const ma=(a.meta&&a.meta.mod)||{}, mb=(b.meta&&b.meta.mod)||{};
   m.meta={mod:{}};
   for(const g of SYNC_LWW){
     const ta=ma[g]||0, tb=mb[g]||0;
-    m[g]=structuredClone((tb>ta?b:a)[g]||DEFAULTS[g]);
+    // v7.64 (I4): equal timestamps must not resolve by argument order — break the tie on content.
+    let pick;
+    if(tb>ta) pick=b[g]; else if(ta>tb) pick=a[g];
+    else { const sa=JSON.stringify(a[g]??null), sb=JSON.stringify(b[g]??null); pick=(sb>sa?b:a)[g]; }
+    m[g]=structuredClone(pick||DEFAULTS[g]);
     m.meta.mod[g]=Math.max(ta,tb);
   }
   return m;
@@ -2071,7 +2137,10 @@ const Model={
   },
   iq(s=S,today=todayISO()){
     const wk=s.pushLog.filter(p=>daysBetween(p.d,today)<7);
-    return {reps7:wk.length, lastType:s.pushLog.at(-1)?.type||null};
+    /* v7.64: latest by (date, write-time), not append order — a backfilled earlier rep must
+       not become "last type". Same fix class as calibration/seasonReport (write-path safety). */
+    const pl=[...(s.pushLog||[])].sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:((a.t||0)-(b.t||0)));
+    return {reps7:wk.length, lastType:pl.length?pl[pl.length-1].type:null};
   },
   lastContact(s,id){
     const ev=(s||S).events.filter(e=>e.type==='contact'&&e.meta&&e.meta.id===id).map(e=>e.d).sort();
@@ -2651,12 +2720,70 @@ function filmRead(s=S){
     .filter(x=>x.bad).sort((x,y)=>y.bad-x.bad);
   return {n:c.length,byTag,trend,byOpp};
 }
+/* ============ v7.65 MATURATION + DEEP-DOMAIN READS — descriptive only ============
+   Every read here is a pure view over the log (never stored) and every one is latest-by-date,
+   not append-order, so backfill can't corrupt it. */
+function latestMetric(s,key){ const a=(s.metrics||[]).filter(m=>m.key===key&&m.val!=null);
+  if(!a.length) return null;
+  return [...a].sort((x,y)=>x.d<y.d?-1:x.d>y.d?1:((x.t||0)-(y.t||0))).at(-1); }
+
+/* Maturity band via TANNER MID-PARENTAL estimate — named honestly (this is NOT Khamis-Roche).
+   Reports a band with its uncertainty, never a single predicted adult height. Biological age is
+   what actually governs training response and injury risk; chronological age is a birthday. */
+function maturityRead(s=S){
+  const dad=latestMetric(s,'dadht'), mom=latestMetric(s,'momht'), h=latestMetric(s,'ht');
+  if(!dad||!mom||!h) return {have:false,needHt:!h,needParents:!(dad&&mom)};
+  const predAdult=+(((+dad.val)+(+mom.val)+5)/2).toFixed(1);        // boys: (father + mother + 5in)/2
+  if(!(predAdult>0)) return {have:false,needHt:!h,needParents:!(dad&&mom)};
+  const ht=+h.val, pah=+(100*ht/predAdult).toFixed(1);
+  const lo=+(100*ht/(predAdult+MATURITY.err)).toFixed(1);           // taller prediction ⇒ lower %
+  const hi=+(100*ht/Math.max(1,predAdult-MATURITY.err)).toFixed(1);
+  const b=MATURITY.bands.find(x=>pah<=x.max)||MATURITY.bands[MATURITY.bands.length-1];
+  return {have:true,ht,d:h.d,predAdult,pah,lo,hi,band:b.key,label:b.label,read:b.read,
+          err:MATURITY.err,boneWindow:(b.key==='pre'||b.key==='circa')};
+}
+/* change-of-direction deficit: 5-10-5 minus a 10yd linear sprint. Separates "slow" from
+   "bad at turning" — descriptive comparison, no benchmark attached (we don't have a verified one). */
+function codDeficit(s=S){
+  const sh=latestMetric(s,'shuttle'), tn=latestMetric(s,'ten');
+  if(!sh||!tn) return {have:false,needShuttle:!sh,needTen:!tn};
+  return {have:true,shuttle:+sh.val,ten:+tn.val,deficit:+((+sh.val)-(+tn.val)).toFixed(2),d:sh.d};
+}
+/* max-velocity exposure: BOTH under- and over-exposure raise hamstring risk (non-linear),
+   and long pauses are the documented danger. Descriptive zones, never a prescription. */
+function sprintExposure(s=S,today=todayISO()){
+  const all=(s.metrics||[]).filter(m=>m.key==='mvel'&&m.val!=null);
+  const n=all.filter(m=>daysBetween(m.d,today)<7).reduce((a,b)=>a+(+b.val||0),0);
+  const days=[...new Set(all.map(m=>m.d))].sort();
+  const last=days.length?days[days.length-1]:null, gap=last?daysBetween(last,today):null;
+  return {n,last,gap,ever:all.length>0,
+    zone:!all.length?'none':n===0?'off':n<4?'low':n<=15?'ok':'high',
+    stale:gap!=null&&gap>10};
+}
+/* SAFETY RAIL — rapid weight loss. NFHS caps wrestling weight loss at 1.5% of bodyweight per
+   week; cutting during puberty is associated with stunted growth. This never sets a target and
+   never suggests losing weight: it only raises a hand when the trend is falling too fast. */
+function cutRisk(s=S,today=todayISO()){
+  const w=(s.metrics||[]).filter(m=>m.key==='wt'&&m.val!=null)
+    .sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:((a.t||0)-(b.t||0)));
+  if(w.length<2) return {have:false};
+  const last=w[w.length-1];
+  const ref=[...w].reverse().find(x=>{const dd=daysBetween(x.d,last.d); return dd>=7&&dd<=28;});
+  if(!ref) return {have:false};
+  const days=daysBetween(ref.d,last.d);
+  if(days<=0||!(+ref.val>0)) return {have:false};
+  const pctWk=+((((+ref.val)-(+last.val))/(+ref.val))*100*(7/days)).toFixed(2);
+  return {have:true,pctWk,from:+ref.val,to:+last.val,days,d:last.d,
+          over:pctWk>1.5,phase:(typeof phaseFor==='function'?phaseFor(today):null)};
+}
 /* Athletic trainer: recurring-soreness pattern — preparation, never diagnosis */
 function bodyRead(s=S,today=todayISO()){
   const recent=(s.body||[]).filter(b=>daysBetween(b.d,today)<=14);
   const areas={}; recent.forEach(b=>{ const k=String(b.area).toLowerCase().trim(); (areas[k]=areas[k]||[]).push(b); });
   const recurring=Object.keys(areas).filter(k=>areas[k].length>=3)
-    .map(k=>({area:k,n:areas[k].length,lastLvl:areas[k][areas[k].length-1].lvl}));
+    .map(k=>{ /* v7.64: latest by (date, write-time), not append order */
+      const g=[...areas[k]].sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:((a.t||0)-(b.t||0)));
+      return {area:k,n:g.length,lastLvl:g[g.length-1].lvl}; });
   return {recent:recent.length,recurring,
     flag:recurring.length?`Recurring 14-day pattern: ${recurring.map(r=>r.area+' ('+r.n+'×)').join(', ')} — switch to train-around mode and tell a coach/parent. Return-to-play is a medical call, never the app's.`:null};
 }
@@ -3090,6 +3217,14 @@ function decide(s=S,dateISO=todayISO()){
     plan.tasks.push({kind:'academic',id:'ncaa:register',title:'Register at eligibilitycenter.org (free profile)',
       why:'The eligibility clock started with grade 9. Registration takes 20 minutes and every core course from now on counts — 10 of 16 lock before senior year.'});
   }
+  // 9a-3b · ELIGIBILITY CENTER ANNUAL VERIFY (v7.65): a missing core course or an unsubmitted
+  // final grade is the most common reason a borderline recruit loses a committed offer, and it
+  // is caught in March. Annual, every year, before April.
+  if(dateISO.slice(5,7)==='03'&&!taskDone('ncaa:verify:'+dateISO.slice(0,4))){
+    plan.tasks.push({kind:'academic',id:'ncaa:verify:'+dateISO.slice(0,4),
+      title:'Verify Eligibility Center status before April',
+      why:'Missing core course or an unsubmitted final grade is the #1 reason borderline recruits lose offers. Check the transcript is on file and every core course is approved — March, every year.'});
+  }
   // 9a-4 · SEASON REPORT (v7.41): when a season ends, the evidence gets a chapter
   if(phaseFor(dateISO)==='offseason'&&dateISO>='2026-11-01'&&dateISO<='2026-11-30'&&!taskDone('seasonreport:2026')){
     plan.tasks.push({kind:'report',id:'seasonreport:2026',title:'Season Report Card: open PATH → Season, screenshot, archive it',
@@ -3332,8 +3467,10 @@ function rToday(){
   const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊',prep:'🔥',earn:'🏈',film:'🎬'};
   $('#v-today').innerHTML=`
   ${typeof playerCardHTML==='function'?playerCardHTML():''}
+  ${typeof closeoutCardHTML==='function'?closeoutCardHTML(o1rec):''}
   ${typeof foothillHTML==='function'?foothillHTML():''}
   ${typeof assignHTML==='function'?assignHTML():''}
+  ${typeof cutRiskCardHTML==='function'?cutRiskCardHTML():''}
   ${typeof statusCardHTML==='function'?statusCardHTML():''}
   ${typeof sundayNudgeHTML==='function'?sundayNudgeHTML():''}
   ${(sil=>sil>=5?`<div class="card" style="border-color:#294551">
@@ -3583,6 +3720,7 @@ function rTrain(){
   </div>
   ${typeof sessionClockHTML==='function'?sessionClockHTML():''}
   ${typeof heatCardHTML==='function'?heatCardHTML():''}
+  ${typeof trainKnowHTML==='function'?trainKnowHTML():''}
   ${typeof fullDayCard==='function'?fullDayCard():''}
   ${typeof plyoCardHTML==='function'?plyoCardHTML():''}
   ${(ph=>['preseason','inseason'].includes(ph)?`<div class="card" style="border-color:#294551">
@@ -3959,17 +4097,95 @@ function sleepSqCardHTML(){
       <div class="grow"><div class="mono" style="font-size:24px;font-weight:800;color:var(--red)">${r.avgLo}</div><div class="note" style="margin:0">avg session under 8h (${r.nLo})</div></div></div>
       <div class="note" style="margin-top:6px">${r.avgHi>r.avgLo?'Your own log says sleep buys session quality — that\'s not a poster, it\'s your data.':'No clear gap in your data yet — honest answer; keep both logs running.'}</div>`
     :`<div class="note" style="margin:0">This read unlocks at 4+ rated sessions on 8h+ nights AND 4+ on short nights. Now: ${r.nHi} long / ${r.nLo} short. Log sleep each morning + rate each session — the correlation writes itself or honestly refuses to.</div>`}
+    ${typeof deepNote==='function'?deepNote('circ'):''}
   </div>`;
 }
 /* growth ledger — the fastest-moving measurable at 14, framed for camp forms */
 function growthCardHTML(){
-  const lm=k=>{const a=(S.metrics||[]).filter(m=>m.key===k);return a.length?a[a.length-1]:null;};
+  /* v7.65: latest by DATE, not append order — backfill-safe (same fix class as the rest) */
+  const lm=k=>(typeof latestMetric==='function')?latestMetric(S,k):null;
   const rows=[['Height','ht','"'],['Weight','wt',' lb'],['Reach','reach','"'],['Wingspan','wing','"']].map(([n,k,u])=>{const m=lm(k);
     return `<div class="grow" style="text-align:center"><div class="mono" style="font-size:20px;font-weight:800">${m?m.val+u:'—'}</div><div class="note" style="margin:0">${n}${m?' · '+fmtD(m.d):''}</div></div>`;}).join('');
   return `<div class="card"><h3>The Frame <span class="r">growing — measure quarterly</span></h3>
     <div class="row">${rows}</div>
-    <div class="note" style="margin-top:6px">Camp forms ask for every one of these. A growing frame is data coaches project on — log height every ~3 months and let the trend speak. No adult-height predictions here; guesses aren't data.</div>
+    <div class="row" style="gap:6px;margin-top:8px">
+      <button class="btn sm grow" onclick="numOpen('ht','Height (in)',0.5,67)">Height</button>
+      <button class="btn sm grow" onclick="numOpen('reach','Standing reach (in)',0.5,89)">Reach</button>
+      <button class="btn sm grow" onclick="numOpen('wing','Wingspan (in)',0.5,70)">Wingspan</button></div>
+    <div class="note" style="margin-top:6px">Camp forms ask for every one of these. A growing frame is data coaches project on — log height every ~3 months and let the trend speak.</div>
   </div>`;
+}
+/* ===== v7.65 MATURITY — biological age, the context every benchmark gap was missing =====
+   Chronological age is a birthday; training response, injury risk and the bone window all track
+   maturation instead. Reported as a BAND with its error, never as "you will be X tall". */
+function maturityCardHTML(){
+  const m=(typeof maturityRead==='function')?maturityRead(S):{have:false};
+  if(!m.have){
+    return `<div class="card" style="border-color:#294551"><h3>Biological age <span class="r">the context every gap is missing</span></h3>
+      <div class="note" style="margin:0 0 8px">Your benchmarks compare you to seniors. Whether a gap is a training problem or just a TIMING problem depends on where you are in your growth spurt — and that needs two numbers you only enter once.</div>
+      <div class="row" style="gap:6px">
+        <button class="btn sm grow ${m.needParents?'amber':''}" onclick="numOpen('dadht','Father height (in)',0.5,70)">Dad's height</button>
+        <button class="btn sm grow ${m.needParents?'amber':''}" onclick="numOpen('momht','Mother height (in)',0.5,64)">Mom's height</button>
+        ${m.needHt?`<button class="btn sm grow amber" onclick="numOpen('ht','Height (in)',0.5,67)">Your height</button>`:''}</div>
+      <div class="note" style="margin-top:6px;color:var(--faint)">Entered once. Used only to place you in a maturity band — never to predict what you'll become.</div></div>`;
+  }
+  const tone=m.band==='circa'?'#c9f24e':m.band==='pre'?'var(--cyan)':'var(--green)';
+  return `<div class="card" style="border-color:#294551"><h3>Biological age <span class="r">${esc(m.label)}</span></h3>
+    <div class="row" style="align-items:center;gap:10px">
+      <div><div class="mono" style="font-size:26px;font-weight:800;color:${tone}">${m.pah}%</div>
+        <div class="note" style="margin:0">of projected adult height</div></div>
+      <div class="grow"><div class="note" style="margin:0;font-style:normal">${esc(m.read)}</div></div></div>
+    <div class="note" style="margin-top:8px">Range ${m.lo}–${m.hi}% (mid-parental estimate carries about ±${m.err}" of error, so the BAND is the finding — not the number). Bands: pre ≤87% · circa 88–95% · post &gt;95%.</div>
+    ${m.boneWindow?`<div class="note" style="margin-top:8px;font-style:normal;border-top:1px solid var(--line);padding-top:6px"><b style="color:var(--cyan)">${esc(DEEP.bone.t)}.</b> ${esc(DEEP.bone.b)}</div>`:''}
+    ${m.band==='circa'?`<div class="note" style="margin-top:6px;font-style:normal;color:var(--amber)"><b>Circa-PHV also means highest injury risk.</b> Bone lengthens before muscle and tendon catch up — that's the growth-spurt knee and heel pain. Keep loads honest and tell a coach or parent about persistent joint pain rather than training through it.</div>`:''}
+    <div class="note" style="margin-top:6px;color:var(--faint)">Descriptive only. This never forecasts your ceiling — it tells you which clock your training is actually on.</div></div>`;
+}
+/* ===== v7.65 SAFETY RAIL — rapid weight loss. Persistent card, never a toast. =====
+   Cutting weight during puberty is associated with stunted growth; NFHS caps loss at 1.5%/week.
+   This surface never sets a weight target and never suggests losing weight. */
+function cutRiskCardHTML(){
+  const c=(typeof cutRisk==='function')?cutRisk(S):{have:false};
+  if(!c.have||!c.over) return '';
+  return `<div class="card" style="border-color:#7a1f1f;background:linear-gradient(150deg,rgba(122,31,31,.20),var(--card) 60%)">
+    <h3 style="color:var(--red)">Weight is dropping fast <span class="r">safety, not performance</span></h3>
+    <div class="note" style="margin:0;font-style:normal">You're down from <b>${c.from} lb</b> to <b>${c.to} lb</b> over ${c.days} day${c.days===1?'':'s'} — about <b>${c.pctWk}% per week</b>. The high-school wrestling standard caps weight loss at <b>1.5% of bodyweight per week</b>, and cutting weight during puberty is associated with stunted growth, plus real risks to heart rhythm, hydration and bone.</div>
+    <div class="note" style="margin-top:8px;font-style:normal"><b>Tell a parent and your coach today.</b> You're still growing — the weight class should move to fit you, not the other way around. This app will never give you a weight target.</div></div>`;
+}
+/* small reusable knowledge block so the deep content renders identically everywhere */
+function deepNote(k){ const x=DEEP[k]; if(!x) return '';
+  return `<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12px;color:var(--cyan)">${esc(x.t)}</summary><div class="note" style="margin-top:6px;font-style:normal">${esc(x.b)}</div></details>`; }
+/* ===== v7.65 SPEED SURFACE — the two numbers nobody tracks, plus exposure ===== */
+function speedCardHTML(){
+  const cd=(typeof codDeficit==='function')?codDeficit(S):{have:false};
+  const sx=(typeof sprintExposure==='function')?sprintExposure(S):{zone:'none'};
+  const tn=(typeof latestMetric==='function')?latestMetric(S,'ten'):null;
+  const zoneTxt={none:'No max-velocity work logged yet.',off:'None logged in the last 7 days.',
+    low:'Low for the week — under-exposure raises hamstring risk just like over-exposure does.',
+    ok:'In the range that showed a protective effect.',high:'High for the week — back it off before quality drops.'}[sx.zone]||'';
+  const zoneCol={none:'var(--faint)',off:'var(--amber)',low:'var(--amber)',ok:'var(--green)',high:'var(--amber)'}[sx.zone]||'var(--faint)';
+  return `<div class="card"><h3>Speed &amp; brakes <span class="r">the two numbers nobody tracks</span></h3>
+    <div class="row" style="gap:10px;align-items:center">
+      <div style="text-align:center"><div class="mono" style="font-size:20px;font-weight:800">${tn?tn.val+'s':'—'}</div><div class="note" style="margin:0">10-yd split</div></div>
+      <div style="text-align:center"><div class="mono" style="font-size:20px;font-weight:800">${cd.have?cd.deficit+'s':'—'}</div><div class="note" style="margin:0">COD deficit</div></div>
+      <div style="text-align:center"><div class="mono" style="font-size:20px;font-weight:800;color:${zoneCol}">${sx.n||0}</div><div class="note" style="margin:0">max-vel · 7d</div></div></div>
+    <div class="row" style="gap:6px;margin-top:8px">
+      <button class="btn sm grow" onclick="numOpen('ten','10-yard split (s)',0.01,1.8)">10-yd</button>
+      <button class="btn sm grow" onclick="numOpen('shuttle','Pro agility 5-10-5 (s)',0.01,4.8)">5-10-5</button>
+      <button class="btn sm grow" onclick="numOpen('mvel','Max-velocity exposures today',1,1)">+ sprint exposure</button></div>
+    <div class="note" style="margin-top:6px">${esc(zoneTxt)}${sx.stale?' <b style="color:var(--amber)">'+sx.gap+' days since the last exposure — long pauses are the documented danger.</b>':''}</div>
+    ${cd.have?`<div class="note" style="margin-top:4px">COD deficit = 5-10-5 (${cd.shuttle}s) minus your 10-yd (${cd.ten}s). Lower means you turn well for your straight-line speed. Descriptive — no benchmark attached, because we don't have a verified one to compare against.</div>`:''}
+    ${deepNote('ten')}${deepNote('decel')}${deepNote('mvel')}</div>`;
+}
+/* ===== v7.65 recruiting reality — the structural facts, not vibes ===== */
+function realityCardHTML(){
+  return `<div class="card"><h3>What actually decides this <span class="r">structure, not hope</span></h3>
+    <div class="note" style="margin:0;font-style:normal">Coaches read film before measurables: multiple games, varied situations, full plays — repeatable wins beat highlights. Measurables are the filter that gets your film opened.</div>
+    ${deepNote('roster')}${deepNote('ten')}${deepNote('nil')}${deepNote('spec')}</div>`;
+}
+/* ===== v7.65 training knowledge, placed where it's used ===== */
+function trainKnowHTML(){
+  return `<div class="card"><h3>Why this works <span class="r">the layer most programs skip</span></h3>
+    ${deepNote('tendon')}${deepNote('neck')}${deepNote('rsa')}${deepNote('acl')}${deepNote('feedback')}${deepNote('img')}</div>`;
 }
 let pendingLift=null;
 /* v7.32 owner answer: "between sets, but make it faster" — one tap re-logs the last set
@@ -4003,12 +4219,19 @@ function tapSet(i,n){
 function tglBlock(i){ const k=todayISO(); if(!S.sessions[k]) return; S.sessions[k][i]=!S.sessions[k][i]; save();
   if(S.sessions[k].every(Boolean)){ const c=ckToday(); if(!c[0]){c[0]=true; save();} toast('Session complete — Train box checked ✓'); }
   rTrain(); }
-let _rt=null;
-function restTimer(sec){ clearInterval(_rt); const b=$('#restBtn'); if(!b) return; let n=sec;
-  _rt=setInterval(()=>{ n--; const m=Math.floor(n/60), s2=String(n%60).padStart(2,'0');
-    if(b) b.textContent='⏱ '+m+':'+s2;
-    if(n<=0){ clearInterval(_rt); if(b) b.textContent='⏱ GO — next set'; if(navigator.vibrate) navigator.vibrate([200,100,200]); toast('Rest over. Move.'); }
-  },1000); }
+/* v7.64: WALL-CLOCK rest timer. The old decrementing setInterval died the moment it was used —
+   iOS suspends timers in a backgrounded PWA, i.e. phone-in-pocket between sets. Derive the
+   remaining time from an absolute end-time and repaint on visibilitychange, so it is correct
+   the instant the screen comes back regardless of how long the tab was frozen. */
+let _rt=null,_rtEnd=0,_rtDone=false;
+function _rtPaint(){ const b=$('#restBtn'); if(!b) return;
+  const left=Math.max(0,Math.ceil((_rtEnd-Date.now())/1000));
+  if(left>0){ const m=Math.floor(left/60), s2=String(left%60).padStart(2,'0'); b.textContent='⏱ '+m+':'+s2; }
+  else { if(_rt){ clearInterval(_rt); _rt=null; } b.textContent='⏱ GO — next set';
+    if(!_rtDone){ _rtDone=true; try{ if(typeof navigator!=='undefined'&&navigator.vibrate) navigator.vibrate([200,100,200]); }catch(e){} toast('Rest over. Move.'); } }
+}
+function restTimer(sec){ if(_rt){ clearInterval(_rt); _rt=null; } _rtEnd=Date.now()+sec*1000; _rtDone=false; _rt=setInterval(_rtPaint,250); _rtPaint(); }
+if(typeof document!=='undefined'&&document.addEventListener) document.addEventListener('visibilitychange',()=>{ if(!document.hidden) _rtPaint(); });
 function logLift(){
   const ex=$('#lgEx').value, wt=+$('#lgWt').value, reps=+$('#lgRp').value;
   if(!wt||!reps||reps>15||wt<5||wt>700){ toast('Enter a real weight + reps (≤15)'); return; }
@@ -4054,6 +4277,7 @@ function rPath(){
     ${no.notes.length?no.notes.map(n=>`<div class="note">• ${esc(n.text)} <span style="color:var(--faint)">(${esc(fmtD(n.d))})</span></div>`).join(''):'<div class="note" style="color:var(--faint)">No notes yet — start with their base offense the first time you see them warm up.</div>'}
   </div>`:'')(typeof nextOpponent==='function'?nextOpponent():null)}
   ${typeof freshman10HTML==='function'?freshman10HTML():''}
+  ${typeof realityCardHTML==='function'?realityCardHTML():''}
   ${typeof statCardHTML==='function'?statCardHTML():''}
   ${typeof dossierCardHTML==='function'?dossierCardHTML():''}
   <div class="card" style="border-color:#3f4a1f">
@@ -4652,6 +4876,8 @@ function rTrack(){
   ${typeof prHistoryHTML==='function'?prHistoryHTML():''}
   ${typeof searchCardHTML==='function'?searchCardHTML():''}
   ${typeof growthCardHTML==='function'?growthCardHTML():''}
+  ${typeof maturityCardHTML==='function'?maturityCardHTML():''}
+  ${typeof speedCardHTML==='function'?speedCardHTML():''}
   ${typeof sleepSqCardHTML==='function'?sleepSqCardHTML():''}
   ${typeof coreCardHTML==='function'?coreCardHTML():''}
   ${typeof calCardHTML==='function'?calCardHTML():''}
@@ -5056,34 +5282,144 @@ function compRead(){
 }
 
 /* ===== v7.30: ONE logging sheet — inline number bar, per-entry date chip, no native dialogs ===== */
-let pendNum=null, numDate='today', pendCamp=false, pendVoid=null, liftYest=false;
+/* ===== v7.64 CAPTURE: arbitrary backdating + same-day collision sheet =====
+   The old model toggled today<->yesterday only, so missing two days made that data permanently
+   uncapturable — the app was hardest to use in exactly the weeks worth measuring. numOff is a
+   day-offset scrubber (0..MAX_BACKFILL) and numOpen ALWAYS resets it: inheriting the last
+   entry's offset is how someone silently logs a week onto the wrong day. */
+const MAX_BACKFILL=14;
+let pendNum=null, numOff=0, pendCamp=false, pendVoid=null, liftYest=false, pendDup=null;
+function numISO(){ return addDays(todayISO(),-numOff); }
+function numDateLabel(){ if(numOff===0) return 'TODAY'; if(numOff===1) return 'YESTERDAY';
+  try{ return new Date(numISO()+'T12:00').toLocaleDateString('en-US',{weekday:'short',month:'short',day:'numeric'}); }catch(e){ return numISO(); } }
 function numOpen(key,label,step,fallback){
   const last=[...(S.metrics||[])].reverse().find(m=>m.key===key);
-  pendNum={key,label,step,big:step>=1?5:+(step*10).toFixed(2),val:last?last.val:fallback}; numDate='today'; showNumBar();
+  pendNum={key,label,step,big:step>=1?5:+(step*10).toFixed(2),val:last?last.val:fallback}; numOff=0; pendDup=null; showNumBar();
 }
 function numCur(){ let el=null; try{ el=document.querySelector('#numVal'); }catch(e){}
   const v=el?parseFloat(el.value):NaN; return isNaN(v)?pendNum.val:v; }
 function numStep(d){ if(!pendNum) return; pendNum.val=+(numCur()+d).toFixed(2); showNumBar(); }
-function numDateFlip(){ numDate=numDate==='today'?'yest':'today'; showNumBar(); }
-function numClose(){ pendNum=null; try{ const b=document.querySelector('#numBar'); if(b&&b.remove) b.remove(); }catch(e){} }
+function numBack(dir){ numOff=Math.max(0,Math.min(MAX_BACKFILL,numOff+dir)); showNumBar(); }
+function numToday(){ numOff=0; showNumBar(); }
+/* compat shim: the old today<->yesterday chip is gone (replaced by the scrubber), but keep the
+   entry point mapping onto the scrubber so nothing that referenced it breaks. */
+function numDateFlip(){ numOff=numOff?0:1; showNumBar(); }
+function numClose(){ pendNum=null; pendDup=null; numOff=0; try{ const b=document.querySelector('#numBar'); if(b&&b.remove) b.remove(); }catch(e){} }
+function _numBarWrap(inner){ return `<div id="numBar" style="position:fixed;left:0;right:0;bottom:58px;z-index:98;background:var(--card);border-top:1px solid var(--line);box-shadow:0 -6px 18px rgba(0,0,0,.4);padding:10px 12px">${inner}</div>`; }
+function _numMount(html){ try{ const old=document.querySelector('#numBar'); if(old&&old.remove) old.remove(); document.body.insertAdjacentHTML('beforeend',html); }catch(e){} }
 function showNumBar(){ if(!pendNum) return;
-  const html=`<div id="numBar" style="position:fixed;left:0;right:0;bottom:58px;z-index:98;background:var(--card);border-top:1px solid var(--line);box-shadow:0 -6px 18px rgba(0,0,0,.4);padding:10px 12px">
+  const back=numOff>0;
+  const spelled = numOff>=2 ? `<div class="note" style="margin:6px 0 0;font-style:normal;color:var(--cyan)">Logging to <b>${esc(numDateLabel())}</b> — not today.</div>` : '';
+  const inner=`
     <div class="row" style="gap:6px;align-items:center"><b style="font-size:12px;letter-spacing:.06em">${esc(pendNum.label.toUpperCase())}</b>
-      <button class="btn sm ${numDate==='yest'?'amber':'ghost'}" onclick="numDateFlip()">${numDate==='yest'?'YESTERDAY':'today'}</button>
       <span class="grow"></span><button class="btn sm ghost" onclick="numClose()">✕</button></div>
+    <div class="row" style="gap:6px;align-items:center;margin-top:8px">
+      <button class="btn sm ${numOff>=MAX_BACKFILL?'ghost':''}" ${numOff>=MAX_BACKFILL?'disabled':''} onclick="numBack(1)" aria-label="earlier day">‹</button>
+      <button class="btn sm" style="min-width:118px;${back?'background:var(--cyan);color:#04212b;border-color:var(--cyan)':''}" onclick="numToday()">${esc(numDateLabel())}</button>
+      <button class="btn sm ${numOff<=0?'ghost':''}" ${numOff<=0?'disabled':''} onclick="numBack(-1)" aria-label="later day">›</button>
+      <span class="grow"></span></div>${spelled}
     <div class="row" style="gap:6px;align-items:center;margin-top:8px">
       <button class="btn sm" onclick="numStep(-${pendNum.big})">−${pendNum.big}</button><button class="btn sm" onclick="numStep(-${pendNum.step})">−${pendNum.step}</button>
       <input id="numVal" inputmode="decimal" value="${pendNum.val}" style="flex:1;text-align:center;font-size:18px;font-weight:800;min-width:70px">
       <button class="btn sm" onclick="numStep(${pendNum.step})">+${pendNum.step}</button><button class="btn sm" onclick="numStep(${pendNum.big})">+${pendNum.big}</button>
-      <button class="btn amber sm" onclick="numSave()">SAVE</button></div></div>`;
-  try{ const old=document.querySelector('#numBar'); if(old&&old.remove) old.remove();
-    document.body.insertAdjacentHTML('beforeend',html); }catch(e){}
+      <button class="btn sm ${back?'':'amber'}" style="${back?'background:var(--cyan);color:#04212b;border-color:var(--cyan)':''}" onclick="numSave()">SAVE</button></div>`;
+  _numMount(_numBarWrap(inner));
 }
+/* same-day collision: metricOn already RESOLVES duplicates by timestamp (detection). This is
+   RESOLUTION — surfaced before the write, because backdating makes collisions common. */
 function numSave(){ if(!pendNum) return; const v=numCur(); if(!v||v<=0){ toast('Enter a real number'); return; }
-  const d=numDate==='yest'?addDays(todayISO(),-1):todayISO();
-  (S.metrics=S.metrics||[]).push({d,key:pendNum.key,val:v,src:'manual'}); logEvent('metric',{key:pendNum.key,val:v});
-  const k=pendNum.key, y=numDate==='yest'; numClose(); save();
-  toast(k.toUpperCase()+' '+v+(y?' → yesterday ✓':' ✓')); try{ RENDER[curView](); }catch(e){}
+  const d=numISO(), key=pendNum.key;
+  const cand=(S.metrics||[]).map((m,i)=>({m,i})).filter(o=>o.m.key===key&&o.m.d===d);
+  if(cand.length && !pendDup){
+    cand.sort((a,b)=>((a.m.t||0)-(b.m.t||0))); const p=cand[cand.length-1]; // the value metricOn currently returns
+    pendDup={v,d,key,prevVal:p.m.val,prevIdx:p.i}; showCollision(); return;
+  }
+  numCommit(v,d,key,false);
+}
+function numCommit(v,d,key,dup){
+  const o={d,key,val:v}; if(numOff>0) o.src='backfill'; if(dup) o.dup=1;
+  pushMetric(o); logEvent('metric',{key,val:v,d});
+  /* celebration is SUPPRESSED on a backfill: a bloom for a streak the athlete didn't feel would
+     be a lie the product can't afford. The quiet confirmation toast is the whole feedback. */
+  const back=numOff>0; numClose(); save();
+  toast(key.toUpperCase()+' '+v+(back?(' → '+fmtD(d)+' ✓'):' ✓'));
+  try{ RENDER[curView](); }catch(e){}
+}
+function showCollision(){ if(!pendDup) return; const p=pendDup;
+  const inner=`
+    <div class="row" style="gap:6px;align-items:center"><b style="font-size:12px;letter-spacing:.06em">${esc(p.key.toUpperCase())} · ${esc(fmtD(p.d))}</b><span class="grow"></span></div>
+    <div class="note" style="margin:8px 0;font-style:normal">You already logged <b>${esc(p.key.toUpperCase())} ${esc(p.prevVal)}</b> for <b>${esc(fmtD(p.d))}</b>. New value: <b>${esc(p.v)}</b>.</div>
+    <div class="row" style="gap:6px">
+      <button class="btn sm grow amber" onclick="collideReplace()">Replace it</button>
+      <button class="btn sm grow" onclick="collideKeepBoth()">Keep both</button>
+      <button class="btn sm ghost" onclick="numClose()">Cancel</button></div>`;
+  _numMount(_numBarWrap(inner));
+}
+function collideReplace(){ if(!pendDup) return; const p=pendDup;
+  if(p.prevIdx>=0 && S.metrics[p.prevIdx]) voidEntry('metric',p.prevIdx); // append-only correction: the old value stays on the record as a void
+  numCommit(p.v,p.d,p.key,false); }
+function collideKeepBoth(){ if(!pendDup) return; const p=pendDup;
+  /* tag the NEW entry dup:1. The prior entry is immutable (append-only law), so we do NOT
+     mutate it; metricOn still resolves the pair deterministically by timestamp. */
+  numCommit(p.v,p.d,p.key,true); }
+
+/* ===== v7.64 CAPTURE: nightly close-out — an event, not a modal =====
+   The top-ranked experiment that never had a capture surface. Writes energy + session-quality
+   as first-class metrics (the exact series the sleep->sq and energy->sq knowledge edges have
+   been starving for) plus a 'closeout' completion event. Never blocks the screen; never
+   auto-backfills a missed night — an invented energy score is worse than a gap, because
+   knowledgeEdge cannot tell a guess from real data and the whole engine rests on never being fed one. */
+let pendCloseout=null;
+function closeoutDone(d,s=S){ return (s.events||[]).some(e=>e.type==='closeout'&&e.d===d); }
+function hasSessionToday(d,s=S){ return (s.lifts||[]).some(l=>l.d===d)||(((s.sessions||{})[d])||[]).some(Boolean); }
+function closeoutCardHTML(o1rec){
+  try{
+    const ch=(S.settings&&S.settings.closeoutHour!=null)?S.settings.closeoutHour:21;
+    const hr=new Date().getHours();
+    const d=todayISO();
+    if(hr<ch || closeoutDone(d)) return '';
+    if(!pendCloseout) pendCloseout={rec:(o1rec&&o1rec.followed)||null, energy:metricOn(S,'energy',d), sq:metricOn(S,'sq',d), recId:o1rec?o1rec.id:null, recText:o1rec?o1rec.text:null};
+    else if(o1rec){ pendCloseout.recId=o1rec.id; pendCloseout.recText=o1rec.text; if(pendCloseout.rec==null) pendCloseout.rec=o1rec.followed||null; }
+    return _closeoutInner(d);
+  }catch(e){ return ''; }
+}
+function _closeoutInner(d){
+  const p=pendCloseout; if(!p) return '';
+  const hasS=hasSessionToday(d);
+  const enRow=[1,2,3,4,5].map(v=>`<button class="btn sm grow ${p.energy===v?'amber':'ghost'}" onclick="coEnergy(${v})">${v}</button>`).join('');
+  const sqRow=[1,2,3,4,5].map(v=>`<button class="btn sm grow ${p.sq===v?'amber':'ghost'}" onclick="coSq(${v})">${v}</button>`).join('');
+  const recRow=p.recId?`<div style="margin-top:8px"><div class="note" style="margin:0 0 4px;font-style:normal">Today's one thing: ${esc(p.recText||'')}</div>
+    <div class="row" style="gap:6px"><button class="btn sm grow ${p.rec==='followed'?'amber':'ghost'}" onclick="coRec('followed')">Did it</button><button class="btn sm grow ${p.rec==='partial'?'amber':'ghost'}" onclick="coRec('partial')">Partly</button><button class="btn sm grow ${p.rec==='ignored'?'amber':'ghost'}" onclick="coRec('ignored')">Didn't</button></div></div>`:'';
+  const ready=p.energy!=null && (!hasS || p.sq!=null);
+  const co=(S.events||[]).filter(e=>e.type==='closeout').length, NEED=7, left=Math.max(0,NEED-co);
+  const unlock = left>0
+    ? `<div class="note" style="margin-top:8px;font-style:normal;color:var(--faint)">${co} close-out${co===1?'':'s'} logged · ${left} more paired day${left===1?'':'s'} and the app can tell you whether sleep and energy actually move your sessions.</div>`
+    : `<div class="note" style="margin-top:8px;font-style:normal;color:var(--green)">Enough paired days logged — see what the app has learned in TRACK.</div>`;
+  return `<div class="card" id="closeoutCard" style="border-color:#294551;background:linear-gradient(150deg,rgba(90,169,214,.12),var(--card) 60%)">
+    <h3>Nightly close-out <span class="r">30 seconds · close the day honestly</span></h3>
+    ${recRow}
+    <div style="margin-top:8px"><div class="note" style="margin:0 0 4px;font-style:normal">Energy today</div><div class="row" style="gap:6px">${enRow}</div></div>
+    ${hasS?`<div style="margin-top:8px"><div class="note" style="margin:0 0 4px;font-style:normal">Session quality</div><div class="row" style="gap:6px">${sqRow}</div></div>`:''}
+    <button class="btn ${ready?'amber':'ghost'}" style="width:100%;margin-top:10px" ${ready?'':'disabled'} onclick="coSave()">Log close-out</button>
+    ${unlock}
+  </div>`;
+}
+function coEnergy(v){ if(pendCloseout){ pendCloseout.energy=v; _coRepaint(); } }
+function coSq(v){ if(pendCloseout){ pendCloseout.sq=v; _coRepaint(); } }
+function coRec(state){ if(pendCloseout){ pendCloseout.rec=state; _coRepaint(); } }
+function _coRepaint(){ try{ const el=document.querySelector('#closeoutCard'); if(el) el.outerHTML=_closeoutInner(todayISO()); }catch(e){} }
+function coSave(){ if(!pendCloseout) return; const d=todayISO();
+  if(closeoutDone(d)){ pendCloseout=null; try{ RENDER[curView](); }catch(e){} return; } // one close-out per day, hard
+  const rec=pendCloseout.rec, energy=pendCloseout.energy, sq=pendCloseout.sq, recId=pendCloseout.recId;
+  if(energy==null){ toast('Tap your energy 1–5 first'); return; }
+  const hasS=hasSessionToday(d);
+  if(recId && rec){ const r=(S.recs||[]).find(x=>x.id===recId); if(r){ r.followed=rec; r.followedOn=d; logEvent('recfollow',{id:recId,state:rec}); } } // reuse the learning loop without a mid-save re-render
+  if(energy!=null && energy!==metricOn(S,'energy',d)) pushMetric({d,key:'energy',val:energy,src:'closeout'});
+  if(hasS && sq!=null && sq!==metricOn(S,'sq',d)) pushMetric({d,key:'sq',val:sq,src:'closeout'});
+  logEvent('closeout',{d,rec:rec||null,energy,sq:hasS?(sq==null?null:sq):null});
+  pendCloseout=null; save();
+  toast('Day closed ✓ — the app learned from it');
+  try{ RENDER[curView](); }catch(e){}
 }
 function armVoid(kind,idx){ const key=kind+':'+idx;
   if(pendVoid!==key){ pendVoid=key; rTrack(); return; }
