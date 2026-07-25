@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.78 -->
+<!DOCTYPE html><!-- d1os v7.80 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1483,6 +1483,23 @@ const CURRICULUM=[
    do:'Height, weight, class year, position, GPA, coach contact, Hudl link pinned. Then it is ready when there is film to put in it.'}
 ];
 const CUR_DOMS={iq:'Football IQ',physical:'Physical',academic:'Academic',recruiting:'Recruiting'};
+/* ===== v7.79 PROGRESSION =====
+   The program prescribed a fixed % of a STORED PR with no week-to-week wave, so loads never
+   climbed unless he manually accepted a new max. Four years of that is four years of the same
+   weight. Two fixes, both standard strength practice:
+   1. TRAINING MAX — work off ~90% of the best EVIDENCED max, not the raw max. Percentages off a
+      true 1RM are brutal for a self-taught 14-year-old; a training max makes them repeatable.
+   2. A 4-WEEK WAVE — build, push, peak, deload. Loads rise inside a cycle and the cycle repeats
+      from a higher training max. This is what makes it a program instead of a template. */
+const CYCLE_ANCHOR='2026-07-27';          // Monday before first practice
+const WAVE=[
+  {w:1,mult:1.00,label:'BUILD',note:'Groove the positions. Every rep looks the same.'},
+  {w:2,mult:1.05,label:'PUSH', note:'Same movements, more weight. Bar speed stays fast.'},
+  {w:3,mult:1.09,label:'PEAK', note:'Heaviest week. If a rep slows badly, stop the set — you got the stimulus.'},
+  {w:4,mult:0.85,label:'DELOAD',note:'Backed off ON PURPOSE. Adaptation happens now, not in week 3.'}
+];
+const TM_PCT=0.90;                         // training max as a share of the evidenced max
+const TM_STEP={squat:10,dead:10,bench:5,clean:5};   // added per completed cycle
 const MATURITY={
   err:2.0, // inches, honest uncertainty on a mid-parental estimate
   bands:[
@@ -2960,6 +2977,65 @@ function maturityRead(s=S){
   return {have:true,ht,d:h.d,predAdult,pah,lo,hi,band:b.key,label:b.label,read:b.read,
           err:MATURITY.err,boneWindow:(b.key==='pre'||b.key==='circa')};
 }
+/* ===== v7.79 TRAINING MAX + CYCLE =====
+   The training max follows the EVIDENCE: whichever is higher, the approved PR or the best e1RM
+   actually produced in logged sets. So a kid who quietly gets stronger stops being prescribed
+   last season's weights, and a kid whose PR is aspirational is not crushed by it. */
+function trainingMax(s=S,lift,today=todayISO()){
+  const stored=+((s.prs||{})[lift])||0;
+  const mom=(typeof Model!=='undefined'&&Model.momentum)?Model.momentum(s,today):{bestE1rm:{}};
+  const ev=+((mom.bestE1rm||{})[lift])||0;
+  const base=Math.max(stored,ev);
+  if(!base) return {have:false};
+  const cycles=(s.events||[]).filter(e=>e.type==='cycle'&&e.meta&&e.meta.lift===lift).length;
+  const step=(typeof TM_STEP!=='undefined'?TM_STEP[lift]:5)||5;
+  const tm=Math.round((base*(typeof TM_PCT!=='undefined'?TM_PCT:0.9)+cycles*step)/5)*5;
+  return {have:true,base,tm,cycles,evidence:ev,stored,
+    src:ev>stored?'best logged e1RM':'approved PR',
+    ahead:ev>stored};
+}
+function cycleRead(s=S,today=todayISO()){
+  const anchor=(typeof CYCLE_ANCHOR!=='undefined')?CYCLE_ANCHOR:null;
+  if(!anchor) return {have:false};
+  const days=daysBetween(anchor,today);
+  if(days<0) return {have:false,pending:true,starts:anchor};
+  const wk=Math.floor(days/7)%4;
+  const cycle=Math.floor(days/28)+1;
+  const W=(typeof WAVE!=='undefined')?WAVE[wk]:{w:1,mult:1,label:'BUILD',note:''};
+  return {have:true,cycle,week:W.w,mult:W.mult,label:W.label,note:W.note,
+    deloadWeek:W.label==='DELOAD',
+    dayOfCycle:days%28+1};
+}
+/* the load actually prescribed today: training max x block% x wave x comeback-deload */
+function prescribe(s=S,lift,pct,today=todayISO()){
+  const t=trainingMax(s,lift,today); if(!t.have) return null;
+  const c=cycleRead(s,today);
+  const wave=c.have?c.mult:1;
+  const dl=(typeof Model!=='undefined'&&Model.deloadFactor)?Model.deloadFactor(s,today):1;
+  const raw=t.tm*pct*wave*dl;
+  return {lb:Math.round(raw/5)*5,tm:t.tm,pct,wave,dl,cycle:c,tmSrc:t.src,base:t.base};
+}
+/* ===== v7.80 CLOSING THE CYCLE — the increase has to be earned =====
+   v7.79 shipped a training max that steps up per completed cycle, but nothing ever recorded a
+   completed cycle, so it could never actually rise. This closes that loop — and deliberately
+   does NOT auto-increment on the calendar. A training max that climbs whether or not the work
+   happened is how a 14-year-old ends up under a bar he has not earned. Suggest-and-approve:
+   the app asks, he answers, and a "no" holds the weight instead of raising it. */
+const CYCLE_LIFTS=['squat','bench','dead'];
+function cycleDue(s=S,today=todayISO()){
+  const c=cycleRead(s,today);
+  if(!c.have||c.cycle<2) return {due:false};          // nothing to close until cycle 1 is behind us
+  const anchor=(typeof CYCLE_ANCHOR!=='undefined')?CYCLE_ANCHOR:null;
+  const prevStart=addDays(anchor,(c.cycle-2)*28), prevEnd=addDays(anchor,(c.cycle-1)*28-1);
+  const rows=CYCLE_LIFTS.map(lift=>{
+    const closed=(s.events||[]).some(e=>e.type==='cycle'&&e.meta&&e.meta.lift===lift&&e.meta.cycle===c.cycle-1);
+    const held=(s.events||[]).some(e=>e.type==='cycle-held'&&e.meta&&e.meta.lift===lift&&e.meta.cycle===c.cycle-1);
+    const sets=(s.lifts||[]).filter(l=>l.ex===lift&&l.d>=prevStart&&l.d<=prevEnd).length;
+    return {lift,sets,answered:closed||held,trained:sets>=3};
+  });
+  const open=rows.filter(r=>!r.answered&&r.trained);
+  return {due:open.length>0,cycle:c.cycle-1,rows,open,window:[prevStart,prevEnd]};
+}
 /* ===== v7.78 DEPTH CHART — the freshman question, answered over time =====
    Positions and reps get decided in the first weeks of practice and then nobody writes any of it
    down. This is the record: what he was listed at, which unit, and how it moved. Descriptive —
@@ -4268,8 +4344,14 @@ function rTrain(){
     ${(()=>{const isToday=w.day===new Date().getDay();const sess=isToday?(S.sessions[todayISO()]||(S.sessions[todayISO()]=w.blocks.map(()=>false))):null;
     return w.blocks.map((b,i)=>{
       let load='';
-      if(b.pct&&b.lift&&S.prs[b.lift]){ const t=Math.round((S.prs[b.lift]*b.pct*dl)/5)*5;
-        load=`<div class="note mono">→ <b style="color:var(--cyan)">${t} lb</b> (${Math.round(b.pct*100)}%${dl<1?' ×'+Math.round(dl*100)+'%':''} of ${S.prs[b.lift]}) · ${plates(t)}</div>`; }
+      /* v7.79: the bar weight now comes from the PROGRESSION engine — training max (evidence-led)
+         x block% x this week's wave x any comeback deload. Loads climb inside a cycle and the
+         cycle restarts higher, instead of sitting on a static PR forever. */
+      if(b.pct&&b.lift&&typeof prescribe==='function'){
+        const px=prescribe(S,b.lift,b.pct);
+        if(px){ const wv=px.cycle&&px.cycle.have?px.cycle:null;
+          load=`<div class="note mono">→ <b style="color:var(--cyan)">${px.lb} lb</b> (${Math.round(b.pct*100)}% of ${px.tm} TM${wv&&wv.mult!==1?' · '+wv.label+' ×'+wv.mult:''}${px.dl<1?' ×'+Math.round(px.dl*100)+'%':''}) · ${plates(px.lb)}</div>`; }
+      }
       const done=sess&&sess[i];
       /* v7.44 GYM MODE: the screen a strength coach and a product designer would build together.
          Sets are DOTS you tap one at a time (not one checkbox for a whole exercise), the
@@ -4279,7 +4361,7 @@ function rTrain(){
       const setKey=todayISO()+':'+i;
       const doneSets=(_setDots[setKey]||0);
       const dots=nSets?Array.from({length:nSets},(_,k)=>`<i class="setdot ${k<doneSets?'on':''}" onclick="event.stopPropagation();tapSet(${i},${nSets})"></i>`).join(''):'';
-      const wt=(b.pct&&b.lift&&S.prs[b.lift])?Math.round((S.prs[b.lift]*b.pct*dl)/5)*5:null;
+      const wt=(b.pct&&b.lift&&typeof prescribe==='function')?((px=>px?px.lb:null)(prescribe(S,b.lift,b.pct))):null;
       return `<div class="exrow ${done?'is-done':''} ${(!done&&isToday&&doneSets>0&&doneSets<nSets)?'is-live':''}" ${isToday?`onclick="tglBlock(${i})"`:''}>
         <div class="row" style="align-items:flex-start">
           <div class="grow">
@@ -4297,6 +4379,8 @@ function rTrain(){
     </div><div class="note">Contrast pairs: jump within ~15s of racking. Between full sets: 2–3 min. The timing IS the method.<br>Solo at the apartment gym today? Skip anything marked SPOTTER/EOS — swap in the pause variant or DB work. Max attempts happen at EOS only, cousin present.</div>`:''}
     <div class="note"><b style="color:var(--cyan)">2026 dosing:</b> work sets end at 1–3 reps in reserve — grind the last rep speed, never the form. On accessory lifts, the last set can extend with lengthened partials (bottom-half reps after full-ROM failure): 2025 meta-analysis shows a small real edge for growth at long muscle lengths. Small edge, not magic — the surplus and sleep still outrank it.</div>
   </div>
+  ${typeof cycleCloseHTML==='function'?cycleCloseHTML():''}
+  ${typeof cycleCardHTML==='function'?cycleCardHTML():''}
   ${typeof sessionClockHTML==='function'?sessionClockHTML():''}
   ${typeof heatCardHTML==='function'?heatCardHTML():''}
   ${typeof protocolCardHTML==='function'?protocolCardHTML():''}
@@ -4761,6 +4845,49 @@ function scriptCardHTML(){
     ${rows}
     ${!sc.next&&!sc.restDay?'<div class="note" style="margin-top:8px;color:var(--green)">That\'s the day. Nothing else is required.</div>':''}
   </div>`;
+}
+/* ===== v7.80 CYCLE CLOSE-OUT — earn the increase ===== */
+function cycleAnswer(lift,cycle,hit){
+  logEvent(hit?'cycle':'cycle-held',{lift,cycle});
+  save();
+  if(hit){ const t=trainingMax(S,lift); celebrate(lift.toUpperCase()+' TM → '+(t.have?t.tm:'') +' LB',false); }
+  else toast('Held at the same weight — that is the right call, not a failure');
+  try{ RENDER[curView](); }catch(e){}
+}
+function cycleCloseHTML(){
+  if(typeof cycleDue!=='function') return '';
+  const d=cycleDue(S); if(!d.due) return '';
+  const rows=d.open.map(r=>{
+    const t=trainingMax(S,r.lift);
+    const step=(typeof TM_STEP!=='undefined'?TM_STEP[r.lift]:5)||5;
+    return `<div style="border-top:1px solid var(--line);padding:9px 0">
+      <div class="row" style="align-items:center;gap:6px"><b style="font-size:13px">${esc(r.lift.toUpperCase())}</b>
+        <span class="note" style="margin:0">${r.sets} sets logged</span>
+        <span class="grow"></span>
+        <span class="note mono" style="margin:0">TM ${t.have?t.tm:'—'} → ${t.have?t.tm+step:'—'}</span></div>
+      <div class="row" style="gap:6px;margin-top:6px">
+        <button class="btn sm grow amber" onclick="cycleAnswer('${r.lift}',${d.cycle},true)">Hit every rep</button>
+        <button class="btn sm grow ghost" onclick="cycleAnswer('${r.lift}',${d.cycle},false)">Missed some — hold it</button></div></div>`;}).join('');
+  return `<div class="card" style="border-color:#3f4a1f;background:linear-gradient(150deg,rgba(201,242,78,.10),var(--card) 62%)">
+    <h3>Cycle ${d.cycle} is done <span class="r">earn the increase</span></h3>
+    <div class="note" style="margin:0;font-style:normal">Did you actually complete the prescribed reps? Answer honestly — the weight only goes up on the lifts where you did. Holding is not failing; going up on work you did not do is how you end up under a bar you have not earned.</div>
+    ${rows}</div>`;
+}
+/* ===== v7.79 CYCLE — where you are in the program ===== */
+function cycleCardHTML(){
+  if(typeof cycleRead!=='function') return '';
+  const c=cycleRead(S);
+  if(!c.have) return c.pending?`<div class="card" style="border-color:#294551"><h3>Cycle 1 starts ${esc(fmtD(c.starts))}</h3><div class="note" style="margin:0">Four-week wave: build, push, peak, deload. Loads rise across the cycle, then the whole cycle restarts from a higher training max.</div></div>`:'';
+  const lifts=['squat','bench','dead'].map(k=>{
+    const t=trainingMax(S,k); if(!t.have) return '';
+    return `<div class="grow" style="text-align:center;min-width:0">
+      <div class="mono" style="font-size:17px;font-weight:800">${t.tm}</div>
+      <div class="note" style="margin:0;font-size:10px">${esc(k)} TM${t.cycles?' +'+t.cycles:''}</div></div>`;}).join('');
+  const col=c.deloadWeek?'var(--cyan)':'var(--amber)';
+  return `<div class="card" style="border-color:#3f4a1f"><h3>Cycle ${c.cycle} · week ${c.week} of 4 <span class="r" style="color:${col}">${esc(c.label)}</span></h3>
+    <div class="note" style="margin:0;font-style:normal">${esc(c.note)}</div>
+    <div class="row" style="gap:6px;margin-top:10px;border-top:1px solid var(--line);padding-top:8px">${lifts}</div>
+    <div class="note" style="margin-top:6px">Training max = 90% of your best evidenced max, so the percentages are repeatable instead of brutal. It rises every completed cycle${(t=>t.have&&t.ahead?' — and your logged sets are already ahead of the approved PR, so the program is using the evidence':'')(trainingMax(S,'squat'))}.</div></div>`;
 }
 /* ===== v7.78 DEPTH CHART — capture what practice decides ===== */
 let pendDepth=null;
