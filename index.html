@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.87 -->
+<!DOCTYPE html><!-- d1os v7.88 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -5550,6 +5550,122 @@ function scriptCardHTML(){
     ${!sc.next&&!sc.restDay?'<div class="note" style="margin-top:8px;color:var(--green)">That\'s the day. Nothing else is required.</div>':''}
   </div>`;
 }
+/* ===== v7.88 CLAUDE HANDOFF =====
+   The family has a Claude subscription. An API key cannot live in this app: the repo is public,
+   so a key in the source is a credential leak billed to them, and the architecture forbids a
+   backend to proxy it. What works instead is a handoff — the app assembles everything it knows
+   into a briefing that gets pasted into Claude, where the subscription already applies.
+   The value is not the paste. It is that the briefing carries PROVENANCE: what is measured,
+   what is estimated, what the app itself is unsure about — so the answer that comes back is
+   grounded in his record rather than in generic advice about 14-year-old athletes. */
+const CLAUDE_ASKS=[
+  {k:'week',   label:'Plan my week',      q:'Given everything below, what should my next 7 days look like? Rank by what actually moves a D1 gate, respect the unmet floors first, and tell me what to skip.'},
+  {k:'film',   label:'What to look for on film', q:'Based on my position, level and what my coaches have said, give me a specific checklist for watching my next game film. Assume I know gap assignments but not run fits, and cannot yet identify fronts on sight.'},
+  {k:'gap',    label:'Where am I actually behind?', q:'Read my numbers honestly against a class-of-2030 timeline, not against seniors. Which gaps are real, which are just maturation timing, and which single one has the best return on effort?'},
+  {k:'ask',    label:'What should I ask my coach?', q:'Give me three specific, respectful questions to ask my position coach this week that would produce information I do not currently have in this record.'},
+  {k:'audit',  label:'Audit this app\'s advice', q:'Act as a skeptical strength coach and sports scientist. Where is this app overconfident, what is it measuring badly, and what would you throw out? Be specific and cite what in the data makes you say it.'}
+];
+function claudeBrief(kind){
+  const A=[];
+  const ask=(CLAUDE_ASKS.find(x=>x.k===kind)||CLAUDE_ASKS[0]);
+  A.push('# D1 OS — athlete briefing for Claude');
+  A.push('');
+  A.push('## The question');
+  A.push(ask.q);
+  A.push('');
+  A.push('## Ground rules for your answer');
+  A.push('- This athlete is 14 and in a growth spurt. Do not apply senior or adult standards without saying so.');
+  A.push('- Anything marked ESTIMATE below was never measured. Do not reason from it as if it were data.');
+  A.push('- If the honest answer is "nobody knows, especially for a 14-year-old", say that.');
+  A.push('- Never recommend aggressive weight loss, restriction, or supplements without a parent and clinician.');
+  A.push('');
+  A.push('## Who he is');
+  try{
+    const p=S.profile||{};
+    A.push('- '+(p.name||'Athlete')+', class of '+(p.classOf||'?')+', '+(p.pos||'?')+' — JV, Basic HS, Henderson NV');
+    const mt=(typeof maturityRead==='function')?maturityRead(S):{have:false};
+    if(mt.have) A.push('- Maturity: '+mt.pah+'% of projected adult height ('+mt.label+', range '+mt.lo+'–'+mt.hi+'%). Roughly '+Math.max(0,Math.round((mt.predAdult-mt.ht)*10)/10)+'" of growth likely remaining.');
+    else A.push('- Maturity: not computed (needs height + both parents\' heights).');
+  }catch(e){}
+  A.push('');
+  A.push('## Numbers, WITH how they were obtained');
+  try{
+    const keys=['ht','wt','reach','wing','forty','ten','vert','broad','shuttle'];
+    keys.forEach(k=>{
+      const m=(typeof latestMetric==='function')?latestMetric(S,k):null;
+      const v=(typeof metricVerified==='function')?metricVerified(S,k):null;
+      if(m) A.push('- '+k+': '+m.val+(m.cond?('  ['+m.cond+']'):'')+(v&&!v.ok?('  ** '+v.why.toUpperCase()+' **'):'')+'  (logged '+m.d+')');
+    });
+    const pr=S.prs||{};
+    Object.keys(pr).forEach(k=>{
+      const P=(typeof PR_PROV!=='undefined')?PR_PROV[k]:null;
+      A.push('- '+k+' 1RM: '+pr[k]+(P?('  ['+P.label+'] '+P.note):''));
+    });
+  }catch(e){}
+  A.push('');
+  A.push('## What the app currently recommends, and why');
+  try{
+    const R=interventionRank(S);
+    if(R.have&&R.top){
+      A.push('- TOP: '+R.top.iv.name+' (grade '+R.top.iv.effect.grade+', '+R.top.iv.effect.magnitude+') — '+R.top.iv.what);
+      A.push('  basis: '+R.top.iv.effect.basis);
+      if(R.floors.length) A.push('- Unmet floors: '+R.floors.map(f=>f.why).join(' | '));
+      A.push('- Next four considered: '+R.ranked.slice(1,5).map(r=>r.iv.name+' ('+r.roi+')').join(', '));
+    }
+  }catch(e){}
+  A.push('');
+  A.push('## What his own record has proven (or failed to)');
+  try{
+    const rc=reportCards(S);
+    if(rc.have){
+      const g=rc.rows.filter(r=>r.verdict!=='gathering');
+      if(!g.length) A.push('- Nothing graded yet. Everything above is population evidence, not his data.');
+      g.forEach(r=>A.push('- '+r.name+': '+r.verdict.toUpperCase()+' — '+(r.detail||r.line)));
+    }
+  }catch(e){}
+  A.push('');
+  A.push('## Consistency and volume');
+  try{
+    const c=Model.consistency(S), m=Model.momentum(S), rec=recordRead(S);
+    A.push('- Streak '+c.streak+' days, 30-day completion '+Math.round(c.rate30*100)+'%');
+    A.push('- '+m.sets7+' lift sets in the last 7 days; training gap '+(m.trainGap==null?'n/a':m.trainGap+' days'));
+    A.push('- Record: '+rec.pts+' points ('+rec.tier.label+')');
+  }catch(e){}
+  A.push('');
+  A.push('## Known gaps in this record');
+  try{
+    const empt=[['clips','film clips'],['coach','coach quotes'],['games','games'],['core','NCAA core courses'],['depth','depth-chart entries'],['body','soreness entries']]
+      .filter(([k])=>!((S[k]||[]).length)).map(([,n])=>n);
+    if(empt.length) A.push('- Nothing logged yet for: '+empt.join(', ')+'.');
+    const g=Model.academic(S);
+    if(g.gpa==null) A.push('- No GPA on record — the eligibility gate is unverified.');
+  }catch(e){}
+  A.push('');
+  A.push('_Generated by D1 OS. Numbers marked ESTIMATE or STALE should not be treated as measurements._');
+  return A.join('\n');
+}
+function claudeSend(kind){
+  const txt=claudeBrief(kind);
+  try{
+    if(navigator.clipboard&&navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(()=>{
+        toast('Briefing copied — opening Claude, paste it there');
+        try{ window.open('https://claude.ai/new','_blank','noopener'); }catch(e){}
+      },()=>shareText('D1 OS briefing',txt));
+      return;
+    }
+  }catch(e){}
+  shareText('D1 OS briefing',txt);
+}
+function claudeCardHTML(){
+  if(typeof CLAUDE_ASKS==='undefined') return '';
+  return `<div class="card"><h3>Ask Claude <span class="r">uses your subscription</span></h3>
+    <div class="note" style="margin:0">Builds a briefing from everything in here — including what is only an estimate and what the app is unsure about — copies it, and opens Claude. Paste and send. Nothing leaves this device automatically and no key is stored anywhere.</div>
+    <div class="row" style="gap:6px;flex-wrap:wrap;margin-top:10px">
+      ${CLAUDE_ASKS.map(a=>`<button class="btn sm ${a.k==='week'?'amber':'ghost'}" onclick="claudeSend('${a.k}')">${esc(a.label)}</button>`).join('')}
+    </div>
+    <div class="note" style="margin-top:8px;color:var(--faint)">The point is the provenance: Claude answers from HIS record with the uncertainty attached, instead of generic advice about 14-year-olds.</div></div>`;
+}
 /* ===== v7.86 WAKE LOCK — the screen slept mid-set =====
    restTimer/plyoTap/callTap all run while the phone sits on a bench. The screen locking during
    a rest interval is the difference between a timer that works and one he stops trusting. */
@@ -6957,6 +7073,7 @@ function rTrack(){
   ${typeof growthCardHTML==='function'?growthCardHTML():''}
   ${typeof maturityCardHTML==='function'?maturityCardHTML():''}
   ${typeof speedCardHTML==='function'?speedCardHTML():''}
+  ${typeof claudeCardHTML==='function'?claudeCardHTML():''}
   ${typeof fieldToggleHTML==='function'?fieldToggleHTML():''}
   ${typeof reportCardHTML==='function'?reportCardHTML():''}
   ${typeof durabilityCardHTML==='function'?durabilityCardHTML():''}
