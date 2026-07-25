@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.73 -->
+<!DOCTYPE html><!-- d1os v7.74 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -455,6 +455,23 @@ body{overscroll-behavior-y:none}
 .intro-dots{display:flex;gap:7px;justify-content:center;margin-top:6px}
 .intro-dots i{width:7px;height:7px;border-radius:99px;background:var(--line2);transition:background var(--t-fast) linear}
 .intro-dots i.on{background:var(--amber)}
+
+/* v7.74 section grouping — the athlete asked for order, not more cards.
+   Collapsed by default so each screen opens with its primary job visible. */
+details.sect{margin:14px 0 0;border-top:1px solid var(--line);padding-top:2px}
+details.sect>summary{cursor:pointer;list-style:none;padding:11px 4px;font-size:11px;font-weight:800;
+  letter-spacing:.09em;text-transform:uppercase;color:var(--faint);display:flex;align-items:center;gap:7px;
+  min-height:44px;box-sizing:border-box}
+details.sect>summary::-webkit-details-marker{display:none}
+details.sect>summary::after{content:'\203A';margin-left:auto;font-size:17px;line-height:1;
+  transition:transform .18s ease;color:var(--faint)}
+details.sect[open]>summary::after{transform:rotate(90deg)}
+details.sect>summary:hover{color:var(--cyan)}
+details.sect>summary:focus-visible{outline:2px solid var(--cyan);outline-offset:2px;border-radius:6px}
+details.sect[open]>summary{color:var(--cyan);border-bottom:1px solid var(--line)}
+#todayMore>summary{list-style:none;min-height:44px;display:flex;align-items:center}
+#todayMore>summary::-webkit-details-marker{display:none}
+@media (prefers-reduced-motion: reduce){details.sect>summary::after{transition:none}}
 </style>
 </head>
 <body>
@@ -4040,6 +4057,7 @@ function rTrain(){
   ${typeof trainKnowHTML==='function'?trainKnowHTML():''}
   ${typeof fullDayCard==='function'?fullDayCard():''}
   ${typeof plyoCardHTML==='function'?plyoCardHTML():''}
+  <details class="sect"><summary>Library &amp; reference</summary>
   ${(ph=>['preseason','inseason'].includes(ph)?`<div class="card" style="border-color:#294551">
     <h3>Injury Armor <span class="r">2×/week · evidence updated Jul 2026</span></h3>
     <div class="note" style="margin:0 0 6px">RB/LB is a hamstring-and-groin job. Two exercises, ~6 minutes after practice, twice a week — this is the closest thing to real armor the literature has:</div>
@@ -4091,6 +4109,7 @@ function rTrain(){
     • RIR-anchored sets (1–3 in reserve): standard autoregulation — effort measured without gadgets<br>
     • Lengthened partials on accessories: 2025 meta, ES 0.283 for long-length growth — small real edge<br>
     • Nordic curls in-season: up to 60%/85% fewer new/recurrent hamstring injuries at ≥75% adherence (2025 review)</div>
+  </details>
   </div>`;
 }
 /* ============ v7.33 THE HARDEST COACH (owner directive 2026-07-17) ============
@@ -4780,6 +4799,7 @@ function rPath(){
   ${typeof realityCardHTML==='function'?realityCardHTML():''}
   ${typeof statCardHTML==='function'?statCardHTML():''}
   ${typeof dossierCardHTML==='function'?dossierCardHTML():''}
+  <details class="sect"><summary>Recruiting reference</summary>
   <div class="card" style="border-color:#3f4a1f">
     <h3>Vegas Exposure Map <span class="r">verified Jul 17 2026 · live web check</span></h3>
     <div class="note" style="margin:0 0 8px"><b>The rule that shapes everything:</b> before Jun 15, 2028 coaches can't talk recruiting with you — but they CAN watch you at their own camps. Camps are the legal front door, and Vegas has the biggest one in the region.</div>
@@ -4854,6 +4874,8 @@ function rPath(){
     <div class="note">From your team's post. Aug 8 is your preseason scrimmage; the real opener is <b>Aug 21 vs Foothill</b>. Tell me the opponents marked TBD and I'll finish it.</div>
     ${SCHEDULE.map(g=>`<div class="row" style="padding:7px 0;border-bottom:1px solid var(--line)"><div class="grow" style="font-size:14px"><b>${fmtD(g.d)}</b> · ${g.opp==='TBD'?'<span style="color:var(--faint)">opponent TBD</span>':esc(g.opp)}</div><div class="mono" style="color:var(--faint);font-size:12px">${(n=>n>0?n+'d':n===0?'TODAY':'done')(daysBetween(todayISO(),g.d))}</div></div>`).join('')}
   </div>
+  </details>
+  <details class="sect"><summary>Academics &amp; eligibility</summary>
   <div class="card">
     <h3>Academic Eligibility <span class="r">the gate nobody talks about</span></h3>
     <div class="note">Your <b>core-course transcript</b> is a HARD D1 gate — the best 40 in the state can't save it. This is the easiest edge you have, and most kids blow it. <b style="color:var(--cyan)">Rule change worth knowing:</b> the NCAA removed standardized test scores from D1/D2 initial eligibility in 2023 and the old sliding scale is gone — certification now rests on the 16 core courses and a 2.3 core GPA alone. Tests still matter for admission and academic money; they no longer gate eligibility.</div>
@@ -4872,6 +4894,8 @@ function rPath(){
     ${TIMELINE.map(t=>`<details ${t.now?'open':''}><summary>${t.g} ${t.now?'<span class="pill amber">NOW</span>':''}</summary>
       <div class="bd">${t.items.map(i=>'• '+i).join('<br>')}</div></details>`).join('')}
   </div>
+  </details>
+  <details class="sect"><summary>Outreach tools</summary>
   <div class="card">
     <h3>Recruiting One-Pager <span class="r">what a coach sees in 10s</span></h3>
     <div class="note">The snapshot to paste into any coach email or DM. The blanks ARE the work: run the 40, log your GPA, add your Hudl link.</div>
@@ -4884,6 +4908,7 @@ function rPath(){
       <div class="bd"><b>Subject:</b> ${esc(t.subject)}<br><br>${esc(t.body).replace(/\n/g,'<br>')}
       <br><br><i style="color:var(--faint)">${t.notes.map(esc).join(' · ')}</i>
       <button class="btn sm" style="margin-top:8px" onclick="copyTpl('${k}')">COPY</button></div></details>`).join('')}
+  </details>
   </div>`;
 }
 function buildProfile(){
@@ -5126,6 +5151,7 @@ function rTrack(){
     ${radarSVG()}
     <div class="note">The volt shape is you; the cyan ring mixes two bars on purpose: <b>this-year freshman waypoints</b> for the lift/mass axes and <b>senior-recruit P50</b> for the speed axes (there is no honest freshman speed standard — so the ring shows the destination). Your strength and mass axes are nearly full — and <b>any speed axis you haven't tested sits at dead center</b>. That empty wedge is your gap, and it's why getting a real 40 and broad jump matters more than anything else in this app.</div>
   </div>
+  <details class="sect"><summary>Numbers &amp; trends</summary>
   <div class="card">
     <h3>Bodyweight <span class="r">mass mission → 174 lb</span></h3>
     ${(vs=>spark(vs,{goal:174,empty:'Log your weight weekly — the curve starts here.'}))(S.metrics.filter(m=>m.key==='wt').sort((a,b)=>a.d<b.d?-1:1).map(m=>({d:m.d,v:m.val})))}
@@ -5146,6 +5172,8 @@ function rTrack(){
     </table>`)(benchTable(S.settings.benchPos||'LB'))}
     <div class="note">Speed rows fill the day you test. <b>*</b> broad + shuttle thresholds are provisional (combine-derived), pending firmer HS-recruit sourcing.</div>
   </div>
+  </details>
+  <details class="sect"><summary>What the app has learned</summary>
   <div class="card">
     <h3>What I Actually Know <span class="r">honest confidence · no fake scores</span></h3>
     <div class="note">A real coach models you — but only from what they can see. Here's where I have real signal vs. where I'm blind, and the fastest way to turn a guess into knowledge. I will never show you a made-up "readiness 84%" — that would be lying, and this app doesn't do that.</div>
@@ -5207,6 +5235,8 @@ function rTrack(){
     <div class="note"><b style="color:var(--amber)">Known tension, on record:</b> the mass mission (→174) can slow the 40 this card calls your keystone. PEAK 14 measures weight and speed on the same days so the trade shows up as data, and the RB-vs-LB fork gets decided on sophomore film — not by default.</div>
     <div class="note">Rungs between JV waypoints and D1 percentiles (All-Conference, All-State) have no honest published numbers — the ladder here runs stage waypoint → D1-recruit percentiles, and unknowns say so instead of inventing standards.</div>
   </div>
+  </details>
+  <details class="sect"><summary>Logging &amp; protocols</summary>
   <div class="card">
     <h3>Trainer's Log <span class="r">prevent missed reps</span></h3>
     <div class="note">Patterns, never diagnosis. Log soreness the day you feel it — three hits on the same area in 14 days raises the flag.</div>
@@ -5215,6 +5245,8 @@ function rTrack(){
     ${(br=>br.flag?`<div class="flag">⚠ ${esc(br.flag)}</div>`:br.recent?`<div class="note">${br.recent} entr${br.recent===1?'y':'ies'} in 14 days — no recurring pattern. Keep logging honest.</div>`:'<div class="note" style="color:var(--faint)">Nothing logged. Quiet is fine — silence should mean healthy, not forgotten.</div>')(bodyRead())}
     ${(S.body||[]).slice(-5).reverse().map(b=>`<div class="note">• ${esc(b.area)} ${b.lvl}/5 <span style="color:var(--faint)">(${esc(fmtD(b.d))})</span></div>`).join('')}
   </div>
+  </details>
+  <details class="sect"><summary>Archive &amp; data</summary>
   ${(ca=>ca.length?`<div class="card">
     <h3>Career Archive <span class="r">everything survives</span></h3>
     ${ca.map(y=>`<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b style="font-size:13px">${esc(y.year)} · ${esc(y.grade)}</b><div class="note" style="margin:2px 0 0">${y.checkins} check-ins · ${y.lifts} sets${Object.keys(y.best).length?' (best e1RM: '+Object.entries(y.best).map(([k,v])=>k+' '+v).join(', ')+')':''} · ${y.prs} PRs · ${y.corrections} corrections · ${y.clips} clips · ${y.missions} missions · ${y.contacts} coach contacts</div></div>`).join('')}
@@ -5332,6 +5364,8 @@ function rTrack(){
     ${S.metrics.length?`<table style="margin-top:12px"><tr><th>Date</th><th>Metric</th><th>Value</th></tr>
       ${S.metrics.slice(-8).reverse().map(m=>`<tr><td>${fmtD(m.d)}</td><td>${esc(m.key)}</td><td class="mono">${m.val}</td></tr>`).join('')}</table>`:''}
   </div>
+  </details>
+  <details class="sect"><summary>Fuel, sleep &amp; supplements</summary>
   <div class="card">
     <h3>Fuel Plan <span class="r">the mass mission</span></h3>
     ${(fp=>{const wtr=Model.weightTrend();return `
@@ -5402,6 +5436,7 @@ function rTrack(){
     <input type="file" id="impFile" accept=".json" style="display:none" onchange="if(this.files[0])importS(this.files[0])">
     <div class="note">Export monthly, save to iCloud Files. Import replaces everything on this phone (a safety export runs first).</div>
     ${typeof dumpCardHTML==='function'?dumpCardHTML():''}
+  </details>
   </div>`;
 }
 /* ---- cloud sync card (v7.32) — three states: no config / signed out / live ---- */
@@ -5611,6 +5646,7 @@ function rPush(){
       <details style="margin-top:6px"><summary>All corrections (${cm.list.length})</summary><div class="bd">${cm.list.map((x,i)=>`<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><span class="grow" style="font-size:13px">“${esc(x.text)}” · ${x.n}× · last ${esc(fmtD(x.last))}</span><button class="btn sm ghost" onclick="coachAgainIdx(${i})">HEARD AGAIN</button></div>`).join('')}</div></details>`
     :'<div class="empty">Nothing on record yet. After your first practice: every correction you heard, one line each.</div>')(coachMemory())}
   </div>
+  <details class="sect"><summary>Playbook, film &amp; mental library</summary>
   ${todayISO()<=SEASON_ENTRY.opener?`<div class="card">
     <h3>Earn the Spot <span class="r">how freshmen actually win reps</span></h3>
     <div class="note">Coaches decide playing time from behaviors they can SEE. These six are the whole meta-game — one rotates onto TODAY every day of camp.</div>
@@ -5669,6 +5705,7 @@ function rPush(){
     <details><summary>Full protocol reference <span class="pill">${INJURY_PROTOCOLS.length}</span></summary><div class="bd">
       ${INJURY_PROTOCOLS.map(p=>`<b style="color:${/CRITICAL/.test(p.grade)?'var(--red)':'var(--txt)'}">${esc(p.name)}</b> — ${esc(p.signs)}<br><span style="color:var(--faint)">RTP ${esc(p.rtn)} · Prevent: ${esc(p.prevention)}</span><br><br>`).join('')}
     </div></details>
+  </details>
   </div>`;
 }
 function copyScout(){
