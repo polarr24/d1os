@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.74 -->
+<!DOCTYPE html><!-- d1os v7.75 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -845,7 +845,25 @@ function phaseFor(iso){ const p=PHASES.find(p=>iso>=p.from&&iso<=p.to); return p
 function phaseEst(iso){ const p=PHASES.find(p=>iso>=p.from&&iso<=p.to); return !!(p&&p.est); } // is today's phase running on estimated dates?
 /* Basic Wolves 2026 varsity schedule (from IG @basic_academy). Dates verified from the graphic;
    opponents partly read from small logos — TBD ones need confirming. JV usually plays the night before. */
+/* v7.75 — VERIFIED against the MaxPreps JV page (fetched 2026-07-24).
+   He is JV — Basic has no freshman team. JV plays THURSDAY: 8 of 9 games in 2025 were Thursday,
+   and the one published 2026 fixture (Silverado, 10/8) is a Thursday. Varsity plays Friday, so
+   the app's old Friday assumption was the varsity slate, not his.
+   SCHEDULE below stays the TEAM slate — JV faces the same opponents, so it still drives
+   opponent scouting — while JV_* carries what is actually verified about his games. */
 const SCHEDULE=[{d:'2026-08-21',opp:'Foothill'},{d:'2026-08-28',opp:'TBD'},{d:'2026-09-04',opp:'Green Valley'},{d:'2026-09-11',opp:'TBD'},{d:'2026-09-18',opp:'TBD'},{d:'2026-09-25',opp:'TBD'},{d:'2026-10-02',opp:'Palo Verde'},{d:'2026-10-09',opp:'TBD'}];
+const JV_CONFIRMED=[{d:'2026-10-08',opp:'Silverado',time:'6:30pm'}];
+const JV_LIKELY=['Las Vegas','Shadow Ridge','Palo Verde','Green Valley','Coronado','Foothill','Faith Lutheran','Liberty','Desert Oasis'];
+const JV_STAFF={hc:'D. Coleman',asst:'JR Moyers',src:'MaxPreps JV page, verified 2026-07-24'};
+const JV_NOTE='JV plays Thursday (verified: 8 of 9 games in 2025, plus the published Silverado fixture). Varsity is Friday. The 2026 JV slate is not published yet beyond Silverado — likely opponents are last season\'s.';
+const FIRST_PRACTICE='2026-07-28';   // owner-confirmed; no camp beforehand
+/* Equipment + venue reality — programming may only prescribe what he can actually reach. */
+const KIT={
+  apartment:['plates','barbell/Smith','dumbbells','pull-up bar','dips','leg extension','bands','cardio'],
+  eos:['full gym','trains with cousin'],
+  sprint:['park — 5 min walk, weather-limited','treadmill'],
+  noSprintIndoors:true
+};
 
 /* ============ BENCHMARKS — typical committed-recruit ranges, RB, senior yr ============ */
 const BENCHMARKS=[
@@ -1377,6 +1395,32 @@ const PROTOCOLS=[
    how:'10 minutes of OUTDOOR light within about 30 minutes of waking. Overcast still counts; through a window does not.'}
 ];
 const PROTO_CATS={protect:'Protect',build:'Build',mind:'Mind',recover:'Recover'};
+
+/* ===== v7.75 MEASUREMENT PROVENANCE =====
+   Owner audit 2026-07-24. The app was treating an ESTIMATE as a tested number and comparing it
+   to D1 percentiles. Every headline number now carries how it was obtained, and anything not
+   actually measured is badged and excluded from "tested" claims. */
+const MEASURE_PROV={
+  forty:{status:'estimated',label:'ESTIMATE — never timed',
+    note:'4.9 was reasoned from lifts and bodyweight, not run against a clock. No stopwatch, no coach, no phone-video frame count. It cannot be compared to a percentile table as if it were a test.',
+    fix:'One timed 40 on fresh legs, best of 3, same shoes and surface. Highest-value hour available before the season.'},
+  vert:{status:'measured',label:'BOX-MEASURED',
+    note:'Cleared a 22" box; could not clear 26". So the honest reading is 22" confirmed with a true value somewhere in 22–25 — not the 24–26 previously logged.',
+    fix:'Jump-and-touch against the tape-measured 89" reach gives a cleaner number than box clearance.'},
+  broad:{status:'stale',label:'3 YEARS STALE',
+    note:'6\'0" (72") in 6th-grade track — three years and a growth spurt ago. Directionally useless now.',
+    fix:'Two minutes at the park. It is the last missing baseline and it is blocking the speed read.'},
+  reach:{status:'measured',label:'TAPE vs WALL',note:'89" measured flat against a wall with a tape. Every vertical number derives from it.',fix:null},
+  wing:{status:'measured',label:'MEASURED',note:'70" measured. Camp forms ask for it.',fix:null},
+  ht:{status:'measured',label:'DOCTOR-MEASURED',note:'5\'7" exact, shoeless, at a physical roughly 2–4 weeks ago. Re-check scheduled for the 30th.',fix:null},
+  wt:{status:'measured',label:'4 DAYS OLD',note:'160 lb, last stepped on a scale 4 days ago. No scale currently available.',fix:'A scale is the cheapest instrument in this whole system.'}
+};
+const PR_PROV={
+  squat:{status:'tested',label:'TESTED 1RM',note:'Tested single. One supporting set in the lift log — log more and the engine leans on it harder.'},
+  bench:{status:'tested',label:'CURRENT · 1 WEEK AGO',note:'210 is current as of a week ago and supersedes the older 205.'},
+  dead:{status:'declared',label:'FORM UNVERIFIED',note:'His favourite lift, but no coach has checked the hinge. It is the highest-risk lift to load un-coached during a growth spurt.'},
+  clean:{status:'declared',label:'NOT A TESTED MAX',note:'A random single taken at the gym, self-taught, and he says he can probably do more. Zero supporting sets. It currently outranks real evidence inside waypointGaps via Math.max() — treat it as a placeholder, not a max.'}
+};
 const MATURITY={
   err:2.0, // inches, honest uncertainty on a mid-parental estimate
   bands:[
@@ -1716,7 +1760,7 @@ const DEFAULTS={
   pushLog:[],    // {d,type}                           append-only
   pipeline:[],   // {id,school,coach,stage,notes}      entities (stage = current truth)
   events:[],     // {d,type,meta}                      append-only: contact|stage|pr|task
-  settings:{gameDay:5,closeoutHour:21}, // gameDay: user-set fact (verify at practice); phase is COMPUTED, never stored. closeoutHour: local hour the nightly close-out card appears
+  settings:{gameDay:4,closeoutHour:21}, // gameDay: user-set fact (verify at practice); phase is COMPUTED, never stored. closeoutHour: local hour the nightly close-out card appears
   /* engine parameters with provenance — the learning surface. Changed ONLY by
      approved calibration (suggest-and-approve, like PRs). basis records why. */
   params:{
@@ -1773,7 +1817,7 @@ function migrate(p){
   const s=structuredClone(DEFAULTS);
   for(const k in p) if(k in s) s[k]=p[k];
   // v7.0 → v7.1: phase is computed now; last lives in events
-  if(s.settings){ delete s.settings.phase; if(s.settings.gameDay===undefined) s.settings.gameDay=5; }
+  if(s.settings){ delete s.settings.phase; if(s.settings.gameDay===undefined) s.settings.gameDay=4; /* v7.75: JV plays Thursday */ }
   for(const k in DEFAULTS.params) if(!s.params[k]) s.params[k]=structuredClone(DEFAULTS.params[k]);
   for(const pl of s.pipeline||[]){
     if(pl.last){ // migrate legacy last-contact into an event if none exists
@@ -4515,6 +4559,41 @@ function scriptCardHTML(){
     ${!sc.next&&!sc.restDay?'<div class="note" style="margin-top:8px;color:var(--green)">That\'s the day. Nothing else is required.</div>':''}
   </div>`;
 }
+/* ===== v7.75 PROVENANCE — what is measured vs what is guessed =====
+   Owner audit: the 40 was an ESTIMATE reasoned from lifts and bodyweight, yet the app converted
+   it to a laser equivalent and compared it to D1 percentiles as though it were tested. Every
+   headline number now shows how it was obtained. Nothing here changes a value — it changes what
+   the app is willing to CLAIM about a value. */
+function provBadge(k){
+  const P=(typeof MEASURE_PROV!=='undefined')?MEASURE_PROV[k]:null; if(!P) return '';
+  const col=P.status==='measured'?'var(--green)':P.status==='estimated'?'var(--red)':'var(--amber)';
+  return `<span class="pill" style="font-size:9.5px;border-color:${col};color:${col}">${esc(P.label)}</span>`;
+}
+function provCardHTML(){
+  if(typeof MEASURE_PROV==='undefined') return '';
+  const rows=Object.keys(MEASURE_PROV).map(k=>{
+    const P=MEASURE_PROV[k];
+    const col=P.status==='measured'?'var(--green)':P.status==='estimated'?'var(--red)':'var(--amber)';
+    const nm={forty:'40-yard',vert:'Vertical',broad:'Broad jump',reach:'Standing reach',wing:'Wingspan',ht:'Height',wt:'Bodyweight'}[k]||k;
+    return `<div style="border-top:1px solid var(--line);padding:8px 0">
+      <div class="row" style="align-items:center;gap:6px"><b style="font-size:13px">${esc(nm)}</b>
+        <span class="grow"></span><span class="pill" style="font-size:9.5px;border-color:${col};color:${col}">${esc(P.label)}</span></div>
+      <div class="note" style="margin:4px 0 0">${esc(P.note)}</div>
+      ${P.fix?`<div class="note" style="margin:4px 0 0;font-style:normal;color:var(--cyan)">Fix: ${esc(P.fix)}</div>`:''}
+    </div>`;}).join('');
+  const prRows=(typeof PR_PROV!=='undefined')?Object.keys(PR_PROV).map(k=>{
+    const P=PR_PROV[k];
+    const col=P.status==='tested'?'var(--green)':'var(--amber)';
+    return `<div style="border-top:1px solid var(--line);padding:8px 0">
+      <div class="row" style="align-items:center;gap:6px"><b style="font-size:13px">${esc(k.toUpperCase())}</b>
+        <span class="grow"></span><span class="pill" style="font-size:9.5px;border-color:${col};color:${col}">${esc(P.label)}</span></div>
+      <div class="note" style="margin:4px 0 0">${esc(P.note)}</div></div>`;}).join(''):'';
+  return `<div class="card" style="border-color:#294551"><h3>Where these numbers came from <span class="r">measured vs guessed</span></h3>
+    <div class="note" style="margin:0">A number is only worth what the method behind it is worth. Nothing below has been changed \u2014 what changed is what the app is willing to claim.</div>
+    ${rows}
+    ${prRows?`<div class="k" style="font-size:11px;letter-spacing:.08em;color:var(--faint);margin-top:12px">LIFTS</div>${prRows}`:''}
+  </div>`;
+}
 /* ===== v7.72 THE RECORD — the screen he opens when bored =====
    Owner: he loves seeing self-improvement and quits when progress goes invisible. This is the
    progression surface, built honestly: the bar rises with work BANKED, never with a guess about
@@ -5414,6 +5493,7 @@ function rTrack(){
   ${typeof growthCardHTML==='function'?growthCardHTML():''}
   ${typeof maturityCardHTML==='function'?maturityCardHTML():''}
   ${typeof speedCardHTML==='function'?speedCardHTML():''}
+  ${typeof provCardHTML==='function'?provCardHTML():''}
   ${typeof medCardHTML==='function'?medCardHTML():''}
   ${typeof sleepSqCardHTML==='function'?sleepSqCardHTML():''}
   ${typeof coreCardHTML==='function'?coreCardHTML():''}
