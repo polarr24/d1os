@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.65 -->
+<!DOCTYPE html><!-- d1os v7.69 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1316,6 +1316,21 @@ const PEAK14={start:'2026-07-13',testA:'2026-07-13',testB:'2026-07-25',end:'2026
    NOT Khamis-Roche (which needs published coefficient tables we do not ship). Mid-parental
    carries roughly ±2in of error, so the app reports a BAND and never a single adult height.
    Purpose is context for the benchmark gaps, never a forecast of what he will become. */
+/* The permanent medical record the app has never had a home for. These are the facts a coach,
+   trainer, parent or ER actually needs, and the ones that get lost between seasons. Recorded as
+   append-only events — the app stores WHAT WAS TESTED, never a diagnosis. */
+const MED_ITEMS=[
+  {k:'sct',  label:'Sickle cell trait', opts:['negative','positive','unknown'], deep:'sct',
+   why:'Carriers face up to 16–21× the exertional-death rate in conditioning. Usually already on the newborn screen — it is a records request.'},
+  {k:'ecg',  label:'Heart screen (ECG)', opts:['done','not yet'], deep:'cardiac',
+   why:'Sudden cardiac arrest is the leading cause of death in young athletes, and history+physical alone misses most of it.'},
+  {k:'cbase',label:'Baseline concussion test', opts:['done','not yet'], deep:null,
+   why:'A preseason baseline makes post-injury comparison possible. Useful, imperfect, and never a substitute for a clinician.'},
+  {k:'iron', label:'Ferritin / iron', opts:['done','not yet'], deep:'iron',
+   why:'~41% of adolescent male athletes run mildly iron deficient, and a normal hemoglobin does not rule it out.'},
+  {k:'vitd', label:'Vitamin D', opts:['done','not yet'], deep:null,
+   why:'Commonly low even in sunny climates; ask at the same blood draw as ferritin.'}
+];
 const MATURITY={
   err:2.0, // inches, honest uncertainty on a mid-parental estimate
   bands:[
@@ -1353,6 +1368,26 @@ const DEEP={
     b:'The NIAA approved NIL language making Nevada one of the states permitting high-school name/image/likeness without forfeiting amateur status, with the usual excluded categories (adult entertainment, tobacco, cannabis, controlled substances, weapons, gambling). Worth knowing; worth nothing until there is something real to sign.'},
   acl:{t:'Prevention programs actually work',
     b:'Neuromuscular training programs cut injury risk roughly 42% in youth athletes across 16 trials, with non-contact ACL reductions reported from 64% up to 73%. What makes them work: multi-faceted (at least three exercise types), started in preseason, and done consistently — adherence is the whole ballgame.'},
+  sct:{t:'Sickle cell trait — the one that kills in conditioning',
+    b:'Between 2000 and 2010, 16 Division I football players died during conditioning or games — 10 of them carried sickle cell trait. Carriers show up to 16–21× the rate of exertional death and heat illness. Sickling can start within 2–5 minutes of all-out effort and turns grave fast if someone urges the athlete to push through. Over 40% of NCAA athletes only learned their status at college screening — even though US newborns have been screened since the 1970s. It is a records request, not a mystery. Knowing it is the entire intervention.'},
+  cardiac:{t:'Sudden cardiac arrest — screening and the 3 minutes that matter',
+    b:'Sudden cardiac arrest is the leading cause of death in young athletes, usually from an inherited condition like hypertrophic cardiomyopathy or a rhythm disorder. History and physical alone miss most of it; a resting ECG is the most statistically powerful detection tool, though US bodies stop short of mandating it. Just as important as screening: an emergency action plan — someone who starts CPR, someone who fetches the AED, and everyone knowing where it is. Survival is decided in minutes, not by fitness.'},
+  iron:{t:'Iron — the silent, common, fixable one',
+    b:'Roughly 41% of adolescent male athletes show mild iron deficiency and about 17% moderate — without anemia, so a normal hemoglobin does NOT rule it out. Guidance is to test ferritin alongside hemoglobin. Honest caveat: supplementing when ferritin rose did not always produce measurable performance gains, so this is about finding a real deficiency, not topping up for an edge. Never supplement iron without a blood test and a doctor — excess iron is harmful.'},
+  otr:{t:'Overtraining shows up in mood before it shows up in numbers',
+    b:'The earliest reliable signal of digging too deep is not a slow 40 or a missed lift — it is mood. Over 70% of athletes with non-functional overreaching reported emotional changes themselves. Fatigue, vigor and depression move most; falling motivation, rising irritability, and effort that feels harder than the workload justifies are the consistent early warnings. This is exactly what your nightly energy rating is for — a run of low energy with normal training is information, not weakness.'},
+  hipgrow:{t:'Why growing-athlete hip pain gets a real look',
+    b:'Most teenage aches are ordinary. Hips are the exception worth naming: in a still-growing athlete, hip pain can come from a growth-plate structure rather than a muscle, and a couple of those causes are time-sensitive — they do better when caught early and worse when trained through for months. Hip problems can also refer pain to the knee. So the rule for hips is different from the rule for a tight hamstring: persistent or worsening hip pain, or a limp, gets a doctor rather than a foam roller. Not a diagnosis — a reason not to wait.'},
+  heat:{t:'Vegas heat is an adaptation you already own',
+    b:'Heat acclimatization expands blood plasma volume roughly 10–25%, most of it inside about 3 days, which lowers heart rate and raises stroke volume at the same workload. Whether that carries over to performance in COOL conditions is genuinely debated — early positive studies were criticised for weak controls. So: train the heat safely for the safety benefit, which is certain, and treat any cool-weather bonus as a maybe.'},
+  acadroute:{t:'The high-academic route — the widest door for an under-sized back',
+    b:'Academically selective football programs — the Ivy League, Patriot League, NESCAC and the high-academic FBS and FCS schools — recruit from a much smaller pool, because a coach there needs a player who ALSO clears an academic bar most recruits cannot. The Ivies formally band recruits by an academic index built from grades and test scores. That inverts the usual disadvantage: where a P4 program screens on measurables first, these programs screen on academics first and then ask if you can play. For an athlete whose size or 40 lags the P4 filter but whose transcript is top-decile, this is the widest door available — and unlike a growth spurt, it is fully under your control. Build the transcript from grade 9 and the list of programs that can say yes gets longer every semester.'},
+  acadlever:{t:'Academics are a RECRUITING lever now, not just a gate',
+    b:'Follow the chain. The NCAA removed test scores from initial eligibility in 2023 — so tests no longer gate whether you can play. But the House settlement capped football rosters at 105 and squeezed walk-on spots, while allowing scholarships to be split into partials. That combination changes the math: a partial athletic offer stacked with ACADEMIC money can be a live package where pure athletic money never materialises. A high test score is therefore a recruiting asset, not just a report-card line. It also opens the academically-selective programs — Ivy, Patriot, NESCAC, service academies, high-academic FBS — where the applicant pool is far smaller and the coach needs someone who clears the academic bar. For an athlete whose measurables are still arriving, that is the widest door available, and it is opened with four years of coursework rather than one good camp.'},
+  core9:{t:'Grade 9: every core course is still ahead of you',
+    b:'NCAA core courses start counting the day 9th grade starts — 8th-grade grades do not bank, no matter how good they were. That cuts both ways: nothing is spent yet, and a 4.0 in honors is evidence you can hold the line, not credit in the account. 16 core courses, a 2.3 core GPA minimum, and 10 of the 16 (7 in English/math/science) locked before senior year. Front-load them: the athlete who leaves core courses for junior year is the one who finds out in March that a class did not count.'},
+  courselist:{t:'The course-list trap that surfaces senior year',
+    b:'Every high school has its OWN list of NCAA-approved courses, filed under a school code at the Eligibility Center High School Portal. A class can look academic, carry full credit, raise your school GPA — and still not count toward the 16, because your school never got it approved. Families almost never check, and it surfaces in the senior-year audit when nothing can be done. Check the schedule against the approved list BEFORE the add/drop window closes. If you changed schools, check both schools\' lists — approvals do not transfer with the transcript.'},
   feedback:{t:'Ask for feedback — do not ration it',
     b:'Coaching lore says less feedback teaches more (the "guidance hypothesis"). Recent meta-analysis does not support it. What does hold up is SELF-CONTROLLED feedback: retention was highest when the athlete chose when to receive it. So call for the coach\'s eyes when you want them, rather than following a fixed schedule.'}
 };
@@ -2742,6 +2777,18 @@ function maturityRead(s=S){
   return {have:true,ht,d:h.d,predAdult,pah,lo,hi,band:b.key,label:b.label,read:b.read,
           err:MATURITY.err,boneWindow:(b.key==='pre'||b.key==='circa')};
 }
+/* v7.66 medical baseline — latest recorded status per item. Append-only events, correctable by
+   a later entry. The app records WHAT WAS TESTED and what the athlete was told; it never
+   diagnoses, never interprets a result, and never replaces a clinician. */
+function medRead(s=S){
+  const out={};
+  (s.events||[]).filter(e=>e.type==='med'&&e.meta&&e.meta.k)
+    .sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0)
+    .forEach(e=>{ out[e.meta.k]={v:e.meta.v,d:e.d}; });
+  const items=(typeof MED_ITEMS!=='undefined')?MED_ITEMS:[];
+  const open=items.filter(i=>{const r=out[i.k]; return !r||r.v==='not yet'||r.v==='unknown';});
+  return {map:out,open,done:items.length-open.length,total:items.length};
+}
 /* change-of-direction deficit: 5-10-5 minus a 10yd linear sprint. Separates "slow" from
    "bad at turning" — descriptive comparison, no benchmark attached (we don't have a verified one). */
 function codDeficit(s=S){
@@ -3224,6 +3271,25 @@ function decide(s=S,dateISO=todayISO()){
     plan.tasks.push({kind:'academic',id:'ncaa:verify:'+dateISO.slice(0,4),
       title:'Verify Eligibility Center status before April',
       why:'Missing core course or an unsubmitted final grade is the #1 reason borderline recruits lose offers. Check the transcript is on file and every core course is approved — March, every year.'});
+  }
+  // 9a-3d · COURSE-LIST CHECK (v7.67): the highest-leverage academic act of grade 9, and it has a
+  // deadline. A class can carry full credit, lift the school GPA, and still not count toward the 16
+  // because the school never got it NCAA-approved — discovered in the senior audit, too late to fix.
+  // Fires each August/September until the core log has entries.
+  if(['08','09'].includes(dateISO.slice(5,7))&&!(s.core||[]).length&&!taskDone('ncaa:courselist:'+dateISO.slice(0,4))){
+    plan.tasks.push({kind:'academic',id:'ncaa:courselist:'+dateISO.slice(0,4),
+      title:'Check this year\'s schedule against your school\'s NCAA-approved course list',
+      why:'Every school files its own approved list under a school code at the Eligibility Center High School Portal. A class that isn\'t on it does NOT count toward the 16 — no matter the grade. Check before add/drop closes, and check both schools if you transferred.'});
+  }
+  // 9a-3c · MEDICAL BASELINE (v7.66): the open items on the record, surfaced once rather than nagged.
+  // Records what was tested; never diagnoses. One physical closes most of the list.
+  if(typeof medRead==='function'){
+    const mr=medRead(s);
+    if(mr.open.length&&!taskDone('med:baseline:'+dateISO.slice(0,4))){
+      plan.tasks.push({kind:'academic',id:'med:baseline:'+dateISO.slice(0,4),
+        title:'Close the medical baseline: '+mr.open.map(o=>o.label).join(', '),
+        why:'These are the facts a trainer or ER needs and the ones that get lost between seasons. Take the list to the next physical — one visit closes most of it.'});
+    }
   }
   // 9a-4 · SEASON REPORT (v7.41): when a season ends, the evidence gets a chapter
   if(phaseFor(dateISO)==='offseason'&&dateISO>='2026-11-01'&&dateISO<='2026-11-30'&&!taskDone('seasonreport:2026')){
@@ -4151,6 +4217,30 @@ function cutRiskCardHTML(){
     <div class="note" style="margin:0;font-style:normal">You're down from <b>${c.from} lb</b> to <b>${c.to} lb</b> over ${c.days} day${c.days===1?'':'s'} — about <b>${c.pctWk}% per week</b>. The high-school wrestling standard caps weight loss at <b>1.5% of bodyweight per week</b>, and cutting weight during puberty is associated with stunted growth, plus real risks to heart rhythm, hydration and bone.</div>
     <div class="note" style="margin-top:8px;font-style:normal"><b>Tell a parent and your coach today.</b> You're still growing — the weight class should move to fit you, not the other way around. This app will never give you a weight target.</div></div>`;
 }
+/* ===== v7.66 MEDICAL BASELINE — the record that gets lost between seasons =====
+   Records what was TESTED, never a diagnosis. This is the card you hand a trainer. */
+function setMed(k,v){ logEvent('med',{k,v}); save(); toast('Recorded ✓'); try{ RENDER[curView](); }catch(e){} }
+function medCardHTML(){
+  if(typeof MED_ITEMS==='undefined'||typeof medRead!=='function') return '';
+  const m=medRead(S);
+  const rows=MED_ITEMS.map(it=>{
+    const r=m.map[it.k], v=r?r.v:null;
+    const good=v&&v!=='not yet'&&v!=='unknown';
+    const col=v==='positive'?'var(--amber)':good?'var(--green)':'var(--faint)';
+    const btns=it.opts.map(o=>`<button class="btn sm ${v===o?'amber':'ghost'}" onclick="setMed('${it.k}','${o}')">${esc(o)}</button>`).join('');
+    return `<div style="border-top:1px solid var(--line);padding:8px 0">
+      <div class="row" style="align-items:center;gap:6px"><b style="font-size:13px">${esc(it.label)}</b>
+        <span class="grow"></span><span class="mono" style="font-size:12px;color:${col}">${v?esc(v.toUpperCase()):'—'}${r?' · '+fmtD(r.d):''}</span></div>
+      <div class="note" style="margin:4px 0 6px">${esc(it.why)}</div>
+      <div class="row" style="gap:6px">${btns}</div>
+      ${it.deep?deepNote(it.deep):''}</div>`;
+  }).join('');
+  return `<div class="card"><h3>Medical baseline <span class="r">${m.done}/${m.total} on record</span></h3>
+    <div class="note" style="margin:0">The facts a trainer, coach or ER actually needs — and the ones that vanish between seasons. This records what was <b>tested</b>. It never diagnoses and never replaces a doctor.</div>
+    ${rows}
+    ${m.open.length?`<div class="note" style="margin-top:8px;font-style:normal;color:var(--cyan)">Still open: ${esc(m.open.map(o=>o.label).join(' · '))}. Take this list to the next physical — one visit closes most of it.</div>`:'<div class="note" style="margin-top:8px;color:var(--green)">Full baseline on record. Re-check ferritin and vitamin D at each annual physical.</div>'}
+  </div>`;
+}
 /* small reusable knowledge block so the deep content renders identically everywhere */
 function deepNote(k){ const x=DEEP[k]; if(!x) return '';
   return `<details style="margin-top:8px"><summary style="cursor:pointer;font-size:12px;color:var(--cyan)">${esc(x.t)}</summary><div class="note" style="margin-top:6px;font-style:normal">${esc(x.b)}</div></details>`; }
@@ -4356,7 +4446,8 @@ function rPath(){
   </div>
   <div class="card">
     <h3>Academic Eligibility <span class="r">the gate nobody talks about</span></h3>
-    <div class="note">Grades and test scores are a HARD D1 gate — the best 40 in the state can't save a transcript. This is the easiest edge you have, and most kids blow it.</div>
+    <div class="note">Your <b>core-course transcript</b> is a HARD D1 gate — the best 40 in the state can't save it. This is the easiest edge you have, and most kids blow it. <b style="color:var(--cyan)">Rule change worth knowing:</b> the NCAA removed standardized test scores from D1/D2 initial eligibility in 2023 and the old sliding scale is gone — certification now rests on the 16 core courses and a 2.3 core GPA alone. Tests still matter for admission and academic money; they no longer gate eligibility.</div>
+    ${typeof deepNote==='function'?deepNote('acadlever')+deepNote('acadroute')+deepNote('core9')+deepNote('courselist'):''}
     <div style="font-size:13px;color:var(--dim);line-height:1.8;margin-top:8px">
       • <b style="color:var(--txt)">16 NCAA core courses</b> across high school — 10 done before senior year, locked in<br>
       • <b style="color:var(--txt)">Core GPA ≥ 2.3</b> to be D1-eligible — but aim <b style="color:var(--txt)">3.0+</b> to open doors and unlock academic money<br>
@@ -4710,6 +4801,7 @@ function rTrack(){
     <h3>Trainer's Log <span class="r">prevent missed reps</span></h3>
     <div class="note">Patterns, never diagnosis. Log soreness the day you feel it — three hits on the same area in 14 days raises the flag.</div>
     ${pendSore?`<div class="row" style="gap:6px;margin:8px 0"><input id="soreArea" placeholder="where? e.g. left hamstring" style="flex:1">${[1,2,3,4,5].map(v=>`<button class="btn sm ghost" style="min-width:30px" onclick="soreTap(${v})">${v}</button>`).join('')}</div>`:`<button class="btn" style="width:100%;margin:8px 0" onclick="pendSore=true;rTrack()">+ SORE / TIGHT</button>`}
+    ${typeof deepNote==='function'?deepNote('hipgrow')+deepNote('otr'):''}
     ${(br=>br.flag?`<div class="flag">⚠ ${esc(br.flag)}</div>`:br.recent?`<div class="note">${br.recent} entr${br.recent===1?'y':'ies'} in 14 days — no recurring pattern. Keep logging honest.</div>`:'<div class="note" style="color:var(--faint)">Nothing logged. Quiet is fine — silence should mean healthy, not forgotten.</div>')(bodyRead())}
     ${(S.body||[]).slice(-5).reverse().map(b=>`<div class="note">• ${esc(b.area)} ${b.lvl}/5 <span style="color:var(--faint)">(${esc(fmtD(b.d))})</span></div>`).join('')}
   </div>
@@ -4878,6 +4970,7 @@ function rTrack(){
   ${typeof growthCardHTML==='function'?growthCardHTML():''}
   ${typeof maturityCardHTML==='function'?maturityCardHTML():''}
   ${typeof speedCardHTML==='function'?speedCardHTML():''}
+  ${typeof medCardHTML==='function'?medCardHTML():''}
   ${typeof sleepSqCardHTML==='function'?sleepSqCardHTML():''}
   ${typeof coreCardHTML==='function'?coreCardHTML():''}
   ${typeof calCardHTML==='function'?calCardHTML():''}
