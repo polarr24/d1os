@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.85 -->
+<!DOCTYPE html><!-- d1os v7.86 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -472,6 +472,28 @@ details.sect[open]>summary{color:var(--cyan);border-bottom:1px solid var(--line)
 #todayMore>summary{list-style:none;min-height:44px;display:flex;align-items:center}
 #todayMore>summary::-webkit-details-marker{display:none}
 @media (prefers-reduced-motion: reduce){details.sect>summary::after{transition:none}}
+
+/* ===== v7.86 FIELD MODE =====
+   The primary logging environment is a 100 degF Henderson practice field in direct sun, and the
+   app shipped a single #08090C dark theme. This is not a light theme for taste — it is a
+   high-contrast, oversized-target mode for a screen he cannot otherwise read, toggled manually
+   because auto-switching on ambient light would fight him mid-set. */
+body.field{--bg:#f5f6f7;--card:#ffffff;--txt:#0a0d12;--dim:#3a4250;--faint:#5b6472;
+  --line:#c7ccd4;--cyan:#1D4ED8;--amber:#2563EB;--green:#1c6b3a;--red:#a01b1b}
+body.field .card{box-shadow:0 1px 3px rgba(0,0,0,.12)}
+body.field .btn{border-width:2px;font-weight:800}
+body.field .btn.amber{background:#2563EB;color:#fff;border-color:#1D4ED8}
+body.field .note{color:#3a4250}
+body.field .mono{color:#0a0d12}
+body.field #hdr,body.field nav{background:#ffffff;border-color:#c7ccd4}
+/* oversized targets: gloves, sweat, sunlight */
+body.field .btn{min-height:56px;font-size:14px}
+body.field .btn.sm{min-height:48px;font-size:13px;padding:12px 14px}
+body.field input{font-size:17px;min-height:52px;background:#fff;color:#0a0d12;border:2px solid #c7ccd4}
+body.field details.sect>summary{min-height:52px;font-size:12px}
+@media (prefers-color-scheme: light){ body:not(.field){ }
+  /* respected only via the explicit toggle — an athlete mid-set should never have the UI change
+     underneath him because a cloud moved. */ }
 </style>
 </head>
 <body>
@@ -2162,6 +2184,19 @@ function migrate(p){
   }
   normIds(s); // v7.32: persistent deterministic entry ids (sync identity)
   return s;
+}
+/* v7.86 FIELD MODE toggle — persisted in settings (an LWW group, so it syncs with the athlete
+   rather than living per-device). Applied on boot and on every change. */
+function fieldOn(){ return !!(S.settings&&S.settings.field); }
+function applyField(){
+  try{ if(typeof document==='undefined'||!document.body) return;
+    document.body.classList.toggle('field',fieldOn());
+  }catch(e){}
+}
+function toggleField(){
+  S.settings=S.settings||{}; S.settings.field=!S.settings.field;
+  save(); applyField(); toast(S.settings.field?'Field mode on — high contrast, bigger targets':'Field mode off');
+  try{ RENDER[curView](); }catch(e){}
 }
 /* ============================================================================
    v7.82 — DURABILITY. The record has to survive four years.
@@ -4729,7 +4764,7 @@ function rToday(){
     const pqm=[...(S.metrics||[])].reverse().find(x=>x.key==='pq'&&x.d===todayISO());
     const bnPill=(typeof gapBottleneck==='function'&&(b=>b&&b.id==='coachwork'&&pm.src==='coach')(gapBottleneck()))?' <span class="pill red">= YOUR BOTTLENECK</span>':'';
     if(mev&&pqm) return `<div class="card"><div class="row"><div class="grow" style="font-size:13px"><b style="color:${mev.meta.ok===1?'var(--green)':'var(--red)'}">Mission ${mev.meta.ok===1?'HIT ✓':'missed'}</b> · practice ${pqm.val}/5 — logged</div></div>
-      <div class="row" style="gap:6px;margin-top:6px"><input id="cmToday" placeholder="Coach said… (add anytime)" style="flex:1"><button class="btn sm" onclick="addCoachIn('cmToday','today')">SAVE</button></div></div>`;
+      <div class="row" style="gap:6px;margin-top:6px"><input id="cmToday" inputmode="text" placeholder="Coach said… (add anytime)" style="flex:1"><button class="btn sm" onclick="addCoachIn('cmToday','today')">SAVE</button></div></div>`;
     return `<div class="card">
     <h3>Practice Mission${bnPill} <span class="r">one practice · one objective</span></h3>
     ${mev?`<div class="note">Mission: <b style="color:${mev.meta.ok===1?'var(--green)':'var(--red)'}">${mev.meta.ok===1?'HIT ✓':'not today — tomorrow the target shrinks'}</b></div>`
@@ -4737,7 +4772,7 @@ function rToday(){
      <div class="row" style="gap:6px;margin-top:8px"><button class="btn amber sm grow" onclick="missionAns(1)">HIT IT ✓</button><button class="btn ghost sm grow" onclick="missionAns(0)">NOT TODAY</button></div>`}
     ${(ms=>ms.answered>=4?`<div class="note" style="margin-top:6px">${ms.streak>=3?`<b style="color:var(--green)">${ms.streak} in a row.</b> `:''}${ms.neverTwoMisses?'Never two misses in a row — evidence, not a pep talk. ':''}${ms.hit}/${ms.of} recent hit.</div>`:'')(missionStats())}
     <div class="row" style="align-items:center;gap:6px;margin-top:8px"><span style="font-size:13px;color:var(--dim);width:64px;flex-shrink:0">Practice</span>${rate5('pq','today')}</div>
-    <div class="row" style="gap:6px;margin-top:8px"><input id="cmToday" placeholder="Coach said… (one line)" style="flex:1"><button class="btn sm amber" onclick="addCoachIn('cmToday','today')">SAVE</button></div>
+    <div class="row" style="gap:6px;margin-top:8px"><input id="cmToday" inputmode="text" placeholder="Coach said… (one line)" style="flex:1"><button class="btn sm amber" onclick="addCoachIn('cmToday','today')">SAVE</button></div>
   </div>`;})(typeof practiceMission==='function'?practiceMission():null)}
   ${(fd=>{ if(!fd) return '';
     const items=FREE_WINS.concat((phaseFor(fd)==='inseason'&&new Date(fd+'T12:00').getDay()===(S.settings.gameDay??5))?GAME_EXTRAS:[]);
@@ -4797,9 +4832,9 @@ function rToday(){
     <h3>Sunday Review <span class="r">3 lines · your coaching manual</span></h3>
     ${posCoachRead()}
     ${compRead()}
-    <label>What worked this week</label><input id="rvW" placeholder="one line">
-    <label>What broke</label><input id="rvB" placeholder="one line">
-    <label>One fix for next week</label><input id="rvF" placeholder="one line">
+    <label>What worked this week</label><input id="rvW" inputmode="text" placeholder="one line">
+    <label>What broke</label><input id="rvB" inputmode="text" placeholder="one line">
+    <label>One fix for next week</label><input id="rvF" inputmode="text" placeholder="one line">
     <button class="btn amber" style="width:100%;margin-top:12px" onclick="saveReview()">SAVE</button>
     <button class="btn" style="width:100%;margin-top:8px" onclick="copyDispatch()">📨 COPY DISPATCH FOR FAMILY CHAT</button>
     <button class="btn" style="width:100%;margin-top:8px" onclick="copyPosReport()">📋 COPY POSITION REPORT</button>
@@ -4965,7 +5000,7 @@ function rTrain(){
     <h3 id="liftAnchor">Log a Lift</h3>
     <div class="row">
       <div class="grow"><label>Lift</label><select id="lgEx"><option value="squat">Squat</option><option value="dead">Deadlift</option><option value="bench">Bench</option><option value="clean">Hang clean</option><option value="other">Other</option></select></div>
-      <div style="width:86px"><label>Weight</label><input id="lgWt" type="number" inputmode="numeric" placeholder="lb"></div>
+      <div style="width:86px"><label>Weight</label><input id="lgWt" type="number" inputmode="decimal" placeholder="lb"></div>
       <div style="width:70px"><label>Reps</label><input id="lgRp" type="number" inputmode="numeric" placeholder="#"></div>
     </div>
     <div class="row" style="margin-top:12px">
@@ -5280,7 +5315,7 @@ function doSearch(){ _srch=(($('#srchIn')||{}).value||''); rTrack(); }
 function searchCardHTML(){
   const res=_srch.length>=2?searchLog(_srch):[];
   return `<div class="card"><h3>Search the Record <span class="r">every note, clip, coach line, scout report</span></h3>
-    <div class="row" style="gap:6px"><input id="srchIn" placeholder="e.g. leverage, foothill, coach said…" value="${esc(_srch)}" style="flex:1"><button class="btn sm amber" onclick="doSearch()">FIND</button></div>
+    <div class="row" style="gap:6px"><input id="srchIn" inputmode="search" placeholder="e.g. leverage, foothill, coach said…" value="${esc(_srch)}" style="flex:1"><button class="btn sm amber" onclick="doSearch()">FIND</button></div>
     ${_srch.length>=2?(res.length?`<div style="margin-top:8px">${res.map(r=>`<div style="padding:5px 0;border-bottom:1px solid var(--line);font-size:12px"><span class="pill">${esc(r.kind)}</span> <span style="color:var(--faint)">${fmtD(r.d)}</span><br>${esc(r.text)}</div>`).join('')}</div>`
       :'<div class="note">Nothing matches yet — the archive grows every time you log.</div>'):''}
   </div>`;
@@ -5410,6 +5445,36 @@ function scriptCardHTML(){
     ${!sc.next&&!sc.restDay?'<div class="note" style="margin-top:8px;color:var(--green)">That\'s the day. Nothing else is required.</div>':''}
   </div>`;
 }
+/* ===== v7.86 WAKE LOCK — the screen slept mid-set =====
+   restTimer/plyoTap/callTap all run while the phone sits on a bench. The screen locking during
+   a rest interval is the difference between a timer that works and one he stops trusting. */
+let _wake=null;
+function wakeOn(){
+  try{ if(typeof navigator==='undefined'||!navigator.wakeLock||_wake) return;
+    navigator.wakeLock.request('screen').then(w=>{ _wake=w;
+      try{ w.addEventListener('release',()=>{ _wake=null; }); }catch(e){} }).catch(()=>{});
+  }catch(e){}
+}
+function wakeOff(){ try{ if(_wake&&_wake.release){ _wake.release(); } _wake=null; }catch(e){ _wake=null; } }
+if(typeof document!=='undefined'&&document.addEventListener)
+  document.addEventListener('visibilitychange',()=>{ try{ if(!document.hidden&&_rt) wakeOn(); }catch(e){} });
+/* ===== v7.86 SHARE — buildDossier/buildProfile/buildDispatch existed and could not be sent =====
+   The four people who can actually help (mom, step-dad, cousin, coach) could not receive any of
+   it. Uses the native share sheet where present and falls back to the clipboard where not. */
+function shareText(title,text){
+  try{
+    if(typeof navigator!=='undefined'&&navigator.share){
+      navigator.share({title,text}).then(()=>toast('Shared ✓')).catch(()=>{});
+      return;
+    }
+  }catch(e){}
+  try{ if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>toast('Copied — paste it to them'),()=>toast('Copy failed'));
+    return; } }catch(e){}
+  toast('Sharing is not available on this device');
+}
+function shareDossier(){ try{ shareText('Zayden Bowen — recruiting profile', buildDossier()); }catch(e){ toast('Nothing to share yet'); } }
+function shareProfile(){ try{ shareText('Zayden Bowen — player profile', buildProfile()); }catch(e){ toast('Nothing to share yet'); } }
 /* ===== v7.84 PHASE C — zero-cost capture for the three things that matter most ===== */
 /* ---- HYDRATION: two taps, undismissable in the heat ---- */
 function hydTap(which){
@@ -5562,6 +5627,14 @@ function restoreGo(k){
   _pendRestore=null;
   idbSnapRestore(k,ok=>{ toast(ok?'Restored from '+k.replace('snap:','')+' ✓ (current state was exported first)':'Restore failed — nothing changed');
     try{ RENDER[curView](); }catch(e){} });
+}
+function fieldToggleHTML(){
+  const on=(typeof fieldOn==='function')&&fieldOn();
+  return `<div class="card"><h3>Field mode <span class="r">${on?'ON':'off'}</span></h3>
+    <div class="note" style="margin:0">High contrast and bigger targets for logging outdoors in the sun. It does not switch on its own — nothing should change under you mid-set.</div>
+    <div class="row" style="gap:6px;margin-top:8px">
+      <button class="btn grow ${on?'':'amber'}" onclick="toggleField()">${on?'Back to dark':'Turn on field mode'}</button>
+      <button class="btn grow ghost" onclick="shareDossier()">Share profile</button></div></div>`;
 }
 function durabilityCardHTML(){
   if(typeof persistRead!=='function') return '';
@@ -6101,10 +6174,10 @@ let _rt=null,_rtEnd=0,_rtDone=false;
 function _rtPaint(){ const b=$('#restBtn'); if(!b) return;
   const left=Math.max(0,Math.ceil((_rtEnd-Date.now())/1000));
   if(left>0){ const m=Math.floor(left/60), s2=String(left%60).padStart(2,'0'); b.textContent='⏱ '+m+':'+s2; }
-  else { if(_rt){ clearInterval(_rt); _rt=null; } b.textContent='⏱ GO — next set';
+  else { if(_rt){ clearInterval(_rt); _rt=null; } try{ wakeOff(); }catch(e){} b.textContent='⏱ GO — next set';
     if(!_rtDone){ _rtDone=true; try{ if(typeof navigator!=='undefined'&&navigator.vibrate) navigator.vibrate([200,100,200]); }catch(e){} toast('Rest over. Move.'); } }
 }
-function restTimer(sec){ if(_rt){ clearInterval(_rt); _rt=null; } _rtEnd=Date.now()+sec*1000; _rtDone=false; _rt=setInterval(_rtPaint,250); _rtPaint(); }
+function restTimer(sec){ if(_rt){ clearInterval(_rt); _rt=null; } try{ wakeOn(); }catch(e){} _rtEnd=Date.now()+sec*1000; _rtDone=false; _rt=setInterval(_rtPaint,250); _rtPaint(); }
 if(typeof document!=='undefined'&&document.addEventListener) document.addEventListener('visibilitychange',()=>{ if(!document.hidden) _rtPaint(); });
 function logLift(){
   const ex=$('#lgEx').value, wt=+$('#lgWt').value, reps=+$('#lgRp').value;
@@ -6147,7 +6220,7 @@ function rPath(){
   ${(no=>no&&no.opp!=='TBD'&&no.days<=21?`<div class="card">
     <h3>Opponent Book: ${esc(no.opp)} <span class="r">${no.days} day${no.days===1?'':'s'} out · ${no.notes.length} career note${no.notes.length===1?'':'s'}</span></h3>
     <div class="note">Varsity players scout. Everything ever logged on this school resurfaces here — freshman notes still paying off senior year. Four-year memory no opponent has on you.</div>
-    <div class="row" style="gap:6px;margin:8px 0"><input id="oppIn" placeholder="what you saw / heard" style="flex:1"><button class="btn sm amber" onclick="saveOpp('${esc(no.opp)}')">SAVE</button></div>
+    <div class="row" style="gap:6px;margin:8px 0"><input id="oppIn" inputmode="text" placeholder="what you saw / heard" style="flex:1"><button class="btn sm amber" onclick="saveOpp('${esc(no.opp)}')">SAVE</button></div>
     ${no.notes.length?no.notes.map(n=>`<div class="note">• ${esc(n.text)} <span style="color:var(--faint)">(${esc(fmtD(n.d))})</span></div>`).join(''):'<div class="note" style="color:var(--faint)">No notes yet — start with their base offense the first time you see them warm up.</div>'}
   </div>`:'')(typeof nextOpponent==='function'?nextOpponent():null)}
   ${typeof freshman10HTML==='function'?freshman10HTML():''}
@@ -6185,7 +6258,7 @@ function rPath(){
   <div class="card">
     <h3>Recruiting Ops <span class="r">nothing gets forgotten</span></h3>
     ${(ro=>ro.items.map(i=>`<div class="row" style="padding:6px 0;border-bottom:1px solid var(--line)"><span style="width:22px">${i.ok?'<b style="color:var(--green)">✓</b>':'<b style="color:var(--red)">!</b>'}</span><div class="grow"><b style="font-size:13px">${esc(i.k)}</b><div class="note" style="margin:1px 0 0">${esc(i.ev)}</div></div></div>`).join('')+(ro.missing.length?`<div class="note" style="margin-top:6px"><b style="color:var(--red)">${ro.missing.length} open item${ro.missing.length===1?'':'s'}</b> — a recruiting coordinator would be chasing these.</div>`:'<div class="note" style="margin-top:6px">All clear — coordinator-approved.</div>'))(recruitOps())}
-    ${pendCamp?`<div class="row" style="gap:6px;margin-top:8px"><input id="campN" placeholder="camp / showcase name" style="flex:1"><input id="campW" placeholder="when" style="width:90px"><button class="btn sm amber" onclick="saveCamp()">SAVE</button></div>`:''}
+    ${pendCamp?`<div class="row" style="gap:6px;margin-top:8px"><input id="campN" inputmode="decimal" placeholder="camp / showcase name" style="flex:1"><input id="campW" inputmode="text" placeholder="when" style="width:90px"><button class="btn sm amber" onclick="saveCamp()">SAVE</button></div>`:''}
     ${(hf=>`<div class="note" style="margin-top:6px"><b style="color:${hf.stale?'var(--red)':hf.last?'var(--green)':'var(--dim)'}">Reel freshness:</b> ${hf.last?'Hudl updated '+fmtD(hf.last)+' ('+hf.days+'d ago)':'no Hudl update on record'}${hf.stale?' — <b>stale in-season; recruiters bounce off old reels.</b>':''}</div>`)(hudlFresh())}
     <div class="row" style="gap:6px;margin-top:8px"><button class="btn sm grow" onclick="logHudl()">HUDL UPDATED</button><button class="btn sm grow ${pendCamp?'amber':''}" onclick="pendCamp=!pendCamp;rPath()">+ CAMP/SHOWCASE</button></div>
     ${(rv=>`<details style="margin-top:8px"><summary>Recruiting reality check</summary><div class="bd">
@@ -6209,8 +6282,8 @@ function rPath(){
         </div>${p.notes?`<div class="note">${esc(p.notes)}</div>`:''}
       </div>`).join(''):`<div class="empty">Your board is empty — put your targets here. Coaches notice the kids who are organized.<div style="display:flex;flex-wrap:wrap;gap:6px;justify-content:center;margin:12px 0 2px">${SCHOOLS.filter(s=>s.tier===1).slice(0,6).map(s=>`<button class="btn sm ghost" onclick="quickAdd('${esc(s.school).replace(/'/g,"\\'")}')">+ ${esc(s.school)}</button>`).join('')}</div>One tap to add a best-fit target, or type any school below.</div>`}
     <div class="row" style="margin-top:12px">
-      <input id="npSchool" placeholder="School" class="grow">
-      <input id="npCoach" placeholder="Coach (verify current staff)" class="grow">
+      <input id="npSchool" inputmode="text" placeholder="School" class="grow">
+      <input id="npCoach" inputmode="text" placeholder="Coach (verify current staff)" class="grow">
     </div>
     <button class="btn" style="width:100%;margin-top:10px" onclick="addP()">+ ADD TO BOARD</button>
     ${rec.responseRate!=null?`<div class="note">Response rate ${Math.round(rec.responseRate*100)}% (${rec.responded}/${rec.contacted})${rec.avgDaysToResponse!=null?' · avg '+rec.avgDaysToResponse+'d to respond':''}</div>`:''}
@@ -6604,7 +6677,7 @@ function rTrack(){
   <div class="card">
     <h3>Trainer's Log <span class="r">prevent missed reps</span></h3>
     <div class="note">Patterns, never diagnosis. Log soreness the day you feel it — three hits on the same area in 14 days raises the flag.</div>
-    ${pendSore?`<div class="row" style="gap:6px;margin:8px 0"><input id="soreArea" placeholder="where? e.g. left hamstring" style="flex:1">${[1,2,3,4,5].map(v=>`<button class="btn sm ghost" style="min-width:30px" onclick="soreTap(${v})">${v}</button>`).join('')}</div>`:`<button class="btn" style="width:100%;margin:8px 0" onclick="pendSore=true;rTrack()">+ SORE / TIGHT</button>`}
+    ${pendSore?`<div class="row" style="gap:6px;margin:8px 0"><input id="soreArea" inputmode="text" placeholder="where? e.g. left hamstring" style="flex:1">${[1,2,3,4,5].map(v=>`<button class="btn sm ghost" style="min-width:30px" onclick="soreTap(${v})">${v}</button>`).join('')}</div>`:`<button class="btn" style="width:100%;margin:8px 0" onclick="pendSore=true;rTrack()">+ SORE / TIGHT</button>`}
     ${typeof deepNote==='function'?deepNote('hipgrow')+deepNote('otr'):''}
     ${(br=>br.flag?`<div class="flag">⚠ ${esc(br.flag)}</div>`:br.recent?`<div class="note">${br.recent} entr${br.recent===1?'y':'ies'} in 14 days — no recurring pattern. Keep logging honest.</div>`:'<div class="note" style="color:var(--faint)">Nothing logged. Quiet is fine — silence should mean healthy, not forgotten.</div>')(bodyRead())}
     ${(S.body||[]).slice(-5).reverse().map(b=>`<div class="note">• ${esc(b.area)} ${b.lvl}/5 <span style="color:var(--faint)">(${esc(fmtD(b.d))})</span></div>`).join('')}
@@ -6779,6 +6852,7 @@ function rTrack(){
   ${typeof growthCardHTML==='function'?growthCardHTML():''}
   ${typeof maturityCardHTML==='function'?maturityCardHTML():''}
   ${typeof speedCardHTML==='function'?speedCardHTML():''}
+  ${typeof fieldToggleHTML==='function'?fieldToggleHTML():''}
   ${typeof reportCardHTML==='function'?reportCardHTML():''}
   ${typeof durabilityCardHTML==='function'?durabilityCardHTML():''}
   ${typeof provCardHTML==='function'?provCardHTML():''}
@@ -6858,7 +6932,7 @@ function coreCardHTML(){
     <div class="note" style="margin:0 0 6px">16 core courses decide eligibility, and 10 of them <b>lock forever</b> in <b class="mono" style="color:var(--amber)">${cr.lockDays}</b> days (start of senior fall). Freshman grades are permanent eligibility math — this semester counts.</div>
     <div class="note" style="margin:0 0 8px"><b style="color:${cr.d1ok===false?'var(--red)':cr.d1ok?'var(--green)':'var(--dim)'}">${esc(cr.read)}</b></div>
     ${cr.rows.map((c,i)=>`<div class="row" style="padding:4px 0;border-bottom:1px solid var(--line);font-size:12px"><span class="grow">${esc(c.name)} <span class="pill">${esc(c.subj)}</span></span><b class="mono">${esc(c.grade)}</b><span style="color:var(--faint)">${c.credit} cr</span></div>`).join('')}
-    <div class="row" style="gap:6px;margin-top:8px"><input id="coreN" placeholder="course (e.g. English 9)" style="flex:2"><select id="coreS" style="flex:1"><option value="EN">English</option><option value="MA">Math</option><option value="SC">Science</option><option value="SS">Social</option><option value="OT">Other</option></select></div>
+    <div class="row" style="gap:6px;margin-top:8px"><input id="coreN" inputmode="text" placeholder="course (e.g. English 9)" style="flex:2"><select id="coreS" style="flex:1"><option value="EN">English</option><option value="MA">Math</option><option value="SC">Science</option><option value="SS">Social</option><option value="OT">Other</option></select></div>
     <div class="row" style="gap:6px;margin-top:6px"><select id="coreG" style="flex:1"><option>A</option><option>B</option><option>C</option><option>D</option><option>F</option></select><select id="coreC" style="flex:1"><option value="0.5">0.5 credit (semester)</option><option value="1">1 credit (year)</option></select><button class="btn sm amber" onclick="addCore()">ADD</button></div>
     <div class="note">Log each core course when the semester grade posts. Core GPA ≠ report card GPA — only NCAA-approved courses count (list: eligibilitycenter.org).</div>
   </div>`;
@@ -6902,7 +6976,7 @@ function dumpNote(){
 function dumpCardHTML(){
   return `<div style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px">
     <div class="note" style="margin:0 0 6px"><b>Brain dump</b> — type it how you'd text it ("hit 210 on bench, weighed 158, slept 7"). The app suggests entries; you approve each one. Nothing writes itself.</div>
-    <div class="row" style="gap:6px"><input id="dumpIn" placeholder="what happened today, any format" style="flex:1"><button class="btn sm amber" onclick="dumpGo()">READ IT</button></div>
+    <div class="row" style="gap:6px"><input id="dumpIn" inputmode="text" placeholder="what happened today, any format" style="flex:1"><button class="btn sm amber" onclick="dumpGo()">READ IT</button></div>
     ${pendDump?`<div style="margin-top:6px">${pendDump.length?pendDump.map((x,i)=>`<div class="row" style="padding:4px 0"><span class="grow" style="font-size:13px">→ ${esc(x.label)}</span><button class="btn sm amber" onclick="dumpApprove(${i})">LOG IT</button></div>`).join(''):'<div class="note">No numbers recognized — save it as a note so it still counts.</div>'}
     <button class="btn sm ghost" style="margin-top:6px" onclick="dumpNote()">SAVE FULL TEXT AS NOTE</button></div>`:''}
   </div>`;
@@ -6924,7 +6998,7 @@ function statCardHTML(){
       <div class="grow"><div class="mono" style="font-size:22px;font-weight:800">${ss.t.tkl}</div><div class="note" style="margin:0">TACKLES</div></div></div>
       ${ss.games.map(g=>`<div class="row" style="padding:4px 0;border-bottom:1px solid var(--line);font-size:12px"><span class="grow">${fmtD(g.d)} · ${esc(g.opp)}</span><span class="mono">${g.car}c/${g.yds}y/${g.td}td/${g.tkl}tk</span></div>`).join('')}`
     :'<div class="note" style="margin:0 0 6px">First game logs the first line. These verified numbers are what future coach emails are made of.</div>'}
-    <input id="gOpp" placeholder="opponent" style="margin-top:8px">
+    <input id="gOpp" inputmode="text" placeholder="opponent" style="margin-top:8px">
     <div class="row" style="gap:6px;margin-top:6px">
       <div class="grow"><label style="margin:0 0 3px">CAR</label><input id="gCar" type="number" inputmode="numeric" placeholder="0"></div>
       <div class="grow"><label style="margin:0 0 3px">YDS</label><input id="gYds" type="number" inputmode="numeric" placeholder="0"></div>
@@ -6994,7 +7068,7 @@ function rPush(){
     <h3>Film Room <span class="r">film becomes searchable</span></h3>
     <div class="note">Your Hudl already holds school film — tagging can start tonight on last season's tape, no waiting. Tag the day you watch. Weeks later: "show every missed-leverage rep" is one tap.</div>
     <div style="margin:8px 0;display:flex;flex-wrap:wrap;gap:6px">${CLIP_TAGS.map(t=>`<button class="btn sm ${pendClip===t?'amber':'ghost'}" onclick="clipTag('${t}')">+ ${esc(t)}</button>`).join('')}</div>
-    ${pendClip?`<div class="row" style="gap:6px;margin:8px 0"><input id="clipNote" placeholder="what happened? (optional)" style="flex:1"><button class="btn sm amber" onclick="saveClip()">SAVE</button><button class="btn sm ghost" onclick="pendClip=null;rPush()">✕</button></div><div class="note" style="margin:0 0 6px">Opponent auto-filled from the schedule — one tap + save.</div>`:''}
+    ${pendClip?`<div class="row" style="gap:6px;margin:8px 0"><input id="clipNote" inputmode="text" placeholder="what happened? (optional)" style="flex:1"><button class="btn sm amber" onclick="saveClip()">SAVE</button><button class="btn sm ghost" onclick="pendClip=null;rPush()">✕</button></div><div class="note" style="margin:0 0 6px">Opponent auto-filled from the schedule — one tap + save.</div>`:''}
     ${(fr=>fr.n?`
       <div style="display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px"><button class="btn sm ${!filmTag?'amber':'ghost'}" onclick="setFilmTag(null)">All (${fr.n})</button>${fr.byTag.map(x=>`<button class="btn sm ${filmTag===x.tag?'amber':'ghost'}" onclick="setFilmTag('${x.tag}')" style="${x.bad?'color:var(--red)':''}">${esc(x.tag)} ${x.n}</button>`).join('')}</div>
       ${(S.clips||[]).filter(c=>!filmTag||c.tag===filmTag).slice(-12).reverse().map(c=>`<div class="note" style="border-bottom:1px solid var(--line);padding:5px 0">${CLIP_BAD.includes(c.tag)?'<b style="color:var(--red)">'+esc(c.tag)+'</b>':'<b style="color:var(--green)">'+esc(c.tag)+'</b>'} — ${esc(c.note||'')} <span style="color:var(--faint)">${esc(c.opp||'')} · ${esc(fmtD(c.d))}</span></div>`).join('')}
@@ -7005,7 +7079,7 @@ function rPush(){
   <div class="card">
     <h3>Coach Memory <span class="r">coaching accumulates here</span></h3>
     <div class="note">A freshman forgets coaching. A varsity player accumulates it. Log every correction the minute practice ends — 10 seconds each.</div>
-    <div class="row" style="gap:6px;margin:8px 0"><input id="cmIn" placeholder="What did the coach say?" style="flex:1"><button class="btn sm amber" onclick="addCoachIn('cmIn','push')">SAVE</button></div>
+    <div class="row" style="gap:6px;margin:8px 0"><input id="cmIn" inputmode="text" placeholder="What did the coach say?" style="flex:1"><button class="btn sm amber" onclick="addCoachIn('cmIn','push')">SAVE</button></div>
     ${(cm=>cm.list.length?`
       ${cm.mostRepeated?`<div class="note"><b style="color:var(--red)">Most repeated:</b> “${esc(cm.mostRepeated.text)}” — ${cm.mostRepeated.n}×. This IS your practice mission until it goes quiet.</div>`:''}
       ${cm.newRecurring.length?`<div class="note"><b style="color:var(--amber)">New recurring weakness:</b> ${cm.newRecurring.map(x=>'“'+esc(x.text)+'”').join(', ')} — repeated within a week.</div>`:''}
@@ -7116,7 +7190,7 @@ function filmSyllabusCard(){
     <div class="note" style="margin-top:8px;border-left:3px solid var(--amber);padding-left:10px;font-style:normal"><b>THE DRILL:</b> ${esc(a.drill)}</div>
     ${a.id==='call-it'?`<div class="row" style="gap:6px;margin-top:8px"><button class="btn sm grow" onclick="callTap(1)">HIT ✓</button><button class="btn sm ghost grow" onclick="callTap(0)">MISS ✗</button><span class="mono" id="callN" style="align-self:center;min-width:52px;text-align:center">0 / 0</span><button class="btn sm amber" onclick="callEnd()">LOG RATE</button></div>${hist.length?`<div class="note" style="margin-top:4px">Your call-rate arc: ${hist.slice(-5).map(h=>h.val+'%').join(' → ')}</div>`:''}`:''}
     <div style="margin-top:8px"><b style="font-size:13px">${esc(a.q)}</b>
-    <div class="row" style="gap:6px;margin-top:6px"><input id="sylA" placeholder="your answer — it gets carved into the record" style="flex:1"><button class="btn sm amber" onclick="sylAnswer('${a.id}')">DONE</button></div></div>
+    <div class="row" style="gap:6px;margin-top:6px"><input id="sylA" inputmode="text" placeholder="your answer — it gets carved into the record" style="flex:1"><button class="btn sm amber" onclick="sylAnswer('${a.id}')">DONE</button></div></div>
     ${done.length?`<details style="margin-top:8px"><summary>Completed (${done.length}/12)</summary><div class="bd">${done.map(x=>`<div class="note" style="margin:2px 0">✓ ${x.wk}. ${esc(x.title)}</div>`).join('')}</div></details>`:''}
   </div>`;
 }
@@ -7342,9 +7416,37 @@ function saveCamp(){ let n=null,w=null; try{ n=document.querySelector('#campN');
   if(!n||!n.value.trim()){ toast('Camp name first'); return; }
   logEvent('camp',{name:n.value.trim(),when:(w&&w.value||'').trim()}); pendCamp=false; save(); toast('Tracked — it will not be forgotten'); rPath(); }
 /* ============ NAV + BOOT ============ */
+/* ===== v7.86 NAVIGATION — the app has to behave like an app =====
+   Android's back button exited the whole PWA from any screen (no popstate handler existed), and
+   every view switch dumped him at the top of a long page. Both are one-line-feel fixes that
+   decide whether a 14-year-old keeps it installed. */
+const _scrollMem={};
+function _viewScroller(){ try{ return document.scrollingElement||document.documentElement; }catch(e){ return null; } }
+function rememberScroll(){ try{ const el=_viewScroller(); if(el&&curView) _scrollMem[curView]=el.scrollTop||0; }catch(e){} }
+function restoreScroll(v){
+  try{ const el=_viewScroller(); if(!el) return;
+    const y=_scrollMem[v]||0;
+    if(typeof requestAnimationFrame!=='undefined') requestAnimationFrame(()=>{ try{ el.scrollTop=y; }catch(e){} });
+    else el.scrollTop=y;
+  }catch(e){}
+}
+/* Back goes to the previous SCREEN, and only leaves the app from TODAY — the way a native app
+   behaves. History entries are pushed per view so the gesture is predictable. */
+let _navReady=false;
+function navInit(){
+  if(_navReady||typeof window==='undefined'||!window.addEventListener||!window.history) return;
+  _navReady=true;
+  try{ history.replaceState({v:curView||'today'},'',location.hash||'#today'); }catch(e){}
+  window.addEventListener('popstate',e=>{
+    const v=(e&&e.state&&e.state.v)||'today';
+    if(v!==curView){ go(v,true); }
+    else if(curView!=='today'){ go('today',true); }
+  });
+}
 const RENDER={today:rToday,train:rTrain,path:rPath,track:rTrack,push:rPush};
 let curView='today';
-function go(v){
+function go(v,fromPop){
+  try{ if(typeof rememberScroll==='function') rememberScroll(); }catch(e){}
   curView=v;
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
   $('#v-'+v).classList.add('on');
@@ -7353,6 +7455,8 @@ function go(v){
   if(typeof renderHdr==='function') renderHdr(); // scoreboard updates with every screen + every log
   if(typeof runCounters==='function') runCounters($('#v-'+v)); // numbers count up, once, on arrival
   if(typeof haptic==='function') haptic('tap');
+  try{ if(!fromPop&&typeof history!=='undefined'&&history.pushState) history.pushState({v},'','#'+v); }catch(e){}
+  try{ if(typeof restoreScroll==='function') restoreScroll(v); }catch(e){}
   window.scrollTo(0,0);
 }
 document.querySelectorAll('#nav button').forEach(b=>b.onclick=()=>go(b.dataset.v));
@@ -7465,7 +7569,21 @@ if(typeof document!=='undefined'&&document.addEventListener){
   document.addEventListener('click',_persistOnce,true);
   document.addEventListener('touchstart',_persistOnce,true);
 }
-function bootD1(){ killSkeleton(); if(!_wm) introMaybe(); if(_wm){ rWidget(); if(typeof cloudBoot==='function') cloudBoot(); return; } go('today'); if(typeof cloudBoot==='function') cloudBoot(); } // sync starts only after the mirror verdict — cloud merges with real local state, never with a placeholder
+/* v7.86 DEEP LINKS — manifest shortcuts land on the action, not the app.
+   Long-press the home-screen icon: Quick log / Lift / Practice / Sweat check. Four taps to one. */
+function deepLink(){
+  try{
+    const q=(typeof location!=='undefined'&&location.search||'');
+    const m=/[?&]a=([a-z]+)/.exec(q); if(!m) return;
+    const a=m[1];
+    if(a==='lift'){ go('train'); }
+    else if(a==='practice'){ go('today'); if(typeof pracOpen==='function') pracOpen(); }
+    else if(a==='hydrate'){ go('today'); if(typeof hydTap==='function') hydTap('wtpre'); }
+    else if(a==='quick'){ go('track'); }
+    try{ if(history.replaceState) history.replaceState({v:curView},'',location.pathname+'#'+curView); }catch(e){}
+  }catch(e){}
+}
+function bootD1(){ killSkeleton(); try{ navInit(); }catch(e){} try{ applyField(); }catch(e){} if(!_wm) introMaybe(); if(_wm){ rWidget(); if(typeof cloudBoot==='function') cloudBoot(); return; } go('today'); try{ deepLink(); }catch(e){} if(typeof cloudBoot==='function') cloudBoot(); } // sync starts only after the mirror verdict — cloud merges with real local state, never with a placeholder
 idbRestoreCheck(bootD1);
 if(_wm&&typeof setInterval!=='undefined'){ setInterval(()=>{ try{ rWidget(); }catch(e){} },60000); } // widget stays fresh
 

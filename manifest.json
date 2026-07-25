@@ -6,7 +6,65 @@
   "background_color": "#0a0e14",
   "theme_color": "#0a0e14",
   "icons": [
-    {"src": "icon-180.png", "sizes": "180x180", "type": "image/png"},
-    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png"}
+    {
+      "src": "icon-180.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Quick log",
+      "short_name": "Log",
+      "description": "Weight, sleep, energy \u2014 one tap",
+      "url": "./?a=quick#track",
+      "icons": [
+        {
+          "src": "icon-180.png",
+          "sizes": "180x180"
+        }
+      ]
+    },
+    {
+      "name": "Log a lift",
+      "short_name": "Lift",
+      "description": "Straight to the session",
+      "url": "./?a=lift#train",
+      "icons": [
+        {
+          "src": "icon-180.png",
+          "sizes": "180x180"
+        }
+      ]
+    },
+    {
+      "name": "Practice log",
+      "short_name": "Practice",
+      "description": "15 seconds after practice",
+      "url": "./?a=practice#today",
+      "icons": [
+        {
+          "src": "icon-180.png",
+          "sizes": "180x180"
+        }
+      ]
+    },
+    {
+      "name": "Sweat check",
+      "short_name": "Sweat",
+      "description": "Weigh in and out",
+      "url": "./?a=hydrate#today",
+      "icons": [
+        {
+          "src": "icon-180.png",
+          "sizes": "180x180"
+        }
+      ]
+    }
   ]
 }
