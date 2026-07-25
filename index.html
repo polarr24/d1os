@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.80 -->
+<!DOCTYPE html><!-- d1os v7.84 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1500,6 +1500,237 @@ const WAVE=[
 ];
 const TM_PCT=0.90;                         // training max as a share of the evidenced max
 const TM_STEP={squat:10,dead:10,bench:5,clean:5};   // added per completed cycle
+
+/* ============================================================================
+   v7.81 — THE INTERVENTION LEDGER
+   Every controllable in this athlete's life becomes ONE record in ONE catalog,
+   ranked by return per unit of his scarcest resources. Same schema whether it is
+   a barbell, a Bible, or a bottle of milk.
+
+   THE RULE THAT MAKES THIS WORK: the app never says "no". It says where a thing
+   ranks, what grade the evidence carries, what it costs, what outranks it, and
+   what his own record would have to show to move it up. An app that forbids gets
+   closed. An app that ranks gets trusted.
+
+   NO BASIS, NO RANK. Every entry carries a real source and an honest grade.
+   Grades: A strong human RCT/meta · B consistent observational · C mechanistic
+   or expert consensus · D anecdote · X contradicted.
+   AGE RULE: evidence extrapolated from adults is CAPPED AT C, permanently.
+   ============================================================================ */
+const GATES={
+  availability:{n:'Availability',why:'Practices and games not missed. Everything else multiplies by this.'},
+  film:        {n:'Film',        why:'No film, no recruitment — regardless of ability.'},
+  credibility: {n:'Credible numbers',why:'Hand-timed numbers get discounted. Verified numbers feed the databases staffs filter on.'},
+  exposure:    {n:'Exposure',    why:'In-person evaluation. Position camps at target schools are the direct channel.'},
+  eligibility: {n:'Eligibility', why:'16 core courses, 2.3 core GPA, 10 locked before senior year. A hard gate that quietly ends careers.'},
+  physical:    {n:'Physical',    why:'Speed, explosiveness, size, strength. One gate of eight — not the whole game.'},
+  iq:          {n:'Football IQ', why:'Reads, coachability, zero mental errors. For an undersized back this is a primary lever.'},
+  depth:       {n:'Depth chart', why:'Reps are the raw material of film.'}
+};
+const GRADE_W={A:1.0,B:0.75,C:0.5,D:0.25,X:0};
+const MAG_W={large:1.0,moderate:0.65,small:0.35,trivial:0.15,unknown:0.3};
+const IV=(o)=>o;
+const INTERVENTIONS=[
+/* ---------- GRADE A · these should routinely outrank a lift ---------- */
+IV({id:'sleep',domain:'recovery',name:'Sleep 8–9 hours',what:'Lights out early enough to clear 8h before your real wake time.',
+ dose:'8–9 h every night, consistent wake time',cost:{minutes:0,dollars:0,fatigue:-3,social:0},window:'preSleep',
+ gates:['availability','physical','iq'],
+ effect:{magnitude:'large',grade:'A',
+  basis:'Adolescent athletes sleeping <8h show ~1.7x injury risk (Milewski 2014); sleep-extension in collegiate athletes improved sprint time and reaction time (Mah, SLEEP 2011).',
+  age:'studied in adolescents',uncertainty:'Self-reported sleep is noisy; his own paired sleep/session data will settle it.'},
+ safety:{risk:'none'},prereq:[],conflicts:['caffeine'],decay:'immediate — one bad night shows up next day',
+ measurable:'sleep',days:14,floor:true}),
+IV({id:'fuel',domain:'nutrition',name:'Hit calories and protein',what:'Three real meals, protein at each, water all day.',
+ dose:'Daily. Anchors, not tracking.',cost:{minutes:0,dollars:0,fatigue:0,social:1},window:'any',
+ gates:['availability','physical'],
+ effect:{magnitude:'large',grade:'A',
+  basis:'In a cohort of adolescent athletes, meeting recommended intake was associated with ~64% lower injury risk. Under-fuelling during a growth spurt impairs growth itself (RED-S literature).',
+  age:'studied in adolescents',uncertainty:'Intake is not measured here by design — no food logging. Bodyweight trend is the proxy.'},
+ safety:{risk:'none — adequacy framing only, never restriction'},prereq:[],conflicts:[],decay:'days',
+ measurable:'wt',days:21,floor:true}),
+IV({id:'nmt',domain:'physical',name:'Neuromuscular / ACL prep',what:'Jump-landing technique, single-leg balance, plyo, core — as the warm-up, not an extra.',
+ dose:'3x/week, 10 min, preseason onward',cost:{minutes:10,dollars:0,fatigue:1,social:0},window:'preTrain',
+ gates:['availability'],
+ effect:{magnitude:'large',grade:'A',
+  basis:'~42% lower injury risk in youth athletes across 16 trials; non-contact ACL reductions of 64–73%. Multi-component programs started preseason.',
+  age:'studied in adolescents',uncertainty:'Adherence IS the effect. A program done twice a season produces nothing.'},
+ safety:{risk:'none'},prereq:[],conflicts:[],decay:'weeks',measurable:null,days:60}),
+IV({id:'heat',domain:'medical',name:'Heat acclimatisation',what:'Follow the 14-day ramp: single practices days 1–5, helmets only days 1–2, never more than 3h.',
+ dose:'First 14 consecutive practice days',cost:{minutes:0,dollars:0,fatigue:0,social:0},window:'gameWeek',
+ gates:['availability'],
+ effect:{magnitude:'large',grade:'A',
+  basis:'NATA inter-association preseason heat-acclimatisation guidelines. Applies to every athlete regardless of prior conditioning — heat illness kills fit athletes.',
+  age:'written for secondary-school athletes',uncertainty:'None worth hedging. This one is not optional.'},
+ safety:{risk:'high if ignored',ageGate:null},prereq:[],conflicts:[],decay:'days once exposure stops',
+ measurable:null,days:14,seasonal:['2026-07-28','2026-08-11'],floor:true}),
+IV({id:'hydrate',domain:'medical',name:'Weigh in and out of practice',what:'Two weight taps. Under 2% loss or you drink back the difference before tomorrow.',
+ dose:'Every practice in the heat',cost:{minutes:2,dollars:0,fatigue:0,social:0},window:'postTrain',
+ gates:['availability','physical'],
+ effect:{magnitude:'moderate',grade:'B',
+  basis:'Performance and thermoregulation degrade past ~2% bodyweight loss; the 2% rule is standard practice in secondary-school athletics guidance.',
+  age:'standard youth-sport guidance',uncertainty:'Individual sweat rates vary widely — his own numbers beat the rule of thumb.'},
+ safety:{risk:'high if ignored in August'},prereq:[],conflicts:[],decay:'immediate',measurable:'wt',days:7,floor:true}),
+/* ---------- GRADE B ---------- */
+IV({id:'sprint',domain:'physical',name:'Max-velocity sprint exposure',what:'After a full warm-up: 3–4 flying 20s at 95%+. Never cold.',
+ dose:'2x/week, regular — no long pauses',cost:{minutes:20,dollars:0,fatigue:3,social:0},window:'preTrain',
+ gates:['physical','availability','credibility'],
+ effect:{magnitude:'moderate',grade:'B',
+  basis:'Reaching >95% max velocity in training associated with lower hamstring injury risk than topping out at 85%; both under- and over-exposure raise risk (non-linear). Sprint + eccentric + technique together produced 56–94% reductions.',
+  age:'mostly senior/pro cohorts — extrapolated',uncertainty:'Dose-response in 14-year-olds is not established.'},
+ safety:{risk:'low if warmed up'},prereq:['nmt'],conflicts:['lift'],decay:'fast — pauses are the danger',measurable:'forty',days:42}),
+IV({id:'lift',domain:'physical',name:'Barbell session',what:'Run the prescribed session. Training max x block % x this week\'s wave.',
+ dose:'3–4x/week per the cycle',cost:{minutes:75,dollars:0,fatigue:5,social:0},window:'any',
+ gates:['physical'],
+ effect:{magnitude:'moderate',grade:'B',
+  basis:'Supervised, progressive youth resistance training reliably improves strength and does NOT damage growth plates — this is the position of every major youth S&C body. The growth-stunting claim is a myth.',
+  age:'studied in adolescents',uncertainty:'Transfer to football speed is indirect and slower than sprint work.'},
+ safety:{risk:'low when supervised and progressive',requiresAdult:false},prereq:[],conflicts:['sprint'],
+ decay:'weeks',measurable:'squat',days:28}),
+IV({id:'neck',domain:'physical',name:'Neck — 4-way',what:'Banded or manual: flexion, extension, both sides. 2x10 slow.',
+ dose:'2x/week, 6 min',cost:{minutes:6,dollars:0,fatigue:1,social:0},window:'postTrain',
+ gates:['availability'],
+ effect:{magnitude:'moderate',grade:'B',
+  basis:'~5% lower concussion odds per pound of neck strength in high-school athletes; a cervical program cut concussions ~45% in one male rugby cohort.',
+  age:'high-school and rugby cohorts',uncertainty:'Evidence quality is limited and does not extend to every sport or sex. Consensus still says train it.'},
+ safety:{risk:'low — no ballistic movement'},prereq:[],conflicts:[],decay:'weeks',measurable:null,days:56}),
+IV({id:'light',domain:'recovery',name:'Morning daylight',what:'10 minutes outdoors within 30 min of waking. Through a window does not count.',
+ dose:'Daily',cost:{minutes:10,dollars:0,fatigue:0,social:0},window:'any',
+ gates:['availability','iq'],
+ effect:{magnitude:'moderate',grade:'B',
+  basis:'The adolescent clock runs up to ~2h late; morning light produced measurable circadian phase advances in adolescents with late bedtimes. This pulls bedtime earlier without willpower.',
+  age:'studied in adolescents',uncertainty:'Effect size on performance is indirect — it works through sleep.'},
+ safety:{risk:'none'},prereq:[],conflicts:[],decay:'days',measurable:'sleep',days:21}),
+IV({id:'creatine',domain:'nutrition',name:'Creatine monohydrate',what:'Only with a parent AND a clinician signing off, and only NSF Certified for Sport.',
+ dose:'3–5 g/day if approved',cost:{minutes:0,dollars:15,fatigue:0,social:2},window:'any',
+ gates:['physical'],
+ effect:{magnitude:'small',grade:'C',
+  basis:'Well-supported in ADULTS for repeated high-intensity work. Evidence in under-18s is thin. Capped at C by the age rule.',
+  age:'extrapolated from adults — capped at C',uncertainty:'Nobody has properly studied this in 14-year-olds.'},
+ safety:{risk:'low in adults, unestablished at 14',requiresAdult:true,requiresClinician:true,
+   note:'Supplements are unregulated for content and contamination, and NCAA eligibility is strict liability. Third-party certification is not optional.'},
+ prereq:[],conflicts:[],decay:'weeks',measurable:null,days:28,
+ compareTo:'fuel',costNote:'$15/mo is roughly a third of a position-camp entry fee.'}),
+/* ---------- GRADE C ---------- */
+IV({id:'viz',domain:'mental',name:'Visualization',what:'First-person, full speed, real opponents. Include the mistake and the fix.',
+ dose:'10 min, 3x/week',cost:{minutes:10,dollars:0,fatigue:0,social:0},window:'preSleep',
+ gates:['iq','physical'],
+ effect:{magnitude:'moderate',grade:'C',
+  basis:'Imagery averages about g=0.75 across sport meta-analyses, strongest near 10 min, 3x/week sustained ~100 days.',
+  age:'mixed cohorts',uncertainty:'When weaker study designs are removed the effect loses significance. Cheap and worth doing, not a guarantee.'},
+ safety:{risk:'none'},prereq:[],conflicts:[],decay:'weeks',measurable:'sq',days:100}),
+IV({id:'prayer',domain:'spiritual',name:'Prayer / religious practice',what:'Whatever your practice already is. The app does not prescribe the content.',
+ dose:'Daily, your call',cost:{minutes:10,dollars:0,fatigue:0,social:0},window:'any',
+ gates:['availability','iq'],
+ effect:{magnitude:'moderate',grade:'C',
+  basis:'The evidence base for religious and spiritual practice is observational and points at stress regulation, resilience, meaning and social support — not directly at performance.',
+  age:'general population, not athlete-specific',
+  uncertainty:'Moderate for stress and adherence; UNKNOWN for performance. If it is part of who you are, it is load-bearing for consistency — and consistency is the separator this app keeps naming. Log it and let your own record answer.'},
+ safety:{risk:'none'},prereq:[],conflicts:[],decay:'slow',measurable:'energy',days:60}),
+IV({id:'breath',domain:'mental',name:'Down-regulation breathing',what:'Slow nasal breathing, longer exhale than inhale, 5 minutes before bed.',
+ dose:'5 min, preSleep',cost:{minutes:5,dollars:0,fatigue:0,social:0},window:'preSleep',
+ gates:['availability'],
+ effect:{magnitude:'small',grade:'C',
+  basis:'Mechanistic — slow-breathing protocols shift autonomic balance toward parasympathetic. Sleep-onset benefit is plausible and low-risk.',
+  age:'mostly adult studies — capped at C',uncertainty:'Small effects, easily confounded by everything else in an evening routine.'},
+ safety:{risk:'none'},prereq:[],conflicts:[],decay:'immediate',measurable:'sleep',days:21}),
+IV({id:'journal',domain:'mental',name:'One honest note',what:'One line about the session, the day, or what a coach said.',
+ dose:'Daily',cost:{minutes:2,dollars:0,fatigue:0,social:0},window:'evening',
+ gates:['iq','film'],
+ effect:{magnitude:'small',grade:'C',
+  basis:'Expressive-writing and reflection literature is mixed for performance, clearer for stress. Here the real value is instrumental: notes are the only searchable record of four years.',
+  age:'general',uncertainty:'The performance case is weak. The record case is not.'},
+ safety:{risk:'none'},prereq:[],conflicts:[],decay:'none — the record persists',measurable:null,days:30}),
+IV({id:'cold',domain:'recovery',name:'Cold water immersion',what:'Context decides this one. Not after a lift in a mass-gain block.',
+ dose:'10–15 min if used at all',cost:{minutes:15,dollars:0,fatigue:0,social:0},window:'postTrain',
+ gates:['availability'],
+ effect:{magnitude:'small',grade:'C',
+  basis:'Post-resistance-exercise cold immersion BLUNTS hypertrophy and strength adaptation. It helps recovery between same-day or congested competition. Same intervention, opposite sign depending on the block.',
+  age:'mostly adult',uncertainty:'Timing relative to lifting is the whole story. In a mass-gain block this is NEGATIVE ROI.'},
+ safety:{risk:'low'},prereq:[],conflicts:['lift'],decay:'immediate',measurable:null,days:21,
+ negativeWhen:'massBlock'}),
+IV({id:'roll',domain:'recovery',name:'Foam roll / massage gun',what:'Feels good, moves little.',
+ dose:'As desired',cost:{minutes:10,dollars:0,fatigue:0,social:0},window:'any',
+ gates:['availability'],
+ effect:{magnitude:'trivial',grade:'C',
+  basis:'Consistent short-term effects on perceived soreness and range of motion; no reliable effect on injury rates or performance outcomes.',
+  age:'mostly adult',uncertainty:'If it makes you more likely to warm up, that adherence effect is the real benefit.'},
+ safety:{risk:'none'},prereq:[],conflicts:[],decay:'immediate',measurable:null,days:30}),
+/* ---------- GATE-SPECIFIC, NON-PHYSICAL ---------- */
+IV({id:'clip',domain:'recruiting',name:'Tag one film clip',what:'One play, one tag, one line of why.',
+ dose:'Every game week',cost:{minutes:10,dollars:0,fatigue:0,social:0},window:'gameWeek',
+ gates:['film','iq','exposure'],
+ effect:{magnitude:'large',grade:'B',
+  basis:'Coaches open film before measurables and want multiple games, varied situations, full plays — repeatable wins, not highlights. With zero clips logged, this gate is fully closed and nearly free to open.',
+  age:'recruiting practice, not a lab finding',uncertainty:'None about necessity. Plenty about which clips matter — his coach can answer that.'},
+ safety:{risk:'none'},prereq:[],conflicts:[],decay:'none',measurable:null,days:1}),
+IV({id:'gpa',domain:'academic',name:'Log the GPA / core courses',what:'Enter grades and confirm every class is on the NCAA-approved list.',
+ dose:'Each grading period',cost:{minutes:20,dollars:0,fatigue:0,social:1},window:'school',
+ gates:['eligibility','exposure'],
+ effect:{magnitude:'large',grade:'A',
+  basis:'D1 initial eligibility requires 16 core courses and a 2.3 core GPA, with 10 (7 in EN/MA/SC) locked before the seventh semester. Test scores were removed in 2023 — the transcript IS the gate now.',
+  age:'rule, not a study',uncertainty:'None. This is a bright-line rule.'},
+ safety:{risk:'career-ending if missed'},prereq:[],conflicts:[],decay:'none — grades are permanent',
+ measurable:'gpa',days:1,floor:true}),
+IV({id:'coachq',domain:'skill',name:'Bring back one coach quote',what:'Ask what to fix. Log his exact words the same day.',
+ dose:'Weekly',cost:{minutes:5,dollars:0,fatigue:0,social:3},window:'postTrain',
+ gates:['iq','depth'],
+ effect:{magnitude:'moderate',grade:'C',
+  basis:'Mechanistic and instrumental: the coach-feedback chain cannot run on zero entries, and coachability is what position coaches report evaluating.',
+  age:'n/a',uncertainty:'Whether logging it changes behaviour is exactly what his record will show.'},
+ safety:{risk:'none'},prereq:[],conflicts:[],decay:'none',measurable:null,days:30}),
+IV({id:'ball',domain:'skill',name:'Ball security reps',what:'High-and-tight carries, five points of pressure, walking the house.',
+ dose:'100/day',cost:{minutes:10,dollars:0,fatigue:0,social:0},window:'any',
+ gates:['depth','film'],
+ effect:{magnitude:'moderate',grade:'C',
+  basis:'Mechanistic and coaching consensus: a fumble is the fastest way a freshman loses reps. Volume of correct carrying pattern is the standard intervention.',
+  age:'n/a',uncertainty:'No controlled evidence that rep count reduces game fumbles. Coaches act as if it does.'},
+ safety:{risk:'none'},prereq:[],conflicts:[],decay:'weeks',measurable:null,days:30}),
+IV({id:'camp',domain:'recruiting',name:'Target-school position camp',what:'One camp where a coach who could recruit you is on the field.',
+ dose:'1–2 per year, budgeted ahead',cost:{minutes:480,dollars:150,fatigue:4,social:4},window:'offseason',
+ gates:['exposure','credibility','film'],
+ effect:{magnitude:'large',grade:'C',
+  basis:'In-person evaluation at position camps is the direct channel to a staff. Paid recruiting/concierge services are widely reported as low-yield by comparison.',
+  age:'recruiting practice',uncertainty:'Which camps convert is school-specific and changes with staff turnover.'},
+ safety:{risk:'none'},prereq:[],conflicts:[],decay:'per cycle',measurable:null,days:365,
+ costNote:'This is where dollars go. Not to services, not to supplements.'}),
+/* ---------- GRADE D / CONTRADICTED — included, not hidden ---------- */
+IV({id:'milk',domain:'nutrition',name:'Whole milk, pasteurized',what:'A gallon a week. The cheapest calories and protein available.',
+ dose:'~1 gal/week',cost:{minutes:0,dollars:4,fatigue:0,social:0},window:'any',
+ gates:['physical'],
+ effect:{magnitude:'moderate',grade:'A',
+  basis:'Milk is a well-evidenced, cheap source of calories, protein and calcium during adolescent growth — and calcium intake matters most in the bone-building window around peak height velocity.',
+  age:'studied in adolescents',uncertainty:'None worth flagging.'},
+ safety:{risk:'none'},prereq:[],conflicts:[],decay:'days',measurable:'wt',days:21}),
+IV({id:'rawmilk',domain:'nutrition',name:'Raw (unpasteurized) milk',what:'Ranked here so the trade-off is visible in the same units as everything else.',
+ dose:'n/a',cost:{minutes:0,dollars:12,fatigue:0,social:1},window:'any',
+ gates:[],
+ effect:{magnitude:'trivial',grade:'X',
+  basis:'No demonstrated performance or muscle-gain advantage over pasteurized milk. Carries real pathogen risk — Salmonella, E. coli O157:H7, Listeria, Campylobacter.',
+  age:'general population',
+  uncertainty:'The relevant cost here is not illness in the abstract — it is practices missed. Missed practices are the thing this entire app exists to prevent.'},
+ safety:{risk:'foodborne illness',requiresAdult:true},prereq:[],conflicts:[],decay:'n/a',measurable:null,days:0,
+ compareTo:'milk',costNote:'Three times the price of the pasteurized gallon, no added benefit, plus availability risk.'}),
+IV({id:'ashwa',domain:'nutrition',name:'Ashwagandha',what:'Only with parent AND clinician sign-off, and only third-party certified.',
+ dose:'n/a unless approved',cost:{minutes:0,dollars:25,fatigue:0,social:2},window:'any',
+ gates:['availability'],
+ effect:{magnitude:'small',grade:'C',
+  basis:'Some ADULT evidence for stress, cortisol and sleep measures. Thin to absent evidence in 14-year-olds. Real liver-injury case reports and a thyroid interaction exist.',
+  age:'extrapolated from adults — capped at C; unstudied at 14',
+  uncertainty:'Its expected effect is smaller than simply fixing your bedtime, and the supplement industry is unregulated for content and contamination while NCAA eligibility is strict liability.'},
+ safety:{risk:'liver injury reported; thyroid interaction',requiresAdult:true,requiresClinician:true,
+   note:'If it is ever taken, NSF Certified for Sport or Informed Sport only.'},
+ prereq:[],conflicts:[],decay:'weeks',measurable:'sleep',days:56,
+ compareTo:'sleep',costNote:'$25/mo. A position-camp entry is about $150 — six months of this is one camp.'}),
+IV({id:'caffeine',domain:'nutrition',name:'Caffeine',what:'Ranked mainly for its conflict with the thing that outranks everything.',
+ dose:'Not recommended at 14',cost:{minutes:0,dollars:5,fatigue:0,social:0},window:'preTrain',
+ gates:['physical'],
+ effect:{magnitude:'small',grade:'C',
+  basis:'Well-evidenced ergogenic in ADULTS. Pediatric guidance discourages routine caffeine in adolescents, and the half-life means an afternoon dose is still active at bedtime.',
+  age:'extrapolated from adults — capped at C',
+  uncertainty:'Whatever it adds to a session, it subtracts from sleep — and sleep is the grade-A intervention it would be stealing from.'},
+ safety:{risk:'sleep disruption; not advised at his age',requiresAdult:true},prereq:[],conflicts:['sleep'],
+ decay:'immediate',measurable:'sleep',days:14,compareTo:'sleep'})
+];
 const MATURITY={
   err:2.0, // inches, honest uncertainty on a mid-parental estimate
   bands:[
@@ -1932,6 +2163,58 @@ function migrate(p){
   normIds(s); // v7.32: persistent deterministic entry ids (sync identity)
   return s;
 }
+/* ============================================================================
+   v7.82 — DURABILITY. The record has to survive four years.
+   Three things were missing and each one can lose the career file silently:
+   (1) storage was never marked persistent, so WebKit may evict it;
+   (2) a quota failure was indistinguishable from any other write failure;
+   (3) the IndexedDB mirror held ONE key — a corrupt write overwrote the only copy.
+   Nothing here changes what is stored. It changes whether it is still there in 2030.
+   ============================================================================ */
+let _persistState={asked:false,granted:null,quota:null,usage:null};
+/* Ask the browser to mark this origin persistent. Must follow a user gesture on most
+   engines, so it is called from the first real interaction, not from boot. */
+function persistRequest(cb){
+  cb=cb||function(){};
+  try{
+    if(typeof navigator==='undefined'||!navigator.storage||!navigator.storage.persist){ cb(_persistState); return; }
+    if(_persistState.asked){ cb(_persistState); return; }
+    _persistState.asked=true;
+    const done=g=>{ _persistState.granted=!!g;
+      try{ if(navigator.storage.estimate) navigator.storage.estimate().then(e=>{
+        _persistState.quota=e&&e.quota; _persistState.usage=e&&e.usage; cb(_persistState); }); else cb(_persistState); }
+      catch(e){ cb(_persistState); } };
+    if(navigator.storage.persisted){ navigator.storage.persisted().then(already=>{
+      if(already) return done(true);
+      navigator.storage.persist().then(done).catch(()=>done(false)); }).catch(()=>done(false));
+    } else navigator.storage.persist().then(done).catch(()=>done(false));
+  }catch(e){ cb(_persistState); }
+}
+function persistRead(){ return {..._persistState,
+  pct:(_persistState.quota&&_persistState.usage)?Math.round(100*_persistState.usage/_persistState.quota):null}; }
+/* Is this failure a quota failure specifically? The remedy differs: a quota failure means
+   PRUNE OR EXPORT, not "try again". */
+function isQuotaErr(e){
+  if(!e) return false;
+  const n=String(e.name||''), m=String(e.message||'');
+  return n==='QuotaExceededError'||n==='NS_ERROR_DOM_QUOTA_REACHED'||/quota|exceeded the quota|storage is full/i.test(n+' '+m);
+}
+/* ---- ERROR RING BUFFER ----
+   74 catch blocks in this codebase are silent by design (never break the athlete's screen),
+   but silence for four years means a bug is never found. Ring-buffer them into the export. */
+const ERR_MAX=60; let ERR_RING=[];
+function logErr(kind,msg,extra){
+  try{ ERR_RING.push({ts:Date.now(),d:todayISO(),kind:String(kind||'error'),
+    msg:String(msg==null?'':(msg.message||msg)).slice(0,300),
+    at:extra?String(extra).slice(0,160):null});
+    if(ERR_RING.length>ERR_MAX) ERR_RING.shift();
+  }catch(e){}
+}
+function errRead(){ return ERR_RING.slice().reverse(); }
+if(typeof window!=='undefined'&&window.addEventListener){
+  window.addEventListener('error',e=>logErr('error',e&&(e.message||e.error),e&&e.filename?e.filename+':'+e.lineno:null));
+  window.addEventListener('unhandledrejection',e=>logErr('promise',e&&e.reason));
+}
 function save(){
   let ok=true;
   normIds(S); _lwwTouch(); // v7.32: id + last-write bookkeeping before persist
@@ -1940,12 +2223,18 @@ function save(){
   try{ if(_str.length>700000&&!save._szWarned){ save._szWarned=1; toast('4-year check: data file is getting big — export a backup this week. Nothing is lost; this is early warning, not an emergency.'); } }catch(e){}
   try{ localStorage.setItem(DB,_str); }
   catch(e){ ok=false;
-    toast('⚠ SAVE FAILED — data is NOT persisting. Export NOW (TRACK → Data).');
+    /* v7.82: a quota failure and a generic failure need different remedies, so they get
+       different words. "Try again" is useless advice when the disk is full. */
+    const q=(typeof isQuotaErr==='function')&&isQuotaErr(e);
+    try{ logErr(q?'quota':'save',e,'localStorage.setItem'); }catch(_){}
+    toast(q?'⚠ STORAGE FULL — nothing new is saving. Export a backup now.'
+           :'⚠ SAVE FAILED — data is NOT persisting. Export NOW (TRACK → Data).');
     try{ if(!document.querySelector('#saveFail')) document.body.insertAdjacentHTML('afterbegin',
       '<div id="saveFail" style="position:sticky;top:0;z-index:99;background:#7a1f1f;color:#fff;padding:10px 14px;font-size:13px;font-weight:700">⚠ Your data is NOT saving to this phone. Export a backup right now. <button class="btn sm" style="margin-left:8px" onclick="exportS()">EXPORT NOW</button></div>');
     }catch(_){}
   }
   idbMirror();
+  try{ if(typeof idbSnapshot==='function') idbSnapshot(); }catch(e){}
   if(typeof pushCloud==='function') pushCloud(); // v7.32: debounced cloud push (no-op when sync is off)
   /* v7.60 · the scoreboard is the feedback loop — it updates the INSTANT a fact is saved,
      not on the next navigation. A stale HUD at the moment of logging breaks the exact
@@ -1967,6 +2256,50 @@ function idbMirror(){ /* cached handle + 5s throttle — no per-tap connection c
   const now=Date.now(); if(now-_idbLast<5000) return; _idbLast=now;
   idbOpen(db=>{ try{ const tx=db.transaction('kv','readwrite');
     tx.objectStore('kv').put(JSON.stringify(S),'state'); tx.objectStore('kv').put(todayISO(),'when'); }catch(e){} }); }
+/* ---- ROLLING SNAPSHOTS ----
+   The mirror held a single 'state' key, so a bad write overwrote the only copy. Keep three
+   dated snapshots alongside it, written at most weekly, pruned oldest-first. */
+const SNAP_KEEP=3;
+function idbSnapshot(force){
+  try{
+    const last=(S.events||[]).filter(e=>e.type==='snap').map(e=>e.d).sort().pop();
+    if(!force&&last&&daysBetween(last,todayISO())<7) return;
+    idbOpen(db=>{ try{
+      const key='snap:'+todayISO();
+      const tx=db.transaction('kv','readwrite'), os=tx.objectStore('kv');
+      os.put(JSON.stringify(S),key);
+      const rq=os.getAllKeys?os.getAllKeys():null;
+      if(rq) rq.onsuccess=()=>{ try{
+        const snaps=(rq.result||[]).filter(k=>String(k).indexOf('snap:')===0).sort();
+        while(snaps.length>SNAP_KEEP){ os.delete(snaps.shift()); }
+      }catch(e){ logErr('snap-prune',e); } };
+      logEvent('snap',{key}); 
+    }catch(e){ logErr('snap',e); } });
+  }catch(e){ logErr('snap',e); }
+}
+function idbSnapList(cb){
+  cb=cb||function(){};
+  idbOpen(db=>{ try{
+    const os=db.transaction('kv','readonly').objectStore('kv');
+    const rq=os.getAllKeys?os.getAllKeys():null;
+    if(!rq) return cb([]);
+    rq.onsuccess=()=>cb((rq.result||[]).filter(k=>String(k).indexOf('snap:')===0).sort().reverse());
+    rq.onerror=()=>cb([]);
+  }catch(e){ logErr('snaplist',e); cb([]); } });
+}
+function idbSnapRestore(key,cb){
+  cb=cb||function(){};
+  idbOpen(db=>{ try{
+    const rq=db.transaction('kv','readonly').objectStore('kv').get(key);
+    rq.onsuccess=()=>{ try{
+      const p=rq.result?JSON.parse(rq.result):null;
+      if(!p) return cb(false);
+      exportS();                                  /* current state is exported BEFORE replacement */
+      S=migrate(p); save(); cb(true);
+    }catch(e){ logErr('restore',e); cb(false); } };
+    rq.onerror=()=>cb(false);
+  }catch(e){ logErr('restore',e); cb(false); } });
+}
 /* v7.30: restore is a BOOT GATE — freshness is read before anything renders or saves, and the
    first render waits for the verdict (800ms cap so boot can never hang). */
 function idbRestoreCheck(cb){
@@ -1990,7 +2323,8 @@ function logEvent(type,meta){ S.events.push({d:todayISO(),type,meta}); }
 
 /* ---- export / import (DISCOVERY.md A4 — the data's escape hatch) ---- */
 function exportS(){
-  const blob=new Blob([JSON.stringify({app:'d1os',v:S.v,exported:todayISO(),data:S},null,1)],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({app:'d1os',v:S.v,exported:todayISO(),data:S,
+    diag:{storage:(typeof persistRead==='function')?persistRead():null,errors:(typeof errRead==='function')?errRead():[]}},null,1)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
   a.download='d1os-backup-'+todayISO()+'.json';
@@ -2296,10 +2630,16 @@ function celebrate(msg,big){
 }
 /* ============ ATHLETE STATE MODEL — pure derived views. Never stored. ============
    Only dimensions the logged data can support (ARCHITECTURE.md). */
+/* v7.84 ROBUSTNESS SWEEP — Model read every array bare (s.lifts.filter) while 61 reads
+   elsewhere in this file guarded with (s.x||[]). Any state missing a key threw, which is how
+   practiceRead -> returnRead -> momentum crashed the suite the moment a caller passed a partial
+   state. Fixed as a CLASS, not as the one instance that surfaced it: every array and day-map
+   read inside Model is now guarded, including the object-valued keys (prs/settings/params/profile)
+   which the first pass missed because the sweep only looked for array methods. No behaviour changes on a complete state. */
 const Model={
   /* streak with one shield per rolling 7 days: a single 3/4 day doesn't break the chain (A2) */
   consistency(s=S,today=todayISO()){
-    const day=iso=>s.checkins[iso]||null;
+    const day=iso=>(s.checkins||{})[iso]||null;
     const full=iso=>{ const c=day(iso); return !!c&&c.every(Boolean); };
     const three=iso=>{ const c=day(iso); return !!c&&c.filter(Boolean).length===3; };
     /* v7.72: an AWAY day (marked, off routine — a night at a cousin's) holds the chain on one
@@ -2314,7 +2654,7 @@ const Model={
       else break;
       d=addDays(d,-1);
     }
-    const first=Object.keys(s.checkins).sort()[0]||today;
+    const first=Object.keys(s.checkins||{}).sort()[0]||today;
     const span=n=>{ let hit=0,tot=0,skips=[0,0,0,0];
       for(let i=0;i<n;i++){ const iso=addDays(today,-i); if(iso<first) break;
         tot++; const c=day(iso)||[false,false,false,false];
@@ -2323,7 +2663,7 @@ const Model={
       return {rate:tot?hit/tot:0,skips,tot}; };
     const s7=span(7), s30=span(30);
     // gap = days since last day that counted (for comeback rule)
-    const dates=Object.keys(s.checkins).filter(k=>full(k)||three(k)).sort();
+    const dates=Object.keys(s.checkins||{}).filter(k=>full(k)||three(k)).sort();
     const lastGood=dates.at(-1)||null;
     return {streak, shieldsUsed:shields.length, awayUsed:awayDays.length, rate7:s7.rate, rate30:s30.rate,
             skips30:s30.skips, days30:s30.tot,
@@ -2331,8 +2671,8 @@ const Model={
             everComplete:dates.length>0};
   },
   momentum(s=S,today=todayISO()){
-    const sets7=s.lifts.filter(l=>daysBetween(l.d,today)<7).length;
-    const days=[...new Set(s.lifts.map(l=>l.d))].sort();
+    const sets7=(s.lifts||[]).filter(l=>daysBetween(l.d,today)<7).length;
+    const days=[...new Set((s.lifts||[]).map(l=>l.d))].sort();
     let consec=0, d=today;
     if(!days.includes(d)) d=addDays(d,-1);
     while(days.includes(d)){ consec++; d=addDays(d,-1); }
@@ -2340,7 +2680,7 @@ const Model={
     const lastLift=days.at(-1)||null;
     const bestE1rm={};
     for(const ex of ['squat','dead','bench','clean']){
-      const l=s.lifts.filter(x=>x.ex===ex);
+      const l=(s.lifts||[]).filter(x=>x.ex===ex);
       if(l.length) bestE1rm[ex]=Math.max(...l.map(x=>epley(x.wt,x.reps)));
     }
     return {sets7, consecDays:consec, bestE1rm,
@@ -2356,12 +2696,12 @@ const Model={
   },
   /* plateau: 21d of exposure with no e1RM progress. Honest thresholds: needs ≥6 sets in window. */
   plateau(s=S,ex,today=todayISO()){
-    const win=s.lifts.filter(l=>l.ex===ex&&daysBetween(l.d,today)<=21);
+    const win=(s.lifts||[]).filter(l=>l.ex===ex&&daysBetween(l.d,today)<=21);
     if(win.length<6) return {plateaued:false,weeks:0};
     const best=Math.max(...win.map(l=>epley(l.wt,l.reps)));
     /* rolling window (v7.29): compare vs the PRIOR 21 days, not all-time best — being below an
        old PR forever is not a plateau; stalling vs recent work is */
-    const before=s.lifts.filter(l=>l.ex===ex&&daysBetween(l.d,today)>21&&daysBetween(l.d,today)<=42);
+    const before=(s.lifts||[]).filter(l=>l.ex===ex&&daysBetween(l.d,today)>21&&daysBetween(l.d,today)<=42);
     if(before.length<3) return {plateaued:false,weeks:0};
     const prior=Math.max(...before.map(l=>epley(l.wt,l.reps)));
     const stuck=best<=prior;
@@ -2371,7 +2711,7 @@ const Model={
     return {plateaued:stuck, weeks:stuck?Math.floor(daysBetween(beforeLast.d,today)/7):0};
   },
   iq(s=S,today=todayISO()){
-    const wk=s.pushLog.filter(p=>daysBetween(p.d,today)<7);
+    const wk=(s.pushLog||[]).filter(p=>daysBetween(p.d,today)<7);
     /* v7.64: latest by (date, write-time), not append order — a backfilled earlier rep must
        not become "last type". Same fix class as calibration/seasonReport (write-path safety). */
     const pl=[...(s.pushLog||[])].sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:((a.t||0)-(b.t||0)));
@@ -2382,17 +2722,17 @@ const Model={
     return ev.at(-1)||null;
   },
   recruiting(s=S,today=todayISO()){
-    const flags=s.pipeline.filter(p=>{
+    const flags=(s.pipeline||[]).filter(p=>{
       if(p.stage<1||p.stage>=5) return false;
       const lc=this.lastContact(s,p.id);
-      return lc&&daysBetween(lc,today)>=(s.params?.followupDays?.v??FOLLOWUP_DAYS);
+      return lc&&daysBetween(lc,today)>=((s.params||{})?.followupDays?.v??FOLLOWUP_DAYS);
     });
-    const contacted=s.pipeline.filter(p=>p.stage>=1).length;
-    const responded=s.pipeline.filter(p=>p.stage>=2).length;
+    const contacted=(s.pipeline||[]).filter(p=>p.stage>=1).length;
+    const responded=(s.pipeline||[]).filter(p=>p.stage>=2).length;
     const rts=[];
-    for(const p of s.pipeline.filter(p=>p.stage>=2)){
-      const c=s.events.find(e=>e.type==='contact'&&e.meta&&e.meta.id===p.id);
-      const r=s.events.find(e=>e.type==='stage'&&e.meta&&e.meta.id===p.id&&e.meta.to===2);
+    for(const p of (s.pipeline||[]).filter(p=>p.stage>=2)){
+      const c=(s.events||[]).find(e=>e.type==='contact'&&e.meta&&e.meta.id===p.id);
+      const r=(s.events||[]).find(e=>e.type==='stage'&&e.meta&&e.meta.id===p.id&&e.meta.to===2);
       if(c&&r) rts.push(daysBetween(c.d,r.d));
     }
     return {flags, contacted, responded,
@@ -2402,9 +2742,9 @@ const Model={
   /* stage-gated: progress vs the CURRENT YEAR's waypoint; biggest deficit = the flaw the engine attacks */
   waypointGaps(s=S,today=todayISO()){
     const wp=currentWaypoint(today), g=this.gaps(s), mom=this.momentum(s,today);
-    const cur=k=>{ if(['squat','bench','dead','clean'].includes(k)) return Math.max(s.prs[k]||0,mom.bestE1rm[k]||0)||null;
+    const cur=k=>{ if(['squat','bench','dead','clean'].includes(k)) return Math.max((s.prs||{})[k]||0,mom.bestE1rm[k]||0)||null;
       return g.latest(k); };
-    const baseline=k=>{ const m=s.metrics.filter(x=>x.key===k).sort((a,b)=>a.d<b.d?-1:1)[0]; return m?m.val:null; };
+    const baseline=k=>{ const m=(s.metrics||[]).filter(x=>x.key===k).sort((a,b)=>a.d<b.d?-1:1)[0]; return m?m.val:null; };
     const rows=[];
     for(const k in wp.targets){ const c=cur(k), t=wp.targets[k];
       rows.push({key:k,cur:c,target:t,progress:c==null?null:Math.min(1,c/t),rel:false}); }
@@ -2418,10 +2758,10 @@ const Model={
     return {label:wp.label, rows, primary};
   },
   gaps(s=S){
-    const latest=k=>{ const m=s.metrics.filter(x=>x.key===k).sort((a,b)=>a.d<b.d?1:-1)[0];
+    const latest=k=>{ const m=(s.metrics||[]).filter(x=>x.key===k).sort((a,b)=>a.d<b.d?1:-1)[0];
       if(m) return m.val;
       const b=BENCHMARKS.find(x=>x.key===k);
-      return b&&b.pr? s.prs[b.pr]??null : null; };
+      return b&&b.pr? (s.prs||{})[b.pr]??null : null; };
     const rows=BENCHMARKS.map(b=>{
       const v=latest(b.key);
       const hit={}; for(const t in b.tiers) hit[t]=v==null?null:(b.lower?v<=b.tiers[t]:v>=b.tiers[t]);
@@ -2430,7 +2770,7 @@ const Model={
     return {rows, latest};
   },
   weightTrend(s=S,today=todayISO()){
-    const wts=s.metrics.filter(m=>m.key==='wt').sort((a,b)=>a.d<b.d?-1:1);
+    const wts=(s.metrics||[]).filter(m=>m.key==='wt').sort((a,b)=>a.d<b.d?-1:1);
     if(wts.length<2) return {latest:wts.at(-1)?.val??null, stalled:false, enough:false};
     const latest=wts.at(-1);
     const ref=wts.filter(w=>daysBetween(w.d,latest.d)>=21).at(-1);
@@ -2439,11 +2779,11 @@ const Model={
             stalled:(latest.val-ref.val)<1, enough:true};
   },
   academic(s=S,today=todayISO()){
-    const g=s.metrics.filter(m=>m.key==='gpa').sort((a,b)=>a.d<b.d?1:-1)[0];
+    const g=(s.metrics||[]).filter(m=>m.key==='gpa').sort((a,b)=>a.d<b.d?1:-1)[0];
     return {gpa:g?.val??null, daysSince:g?daysBetween(g.d,today):null};
   },
   baselineDone(s=S){
-    return ['forty','vert','broad'].every(k=>s.metrics.some(m=>m.key===k));
+    return ['forty','vert','broad'].every(k=>(s.metrics||[]).some(m=>m.key===k));
   },
   /* v7.58 (audit 1.3): timing method of a sprint reading. D1_BENCH is a laser/FAT standard;
      a hand-timed 40 reads ~0.24s FAST, so it must be converted UP before any percentile call
@@ -2483,7 +2823,7 @@ const Model={
     let worst=null;
     if(c.days30>=7){ const i=c.skips30.indexOf(Math.max(...c.skips30));
       if(c.skips30[i]>0) worst={name:names[i],pct:Math.round(100*c.skips30[i]/c.days30)}; }
-    const prDays=s.events.filter(e=>e.type==='pr'&&e.meta).map(e=>e.meta.dow);
+    const prDays=(s.events||[]).filter(e=>e.type==='pr'&&e.meta).map(e=>e.meta.dow);
     const prByDay=prDays.length?[...new Set(prDays)].map(d=>({day:d,n:prDays.filter(x=>x===d).length})).sort((a,b)=>b.n-a.n):[];
     const r=this.recruiting(s,today);
     return {worstSkip:worst, prByDay,
@@ -3014,6 +3354,214 @@ function prescribe(s=S,lift,pct,today=todayISO()){
   const dl=(typeof Model!=='undefined'&&Model.deloadFactor)?Model.deloadFactor(s,today):1;
   const raw=t.tm*pct*wave*dl;
   return {lb:Math.round(raw/5)*5,tm:t.tm,pct,wave,dl,cycle:c,tmSrc:t.src,base:t.base};
+}
+
+/* ============================================================================
+   v7.84 — PHASE C: the three captures that must exist before Aug 21.
+   Each one takes seconds, and each one currently costs the athlete nothing to skip
+   and everything to have skipped.
+   ============================================================================ */
+/* ---- HYDRATION. Safety-critical, August, Henderson. ----
+   Two weight taps produce a number that matters: fluid lost as a share of bodyweight.
+   Past ~2% loss, performance and thermoregulation degrade — that rule is already in the
+   app's own copy and has never had a way to be measured. */
+const SWEAT_OZ_PER_LB=22;        /* ~20–24 fl oz per lb lost is the standard replacement range */
+function hydrationRead(s=S,today=todayISO()){
+  const day=d=>{
+    const pre=metricOn(s,'wtpre',d), post=metricOn(s,'wtpost',d);
+    if(pre==null||post==null||!(pre>0)) return null;
+    const lost=+(pre-post).toFixed(1);
+    const pct=+(((pre-post)/pre)*100).toFixed(2);
+    return {d,pre,post,lost,pct,over:pct>2,oz:Math.max(0,Math.round(lost*SWEAT_OZ_PER_LB))};
+  };
+  const t=day(today);
+  const trend=[0,1,2].map(i=>day(addDays(today,-i))).filter(Boolean);
+  const overCount=trend.filter(x=>x.over).length;
+  return {have:!!t,today:t,trend,overCount,
+    repeated:overCount>=2,
+    partial:(metricOn(s,'wtpre',today)!=null&&metricOn(s,'wtpost',today)==null)};
+}
+/* ---- BALL SECURITY. "The fastest way a freshman loses a job." ----
+   The plan names 100 daily high-and-tight carries and the app has never counted one. */
+const BALL_TARGET=100;
+function ballRead(s=S,today=todayISO()){
+  const sum=d=>(s.metrics||[]).filter(m=>m.key==='ball'&&m.d===d)
+    .reduce((a,b)=>a+(+b.val||0),0);
+  const n=sum(today);
+  let streak=0;
+  for(let i=1;i<=60;i++){ const d=addDays(today,-i); if(sum(d)>=BALL_TARGET) streak++; else break; }
+  if(n>=BALL_TARGET) streak++;
+  const days=[0,1,2,3,4,5,6].map(i=>({d:addDays(today,-i),n:sum(addDays(today,-i))}));
+  const wk=days.reduce((a,b)=>a+b.n,0);
+  return {n,target:BALL_TARGET,done:n>=BALL_TARGET,left:Math.max(0,BALL_TARGET-n),streak,week:wk,days};
+}
+/* ---- PRACTICE LOG. Fifteen seconds, taps not typing. ----
+   Feeds depth[] (the season record nobody keeps) and coach[] (the chain that cannot run
+   on zero entries), and marks one mental error — the thing coaches actually cut freshmen for. */
+function practiceLogged(s=S,d){ return (s.events||[]).some(e=>e.type==='practice'&&e.d===d); }
+function practiceRead(s=S,today=todayISO()){
+  const evs=(s.events||[]).filter(e=>e.type==='practice').sort((a,b)=>a.d<b.d?-1:1);
+  const last=evs.length?evs[evs.length-1]:null;
+  const errs=evs.filter(e=>e.meta&&e.meta.err).length;
+  const rr=(typeof returnRead==='function')?returnRead(s,today):{have:false};
+  const isPracticeDay=rr.have&&rr.days<=0;
+  return {n:evs.length,last,errs,logged:practiceLogged(s,today),
+    due:isPracticeDay&&!practiceLogged(s,today),
+    errRate:evs.length?+(errs/evs.length).toFixed(2):null};
+}
+/* ============================================================================
+   v7.81 — THE ROI RANKER
+   ROI = expectedGateMovement x evidenceWeight x personalPrior
+         / (minutes + dollars + fatigue + adherenceRisk)
+   The five constraints are applied BEFORE ranking, never after. Order matters:
+   safety veto, then availability, then floor-before-ceiling, then evidence
+   honesty, then personal prior. A number that survives all five is a rank.
+   ============================================================================ */
+const FLOOR_IDS=['sleep','fuel','heat','hydrate','gpa'];
+/* Today's real budget. Minutes are the binding constraint on a school day. */
+function budgetToday(s=S,today=todayISO()){
+  const dow=new Date(today+'T12:00').getDay();
+  const school=(typeof phaseFor==='function')&&today>='2026-08-10';
+  const practice=(typeof returnRead==='function')?returnRead(s,today):{have:false};
+  const inPractice=practice.have&&practice.days<=0;
+  let minutes=school?(dow===0||dow===6?180:75):(inPractice?90:150);
+  return {minutes,dollars:0,fatigue:inPractice?4:8,social:3,school,inPractice,dow};
+}
+/* Is a floor unmet right now? Floors outrank ceilings — the app says so in those words. */
+function floorState(s=S,today=todayISO()){
+  const out=[];
+  const sl=(typeof metricOn==='function')?metricOn(s,'sleep',addDays(today,-1)):null;
+  if(sl!=null&&sl<8) out.push({id:'sleep',why:'last night was '+sl+'h — under the 8h bar the app grades against'});
+  const w=(typeof Model!=='undefined'&&Model.weightTrend)?Model.weightTrend(s,today):{};
+  if(w.enough&&w.stalled) out.push({id:'fuel',why:'bodyweight has stalled while training — the surplus is not there'});
+  const cr=(typeof cutRisk==='function')?cutRisk(s,today):{have:false};
+  if(cr.have&&cr.over) out.push({id:'fuel',why:'weight is falling faster than 1.5%/week'});
+  const rr=(typeof returnRead==='function')?returnRead(s,today):{have:false};
+  if(rr.have&&rr.inAccl) out.push({id:'heat',why:'day '+rr.acclDay+' of the 14-day heat-acclimatisation period'});
+  const g=(typeof Model!=='undefined'&&Model.academic)?Model.academic(s,today):{gpa:null};
+  if(g.gpa==null) out.push({id:'gpa',why:'no GPA on record — the eligibility gate is unverified'});
+  return out;
+}
+/* Live risk flags. An injured or heat-sick athlete has an ROI of zero on everything. */
+function riskFlags(s=S,today=todayISO()){
+  const f=[];
+  const st=(typeof statusToday==='function')?statusToday(s,today):null;
+  if(st==='hurt') f.push({k:'hurt',t:'Injury status is set for today'});
+  if(st==='sick') f.push({k:'sick',t:'Illness status is set for today'});
+  const b=(typeof bodyRead==='function')?bodyRead(s,today):{recurring:[]};
+  if((b.recurring||[]).length) f.push({k:'sore',t:'Recurring soreness pattern in the last 14 days'});
+  const rr=(typeof returnRead==='function')?returnRead(s,today):{have:false};
+  if(rr.have&&rr.inAccl&&rr.acclDay<=5) f.push({k:'heat',t:'Unacclimatised — day '+rr.acclDay+' of 14'});
+  return f;
+}
+/* Which recommendation family grades which intervention. Without this the ledger and the
+   learning loop never meet: intervention ids and REC_KINDS keys are different vocabularies.
+   v7.83 BUGFIX: personalPrior indexed recEffectiveness() — which returns an ARRAY — as if it
+   were keyed by id, so the lookup was always undefined and CONSTRAINT 5 never once fired.
+   The ledger has been ranking on population evidence alone since v7.81. Fixed here, with the
+   mapping made explicit so the failure cannot recur silently. */
+const IV_REC_KIND={
+  sleep:'recover', fuel:'fuel', milk:'fuel', lift:'lift', sprint:'speed',
+  nmt:'train', viz:'daily4', prayer:'daily4', breath:'recover', journal:'daily4',
+  clip:'board', camp:'board', light:'recover', hydrate:'recover'
+};
+/* His own record, once it exists, outranks the literature — and the app says so out loud. */
+function personalPrior(s=S,iv){
+  if(typeof recEffectiveness!=='function') return {mult:1,have:false,n:0};
+  const kind=IV_REC_KIND[iv&&iv.id]; if(!kind) return {mult:1,have:false,n:0,reason:'no graded family'};
+  let eff=null; try{ eff=recEffectiveness(s); }catch(e){ return {mult:1,have:false,n:0}; }
+  const fam=Array.isArray(eff)?eff.find(x=>x.kind===kind):null;
+  if(!fam) return {mult:1,have:false,n:0,kind};
+  const n=(fam.pairs?((fam.pairs.f||[]).length+(fam.pairs.i||[]).length):0);
+  if(fam.effect==='supported') return {mult:1.35,have:true,n,kind,effect:'supported',
+    verdict:'your own record supports this',detail:fam.detail};
+  if(fam.effect==='none')      return {mult:0.55,have:true,n,kind,effect:'none',
+    verdict:'your own record does NOT support this',detail:fam.detail};
+  if(fam.effect==='mixed')     return {mult:0.9,have:true,n,kind,effect:'mixed',
+    verdict:'mixed in your own record',detail:fam.detail};
+  return {mult:1,have:false,n,kind,effect:fam.effect,detail:fam.detail};
+}
+/* ===== v7.83 INTERVENTION REPORT CARDS =====
+   For everything he has actually tried: what the population evidence claimed, what HIS record
+   shows, and which one the app now believes. When they disagree the app says so unprompted,
+   about its own advice. That sentence is the difference between an app and a coach. */
+function reportCards(s=S){
+  if(typeof INTERVENTIONS==='undefined') return {have:false,rows:[]};
+  const rows=INTERVENTIONS.map(iv=>{
+    const pp=personalPrior(s,iv);
+    if(!pp.kind) return null;
+    const pop=(iv.effect||{});
+    let verdict='untested', line='';
+    if(!pp.have||pp.n<4){
+      verdict='gathering';
+      line='Not enough of your own data yet'+(pp.n?(' — '+pp.n+' graded day'+(pp.n===1?'':'s')+' so far'):'')+'. Running on population evidence.';
+    } else if(pp.effect==='supported'){
+      verdict='confirmed';
+      line='Population evidence said '+pop.magnitude+' (grade '+pop.grade+'). Your record agrees. The app is keeping this ranked where it is.';
+    } else if(pp.effect==='none'){
+      verdict='demoted';
+      line='Population evidence said '+pop.magnitude+' (grade '+pop.grade+'). YOUR record does not show it. The app is demoting its own recommendation — your data outranks the literature here.';
+    } else {
+      verdict='mixed';
+      line='Population evidence said '+pop.magnitude+' (grade '+pop.grade+'). Your record is mixed. Holding the rank and keeping the question open.';
+    }
+    return {id:iv.id,name:iv.name,grade:pop.grade,magnitude:pop.magnitude,basis:pop.basis,
+      kind:pp.kind,n:pp.n,effect:pp.effect||null,detail:pp.detail||null,verdict,line,mult:pp.mult};
+  }).filter(Boolean);
+  const graded=rows.filter(r=>r.verdict!=='gathering');
+  return {have:true,rows,graded:graded.length,total:rows.length,
+    demoted:rows.filter(r=>r.verdict==='demoted'),
+    confirmed:rows.filter(r=>r.verdict==='confirmed')};
+}
+function interventionRank(s=S,today=todayISO(),opts){
+  opts=opts||{};
+  if(typeof INTERVENTIONS==='undefined') return {have:false};
+  const bud=opts.budget||budgetToday(s,today);
+  const floors=floorState(s,today);
+  const floorIds=floors.map(f=>f.id);
+  const risks=riskFlags(s,today);
+  const blocked=[], ranked=[];
+  for(const iv of INTERVENTIONS){
+    /* CONSTRAINT 1 — safety veto. Never silently dropped; shown with what would unlock it. */
+    const sf=iv.safety||{};
+    if(sf.requiresClinician||sf.requiresAdult||(iv.effect&&iv.effect.grade==='X')){
+      blocked.push({iv,why:iv.effect&&iv.effect.grade==='X'
+        ?'Contradicted or no demonstrated benefit — see the card for the trade-off.'
+        :('Needs '+[sf.requiresAdult?'a parent':null,sf.requiresClinician?'a clinician':null].filter(Boolean).join(' and ')+' before this can be ranked.'),
+        unlock:sf.note||null});
+      continue;
+    }
+    /* seasonal windows — an intervention outside its window is not on today's board */
+    if(iv.seasonal&&(today<iv.seasonal[0]||today>iv.seasonal[1])) continue;
+    const gates=iv.gates||[];
+    /* NO GATE NAMED, NEVER SHOWN. No exceptions — a special case here was a v7.81 bug
+       caught by its own test: foam rolling was being ranked while naming nothing it moves. */
+    if(!gates.length) continue;
+    const gw=MAG_W[(iv.effect||{}).magnitude]||0.3;
+    const ew=GRADE_W[(iv.effect||{}).grade]||0.25;
+    const pp=personalPrior(s,iv);
+    const c=iv.cost||{};
+    const cost=(c.minutes||0)/10 + (c.dollars||0)/10 + Math.max(0,c.fatigue||0)/2 + (c.social||0)/3 + 1;
+    let roi=(gw*gates.length*ew*pp.mult)/cost;
+    const notes=[];
+    /* CONSTRAINT 2 — availability first */
+    if(risks.length && gates.includes('availability')){ roi*=2.2; notes.push('availability is at risk — this outranks performance work today'); }
+    else if(risks.length && !gates.includes('availability')){ roi*=0.35; notes.push('a risk flag is live, so performance work is held back'); }
+    /* CONSTRAINT 3 — floor before ceiling */
+    if(floorIds.includes(iv.id)){ roi*=3.0; notes.push('this is an unmet FLOOR — fixing a floor beats raising a ceiling'); }
+    else if(floors.length && !FLOOR_IDS.includes(iv.id)){ roi*=0.5; notes.push('a floor is unmet, so ceiling work is discounted'); }
+    /* CONSTRAINT 4 — evidence honesty: a D can never outrank an A on magnitude alone */
+    if((iv.effect||{}).grade==='D'||(iv.effect||{}).grade==='C'){ roi=Math.min(roi, 0.95*(MAG_W.large*2*GRADE_W.A)/2); }
+    /* budget: never propose more than fits */
+    const fits=(c.minutes||0)<=bud.minutes;
+    if(!fits){ notes.push('does not fit today\'s '+bud.minutes+' free minutes'); roi*=0.2; }
+    ranked.push({iv,roi:+roi.toFixed(3),gw,ew,pp,cost:+cost.toFixed(2),fits,notes,
+      floor:floorIds.includes(iv.id)});
+  }
+  ranked.sort((a,b)=>b.roi-a.roi||(a.iv.cost.minutes||0)-(b.iv.cost.minutes||0));
+  return {have:true,ranked,blocked,floors,risks,budget:bud,
+    top:ranked[0]||null,
+    considered:ranked.length};
 }
 /* ===== v7.80 CLOSING THE CYCLE — the increase has to be earned =====
    v7.79 shipped a training max that steps up per completed cycle, but nothing ever recorded a
@@ -4112,9 +4660,13 @@ function rToday(){
   const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊',prep:'🔥',earn:'🏈',film:'🎬',coach:'📣'};
   $('#v-today').innerHTML=`
   ${typeof captureStripHTML==='function'?captureStripHTML():''}
+  ${typeof ledgerCardHTML==='function'?ledgerCardHTML():''}
   ${typeof scriptCardHTML==='function'?scriptCardHTML():''}
+  ${typeof hydrationCardHTML==='function'?hydrationCardHTML():''}
+  ${typeof practiceCardHTML==='function'?practiceCardHTML():''}
   ${typeof returnCardHTML==='function'?returnCardHTML():''}
   ${typeof depthCardHTML==='function'?depthCardHTML():''}
+  ${typeof ballCardHTML==='function'?ballCardHTML():''}
   ${typeof curriculumCardHTML==='function'?curriculumCardHTML():''}
   ${typeof recordCardHTML==='function'?recordCardHTML():''}
   ${typeof testDayCardHTML==='function'?testDayCardHTML():''}
@@ -4845,6 +5397,231 @@ function scriptCardHTML(){
     ${rows}
     ${!sc.next&&!sc.restDay?'<div class="note" style="margin-top:8px;color:var(--green)">That\'s the day. Nothing else is required.</div>':''}
   </div>`;
+}
+/* ===== v7.84 PHASE C — zero-cost capture for the three things that matter most ===== */
+/* ---- HYDRATION: two taps, undismissable in the heat ---- */
+function hydTap(which){
+  const cur=(typeof latestMetric==='function')?latestMetric(S,'wt'):null;
+  numOpen(which,which==='wtpre'?'Weight BEFORE practice (lb)':'Weight AFTER practice (lb)',0.5,cur?cur.val:160);
+}
+function hydrationCardHTML(){
+  if(typeof hydrationRead!=='function') return '';
+  const h=hydrationRead(S);
+  const heat=(typeof heatRisk==='function')?heatRisk():false;
+  const rr=(typeof returnRead==='function')?returnRead(S):{have:false};
+  const live=heat||(rr.have&&(rr.inAccl||rr.days<=0));
+  if(!live&&!h.have) return '';
+  if(!h.have){
+    return `<div class="card" style="border-color:${h.partial?'#7a5a1f':'#294551'}">
+      <h3>Sweat check <span class="r">two taps</span></h3>
+      <div class="note" style="margin:0;font-style:normal">Weigh in before practice and again after. Past <b>2% of bodyweight</b> lost, performance and heat tolerance both drop — and in August that is a safety number, not a performance one.</div>
+      <div class="row" style="gap:6px;margin-top:8px">
+        <button class="btn grow ${h.partial?'ghost':'amber'}" onclick="hydTap('wtpre')">Before</button>
+        <button class="btn grow ${h.partial?'amber':'ghost'}" onclick="hydTap('wtpost')">After</button></div>
+      ${h.partial?'<div class="note" style="margin-top:6px;color:var(--amber)">Pre-practice weight is in. Log the after weight when you get off the field.</div>':''}</div>`;
+  }
+  const t=h.today, col=t.over?'var(--red)':'var(--green)';
+  return `<div class="card" style="border-color:${t.over?'#7a1f1f':'#294551'};${t.over?'background:linear-gradient(150deg,rgba(122,31,31,.18),var(--card) 60%)':''}">
+    <h3>Sweat check <span class="r" style="color:${col}">${t.pct}% lost</span></h3>
+    <div class="row" style="align-items:center;gap:10px">
+      <div><div class="mono" style="font-size:24px;font-weight:800;color:${col}">${t.lost} lb</div>
+        <div class="note" style="margin:0">${t.pre} → ${t.post}</div></div>
+      <div class="grow"><div class="note" style="margin:0;font-style:normal">${t.over
+        ? `<b>Over the 2% line.</b> Drink about <b>${t.oz} oz</b> before tomorrow — roughly 20–24 oz for every pound lost. Getting on the field tomorrow already down fluid is how heat illness starts.`
+        : `Under the 2% line. Still replace about <b>${t.oz} oz</b> tonight.`}</div></div></div>
+    ${h.repeated?`<div class="note" style="margin-top:8px;font-style:normal;color:var(--red)"><b>${h.overCount} of the last 3 practices over 2%.</b> That is a pattern, not a bad day — tell a coach or an athletic trainer. Start tomorrow already hydrated instead of catching up.</div>`:''}
+    ${t.over?`<div class="note" style="margin-top:6px;color:var(--amber)">Dizzy, stopped sweating, headache, weak legs — stop and tell someone. That is a medical emergency forming, not softness.</div>`:''}</div>`;
+}
+/* ---- BALL SECURITY: huge target, haptic every 10 ---- */
+function ballAdd(n){
+  pushMetric({d:todayISO(),key:'ball',val:n,src:'manual'});
+  save(); haptic('ok');
+  const b=ballRead(S);
+  if(b.done&&b.n-n<b.target) celebrate('100 CARRIES — BALL SECURED',false);
+  try{ RENDER[curView](); }catch(e){}
+}
+function ballCardHTML(){
+  if(typeof ballRead!=='function') return '';
+  const b=ballRead(S);
+  const pct=Math.min(100,Math.round(100*b.n/b.target));
+  return `<div class="card" style="border-color:${b.done?'#3f4a1f':'var(--line)'}">
+    <h3>Ball security <span class="r">${b.n}/${b.target} today${b.streak?' · '+b.streak+'d':''}</span></h3>
+    <div class="note" style="margin:0">High and tight, five points of pressure. A fumble is the fastest way a freshman loses reps — this is the cheapest insurance in the whole app.</div>
+    <div style="height:8px;border-radius:5px;background:var(--line);overflow:hidden;margin-top:8px">
+      <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,var(--cyan),var(--amber));transition:width .4s ease"></div></div>
+    <div class="row" style="gap:6px;margin-top:10px">
+      <button class="btn grow amber" style="min-height:56px;font-size:15px" onclick="ballAdd(10)">+10</button>
+      <button class="btn grow" style="min-height:56px;font-size:15px" onclick="ballAdd(25)">+25</button>
+      <button class="btn grow ghost" style="min-height:56px" onclick="ballAdd(50)">+50</button></div>
+    ${b.done?'<div class="note" style="margin-top:6px;color:var(--green)">Done for today. Week: '+b.week+' carries.</div>'
+            :'<div class="note" style="margin-top:6px">'+b.left+' to go. Walking the house counts.</div>'}</div>`;
+}
+/* ---- PRACTICE LOG: 15 seconds, taps not typing ---- */
+let pendPrac=null;
+function pracOpen(){ pendPrac={pos:null,unit:null,reps:null,err:null,quote:''}; try{ RENDER[curView](); }catch(e){} }
+function pracSet(f,v){ if(pendPrac){ pendPrac[f]=v; try{ RENDER[curView](); }catch(e){} } }
+function pracCancel(){ pendPrac=null; try{ RENDER[curView](); }catch(e){} }
+function pracSave(){
+  if(!pendPrac) return;
+  const p=pendPrac;
+  if(!p.pos||!p.unit){ toast('Position and unit — two taps'); return; }
+  const d=todayISO();
+  (S.depth=S.depth||[]).push({d,pos:p.pos,unit:p.unit,t:Date.now()});
+  let q=''; try{ const el=document.querySelector('#pracQ'); q=(el&&el.value||'').trim(); }catch(e){}
+  if(q) (S.coach=S.coach||[]).push({d,text:q});
+  logEvent('practice',{pos:p.pos,unit:p.unit,reps:p.reps,err:p.err===true,quote:q?1:0});
+  pendPrac=null; save();
+  toast('Practice logged ✓'+(q?' — coach quote on the record':''));
+  try{ RENDER[curView](); }catch(e){}
+}
+function practiceCardHTML(){
+  if(typeof practiceRead!=='function') return '';
+  const pr=practiceRead(S);
+  if(pendPrac){
+    const P=pendPrac;
+    const pick=(f,v,label)=>`<button class="btn sm ${P[f]===v?'amber':'ghost'}" onclick="pracSet('${f}','${v}')">${esc(label)}</button>`;
+    const pickB=(f,v,label)=>`<button class="btn sm ${P[f]===v?'amber':'ghost'}" onclick="pracSet('${f}',${v})">${esc(label)}</button>`;
+    return `<div class="card" style="border-color:#3f4a1f"><h3>Practice, in 15 seconds <span class="r">taps only</span></h3>
+      <div class="note" style="margin:0 0 4px;font-style:normal">Position</div>
+      <div class="row" style="gap:6px;flex-wrap:wrap">${['RB','LB','ST','WR','DB'].map(x=>pick('pos',x,x)).join('')}</div>
+      <div class="note" style="margin:10px 0 4px;font-style:normal">Unit</div>
+      <div class="row" style="gap:6px;flex-wrap:wrap">${[['1','1s'],['2','2s'],['3','3s'],['st','Special'],['scout','Scout']].map(([v,l])=>pick('unit',v,l)).join('')}</div>
+      <div class="note" style="margin:10px 0 4px;font-style:normal">Reps</div>
+      <div class="row" style="gap:6px;flex-wrap:wrap">${[['few','A few'],['some','Some'],['lots','A lot']].map(([v,l])=>pick('reps',v,l)).join('')}</div>
+      <div class="note" style="margin:10px 0 4px;font-style:normal">Any mental error? (blown assignment, wrong gap, lined up wrong)</div>
+      <div class="row" style="gap:6px">${pickB('err',true,'Yes — one or more')}${pickB('err',false,'None')}</div>
+      <div class="note" style="margin:10px 0 4px;font-style:normal">One thing a coach said (optional)</div>
+      <input id="pracQ" placeholder="his exact words" inputmode="text" style="width:100%">
+      <div class="row" style="gap:6px;margin-top:12px">
+        <button class="btn grow amber" onclick="pracSave()">Log it</button>
+        <button class="btn sm ghost" onclick="pracCancel()">Cancel</button></div></div>`;
+  }
+  if(pr.logged) return '';
+  if(!pr.due&&!pr.n) return '';
+  return `<div class="card" style="border-color:#294551">
+    <h3>Log practice <span class="r">15 seconds</span></h3>
+    <div class="note" style="margin:0;font-style:normal">Position, unit, reps, one mental error, one coach quote. This is the only honest record of your season — and by October it is the difference between remembering and knowing.</div>
+    ${pr.errRate!=null?`<div class="note" style="margin-top:6px">${pr.n} practices logged · mental errors on ${Math.round(pr.errRate*100)}% of them.</div>`:''}
+    <button class="btn amber" style="width:100%;margin-top:10px;min-height:52px" onclick="pracOpen()">Log today's practice</button></div>`;
+}
+/* ===== v7.83 EVIDENCE EXPLORER — what your own record has proven about you ===== */
+function reportCardHTML(){
+  if(typeof reportCards!=='function') return '';
+  let R; try{ R=reportCards(S); }catch(e){ return ''; }
+  if(!R.have||!R.rows.length) return '';
+  const V={confirmed:['CONFIRMED','var(--green)'],demoted:['DEMOTED','var(--red)'],
+           mixed:['MIXED','var(--amber)'],gathering:['GATHERING','var(--faint)']};
+  const row=r=>{
+    const v=V[r.verdict];
+    return `<div style="border-top:1px solid var(--line);padding:9px 0">
+      <div class="row" style="align-items:baseline;gap:6px">
+        <b style="font-size:13px">${esc(r.name)}</b>
+        <span class="pill" style="font-size:9px;border-color:${GRADE_COL[r.grade]||'var(--faint)'};color:${GRADE_COL[r.grade]||'var(--faint)'}">${esc(r.grade)}</span>
+        <span class="grow"></span>
+        <span class="pill" style="font-size:9px;border-color:${v[1]};color:${v[1]}">${v[0]}</span></div>
+      <div class="note" style="margin:4px 0 0;font-style:normal">${esc(r.line)}</div>
+      ${r.detail?`<div class="note" style="margin:3px 0 0;color:var(--faint)">${esc(r.detail)}</div>`:''}
+    </div>`;};
+  /* the app's own confidence statement, verbatim — including when it is overconfident */
+  let calLine='';
+  try{ if(typeof calibration==='function'){ const c=calibration(S); if(c&&c.confidence) calLine=c.confidence; } }catch(e){}
+  const dem=R.demoted.length;
+  const head=dem
+    ? `<div class="note" style="margin:0;font-style:normal;color:var(--red)"><b>The app is demoting ${dem} of its own recommendation${dem===1?'':'s'}.</b> Population evidence said one thing; your record says another. Yours wins.</div>`
+    : `<div class="note" style="margin:0">${R.graded} of ${R.total} interventions have enough of your own data to judge. Until then the app runs on population evidence and says so.</div>`;
+  return `<div class="card" style="border-color:#294551"><h3>What your record has proven <span class="r">${R.graded}/${R.total} graded</span></h3>
+    ${head}
+    ${R.rows.filter(r=>r.verdict!=='gathering').map(row).join('')}
+    <details style="margin-top:8px"><summary style="cursor:pointer;font-size:11px;color:var(--cyan);min-height:44px;display:flex;align-items:center">Still gathering (${R.rows.filter(r=>r.verdict==='gathering').length}) &rsaquo;</summary>
+      ${R.rows.filter(r=>r.verdict==='gathering').map(row).join('')}</details>
+    ${calLine?`<div class="note" style="margin-top:10px;border-top:1px solid var(--line);padding-top:8px;font-style:normal"><b>The app on its own reliability:</b> ${esc(calLine)}</div>`:''}
+    <div class="note" style="margin-top:6px;color:var(--faint)">An app that only ever confirms itself is not measuring anything. This page exists so you can catch it being wrong.</div>
+  </div>`;
+}
+/* ===== v7.82 DURABILITY — is the record actually safe? ===== */
+let _snapList=null;
+function snapRefresh(){ if(typeof idbSnapList!=='function') return;
+  idbSnapList(ks=>{ _snapList=ks; try{ RENDER[curView](); }catch(e){} }); }
+function snapNow(){ if(typeof idbSnapshot==='function'){ idbSnapshot(true); save(); toast('Snapshot taken ✓'); snapRefresh(); } }
+let _pendRestore=null;
+function restoreArm(k){ _pendRestore=(_pendRestore===k)?null:k; try{ RENDER[curView](); }catch(e){} }
+function restoreGo(k){
+  if(_pendRestore!==k){ restoreArm(k); return; }
+  _pendRestore=null;
+  idbSnapRestore(k,ok=>{ toast(ok?'Restored from '+k.replace('snap:','')+' ✓ (current state was exported first)':'Restore failed — nothing changed');
+    try{ RENDER[curView](); }catch(e){} });
+}
+function durabilityCardHTML(){
+  if(typeof persistRead!=='function') return '';
+  const p=persistRead();
+  const errs=(typeof errRead==='function')?errRead():[];
+  const state=p.granted===true?['PERSISTENT','var(--green)','The browser has agreed not to evict this data.']
+    :p.granted===false?['NOT PERSISTENT','var(--amber)','The browser may evict this data under storage pressure. Export regularly and keep sync on.']
+    :['UNKNOWN','var(--faint)','Not asked yet — tap anything once and the app will request it.'];
+  const use=(p.usage!=null&&p.quota!=null)
+    ? `<div class="note" style="margin:6px 0 0">Using ${(p.usage/1048576).toFixed(1)} MB of ${(p.quota/1048576).toFixed(0)} MB (${p.pct}%).</div>` : '';
+  const snaps=(_snapList||[]).map(k=>{
+    const armed=_pendRestore===k;
+    return `<div class="row" style="gap:6px;align-items:center;border-top:1px solid var(--line);padding:7px 0">
+      <span class="mono" style="font-size:12px">${esc(k.replace('snap:',''))}</span><span class="grow"></span>
+      <button class="btn sm ${armed?'':'ghost'}" style="${armed?'background:var(--red);border-color:var(--red);color:#fff':''}" onclick="restoreGo('${esc(k)}')">${armed?'Tap again to restore':'Restore'}</button></div>`;}).join('');
+  return `<div class="card" style="border-color:#294551"><h3>Is the record safe? <span class="r" style="color:${state[1]}">${esc(state[0])}</span></h3>
+    <div class="note" style="margin:0">${esc(state[2])}</div>${use}
+    <div class="row" style="gap:6px;margin-top:8px">
+      <button class="btn sm grow" onclick="snapNow()">Take a snapshot now</button>
+      <button class="btn sm grow ghost" onclick="snapRefresh()">List snapshots</button></div>
+    ${_snapList?(snaps||'<div class="note" style="margin-top:6px">No snapshots yet — one is written automatically about once a week.</div>'):''}
+    ${_snapList&&snaps?'<div class="note" style="margin-top:6px;color:var(--faint)">Restoring exports your current state first, so a restore is never a one-way door.</div>':''}
+    ${errs.length?`<details style="margin-top:8px"><summary style="cursor:pointer;font-size:11px;color:var(--cyan);min-height:44px;display:flex;align-items:center">${errs.length} error${errs.length===1?'':'s'} captured &rsaquo;</summary>
+      ${errs.slice(0,8).map(e=>`<div class="note mono" style="margin:3px 0 0;font-size:10px">${esc(e.d)} · ${esc(e.kind)} · ${esc(e.msg)}</div>`).join('')}
+      <div class="note" style="margin-top:4px;color:var(--faint)">These ride along in every export. Silent failures for four years is how a bug never gets found.</div></details>`:''}
+  </div>`;
+}
+/* ===== v7.81 — NEXT THING / FLOOR / WHY-NOT-THAT ===== */
+const GRADE_COL={A:'var(--green)',B:'var(--cyan)',C:'var(--amber)',D:'var(--faint)',X:'var(--red)'};
+function ledgerCardHTML(){
+  if(typeof interventionRank!=='function') return '';
+  let R; try{ R=interventionRank(S); }catch(e){ return ''; }
+  if(!R.have||!R.top) return '';
+  const t=R.top, iv=t.iv, e=iv.effect||{};
+  const gates=(iv.gates||[]).map(g=>(GATES[g]||{n:g}).n).join(' · ');
+  const conf=t.pp.have?('your record: '+t.pp.verdict+' (n='+t.pp.n+')')
+                      :('no personal data yet — running on population evidence');
+  const floorLine=R.floors.length
+    ? `<div class="note" style="margin:8px 0 0;font-style:normal;color:var(--amber)"><b>Fixing a floor beats raising a ceiling.</b> ${esc(R.floors.map(f=>f.why).join(' · '))}</div>` : '';
+  const riskLine=R.risks.length
+    ? `<div class="note" style="margin:6px 0 0;font-style:normal;color:var(--red)"><b>Availability is at risk.</b> ${esc(R.risks.map(r=>r.t).join(' · '))} — durability outranks performance until that clears.</div>` : '';
+  const why=R.ranked.slice(1,8).map(r=>`<div style="border-top:1px solid var(--line);padding:6px 0">
+      <div class="row" style="align-items:baseline;gap:6px">
+        <span style="font-size:12.5px">${esc(r.iv.name)}</span>
+        <span class="pill" style="font-size:9px;border-color:${GRADE_COL[(r.iv.effect||{}).grade]||'var(--faint)'};color:${GRADE_COL[(r.iv.effect||{}).grade]||'var(--faint)'}">${esc((r.iv.effect||{}).grade||'?')}</span>
+        <span class="grow"></span><span class="mono note" style="margin:0">${r.roi}</span></div>
+      ${r.notes.length?`<div class="note" style="margin:2px 0 0;font-size:10.5px">${esc(r.notes[0])}</div>`:''}
+    </div>`).join('');
+  const blocked=R.blocked.map(b=>`<div style="border-top:1px solid var(--line);padding:6px 0">
+      <div class="row" style="align-items:baseline;gap:6px"><span style="font-size:12.5px">${esc(b.iv.name)}</span>
+        <span class="pill" style="font-size:9px;border-color:var(--faint);color:var(--faint)">${esc((b.iv.effect||{}).grade||'?')}</span></div>
+      <div class="note" style="margin:2px 0 0;font-size:10.5px">${esc(b.why)}</div>
+      ${b.iv.compareTo?`<div class="note" style="margin:2px 0 0;font-size:10.5px;color:var(--cyan)">Outranked by: ${esc((INTERVENTIONS.find(x=>x.id===b.iv.compareTo)||{}).name||b.iv.compareTo)}. ${esc(b.iv.costNote||'')}</div>`:''}
+    </div>`).join('');
+  return `<div class="card" style="border-color:#3f4a1f;background:linear-gradient(150deg,rgba(201,242,78,.13),var(--card) 60%)">
+    <div class="k" style="font-size:10px;letter-spacing:.1em;color:var(--faint)">THE NEXT THING · ${R.budget.minutes} FREE MIN TODAY</div>
+    <div style="font-size:19px;font-weight:800;margin-top:4px">${esc(iv.name)}</div>
+    <div class="note" style="margin:4px 0 0;font-style:normal">${esc(iv.what)}</div>
+    <div class="row" style="gap:6px;align-items:center;margin-top:8px">
+      <span class="pill" style="border-color:${GRADE_COL[e.grade]};color:${GRADE_COL[e.grade]}">GRADE ${esc(e.grade||'?')}</span>
+      <span class="note" style="margin:0">${esc(e.magnitude||'unknown')} effect</span>
+      <span class="grow"></span><span class="note mono" style="margin:0">${esc(iv.dose)}</span></div>
+    <div class="note" style="margin-top:8px">${esc(e.basis)}</div>
+    <div class="note" style="margin-top:4px;color:var(--faint)">Age: ${esc(e.age||'unknown')} · ${esc(conf)}</div>
+    ${e.uncertainty?`<div class="note" style="margin-top:4px;color:var(--faint)">What would change this: ${esc(e.uncertainty)}</div>`:''}
+    <div class="note" style="margin-top:6px;color:var(--cyan)">Moves: ${esc(gates||'—')}</div>
+    ${floorLine}${riskLine}
+    <details style="margin-top:10px"><summary style="cursor:pointer;font-size:11px;color:var(--cyan);min-height:44px;display:flex;align-items:center">Why this and not that — ${R.considered} considered &rsaquo;</summary>
+      ${why}
+      ${blocked?`<div class="k" style="font-size:10px;letter-spacing:.09em;color:var(--faint);margin-top:10px">NOT YET — WHAT WOULD UNLOCK IT</div>${blocked}`:''}
+      <div class="note" style="margin-top:8px;color:var(--faint)">The app never says no. It ranks, shows the grade, and lets your own record move things up or down.</div>
+    </details></div>`;
 }
 /* ===== v7.80 CYCLE CLOSE-OUT — earn the increase ===== */
 function cycleAnswer(lift,cycle,hit){
@@ -5990,6 +6767,8 @@ function rTrack(){
   ${typeof growthCardHTML==='function'?growthCardHTML():''}
   ${typeof maturityCardHTML==='function'?maturityCardHTML():''}
   ${typeof speedCardHTML==='function'?speedCardHTML():''}
+  ${typeof reportCardHTML==='function'?reportCardHTML():''}
+  ${typeof durabilityCardHTML==='function'?durabilityCardHTML():''}
   ${typeof provCardHTML==='function'?provCardHTML():''}
   ${typeof medCardHTML==='function'?medCardHTML():''}
   ${typeof sleepSqCardHTML==='function'?sleepSqCardHTML():''}
@@ -6665,6 +7444,15 @@ function rWidget(){
 }
 const _wm=(typeof location!=='undefined'&&/widget/.test(location.hash||''));
 function killSkeleton(){ try{ const k=document.querySelector('#skel'); if(k) k.remove(); }catch(e){} }
+/* v7.82: storage persistence must follow a user gesture on most engines, so it is requested
+   from the first real tap rather than from boot. One-shot, silent, never blocks anything. */
+if(typeof document!=='undefined'&&document.addEventListener){
+  const _persistOnce=()=>{ try{ if(typeof persistRequest==='function') persistRequest(); }catch(e){}
+    document.removeEventListener('click',_persistOnce,true);
+    document.removeEventListener('touchstart',_persistOnce,true); };
+  document.addEventListener('click',_persistOnce,true);
+  document.addEventListener('touchstart',_persistOnce,true);
+}
 function bootD1(){ killSkeleton(); if(!_wm) introMaybe(); if(_wm){ rWidget(); if(typeof cloudBoot==='function') cloudBoot(); return; } go('today'); if(typeof cloudBoot==='function') cloudBoot(); } // sync starts only after the mirror verdict — cloud merges with real local state, never with a placeholder
 idbRestoreCheck(bootD1);
 if(_wm&&typeof setInterval!=='undefined'){ setInterval(()=>{ try{ rWidget(); }catch(e){} },60000); } // widget stays fresh
