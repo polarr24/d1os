@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.84 -->
+<!DOCTYPE html><!-- d1os v7.85 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -4658,21 +4658,33 @@ function rToday(){
     dots+=`<i class="${n===4?'hit':n>0?'part':''}"></i>`;
   }
   const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊',prep:'🔥',earn:'🏈',film:'🎬',coach:'📣'};
+  /* v7.85 — TODAY IS THREE THINGS.
+     The ledger shipped as a 26th card stacked on the 25 it was meant to replace, so the screen
+     said "do this one thing" and "do these five things" at once — worse than before it existed.
+     TODAY is now THE FLOOR (four taps), anything genuinely urgent, then THE NEXT THING with its
+     reasoning. Everything else is one tap away. Nothing is deleted: the code and its tests stay,
+     the competition for attention does not.
+     The urgent block each returns '' unless it is live today, so those cards earn the top of the
+     screen or they are not on it.
+     NOTE: these comments live in the SOURCE, not inside the template literal. HTML comments in a
+     rendered string ship to the athlete's browser on every paint and show up in the DOM — which
+     also silently broke a structural test by matching text that was never on screen. */
   $('#v-today').innerHTML=`
   ${typeof captureStripHTML==='function'?captureStripHTML():''}
-  ${typeof ledgerCardHTML==='function'?ledgerCardHTML():''}
-  ${typeof scriptCardHTML==='function'?scriptCardHTML():''}
+  ${typeof cutRiskCardHTML==='function'?cutRiskCardHTML():''}
+  ${typeof statusCardHTML==='function'?statusCardHTML():''}
   ${typeof hydrationCardHTML==='function'?hydrationCardHTML():''}
   ${typeof practiceCardHTML==='function'?practiceCardHTML():''}
   ${typeof returnCardHTML==='function'?returnCardHTML():''}
-  ${typeof depthCardHTML==='function'?depthCardHTML():''}
+  ${typeof ledgerCardHTML==='function'?ledgerCardHTML():''}
+
+  <details class="sect" id="todayMore"><summary>Everything else</summary>
+  ${typeof scriptCardHTML==='function'?scriptCardHTML():''}
   ${typeof ballCardHTML==='function'?ballCardHTML():''}
+  ${typeof depthCardHTML==='function'?depthCardHTML():''}
   ${typeof curriculumCardHTML==='function'?curriculumCardHTML():''}
   ${typeof recordCardHTML==='function'?recordCardHTML():''}
   ${typeof testDayCardHTML==='function'?testDayCardHTML():''}
-  ${typeof cutRiskCardHTML==='function'?cutRiskCardHTML():''}
-  ${typeof statusCardHTML==='function'?statusCardHTML():''}
-  <details id="todayMore" style="margin-top:10px"><summary style="cursor:pointer;font-size:12px;color:var(--cyan);padding:8px 2px">Everything else &rsaquo;</summary>
   ${typeof playerCardHTML==='function'?playerCardHTML():''}
   ${typeof installCardHTML==='function'?installCardHTML():''}
   ${typeof closeoutCardHTML==='function'?closeoutCardHTML(o1rec):''}
