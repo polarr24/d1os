@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.86 -->
+<!DOCTYPE html><!-- d1os v7.87 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -494,6 +494,111 @@ body.field details.sect>summary{min-height:52px;font-size:12px}
 @media (prefers-color-scheme: light){ body:not(.field){ }
   /* respected only via the explicit toggle — an athlete mid-set should never have the UI change
      underneath him because a cloud moved. */ }
+
+/* ============================================================================
+   v7.87 · VISUAL SYSTEM
+   Diagnosis from the live app: .card had NO background, border or radius — only
+   .card.panel did — so on desktop every card rendered as loose text in a void with a
+   ragged 340px measure, titles were 10.5px grey micro-labels, and nothing separated a
+   safety warning from a reference block.
+
+   iOS NOTE: this app is used on an iPhone and an iPad. color-mix() is Safari 16.4+ and
+   an unsupported value makes the WHOLE declaration invalid — which would have left cards
+   with no background at all on an older device. Every modern function below is therefore
+   preceded by a plain fallback, so worst case is "less pretty", never "looks broken".
+   ============================================================================ */
+
+/* — 1. CONTAINMENT — */
+.card{
+  background:#12161d;                       /* fallback first — always valid */
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:16px;
+  padding:18px 20px;
+  margin:0 0 14px;
+  position:relative;
+  box-shadow:0 1px 2px rgba(0,0,0,.35), 0 6px 20px -12px rgba(0,0,0,.55);
+  -webkit-box-shadow:0 1px 2px rgba(0,0,0,.35), 0 6px 20px -12px rgba(0,0,0,.55);
+}
+.card:last-child{border-bottom:1px solid var(--line)}
+.card.panel{margin-bottom:14px}
+
+/* — 2. MEASURE — */
+.card .note,.card p,.card .t,.card .w{max-width:68ch}
+main{max-width:720px}
+@media (min-width:1000px){ main{max-width:760px;padding:40px 24px 16px} }
+
+/* — 3. HIERARCHY — */
+.card h3{
+  font-size:12px; letter-spacing:.13em; color:var(--dim);
+  margin:0 0 12px; display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;
+}
+.card h3 .r{margin-left:auto;font-size:10px;letter-spacing:.1em;color:var(--faint);
+  font-weight:700;text-transform:none}
+.card .k{font-size:9.5px;letter-spacing:.16em;color:var(--faint);font-weight:800}
+
+/* — 4. ELEVATION encodes urgency: safety > next action > reference — */
+.card[style*="7a1f1f"]{box-shadow:0 0 0 1px rgba(220,60,60,.28), 0 10px 30px -14px rgba(220,60,60,.45)}
+.card[style*="3f4a1f"]{box-shadow:0 0 0 1px rgba(37,99,235,.24), 0 10px 30px -14px rgba(37,99,235,.40)}
+details.sect .card{box-shadow:none;border-color:rgba(120,132,150,.28)}
+
+/* — 5. BUTTONS — */
+.btn{border-radius:10px;transition:transform .08s ease, filter .15s ease}
+.btn:active{transform:translateY(1px)}
+.btn.amber{
+  background:#2563EB;                        /* fallback */
+  background:var(--amber);
+  box-shadow:0 1px 0 rgba(255,255,255,.12) inset, 0 6px 18px -10px rgba(37,99,235,.7);
+}
+.btn.amber:hover{filter:brightness(1.06)}
+.btn.ghost{background:transparent;border-color:var(--line);color:var(--dim)}
+.btn.ghost:hover{border-color:var(--faint);color:var(--txt)}
+.btn:disabled,.btn[disabled]{opacity:.38;pointer-events:none}
+.card .row .btn[aria-pressed]{border-radius:12px}
+.card .row .btn[aria-pressed="true"]{box-shadow:0 0 0 1px rgba(37,99,235,.6), 0 8px 22px -14px rgba(37,99,235,.9)}
+
+/* — 6. HEADER — */
+#hdr{-webkit-backdrop-filter:saturate(140%) blur(8px);backdrop-filter:saturate(140%) blur(8px);
+  border-bottom:1px solid var(--line)}
+.sb-n{font-size:22px;line-height:1.05;font-weight:800}
+.sb-k{font-size:7.5px;letter-spacing:.16em;color:var(--faint)}
+
+/* — 7. SECTIONS — */
+details.sect{border-top:1px solid var(--line);border-radius:0;margin-top:18px}
+details.sect[open]{padding-bottom:4px}
+details.sect>summary:hover{background:rgba(255,255,255,.03);border-radius:8px}
+
+/* — 8. RHYTHM — */
+.row{gap:8px}
+.card .row+.note,.card .note+.row{margin-top:10px}
+
+/* — 9. iOS / iPadOS specifics —
+   Safari needs momentum scrolling, no tap-highlight flash on every button, no input
+   zoom (any font under 16px on a focused input zooms the whole viewport), and real
+   safe-area padding so the nav clears the home indicator. */
+html,body{-webkit-text-size-adjust:100%}
+*{-webkit-tap-highlight-color:transparent}
+.btn,.setdot,summary{-webkit-user-select:none;user-select:none;touch-action:manipulation}
+input,select,textarea{font-size:16px}          /* prevents iOS focus zoom */
+body{padding-bottom:calc(112px + env(safe-area-inset-bottom))}
+#nav{padding-bottom:env(safe-area-inset-bottom)}
+#hdr{padding-top:env(safe-area-inset-top)}
+@supports (-webkit-touch-callout:none){        /* iOS only: 100vh lies with the URL bar */
+  body.wm main{min-height:-webkit-fill-available}
+}
+/* iPad: two columns of reference once there is real width, phone stays single-column */
+@media (min-width:834px){
+  details.sect[open]{column-gap:18px}
+}
+
+/* — 10. MOTION — */
+@media (prefers-reduced-motion: reduce){
+  .btn,.btn:active{transition:none;transform:none}
+  .card{box-shadow:0 1px 2px rgba(0,0,0,.35)}
+}
+/* Field mode: keep containment, drop the dark elevation. */
+body.field .card{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.10);border-color:#c7ccd4}
+body.field details.sect .card{background:#fbfbfc}
 </style>
 </head>
 <body>
