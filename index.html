@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.90 -->
+<!DOCTYPE html><!-- d1os v7.91 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -6814,6 +6814,33 @@ function strengthMap(s=S){
   ].filter(e=>e.val);
   return {bw,reals,ests};
 }
+/* v7.91 — SPEED ENGINE: the mass × relative-strength × mechanics model, made visible.
+   Two levers measured from real data, the third (mechanics) honestly unmeasured — film, not a number. */
+function speedEngineHTML(){
+  const m=k=>{const x=(S.metrics||[]).filter(y=>y.key===k).sort((a,b)=>a.d<b.d?1:-1)[0];return x?x.val:null;};
+  const bw=m('wt'), sq=(S.prs&&S.prs.squat)||null, forty=m('forty');
+  const fortyN=(S.metrics||[]).filter(y=>y.key==='forty').length;
+  const rel=(sq&&bw)?sq/bw:null;
+  const bar=pct=>`<div class="bar" style="margin:5px 0 2px"><i style="width:${Math.max(3,Math.min(100,Math.round(pct)))}%"></i></div>`;
+  return `<div class="card">
+    <h3>Speed Engine <span class="r">3 levers · all trainable</span></h3>
+    <div class="note">Speed is force into the ground × how well you apply it. Three levers build it — the app measures two from your log; the third you earn with reps and film. Nothing here is a promised time.</div>
+    <div style="margin-top:10px">
+      <div class="row"><b class="grow">1 · FORCE — relative strength</b><span class="mono" style="color:var(--amber);font-weight:800">${rel?rel.toFixed(2)+'× BW':'—'}</span></div>
+      ${bar(rel?rel/2*100:0)}
+      <div class="note" style="margin-top:2px">${sq&&bw?`${sq} lb squat ÷ ${bw} lb bodyweight. Target <b>2× BW</b> for a fast RB/LB — your biggest movable lever right now.`:'Log a squat 1RM and a weigh-in to read this.'}</div>
+    </div>
+    <div style="margin-top:12px">
+      <div class="row"><b class="grow">2 · MASS — usable power</b><span class="mono" style="color:var(--cyan);font-weight:800">${bw?bw+' lb':'—'}</span></div>
+      <div class="note" style="margin-top:2px">More mass = more force <b>only</b> if strength climbs with it — yours is (maxes up, weight up). Frame is still growing: that's speed you get for free over the next three years.</div>
+    </div>
+    <div style="margin-top:12px">
+      <div class="row"><b class="grow">3 · MECHANICS — the multiplier</b><span class="mono" style="color:var(--faint);font-weight:800">film</span></div>
+      <div class="note" style="margin-top:2px">Not a number — skill on film, and the cheapest speed in the game. ${forty?`Your 40 reads <b>${forty}s</b> (hand-timed, ${fortyN} test${fortyN===1?'':'s'} — ${fortyN<2?'retest to build a trend':'trend forming'}).`:'Run a baseline 40 to anchor this.'} Wall drill, A-skip, tall posture, clean arm action. Film a sprint in slo-mo and check it against the cues in TRAIN.</div>
+    </div>
+    <div class="note" style="color:var(--faint);margin-top:10px">Honest limits: relative strength predicts speed, it doesn't guarantee it; mechanics aren't measured here; one hand-timed 40 isn't a trend. The fix for all three is reps + a retest.</div>
+  </div>`;
+}
 function rTrack(){
   const g=Model.gaps(), sr=Model.systemRead(), DOWN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const xp=experiments(), knownN=intel().filter(d=>d.known).length;
@@ -6850,6 +6877,7 @@ function rTrack(){
     ${radarSVG()}
     <div class="note">The volt shape is you; the cyan ring mixes two bars on purpose: <b>this-year freshman waypoints</b> for the lift/mass axes and <b>senior-recruit P50</b> for the speed axes (there is no honest freshman speed standard — so the ring shows the destination). Your strength and mass axes are nearly full — and <b>any speed axis you haven't tested sits at dead center</b>. That empty wedge is your gap, and it's why getting a real 40 and broad jump matters more than anything else in this app.</div>
   </div>
+  ${typeof speedEngineHTML==='function'?speedEngineHTML():''}
   <details class="sect"><summary>Numbers &amp; trends</summary>
   <div class="card">
     <h3>Bodyweight <span class="r">mass mission → 174 lb</span></h3>
