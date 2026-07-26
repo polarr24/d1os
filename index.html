@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.91 -->
+<!DOCTYPE html><!-- d1os v7.92 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -4742,6 +4742,9 @@ function milestones(s=S){
     B('Vert 30 in',vert>=30,vert?('at '+vert+' in — need 30'):'log a vertical'),
     B('Squat 2x BW',!!(bw&&s.prs.squat>=2*bw),bw?('need '+Math.ceil(2*bw)+' at '+bw+' lb'):'log bodyweight'),
     B('Bodyweight 165',bw>=165,bw?('at '+bw+' — climb to 165'):'log bodyweight'),
+    B('Deadlift 2× bodyweight',!!(bw&&s.prs&&s.prs.dead>=2*bw),bw?('need '+Math.ceil(2*bw)+' at '+bw+' lb'):'log bodyweight'),
+    B('Double-digit lifts',(s.lifts||[]).length>=10,(s.lifts||[]).length+'/10 sets logged'),
+    B('Speed engine online',has('forty')&&has('vert')&&has('broad'),'log 40 + vert + broad — broad is the one left'),
     B('7-day streak',con.streak>=7,'all four, 7 days straight')
   ];
 }
