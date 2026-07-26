@@ -1,4 +1,4 @@
-<!DOCTYPE html><!-- d1os v7.92 -->
+<!DOCTYPE html><!-- d1os v7.93 -->
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -4741,8 +4741,8 @@ function milestones(s=S){
     B('Baseline 40',has('forty'),'run and log your 40'),
     B('Vert 30 in',vert>=30,vert?('at '+vert+' in — need 30'):'log a vertical'),
     B('Squat 2x BW',!!(bw&&s.prs.squat>=2*bw),bw?('need '+Math.ceil(2*bw)+' at '+bw+' lb'):'log bodyweight'),
+    B('Deadlift 2x BW',!!(bw&&s.prs&&s.prs.dead>=2*bw),bw?('need '+Math.ceil(2*bw)+' at '+bw+' lb (you pull '+((s.prs&&s.prs.dead)||0)+')'):'log bodyweight'),
     B('Bodyweight 165',bw>=165,bw?('at '+bw+' — climb to 165'):'log bodyweight'),
-    B('Deadlift 2× bodyweight',!!(bw&&s.prs&&s.prs.dead>=2*bw),bw?('need '+Math.ceil(2*bw)+' at '+bw+' lb'):'log bodyweight'),
     B('Double-digit lifts',(s.lifts||[]).length>=10,(s.lifts||[]).length+'/10 sets logged'),
     B('Speed engine online',has('forty')&&has('vert')&&has('broad'),'log 40 + vert + broad — broad is the one left'),
     B('7-day streak',con.streak>=7,'all four, 7 days straight')
@@ -6835,6 +6835,7 @@ function speedEngineHTML(){
     </div>
     <div style="margin-top:12px">
       <div class="row"><b class="grow">2 · MASS — usable power</b><span class="mono" style="color:var(--cyan);font-weight:800">${bw?bw+' lb':'—'}</span></div>
+      ${bar(bw?bw/174*100:0)}
       <div class="note" style="margin-top:2px">More mass = more force <b>only</b> if strength climbs with it — yours is (maxes up, weight up). Frame is still growing: that's speed you get for free over the next three years.</div>
     </div>
     <div style="margin-top:12px">
