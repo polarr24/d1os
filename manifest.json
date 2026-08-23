@@ -19,9 +19,21 @@
   ],
   "shortcuts": [
     {
+      "name": "Log a game",
+      "short_name": "Game",
+      "description": "Carries, yards, TD, tackles — or did not play",
+      "url": "./?a=game#path",
+      "icons": [
+        {
+          "src": "icon-180.png",
+          "sizes": "180x180"
+        }
+      ]
+    },
+    {
       "name": "Quick log",
       "short_name": "Log",
-      "description": "Weight, sleep, energy \u2014 one tap",
+      "description": "Weight, sleep, energy — one tap",
       "url": "./?a=quick#track",
       "icons": [
         {
