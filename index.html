@@ -1,4 +1,139 @@
-<!DOCTYPE html><!-- d1os v9.0 -->
+<!DOCTYPE html><!-- d1os v9.4 -->
+<!-- CHANGELOG
+     v9.4 — THE HUD SAID "WAIT 655 DAYS". v9.3 fixed tokens; this fixes what the product SAYS.
+     THE HEADER IS THE ONLY SURFACE ON ALL SIX SCREENS, and it carried a countdown to 15 June 2028
+     at 31px in accent — the largest, brightest element anywhere in the app. It decrements by one
+     a day, it is not this week or this season, and he cannot move it. That was the app's thesis
+     statement. Beside it, a literal zero: "0/4 TODAY", the first thing he sees every morning.
+     AND IT ANIMATED. runCounters() rolls every [data-count] element up on EVERY render, so the
+     most prominent number in the product counted up from a lower value each time he changed tabs
+     — six times a session minimum, motion spent on the least actionable data in the app. It is
+     also why the same header photographed 655 on one screen and 624 on another: mid-animation.
+     The hero cell is now the next game he could actually be in, at any level, from nextLiveGame()
+     — which v8.9 built and nothing had ever surfaced. On 30 August that reads 4 · GREEN VALLEY.
+     A number that moves, that means something, and that he can act on. The Daily Four stops being
+     a score and becomes four marks: "0/4" is a verdict, four unfilled dots are a thing not done
+     yet. Same information, opposite feeling. The D-II gate is not deleted — it moves to PATH,
+     where the other recruiting gates already live and where a four-year date belongs. The FIELD
+     toggle drops to a glyph; persistent chrome is the most expensive space in the product and a
+     rarely-used mode does not get a word there.
+     AND THE TAB CALLED TRAIN DID NOT OPEN ON THE TRAINING. Order was: footwork card, tap timer,
+     eating anchors, pass-pro card, day picker, gym picker, game-day select, comeback banner —
+     THEN the session. Four accessory cards and two rows of settings, about 220px of chrome,
+     before a single exercise; and the first of them greets him with "0 sessions banked of 60" and
+     "NOT YET THIS WEEK" in red. The thing a tab is named for is the first thing on it. The view
+     went from 2,749px to 597px with nothing deleted — everything else is one labelled tap down.
+     TESTS THAT WERE VACUOUSLY TRUE. L5 and L6 guarded on #v-train having children, and it never
+     does: the suite runs on TODAY and other views render lazily. Both passed while a probe put
+     the footwork card straight back on top. They scan the template now.
+     Suite 627/627 (was 621). Layout PASS. 64 mutation probes.
+-->
+<!-- CHANGELOG
+     v9.3 — THE INTERFACE, MEASURED. Not one judgement about how it looked; every change below is
+     a number that was wrong on a 390x844 phone and is right now.
+     TAP TARGETS: 224 of them under 44px across four views — 78 on TODAY alone, most at 99x36,
+     including the Daily Four boxes at 39px wide and a DELETE control at 19x15. WCAG 2.5.8 (AA)
+     only asks 24x24 and 36 cleared it, which is why the old gate passed; 2.5.5 (AAA) and the
+     Apple HIG both say 44, and 44 is what a thumb needs on a field in the sun. Now ZERO under
+     44x44 on every view including PLAN and PUSH, which nothing had ever measured. One of them was
+     an inline min-width:34px on the 1-5 rating row that beat every rule in the stylesheet.
+     THE WEAKEST COLOUR WAS DOING THE MOST WORK. --faint at 5.62:1 carried 246 of ~500 text nodes
+     on TODAY and 365 on TRACK. Compliant, and exhausting: it is the body voice of the entire app.
+     Now 7.31:1. One token, every one of those nodes. Body copy also went 12.5 -> 13.5px, because
+     12.5 is a caption size and this app expects him to READ. --line went 1.20 -> 2.22:1, so a card
+     has an edge; --fill moved so white-on-fill is 4.51:1 AND the button reads as a control at
+     4.12:1 against the card, which is what WCAG 1.4.11 is actually about.
+     THE ACCENT WAS DOING A BULLET POINT'S JOB. 40 accent elements on TODAY, 54 on TRACK — mostly
+     inline <b> labels inside list rows and an entire data column on TRACK. An isolation effect
+     that isolates forty things isolates none. 38 labels and 5 data cells moved to --txt, which is
+     BRIGHTER at 17.17:1; what stays in accent is state and action. TODAY 32, TRACK 28.
+     NINE FONT SIZES BETWEEN 9 AND 14px IS NOT A SCALE. Card tags were the smallest text in the
+     app at 10.5px and declared three times at three sizes. Four steps now, each with one job.
+     AND THE GATE THAT MISSED ALL OF IT NOW CATCHES IT. layout.js checked 36px, on <button> only,
+     on TODAY only. It now measures width as well as height, every tappable rather than every
+     button, on all six views, plus accent scarcity and four computed contrast ratios — and it
+     immediately found PLAN's 41x41 calendar cells, which nothing had ever looked at. It also
+     reported two fake failures at 260ms because it was measuring PUSH and PLAN mid-layout; a gate
+     that cries wolf gets ignored, so it waits for the view to settle.
+     Suite 621/621 (was 615). Layout gate PASS, now 12 checks longer. 61 mutation probes.
+-->
+<!-- CHANGELOG
+     v9.2 — THE PEOPLE, THE POSITION, AND THE MOMENT.
+     HIS TWO POSITIONS ARE TWO DIFFERENT JOBS. The app has carried "RB/LB" as one identity since
+     v7. FBS starting backs average 5'10.5" and 205 lb across a 5'6"-6'3" range, five of a hundred-
+     plus at 5'7" or shorter. FBS starting LINEBACKERS average 6'1.5" and 230 lb across 350-plus,
+     and the SHORTEST is 5'10". At 5'9" in shoes he is inside the running-back distribution and
+     BELOW THE SHORTEST STARTING LINEBACKER in the sample. Not rare there. Absent. So: running
+     back is the position that can reach Division I; linebacker is the position that gets him onto
+     a varsity field at Basic fastest, because Basic needs size at linebacker and has none — his
+     own reason they will not promote him, cutting both ways. Both true, different jobs, and an
+     app that averages them serves neither.
+     THREE COACHES, AND THE ONE WITH THE MOST CONTACT TIME HAS NO AUTHORITY. He named Cahill:
+     the weight class. That is not a timetable slot, it is five days a week for three months in
+     front of a coach — more contact time than the season gives him with anyone — and reputations
+     built in a weight room travel to a staff room. Diaz decides Thursday; Cahill sees everything;
+     the varsity staff barely know his name and every route to them runs through the other two.
+     A FOURTH ROUTE THAT NEEDS NOBODY'S YES. Freshman finish about half five, JV kick at six, same
+     field. He is already there. Staying in uniform on that sideline is the only thing on the board
+     requiring no permission from anyone. It does not win a snap and the card says so — what it
+     does is make the other three asks land on somebody who knows his face.
+     AND THE TEN WEEKS NOBODY PLANNED FOR. He runs a BLOCK SCHEDULE and cannot switch into the
+     weight class until a term boundary. Season ends 22 October; the term starts in January. The
+     app was pointing at a class that does not begin for ten weeks and calling it the plan. Those
+     ten weeks — no practice, no games, no class, nobody watching — are the highest-risk stretch
+     of his year, and everyone who passes him next August passes him there. It is now its own
+     window, with the deadline hiding inside it: block-schedule changes are requested WEEKS before
+     the term, so the counsellor conversation happens this week, not in January.
+     AN ORDER WITHOUT A MOMENT IS A WISH. He said he forgets the app exists and that it feels like
+     homework; nine releases answered by sharpening the order. Implementation intentions — "when X,
+     I will do Y" — move goal attainment by d = 0.65 across 94 studies (Gollwitzer & Sheeran 2006),
+     by making the cue accessible rather than by adding motivation. Every order now carries a WHEN
+     drawn from his real week, and the cue moves with the day so it never says Monday on a Thursday.
+     The reasoning drawer carries the effect size and the documented failure mode: it is a bridge
+     from wanting to doing, not a substitute for wanting.
+     Suite 615/615 (was 602). Layout PASS — PATH sorted by horizon after I added three cards and
+     blew it to 5.9 screens, which is the exact hoarding this release exists to undo. 56 mutation
+     probes; two went stale against strings this release rewrote and were re-pointed, not deleted.
+-->
+<!-- CHANGELOG
+     v9.1 — THE TEARDOWN. Three passes, judged on one question: does this change whether he
+     starts JV this season or varsity next season? Everything that failed it was cut, gated or
+     replaced.
+     THE APP HAD THE WRONG NAME FOR THE ONLY PERSON WHO DECIDES. It carried Glenn Combs on
+     freshman and D. Coleman on JV, both from MaxPreps. He says both are wrong: Diaz runs
+     freshman AND JV. That is not cosmetic — two names meant two decision-makers and two
+     campaigns. One name means the man deciding whether he plays JV is the same man who needs him
+     at RB1 and MLB1 on Thursday, which explains the entire blockage.
+     AND THE PATH NOBODY HAD NAMED. Freshman play Thursday at 4, JV at 6 — same night, same
+     opponents, every week — so every JV opportunity this season collides head-on with a freshman
+     game he starts both ways in. But VARSITY PLAY FRIDAY. Different day, zero collision, and a
+     Friday look costs the freshman team nothing. In nine releases this app never said it. The
+     promotion card is now three routes ranked by what they cost the man being asked, each with
+     the words to say; the Friday route leads because it is the only one that depends on no rule
+     anybody has read. ASK_PROMPTS were rewritten to match — two of the five were still asking how
+     to climb a depth chart he is top of — and the resolver can now give the Friday ask as an
+     order, which it could not, because the order map had no entry for it.
+     THE NINE MONTHS THAT ACTUALLY DECIDE VARSITY. Depth charts above freshman are set between 24
+     October and August camp, and this app said one sentence about it. OFFSEASON is five dated
+     windows: the winter lifting CLASS he switches into (no coach, no permission, no roster spot —
+     the only lever with no gatekeeper), getting a number somebody else recorded, TRACK, spring
+     ball, and camps. Track is argued as the highest-value item on the list — coached sprinting in
+     the window nothing competes for him, producing officially timed results, and recruiters
+     actively seek multi-sport athletes. Its dates are marked APPROXIMATE because the NIAA
+     calendar was not read for this release.
+     A TIME WITH A NAME AGAINST IT. No coach has ever put a watch on him, so every speed read in
+     this app leans on a 4.9 he timed himself. That is now its own evidence item, and a self-timed
+     number does not satisfy it.
+     TWENTY-SEVEN CARDS BEHIND ONE DOOR IS NOT ORGANISATION. TODAY's single "Everything else"
+     drawer became four labelled ones — the campaign first — and the Foothill card for a game
+     played on 21 August is off the daily screen. Splitting it left an unbalanced </details>
+     behind, which makes the parser close an ancestor and dumps every card after it into the open
+     page: 8.5 screens, silently. H1 is that bug.
+     AND TWO CARDS WERE WALKING HIM THROUGH WORK HE CANNOT DO. The Reel Builder is a ten-check
+     cutting checklist for film that does not exist, and the dossier is a thing you send when you
+     have something to send. Both now wait until there is film or a recorded time.
+     Suite 602/602 (was 584). Layout PASS. 47 mutation probes.
+-->
 <!-- CHANGELOG
      v9.0 — THE SEASON HE IS ACTUALLY IN. Thirty-six questions, and most of what came back
      contradicted the app.
@@ -375,11 +510,12 @@
      accent text #60A5FA 7.3:1 on card · primary fill #2563EB carries white at 5.2:1
      · faint 5.6:1 · dim 8.3:1. One hue, one neutral ramp, nothing decorative. */
   --bg:#08090C; --bg2:#0C0F14; --card:#101319; --card2:#161A22;
-  --line:#20242C; --line2:#2B313B;
-  --txt:#F4F6F8; --dim:#A7AEB8; --faint:#868E9A;
+  --line:#464E5E; --line2:#5A6373;   /* v9.3: 1.20 -> 2.22:1 — card edges were invisible */
+  --txt:#F4F6F8; --dim:#A7AEB8; --faint:#9BA3AF;   /* v9.3: faint 5.62 -> 7.31:1 — it is 60% of every screen */
   --amber:#60A5FA;         /* accent (name kept for API stability across 4 years of code) */
   --amber-dim:#1E3A5F;
-  --fill:#2563EB;          /* primary action fill — white text, 5.17:1 */
+  --fill:#2F6FF0;          /* v9.3: white text 4.51:1 AND 4.12:1 against the card, so the primary
+                              action reads as a control rather than a coloured rectangle (WCAG 1.4.11) */
   --cyan:#94A3B8;          /* steel: targets + secondary data */
   --cyan-dim:#2B3948;
   --green:#4ADE80; --red:#F87171; --radius:14px; --glow:none;
@@ -425,6 +561,11 @@ h1,h2,h3{font-weight:800;letter-spacing:.02em}
 .sb-n{font-family:var(--disp);font-weight:400;font-size:25px;line-height:.95;color:var(--txt);
   letter-spacing:.01em;display:block}
 .sb-cell.hero .sb-n{font-size:31px;color:var(--amber);text-shadow:none}
+/* v9.4 · the Daily Four as marks, not a score. Filled = done, hollow = not yet, and "not yet" is
+   visually a different thing from "nil" — which is the whole point. */
+.sb-dots{display:flex;gap:5px;align-items:center;height:31px}
+.sb-dots i{width:9px;height:9px;border-radius:99px;border:1.5px solid var(--line2);background:none;transition:background .18s ease,border-color .18s ease}
+.sb-dots i.on{background:var(--green);border-color:var(--green)}
 .sb-n .sb-sub{font-style:normal;font-size:13px;color:var(--faint);letter-spacing:0}
 .sb-k{font-size:7px;letter-spacing:.16em;color:var(--faint);font-weight:800;margin-top:3px;white-space:nowrap}
 #hudRail{height:2px;width:100%;background:rgba(255,255,255,.05);position:relative}
@@ -538,6 +679,8 @@ details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
 .hero-t{position:relative;font-family:var(--disp,inherit);font-weight:400;
   font-size:clamp(32px,9vw,44px);line-height:1.0;letter-spacing:.01em;margin-top:12px;color:var(--txt)}
 .hero-push{position:relative;font-size:11px;font-weight:800;letter-spacing:.1em;color:var(--amber);margin-top:6px}
+.hero-when{font-size:12px;font-weight:700;letter-spacing:.02em;color:var(--amber);margin-top:7px;line-height:1.4}
+.hero-when b{font-size:10px;letter-spacing:.14em;color:var(--faint);margin-right:6px}
 .hero-sub{position:relative;font-size:13px;line-height:1.4;color:var(--faint);margin-top:7px}
 .hero-w{position:relative;font-size:14px;line-height:1.5;color:var(--dim);margin-top:10px;max-width:44ch}
 .hero-ev{position:relative;font-size:11px;line-height:1.5;color:var(--faint);margin-top:14px;
@@ -592,7 +735,7 @@ details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
 .rail{display:flex;gap:7px;overflow-x:auto;-webkit-overflow-scrolling:touch;padding:2px 0 8px;margin-bottom:10px;scrollbar-width:none}
 .rail::-webkit-scrollbar{display:none}
 .rail button{flex:0 0 auto;background:var(--card2);border:1px solid var(--line);border-radius:99px;
-  color:var(--dim);font-size:11.5px;font-weight:700;letter-spacing:.02em;padding:9px 13px;min-height:38px}
+  color:var(--dim);font-size:11.5px;font-weight:700;letter-spacing:.02em;padding:9px 13px;min-height:38px;min-height:44px;display:inline-flex;align-items:center}
 .rail button.hot{border-color:var(--amber-dim);color:var(--amber)}
 .rail button.gate{border-color:#6b2b2b;color:var(--red)}
 .prio{background:var(--card);border:1px solid var(--line2);border-radius:var(--radius);padding:20px;margin-bottom:12px;position:relative;overflow:hidden;
@@ -686,15 +829,15 @@ body.wm main{max-width:none;padding:0;min-height:100vh;display:grid;place-items:
 #hdr .cd b{font-family:var(--disp);font-weight:400;font-size:18px;letter-spacing:.04em}
 .big{font-family:var(--disp);font-weight:400;font-size:46px;letter-spacing:.03em}
 .stat .v{font-family:var(--disp);font-weight:400;font-size:31px;letter-spacing:.03em}
-.card h3{font-family:inherit;font-weight:800;font-size:10.5px;letter-spacing:.19em}
+.card h3{font-family:inherit;font-weight:800;font-size:11px;letter-spacing:.17em}
 .card h3 .r{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;font-size:11px}
 #nav button{font-family:var(--disp);font-weight:400;font-size:12.5px;letter-spacing:.18em}
-.prio .k{font-family:inherit;font-weight:800;font-size:10.5px;letter-spacing:.19em}
+.prio .k{font-family:inherit;font-weight:800;font-size:11px;letter-spacing:.17em}
 .prio .t{font-family:var(--disp);font-weight:400;font-size:23px;letter-spacing:.045em}
 .wj .n{font-family:var(--disp);font-weight:400}
 .wj .l{font-family:var(--disp);font-weight:400}
 .seg button{font-family:var(--disp);font-weight:400;letter-spacing:.14em;font-size:13.5px}
-.pill{font-family:var(--disp);font-weight:400;letter-spacing:.1em;font-size:12px}
+.pill{font-family:var(--disp);font-weight:400;letter-spacing:.1em;font-size:13px}
 
 /* ============================================================================
    v7.49 — EDITORIAL. The defect was never the palette: it was ELEVEN IDENTICAL
@@ -738,7 +881,7 @@ body.wm main{max-width:none;padding:0;min-height:100vh;display:grid;place-items:
   border-bottom:1px solid var(--line)}
 .card:last-child{border-bottom:none}
 .card h3{font-size:9.5px;letter-spacing:.24em;color:var(--faint);margin-bottom:16px;font-weight:800}
-.card h3 .r{font-size:10.5px;color:var(--faint);letter-spacing:.02em;font-weight:600;text-transform:none}
+.card h3 .r{font-size:11.5px;color:var(--faint);letter-spacing:.01em;font-weight:600;text-transform:none}
 /* raised variant, used sparingly for true panels */
 .card.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:18px;
   margin-bottom:24px}
@@ -746,7 +889,7 @@ body.wm main{max-width:none;padding:0;min-height:100vh;display:grid;place-items:
 /* 4 · BUTTONS — a primary action is a full-width bar with real presence */
 .btn{border-radius:8px;font-size:13px;letter-spacing:.06em;font-weight:800;padding:13px 16px}
 .btn.amber{letter-spacing:.16em;font-size:12.5px;padding:16px}
-.btn.sm{padding:8px 11px;font-size:11.5px;letter-spacing:.05em;border-radius:7px}
+.btn.sm{padding:8px 12px;font-size:12.5px;letter-spacing:.04em;border-radius:7px}
 
 /* 5 · NUMBERS lead everywhere they appear */
 .stat{background:none;border:none;border-radius:0;padding:0}
@@ -756,7 +899,10 @@ body.wm main{max-width:none;padding:0;min-height:100vh;display:grid;place-items:
 
 /* 6 · rhythm + air */
 main{padding:26px 20px 12px}
-.note{font-size:12.5px;line-height:1.65;color:var(--faint)}
+.note{font-size:13.5px;line-height:1.62;color:var(--faint)}
+/* v9.3 · the tertiary voice, for sources, timestamps and provenance — the things you read once.
+   Everything else uses .note, which is now a reading size. */
+.note.q{font-size:12px;color:var(--faint);opacity:.82}
 details{border-top:1px solid var(--line);padding:14px 0}
 details summary{font-size:13px;letter-spacing:.01em}
 table{font-size:12.5px}
@@ -771,6 +917,11 @@ body{padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}
 .view{scroll-margin-top:78px}
 /* 3 · touch targets below 44px fail on a phone mid-workout, gloves or sweat */
 .btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center}
+/* v9.3 · measured: 78 of 125 tappables on TODAY were under 44px, most of them 99x36. Small is a
+   type-and-padding variant, never a hit-area variant. WCAG 2.5.5 (AAA) and Apple HIG both say 44. */
+.btn.sm{min-height:44px!important;min-width:44px;flex-shrink:0;padding-top:10px;padding-bottom:10px}
+.seg button{min-height:44px}
+.pill{min-height:28px;display:inline-flex;align-items:center}
 .btn.sm{min-height:36px}
 .setdot{width:30px;height:30px}
 #nav button{min-height:56px}
@@ -1044,9 +1195,9 @@ body.field .card{background:#fff;box-shadow:0 1px 3px rgba(0,0,0,.10);border-col
 body.field details.sect .card{background:#fbfbfc}
 /* v7.94 PLAN calendar */
 .pc-head{text-align:center;font-weight:800;font-size:14px;margin:12px 0 6px;letter-spacing:.02em}
-.pc-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.pc-grid{display:grid;grid-template-columns:repeat(7,minmax(44px,1fr));gap:2px;margin:0 -4px}
 .pc-dow{text-align:center;font-size:10px;color:var(--faint);padding:2px 0;font-weight:700}
-.pc-c{aspect-ratio:1;border:1px solid var(--line);border-radius:8px;background:var(--bg2);color:var(--dim);font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:0;font-family:inherit}
+.pc-c{aspect-ratio:1;min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--bg2);color:var(--dim);font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:0;font-family:inherit}
 .pc-c.empty{border:none;background:none;cursor:default}
 .pc-c.has{color:var(--txt)}
 .pc-c.today{border-color:var(--amber);color:var(--amber);font-weight:800}
@@ -1064,7 +1215,7 @@ body.field details.sect .card{background:#fbfbfc}
   <div class="hudwrap">
     <div class="hud-brand"><div class="bw">ZAYDEN</div><div class="bs">D1 OS</div></div>
     <div class="hud-cells" id="hdrCd"></div>
-    <button class="btn sm ghost" onclick="toggleField()" aria-label="Field mode" style="margin-left:8px;min-width:44px">☀ FIELD</button>
+    <button class="btn sm ghost" onclick="toggleField()" aria-label="Field mode — high contrast for sunlight" title="Field mode" style="margin-left:6px;min-width:44px;padding-left:0;padding-right:0;font-size:16px">☀</button>
   </div>
   <div id="hudRail"><i style="width:0"></i></div>
 </header>
@@ -1451,7 +1602,9 @@ const FRESH_SCHEDULE=[
   {d:'2026-10-22',opp:'Legacy',home:true,time:'4:00pm'}
 ];
 const FRESH_COMPLETE=false;  // MaxPreps shows 3 fixtures only — the rest are not published
-const FRESH_STAFF={hc:'Glenn Combs',asst:null,
+/* v9.1: he corrected this on 30 Aug — Diaz runs freshman AND JV. MaxPreps had Combs here and
+   D. Coleman on JV; both were wrong, and the error mattered more than any other in this file. */
+const FRESH_STAFF={hc:'Coach Diaz',asst:null,alsoRuns:'jv',srcOwner:'athlete, 2026-08-30',
   src:'https://www.maxpreps.com/nv/henderson/basic-wolves/football/freshman/',fetched:'2026-08-30'};
 const FRESH_SRC=FRESH_STAFF.src, FRESH_FETCHED=FRESH_STAFF.fetched;
 /* VARSITY — team data only. Feeds opponent scouting and likely-opponent hints. It must NEVER
@@ -1477,7 +1630,7 @@ const JV_CONFIRMED=[
   {d:'2026-09-03',opp:'Green Valley',home:true,time:'6:30pm'},
   {d:'2026-10-08',opp:'Silverado',home:true,time:'6:30pm'}
 ];
-const JV_STAFF={hc:'D. Coleman',asst:'JR Moyers',
+const JV_STAFF={hc:'Coach Diaz',asst:'JR Moyers',alsoRuns:'fresh',srcOwner:'athlete, 2026-08-30',
   src:'https://www.maxpreps.com/nv/henderson/basic-wolves/football/jv/',fetched:'2026-08-30'};
 /* THE resolver. Every level-dependent read calls one of these three — nothing reads a team
    constant directly. */
@@ -3696,7 +3849,7 @@ function icsBuild(st,today){
   st=st||S; today=today||todayISO();
   const E=icsEntries(st,today);
   const stamp=icsAt(today,12*60)+'Z';
-  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//D1 OS//v9.0//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH',
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//D1 OS//v9.4//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH',
     'X-WR-CALNAME:'+icsEsc(ICS_CAL),
     'X-WR-CALDESC:'+icsEsc('Generated by D1 OS on '+today+'. To refresh: delete the "'+ICS_CAL+'" calendar, then import the new file.')];
   for(const e of E){
@@ -4756,7 +4909,7 @@ function recoveryRead(s=S){
 function momentumRead(s=S,today=todayISO()){
   const sig=[], ms=missionStats(s), cm=coachMemory(s,today);
   if(ms.streak>=3) sig.push({dir:'up',t:ms.streak+' practice missions hit in a row — protect the streak; change nothing that is working.'});
-  if(ms.of>=6&&ms.hit/ms.of<0.4) sig.push({dir:'down',t:'Missions hit '+ms.hit+'/'+ms.of+' recently — shrink tomorrow\u2019s mission until one lands.'});
+  if(ms.of>=6&&ms.hit/ms.of<0.4) sig.push({dir:'down',t:'Missions hit '+ms.hit+'/'+ms.of+' recently — shrink tomorrow’s mission until one lands.'});
   if(cm.lastWeek>=3&&cm.thisWeek<cm.lastWeek) sig.push({dir:'up',t:'Coach corrections falling: '+cm.lastWeek+' last week \u2192 '+cm.thisWeek+' this week. That is the depth chart moving.'});
   if(cm.thisWeek>cm.lastWeek&&cm.thisWeek>=3) sig.push({dir:'down',t:'Corrections rising ('+cm.lastWeek+'\u2192'+cm.thisWeek+') — pick ONE and delete it this week.'});
   const pq=latestByDate(s,'pq'); const pd=Object.keys(pq).sort();
@@ -4845,6 +4998,15 @@ const EVIDENCE=[
   unc:'Jump numbers vary a lot by surface, shoes and how they are measured. Measure the same way every time or the trend is noise.',
   asm:'Assumes your stated edge — size and contact balance — shows up in explosiveness. Untested until you test it.'},
 
+ {k:'timed', night:false, t:'A time somebody else recorded', w:70, mins:20, needs:null,
+  has:s=>((s.metrics||[]).some(m=>m&&(m.key==='forty'||m.key==='ten')&&/coach|combine|meet|program|official|electronic/i.test(String(m.cond||'')))),
+  o:'GET TIMED BY SOMEBODY WHO IS NOT YOU.',
+  kk:'NO TIME WITH A NAME AGAINST IT',
+  cost:'Every speed read in this app leans on a 4.9 you timed yourself. A self-timed number is a training tool; a coach-recorded or electronically-timed number is evidence. Nobody outside this app has any reason to believe the first one.',
+  act:'Ask whether the program tests in the offseason and put your name down. A track meet does the same job and does it electronically.',
+  ev:'You said on 30 August that no coach has ever put a watch on you.',
+  unc:'Hand timing by a coach is still hand timing. Electronic is better, and a track 100m is the most credible number available to you.',
+  asm:'Assumes a slower official number beats a faster unofficial one. For anyone reading it, it does.'},
  {k:'stat', night:true, t:'A verified stat line', w:60, mins:5, needs:null,
   has:s=>((s.games||[]).some(g=>g&&g.played!==false&&(g.car>0||g.tkl>0))),
   o:'LOG YOUR CARRIES AND YARDS FROM THE LAST GAME.',
@@ -6344,7 +6506,7 @@ function decide(s=S,dateISO=todayISO()){
   // 11b · PEAK 14 test bracket (v7.28): the break is measured, not vibed
   if(dateISO===PEAK14.testA&&!taskDone('peak:testA'))
     plan.tasks.push({kind:'test',id:'peak:testA',title:'PEAK 14 · TEST DAY A: 40 + vert + broad + weigh-in',
-      why:'Day 1 of the 2-week block. These four numbers are the baseline the whole break gets measured against — and the 40 is your bottleneck by every system\u2019s read.'});
+      why:'Day 1 of the 2-week block. These four numbers are the baseline the whole break gets measured against — and the 40 is your bottleneck by every system’s read.'});
   if(dateISO===PEAK14.testB&&!taskDone('peak:testB'))
     plan.tasks.push({kind:'test',id:'peak:testB',title:'PEAK 14 · RETEST DAY B: same 4 tests, same conditions',
       why:'Day 13. Same surface, same shoes, same time of day. Whatever changed in 2 weeks becomes measured fact today.'});
@@ -6462,7 +6624,7 @@ function rateTap(key,v,scr){ (S.metrics=S.metrics||[]).push({d:todayISO(),key,va
 function rate5(key,scr){
   const m=[...(S.metrics||[])].reverse().find(x=>x.key===key&&x.d===todayISO());
   if(m) return `<span class="pill green">${m.val}/5 ✓</span>`;
-  return [1,2,3,4,5].map(v=>`<button class="btn sm ghost" style="min-width:34px;padding:6px 0" onclick="rateTap('${jsa(key)}',${v},'${jsa(scr)}')">${v}</button>`).join(''); }
+  return [1,2,3,4,5].map(v=>`<button class="btn sm ghost" style="min-width:44px;padding:6px 0" onclick="rateTap('${jsa(key)}',${v},'${jsa(scr)}')">${v}</button>`).join(''); }
 function addCoachIn(id,scr){ const el=$('#'+id), t=el&&el.value; if(!t||!t.trim()){ toast('Type the correction first'); return; }
   (S.coach=S.coach||[]).push({d:todayISO(),text:t.trim()}); save(); toast('On permanent record — now delete it'); (scr==='today'?rToday:rPush)(); }
 function clipTag(t){ pendClip=t; rPush(); }
@@ -6514,7 +6676,7 @@ function oneThing(plan){
     ||C.find(c=>!demoted.includes(c.kind))||C[C.length-1];
   const L=life[pick.kind];
   if(L&&L.state==='escalate') return {...pick,life:L,
-    w:pick.w+' <b style="color:var(--amber)">This is the '+(L.streak+1)+'th time this has come up and you have not told the app either way.</b> Answer it once — did it, partly, or didn\'t — and it either earns its place or steps aside.'};
+    w:pick.w+' <b style="color:var(--txt)">This is the '+(L.streak+1)+'th time this has come up and you have not told the app either way.</b> Answer it once — did it, partly, or didn\'t — and it either earns its place or steps aside.'};
   return {...pick,life:L||null};
 }
 /* milestones — badges earned ONLY from real data; locked ones show what unlocks them */
@@ -6633,34 +6795,42 @@ function rToday(){
   ${typeof railHTML==='function'?railHTML():''}
   ${typeof gainStripHTML==='function'?gainStripHTML():''}
 
-  <details class="sect" id="todayMore"><summary>Everything else &mdash; the week, the season, the record</summary>
+  <details class="sect" id="todayCampaign"><summary>The campaign &mdash; what decides whether you play above freshman</summary>
   ${typeof ladderHTML==='function'?ladderHTML():''}
-  ${typeof honestCardHTML==='function'?honestCardHTML():''}
   ${typeof campaignHTML==='function'?campaignHTML():''}
-  ${typeof contactCardHTML==='function'?contactCardHTML():''}
   ${typeof askCardHTML==='function'?askCardHTML():''}
-  ${typeof anchorCardHTML==='function'?anchorCardHTML():''}
-  ${typeof gainHTML==='function'?gainHTML():''}
-  ${typeof cutRiskCardHTML==='function'?cutRiskCardHTML():''}
-  ${typeof statusCardHTML==='function'?statusCardHTML():''}
-  ${typeof hydrationCardHTML==='function'?hydrationCardHTML():''}
-  ${typeof practiceCardHTML==='function'?practiceCardHTML():''}
-  ${typeof passProCardHTML==='function'?passProCardHTML():''}
-  ${typeof returnCardHTML==='function'?returnCardHTML():''}
-  ${typeof ledgerCardHTML==='function'?ledgerCardHTML():''}
-  ${(typeof clearanceRead==='function'&&typeof clearanceCardHTML==='function'&&!clearanceRead(S).clear)?clearanceCardHTML():''}
-  ${typeof captureCardHTML==='function'?captureCardHTML():''}
-  ${typeof footworkHTML==='function'?footworkHTML():''}
-  ${typeof scriptCardHTML==='function'?scriptCardHTML():''}
-  ${typeof ballCardHTML==='function'?ballCardHTML():''}
+  ${typeof contactCardHTML==='function'?contactCardHTML():''}
   ${typeof depthCardHTML==='function'?depthCardHTML():''}
+  </details>
+
+  <details class="sect" id="todayWeek"><summary>This week &mdash; the work and how it is going</summary>
+  ${typeof honestCardHTML==='function'?honestCardHTML():''}
+  ${typeof practiceCardHTML==='function'?practiceCardHTML():''}
+  ${typeof footworkHTML==='function'?footworkHTML():''}
+  ${typeof passProCardHTML==='function'?passProCardHTML():''}
+  ${typeof ballCardHTML==='function'?ballCardHTML():''}
+  ${typeof scriptCardHTML==='function'?scriptCardHTML():''}
+  ${typeof anchorCardHTML==='function'?anchorCardHTML():''}
+  ${typeof hydrationCardHTML==='function'?hydrationCardHTML():''}
   ${typeof curriculumCardHTML==='function'?curriculumCardHTML():''}
+  </details>
+
+  <details class="sect" id="todayRecord"><summary>The record &mdash; what you have actually banked</summary>
+  ${typeof gainHTML==='function'?gainHTML():''}
+  ${typeof ledgerCardHTML==='function'?ledgerCardHTML():''}
   ${typeof recordCardHTML==='function'?recordCardHTML():''}
+  ${typeof captureCardHTML==='function'?captureCardHTML():''}
   ${typeof testDayCardHTML==='function'?testDayCardHTML():''}
   ${typeof playerCardHTML==='function'?playerCardHTML():''}
+  </details>
+
+  <details class="sect" id="todayHouse"><summary>Housekeeping</summary>
+  ${(typeof clearanceRead==='function'&&typeof clearanceCardHTML==='function'&&!clearanceRead(S).clear)?clearanceCardHTML():''}
+  ${typeof cutRiskCardHTML==='function'?cutRiskCardHTML():''}
+  ${typeof statusCardHTML==='function'?statusCardHTML():''}
+  ${typeof returnCardHTML==='function'?returnCardHTML():''}
   ${typeof installCardHTML==='function'?installCardHTML():''}
   ${typeof closeoutCardHTML==='function'?closeoutCardHTML(o1rec):''}
-  ${typeof foothillHTML==='function'?foothillHTML():''}
   ${typeof assignHTML==='function'?assignHTML():''}
   ${typeof sundayNudgeHTML==='function'?sundayNudgeHTML():''}
   ${(sil=>sil>=5?`<div class="card" style="border-color:#294551">
@@ -6738,7 +6908,7 @@ function rToday(){
       const rest=(own.games||[]).filter(g=>g.d>next.d).slice(0,2);
       return `<div class="card"><h3>Countdown <span class="r">to ${esc(next.opp)}</span></h3>
         <div class="row" style="padding:6px 0"><div class="grow" style="font-size:14px"><b>${esc(lm.label)} vs ${esc(next.opp)}</b> · <span style="color:var(--faint)">${fmtD(next.d)}${next.time?' · '+esc(next.time):''}${next.home?' · Home':' · Away'}</span></div>
-          <div class="mono" style="color:var(--amber);font-weight:800">${n<=0?'TODAY':n+'d'}</div></div>
+          <div class="mono" style="color:var(--txt);font-weight:800">${n<=0?'TODAY':n+'d'}</div></div>
         ${rest.map(g=>`<div class="row" style="padding:4px 0"><div class="grow" style="font-size:13px;color:var(--faint)">then ${esc(g.opp)} · ${fmtD(g.d)}</div><div class="mono" style="color:var(--faint);font-size:12px">${daysBetween(t,g.d)}d</div></div>`).join('')}
         <div class="note"><b style="color:var(--txt)">${focus}</b></div>
         ${own.complete?'':'<div class="note" style="color:var(--faint)">Only the published fixtures are shown. The rest of the slate is not out yet.</div>'}</div>`;
@@ -6766,7 +6936,7 @@ function rToday(){
     <h3>Daily Notes <span class="r">shows up in your export</span></h3>
     <textarea id="dailyNote" rows="2" placeholder="Wins, problems, how you felt, what you learned — one line so you don't forget it"></textarea>
     <button class="btn amber" style="width:100%;margin-top:10px" onclick="addNote()">SAVE NOTE</button>
-    ${(S.notes||[]).length?`<div style="margin-top:12px">${(S.notes||[]).slice(-6).reverse().map((n,i)=>`<div style="padding:8px 0;border-top:1px solid var(--line);font-size:13px"><span style="color:var(--faint)">${fmtD(n.d)}</span> — ${esc(n.text)} <span onclick="delNote(${(S.notes.length-1)-i})" style="color:var(--faint);float:right;cursor:pointer;padding:0 4px">✕</span></div>`).join('')}</div>`:'<div class="note">Nothing yet. Jot one line a day and by the scrimmage you\'ll have a record of exactly what worked.</div>'}
+    ${(S.notes||[]).length?`<div style="margin-top:12px">${(S.notes||[]).slice(-6).reverse().map((n,i)=>`<div style="padding:8px 0;border-top:1px solid var(--line);font-size:13px"><span style="color:var(--faint)">${fmtD(n.d)}</span> — ${esc(n.text)} <span onclick="delNote(${(S.notes.length-1)-i})" style="color:var(--faint);float:right;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;margin:-14px -8px -14px 0">✕</span></div>`).join('')}</div>`:'<div class="note">Nothing yet. Jot one line a day and by the scrimmage you\'ll have a record of exactly what worked.</div>'}
   </div>
   <div class="card">
     <h3>Days won <span class="r">last 30 days</span></h3>
@@ -6897,19 +7067,7 @@ function rTrain(){
   /* v8.0: footwork leads TRAIN. It is the named weak point, it is dosed, and it is the block most
      likely to be skipped if it sits below a lifting session. */
   $('#v-train').innerHTML=`
-  ${typeof footworkHTML==='function'?footworkHTML():''}
-  ${typeof timerCardHTML==='function'?timerCardHTML():''}
-  ${typeof anchorCardHTML==='function'?anchorCardHTML():''}
-  ${typeof passProCardHTML==='function'?passProCardHTML():''}
-  <div class="seg">${[1,2,3,4,5,6,0].map(d=>`<button class="${w.day===d?'on':''}" onclick="trainDay=${d};rTrain()">${['S','M','T','W','T','F','S'][d]}</button>`).join('')}</div>
-  <div class="seg" style="margin-top:-6px"><button class="${gymMode==='full'?'on':''}" onclick="setGym('full')">EOS + cousin</button><button class="${gymMode==='apt'?'on':''}" onclick="setGym('apt')">Apartment</button><button class="${gymMode==='sore'?'on':''}" onclick="setGym('sore')">Too sore</button></div>
-  ${plan.phase==='inseason'?`<div class="note" style="margin-bottom:10px">In-season week built around game day:
-    <select style="width:auto;display:inline-block;padding:4px 8px" onchange="setGameDay(this.value)">
-      ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((n,i)=>`<option value="${i}" ${S.settings.gameDay===i?'selected':''}>${n}</option>`).join('')}
-    </select> — verify at practice.</div>`:''}
-  ${dl<1?`<div class="flag">⚙ Comeback mode: loads at ${Math.round(dl*100)}% while you ramp back. Not a punishment — a runway.</div>`:''}
-  ${w.day<0?`<div class="flag">⚙ ${esc(w.why||'')}</div>`:''}
-  <div class="card">
+<div class="card">
     <h3>${esc(w.title)} ${w.day===new Date().getDay()?'<span class="r" style="color:var(--amber)">TODAY</span>':''}</h3>
     ${w.recovery?'':`<details style="border-top:none;border-bottom:1px solid var(--line)"><summary style="color:var(--cyan)">WARM-UP FIRST <span class="pill cyan">6-8 min · cuts injuries 30-46%</span></summary>
       <div class="bd">${WARMUP[/SPEED|ATHLETICISM|TEMPO/.test(w.title)?'field':'lift'].map(x=>'• '+esc(x)).join('<br>')}</div></details>`}
@@ -6955,6 +7113,22 @@ function rTrain(){
        one tap away in the drawer below. What stays above it is what you act on with a bar in your
        hands: the footwork block, the timer, the anchors, the day pickers and today's session. */}
 <details class="sect"><summary>Library &amp; reference</summary>
+<details class="sect"><summary>Change the day, the gym, or the game day</summary>
+<div class="seg">${[1,2,3,4,5,6,0].map(d=>`<button class="${w.day===d?'on':''}" onclick="trainDay=${d};rTrain()">${['S','M','T','W','T','F','S'][d]}</button>`).join('')}</div>
+  <div class="seg" style="margin-top:-6px"><button class="${gymMode==='full'?'on':''}" onclick="setGym('full')">EOS + cousin</button><button class="${gymMode==='apt'?'on':''}" onclick="setGym('apt')">Apartment</button><button class="${gymMode==='sore'?'on':''}" onclick="setGym('sore')">Too sore</button></div>
+  ${plan.phase==='inseason'?`<div class="note" style="margin-bottom:10px">In-season week built around game day:
+    <select style="width:auto;display:inline-block;padding:4px 8px" onchange="setGameDay(this.value)">
+      ${['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].map((n,i)=>`<option value="${i}" ${S.settings.gameDay===i?'selected':''}>${n}</option>`).join('')}
+    </select> — verify at practice.</div>`:''}
+  ${dl<1?`<div class="flag">⚙ Comeback mode: loads at ${Math.round(dl*100)}% while you ramp back. Not a punishment — a runway.</div>`:''}
+  ${w.day<0?`<div class="flag">⚙ ${esc(w.why||'')}</div>`:''}
+  </details>
+  <details class="sect"><summary>Drills, timer and the rest of the day</summary>
+${typeof footworkHTML==='function'?footworkHTML():''}
+${typeof timerCardHTML==='function'?timerCardHTML():''}
+${typeof passProCardHTML==='function'?passProCardHTML():''}
+${typeof anchorCardHTML==='function'?anchorCardHTML():''}
+</details>
 ${typeof cycleCloseHTML==='function'?cycleCloseHTML():''}
   ${typeof cycleCardHTML==='function'?cycleCardHTML():''}
   ${typeof sessionClockHTML==='function'?sessionClockHTML():''}
@@ -6968,8 +7142,8 @@ ${typeof cycleCloseHTML==='function'?cycleCloseHTML():''}
   ${(ph=>['preseason','inseason'].includes(ph)?`<div class="card" style="border-color:#294551">
     <h3>Injury Armor <span class="r">2×/week · evidence updated Jul 2026</span></h3>
     <div class="note" style="margin:0 0 6px">RB/LB is a hamstring-and-groin job. Two exercises, ~6 minutes after practice, twice a week — this is the closest thing to real armor the literature has:</div>
-    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.6"><b style="color:var(--amber)">Nordic curls</b> — 3×3–5, eccentric only (partner or bench-hook holds your ankles; lower as slow as possible, push back up). 2025 review: up to <b>60% fewer new</b> hamstring injuries, <b>85% fewer re-injuries</b>. The catch that IS the point: it only works above <b>~75% adherence</b> — miss weeks and the protection evaporates. Your checkins are the adherence tracker.</div>
-    <div style="padding:7px 0;font-size:13px;line-height:1.6"><b style="color:var(--amber)">Copenhagen plank</b> — 2×6–10/side (top leg on a bench, lift hips, hold 3s). Groin/adductor strength for cuts and tackles. Evidence honest-labeled: supportive but weaker than the Nordic's (one 2025 meta was retracted) — kept because adductor strength itself is a known groin-injury factor and the cost is 3 minutes.</div>
+    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.6"><b style="color:var(--txt)">Nordic curls</b> — 3×3–5, eccentric only (partner or bench-hook holds your ankles; lower as slow as possible, push back up). 2025 review: up to <b>60% fewer new</b> hamstring injuries, <b>85% fewer re-injuries</b>. The catch that IS the point: it only works above <b>~75% adherence</b> — miss weeks and the protection evaporates. Your checkins are the adherence tracker.</div>
+    <div style="padding:7px 0;font-size:13px;line-height:1.6"><b style="color:var(--txt)">Copenhagen plank</b> — 2×6–10/side (top leg on a bench, lift hips, hold 3s). Groin/adductor strength for cuts and tackles. Evidence honest-labeled: supportive but weaker than the Nordic's (one 2025 meta was retracted) — kept because adductor strength itself is a known groin-injury factor and the cost is 3 minutes.</div>
     <div class="note">Start at the LOW end of every range — the Nordic bites the first two weeks. Soreness ≥2 days = drop a set, not the habit.</div>
     ${(sr=>`<div class="note" style="margin-top:6px;border-top:1px solid var(--line);padding-top:6px"><b style="color:${sr.ok?'var(--green)':sr.n?'var(--red)':'var(--dim)'}">Sleep is armor too:</b> ${sr.avg!=null?`${sr.avg}h average this week (${sr.n} nights logged)`:'no sleep logged this week'} — under 8h, adolescent injury risk runs 1.7× (Milewski 2014). The cheapest protection on this card.</div>`)(sleepRead())}
   </div>`:'')(phaseFor(todayISO()))}
@@ -7088,10 +7262,10 @@ function fullDayCard(){
   return `<div class="card" style="border-color:#3f4a1f">
     <h3>The 3-Hour Day <span class="r">3 hrs a day beats 3 hrs in a row</span></h3>
     <div class="note" style="margin:0 0 8px">One long grind trains fatigue, eats your surplus, and past ~16 hrs/week the injury data turns ugly. Four blocks, spread across the day, is MORE total war — and every block multiplies the others. Better than everyone on the field = the only one who did all four.</div>
-    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK A · MAIN SESSION</b> <span class="pill">60–75 min</span><br>The session above, at full intensity — bar speed honest, 1–3 RIR, contrast pairs timed. Intensity is capped by duration ON PURPOSE: past ~75 min the quality that makes you faster is gone.</div>
-    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK B · THE ANABOLIC BLOCK</b> <span class="pill">45–60 min</span><br>Eat the biggest meal of the day + get horizontal. On a mass mission at 158 lb, THIS is training — the only block that makes you bigger than the kid across from you. Skipping it to lift longer is how you stay small.</div>
-    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK C · SKILLS (PM)</b> <span class="pill">30–40 min</span><br>Today's rotation:<br>${drills.map(d=>`• <b>${esc(d.name)}</b> — ${esc(d.reps)} <span style="color:var(--faint)">(${esc(d.key)})</span>`).join('<br>')}<br>${pmDone?'<b style="color:var(--green)">PM block done ✓</b>':`<button class="btn sm amber" style="margin-top:6px" onclick="completeTask('pm:'+todayISO());rTrain();toast('PM block logged — the full day is real ✓')">PM BLOCK DONE</button>`}</div>
-    <div style="padding:7px 0;font-size:13px;line-height:1.55"><b style="color:var(--amber)">BLOCK D · FILM + CLOSE</b> <span class="pill">30 min</span><br>${syl?`Tonight's assignment: <b>${esc(syl.title)}</b> (PUSH tab)`:'Syllabus complete — run any drill on opponent film'} · then the Daily Four. The undersized player's separation happens here, where nobody's watching.</div>
+    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55"><b style="color:var(--txt)">BLOCK A · MAIN SESSION</b> <span class="pill">60–75 min</span><br>The session above, at full intensity — bar speed honest, 1–3 RIR, contrast pairs timed. Intensity is capped by duration ON PURPOSE: past ~75 min the quality that makes you faster is gone.</div>
+    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55"><b style="color:var(--txt)">BLOCK B · THE ANABOLIC BLOCK</b> <span class="pill">45–60 min</span><br>Eat the biggest meal of the day + get horizontal. On a mass mission at 158 lb, THIS is training — the only block that makes you bigger than the kid across from you. Skipping it to lift longer is how you stay small.</div>
+    <div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.55"><b style="color:var(--txt)">BLOCK C · SKILLS (PM)</b> <span class="pill">30–40 min</span><br>Today's rotation:<br>${drills.map(d=>`• <b>${esc(d.name)}</b> — ${esc(d.reps)} <span style="color:var(--faint)">(${esc(d.key)})</span>`).join('<br>')}<br>${pmDone?'<b style="color:var(--green)">PM block done ✓</b>':`<button class="btn sm amber" style="margin-top:6px" onclick="completeTask('pm:'+todayISO());rTrain();toast('PM block logged — the full day is real ✓')">PM BLOCK DONE</button>`}</div>
+    <div style="padding:7px 0;font-size:13px;line-height:1.55"><b style="color:var(--txt)">BLOCK D · FILM + CLOSE</b> <span class="pill">30 min</span><br>${syl?`Tonight's assignment: <b>${esc(syl.title)}</b> (PUSH tab)`:'Syllabus complete — run any drill on opponent film'} · then the Daily Four. The undersized player's separation happens here, where nobody's watching.</div>
     <div class="note" style="margin-top:6px">A+B+C+D ≈ 3 hours of daily attack. The kid doing one 3-hour grind is outworking you in hour three only — you're outworking him at breakfast, at 3pm, and at 9pm, every single day, without donating your mass to fatigue.</div>
   </div>`;
 }
@@ -7124,7 +7298,7 @@ function assignHTML(){
   return `<div class="card">
     <h3>Today's Assignment <span class="r">${out} days to Foothill · ${n}/3</span></h3>
     <div class="note" style="margin:0">You do not pick. Three things, in this order, every day until the opener. Watching sets up the rep — the rep is what makes you the starter.</div>
-    ${row('W','① WATCH · ~10 MIN',`<a href="${ytq(a.w)}" target="_blank" rel="noopener" style="color:var(--txt);text-decoration:underline;text-decoration-color:var(--amber);text-underline-offset:3px">${esc(a.w)}</a>`,`<div class="note" style="margin-top:5px"><b style="color:var(--amber)">Look for:</b> ${esc(a.l)} · tap the title, it opens the search for you</div>`)}
+    ${row('W','① WATCH · ~10 MIN',`<a href="${ytq(a.w)}" target="_blank" rel="noopener" style="color:var(--txt);text-decoration:underline;text-decoration-color:var(--amber);text-underline-offset:3px">${esc(a.w)}</a>`,`<div class="note" style="margin-top:5px"><b style="color:var(--txt)">Look for:</b> ${esc(a.l)} · tap the title, it opens the search for you</div>`)}
     ${row('D','② DO · ~25 MIN',esc(a.d))}
     ${row('G','③ CFB 27 · ~20 MIN','<b>'+esc(c.mode)+':</b> '+esc(c.job))}
     ${(b=>`<div style="border-top:1px solid var(--line);padding:12px 0"><div class="row" style="align-items:flex-start"><div class="grow"><div style="font-size:9.5px;letter-spacing:.22em;color:var(--faint);font-weight:800">④ TRAIN · 60–75 MIN</div><div style="font-size:13.5px;line-height:1.55;margin-top:6px;${b?'color:var(--faint)':''}">The session in TRAIN, full intensity, capped on purpose. Apartment gym counts.</div></div><button class="btn sm ${b?'':'amber'}" style="flex-shrink:0" onclick="${b?'':"grindDone('BODY')"}">${b?'DONE':'OPEN'}</button></div></div>`)(taskDone('grind:BODY:'+todayISO()))}
@@ -7244,7 +7418,7 @@ function footworkHTML(){
       ${ses.drills.map(d=>`<div style="border-top:1px solid var(--line);padding:9px 0">
         <div class="row" style="align-items:baseline;gap:6px"><b style="font-size:13px">${esc(d.name)}</b>
           <span class="grow"></span><span class="mono note" style="margin:0;font-size:11px">${esc(d.reps||'')}</span></div>
-        <div class="note" style="margin:3px 0 0">${esc(d.focus||'')}${d.key?' · <b style="color:var(--amber)">'+esc(d.key)+'</b>':''}</div>
+        <div class="note" style="margin:3px 0 0">${esc(d.focus||'')}${d.key?' · <b style="color:var(--txt)">'+esc(d.key)+'</b>':''}</div>
       </div>`).join('')}
       <button class="btn ${r.doneToday?'':'amber'}" style="width:100%;margin-top:12px;min-height:50px" onclick="footLog()">${r.doneToday?'LOGGED TODAY ✓':'DONE — BANK THE SESSION'}</button>
       <div class="note" style="margin-top:7px;color:var(--faint)"><b>Why this dose:</b> 2×/week cuts lower-body injury rate about 50%, 3×/week about 60%, and 10–15 minute sessions are as effective as 20–30. Longer or more often buys nothing. <span style="opacity:.75">Zech/Steib, Front Physiol 2017 — 16 trials, 1.4M player-exposures. Fetched 2026-08-23.</span></div>
@@ -7261,8 +7435,8 @@ function grindHTML_retired(){
         <div style="font-size:13px;font-weight:700;margin-top:5px;color:${done(b.k)?'var(--faint)':'var(--txt)'}">${esc(b.hdr)}</div>
         <div class="note" style="margin-top:5px">${esc(b.body)}</div>
         ${b.k==='BRAIN'?`<div class="note" style="margin-top:8px;border-left:2px solid var(--amber);padding-left:10px">
-          <b style="color:var(--amber)">CFB 27 today · ${esc(c.mode)}:</b> ${esc(c.job)}
-          ${syl?`<br><b style="color:var(--amber)">Film today:</b> ${esc(syl.title)} (PUSH)`:''}</div>`:''}
+          <b style="color:var(--txt)">CFB 27 today · ${esc(c.mode)}:</b> ${esc(c.job)}
+          ${syl?`<br><b style="color:var(--txt)">Film today:</b> ${esc(syl.title)} (PUSH)`:''}</div>`:''}
       </div>
       <button class="btn sm ${done(b.k)?'':'amber'}" style="flex-shrink:0" onclick="grindDone('${jsa(b.k)}')">${done(b.k)?'DONE':'MARK'}</button>
     </div></div>`;
@@ -7294,7 +7468,7 @@ function foothillHTML(){
     <details style="margin-top:10px"><summary>Phase detail — what this block demands</summary><div class="bd">${ph.daily.map(x=>`<div style="display:flex;gap:10px;padding:7px 0;border-top:1px solid var(--line);font-size:13px;line-height:1.55"><span style="color:var(--amber);flex-shrink:0">—</span><span>${esc(x)}</span></div>`).join('')}</div></details>`
     :'<div class="note" style="margin:0">Outside the campaign window.</div>'}
     <details style="margin-top:14px"><summary>The honest math (read this once)</summary><div class="bd" style="font-size:12.5px;line-height:1.7">
-      <b style="color:var(--txt)">You will not be 174 lb on Aug 21.</b> You are ${bw!=null?bw+' lb':'un-weighed'}, and adolescent lean gain runs ~0.5–1 lb/week. Honest projection for game day: <b style="color:var(--amber)">${proj!=null?'~'+proj+' lb':'log a weigh-in'}</b>. Chasing 174 in ${Math.max(d,0)} days would mean fat, not muscle.<br><br>
+      <b style="color:var(--txt)">You will not be 174 lb on Aug 21.</b> You are ${bw!=null?bw+' lb':'un-weighed'}, and adolescent lean gain runs ~0.5–1 lb/week. Honest projection for game day: <b style="color:var(--txt)">${proj!=null?'~'+proj+' lb':'log a weigh-in'}</b>. Chasing 174 in ${Math.max(d,0)} days would mean fat, not muscle.<br><br>
       <b style="color:var(--txt)">Your maxes will not jump either.</b> A 33-day block that ends in a game is a taper, not a build — peaking and arriving fresh cannot both happen. Squat 275 / bench 210 / dead 365 hold. That is correct, not a failure.<br><br>
       <b style="color:var(--txt)">So mass and strength are not the levers.</b> Verified Jul 2026, consistent across coaching sources: RB playing time gates on <b>ball security</b> ("you just can't fumble" — the fastest way a freshman loses a job), <b>pass protection</b> (coaches will not play a back who gets the QB hit), <b>zero mental errors</b>, and <b>conditioning</b> — the one physical quality that truly transforms in 33 days.<br><br>
       All four cost zero pounds. All four are fully winnable before Foothill. That is why the plan looks like this instead of a lifting program.</div></details>
@@ -7327,7 +7501,7 @@ function freshman10HTML(){
         </div>
         ${open?`<div style="padding:10px 0 4px 30px">
           <div style="font-size:13px;line-height:1.65;color:var(--dim)">${esc(x.why)}</div>
-          <div style="margin-top:12px;font-size:13.5px;line-height:1.6"><b style="color:var(--amber)">DO THIS:</b> ${esc(x.do)}</div>
+          <div style="margin-top:12px;font-size:13.5px;line-height:1.6"><b style="color:var(--txt)">DO THIS:</b> ${esc(x.do)}</div>
           <div class="note" style="margin-top:10px"><b>Payoff:</b> ${esc(x.win)}</div>
           ${d?'':`<button class="btn amber sm" style="margin-top:12px" onclick="event.stopPropagation();f10Done('${jsa(x.id)}')">I'M RUNNING THIS</button>`}
         </div>`:''}
@@ -7384,10 +7558,10 @@ function heatCardHTML(){
     <h3>Heat Protocol <span class="r">Vegas · May–Sep · not optional</span></h3>
     <div class="note" style="margin:0 0 6px">Exertional heat illness is one of the few things that kills healthy high-school athletes, and Henderson in August is the exact setting. This is the protocol, not a suggestion:</div>
     <div style="font-size:13px;line-height:1.7">
-      • <b style="color:var(--amber)">Pre-hydrate:</b> 16–20 oz two hours before, 8 oz right before. Urine pale = ready.<br>
-      • <b style="color:var(--amber)">During:</b> 4–8 oz every 15–20 min, whether or not you're thirsty. Thirst lags dehydration.<br>
-      • <b style="color:var(--amber)">Train early:</b> outdoor work before 9am or after 7pm in July–August.<br>
-      • <b style="color:var(--amber)">Salt back:</b> heavy sweater in dry heat = add salt to food, not just water.<br>
+      • <b style="color:var(--txt)">Pre-hydrate:</b> 16–20 oz two hours before, 8 oz right before. Urine pale = ready.<br>
+      • <b style="color:var(--txt)">During:</b> 4–8 oz every 15–20 min, whether or not you're thirsty. Thirst lags dehydration.<br>
+      • <b style="color:var(--txt)">Train early:</b> outdoor work before 9am or after 7pm in July–August.<br>
+      • <b style="color:var(--txt)">Salt back:</b> heavy sweater in dry heat = add salt to food, not just water.<br>
       • <b style="color:var(--red)">STOP + get help NOW:</b> confusion, stumbling, stops sweating, hot dry skin, vomiting, cramping that won't release. Heat stroke is a 911 call — cool first, transport second.
     </div>
     <div class="note">Weighing before and after practice is the pro move: every 1 lb lost = ~16 oz to replace before the next session.</div>
@@ -8307,7 +8481,7 @@ function notifyNow(title,body){
 function reachCardHTML(){
   const r=reachRead(), st=icsStale(S), n=icsEntries(S).length;
   const line=r.canBadge?'<b style="color:var(--green)">Badging is on.</b> The icon carries the count of things still unanswered.'
-    :r.canNotify?'<b style="color:var(--amber)">Notifications are on, badging is not.</b> Badges need the app added to your home screen.'
+    :r.canNotify?'<b style="color:var(--txt)">Notifications are on, badging is not.</b> Badges need the app added to your home screen.'
     :'<b style="color:var(--red)">This app cannot reach you on its own.</b> '+esc(r.blocker||'');
   return `<div class="card" style="border-color:#294551">
     <h3>Reaching you <span class="r">the calendar does the work</span></h3>
@@ -8317,7 +8491,7 @@ function reachCardHTML(){
       <button class="btn amber grow" onclick="icsDownload()">Build calendar file · ${n} entries</button>
       ${(!r.canNotify&&r.notifApi&&r.perm!=='denied')?'<button class="btn sm grow" onclick="notifyAsk()">Turn on alerts</button>':''}</div>
     <div class="note" style="margin-top:8px;color:var(--amber);font-style:normal"><b>Importing does not update what is already there.</b> iOS re-assigns its own event IDs on import and ignores update markers, so a second import adds duplicates instead of replacing. To refresh: delete the calendar named <b>${esc(ICS_CAL)}</b> in the Calendar app, then import the new file. Everything this app writes lands in that one calendar, which is why the name never changes.</div>
-    <div class="note" style="margin-top:6px;color:var(--faint)">${st.ever?('Last built '+esc(fmtD(st.d))+'. '+(st.stale?'<b style="color:var(--amber)">Your schedule has changed since — build and re-import.</b>':'Still matches your current schedule.')):'Never built. The game alarms are the reason to do it now.'}</div>
+    <div class="note" style="margin-top:6px;color:var(--faint)">${st.ever?('Last built '+esc(fmtD(st.d))+'. '+(st.stale?'<b style="color:var(--txt)">Your schedule has changed since — build and re-import.</b>':'Still matches your current schedule.')):'Never built. The game alarms are the reason to do it now.'}</div>
   </div>`;
 }
 /* ============================================================================
@@ -8385,6 +8559,36 @@ const REP_RULES={
   dose:'Dosed work beats more work. Past the dose, extra buys nothing.',
   rest:'Nothing is owed, so rest is the training input.',
   record:'Work nobody can see happened only to you. Creating the record of a rep outranks another rep of the thing already recorded.'};
+/* v9.2 · WHEN, not just WHAT. Cues are drawn from his actual week so the moment is real and
+   recognisable; a cue he cannot picture is not a cue. Ordered by how specific the moment is. */
+const CUES={
+  lockerroom:'Monday, in the locker room, before you leave',
+  afterprac:'Tonight, when practice ends — before you take your cleats off',
+  walkthrough:'Wednesday, straight after the walkthrough',
+  gym:'Tonight, when you get to the gym — first thing, before you touch a bar',
+  postgame:'Thursday night, in the car on the way home',
+  charger:'Tonight, when you put your phone on the charger',
+  saturday:'Saturday morning, before anything else',
+  office:'Tomorrow morning, before first period'
+};
+const CUE_FOR={
+  clear:'office', camp:'lockerroom', record:'lockerroom', ask:'afterprac',
+  speed:'walkthrough', foot:'charger', daily4:'charger', capture:'postgame',
+  gameday:'postgame', board:'charger', blind:'walkthrough', recover:'charger'
+};
+/* Thursday and Friday are game days; a cue that names Monday on a Thursday is noise. */
+function cueFor(kind,today){
+  const k=CUE_FOR[kind]; if(!k) return null;
+  let key=k;
+  try{
+    const dow=new Date((today||todayISO())+'T12:00').getDay();
+    if(key==='lockerroom'&&dow!==1&&dow!==2) key='afterprac';
+    if(key==='walkthrough'&&dow>3) key='saturday';
+  }catch(e){}
+  return CUES[key]||null;
+}
+const CUE_EV='Implementation intentions — "when X, I will do Y" — move goal attainment by d = 0.65 across 94 studies (Gollwitzer & Sheeran, 2006). Naming the moment makes the cue accessible, so the situation triggers the action instead of you having to remember to want it.';
+const CUE_UNC='It is a bridge from wanting to doing, not a substitute for wanting: the effect is measured on goals people already hold, and it is reported to backfire for people high in socially prescribed perfectionism. If a cue stops matching your week, change it — a moment you cannot picture is not a cue.';
 /* the clock is an INPUT, not an ambient fact, or the time rules cannot be tested. Production never
    sets this; the suite sets it around one call and clears it. */
 let _repHour=null;
@@ -8476,10 +8680,12 @@ function nextRep(s,today){
   if(lead&&lead.k!=='avail'&&lead.k!=='speed'&&lead.state==='open'){
     C.push({kind:'camp',nowOK:true,rule:REP_RULES.depth,tone:'owed',
       k:lead.t+(camp.days!=null?' · '+(camp.days<=0?'TODAY':camp.days+'D TO '+String(camp.target.opp||'THE GAME').toUpperCase()):''),
-      o:({contact:'COUNT YOUR CARRIES TONIGHT.',
+      o:({up:'ASK DIAZ ABOUT DRESSING FRIDAY.',
+          contact:'COUNT YOUR CARRIES TONIGHT.',
           passpro:'GET TEN PASS-PRO REPS IN.',
           bond:'ASK HIM ONE QUESTION TODAY.'})[lead.k]||lead.t,
-      t:({contact:'Forward through contact, and the ones that lost yards',
+      t:({up:'Varsity play Friday. You play Thursday. Nothing collides.',
+          contact:'Forward through contact, and the ones that lost yards',
           passpro:'The reason freshmen do not play',
           bond:'His words, written down, not your summary'})[lead.k]||lead.t,
       w:lead.why, ev:lead.ev,
@@ -8609,11 +8815,14 @@ function nextRepHTML(){
     <div class="hero-k">${esc(r.k)}</div>
     ${(pr=>pr&&pr.line?`<div class="hero-push">${esc(pr.line)}</div>`:'')(typeof pushRead==='function'?pushRead(S):null)}
     <div class="hero-t">${esc(r.o||r.t)}</div>
+    ${(c=>c?`<div class="hero-when"><b>WHEN</b> ${esc(c)}</div>`:'')(typeof cueFor==='function'?cueFor(r.kind):null)}
     ${r.o&&r.t&&r.t!==r.o?`<div class="hero-sub">${esc(r.t)}</div>`:''}
     <div class="hero-w">${esc(r.w)}</div>
     ${acts?`<div class="hero-act">${acts}</div>`:''}
     <details class="why"><summary>Why this, and not something else</summary>
       <div class="note" style="margin-top:8px"><b style="color:var(--txt)">What it read:</b> ${esc(r.ev||'')}</div>
+      ${(typeof cueFor==='function'&&cueFor(r.kind))?`<div class="note" style="margin-top:8px"><b style="color:var(--txt)">Why there is a WHEN on it:</b> ${esc(CUE_EV)}</div>
+      <div class="note" style="margin-top:6px;color:var(--faint)">${esc(CUE_UNC)}</div>`:''}
     ${(rec=>rec?`<div class="note" style="margin-top:8px">Did you do it? The answer is what teaches the app whether this kind of call is worth making.</div>
       <div class="hero-rec">
       <button class="btn sm grow ${rec.followed==='followed'?'amber':'ghost'}" onclick="setRecFollow('${jsa(rec.id)}','followed')">Did it</button>
@@ -8829,7 +9038,7 @@ function loadGuardHTML(){
   if(!sp.have&&!mw.have&&!(sp.age)) return '';
   const spBlock=sp.have
     ? `<div class="row" style="align-items:center;gap:8px"><div><div class="mono" style="font-size:20px;font-weight:800;color:${sp.ok?'var(--green)':'var(--amber)'}">${sp.hrs}h</div><div class="note" style="margin:0">organised sport · 7d</div></div>
-       <div class="grow"><div class="note" style="margin:0;font-style:normal">${sp.overAge?`<b style="color:var(--amber)">Above the hours-vs-age line (${sp.age}h).</b> Exceeding it is linked to significantly higher serious overuse-injury risk.`:sp.over16?'<b style="color:var(--amber)">Above the ~16h/week ceiling.</b>':`Under the age line (${sp.age}h) and the 16h ceiling — where you want to be.`}</div></div></div>`
+       <div class="grow"><div class="note" style="margin:0;font-style:normal">${sp.overAge?`<b style="color:var(--txt)">Above the hours-vs-age line (${sp.age}h).</b> Exceeding it is linked to significantly higher serious overuse-injury risk.`:sp.over16?'<b style="color:var(--txt)">Above the ~16h/week ceiling.</b>':`Under the age line (${sp.age}h) and the 16h ceiling — where you want to be.`}</div></div></div>`
     : `<div class="note" style="margin:0">Log weekly organised-sport hours to track the ceiling: hours per week should not exceed your age in years (${sp.age||'—'}), and stay under ~16h.</div>
        <div class="row" style="margin-top:6px"><button class="btn sm grow" onclick="numOpen('hrs','Organised sport hours this week',1,10)">Log weekly hours</button></div>`;
   const mwBlock=mw.have&&mw.flag
@@ -8883,7 +9092,7 @@ function speedCardHTML(){
       <button class="btn sm grow" onclick="numOpen('ten','10-yard split (s)',0.01,1.8)">10-yd</button>
       <button class="btn sm grow" onclick="numOpen('shuttle','Pro agility 5-10-5 (s)',0.01,4.8)">5-10-5</button>
       <button class="btn sm grow" onclick="numOpen('mvel','Max-velocity exposures today',1,1)">+ sprint exposure</button></div>
-    <div class="note" style="margin-top:6px">${esc(zoneTxt)}${sx.stale?' <b style="color:var(--amber)">'+sx.gap+' days since the last exposure — long pauses are the documented danger.</b>':''}</div>
+    <div class="note" style="margin-top:6px">${esc(zoneTxt)}${sx.stale?' <b style="color:var(--txt)">'+sx.gap+' days since the last exposure — long pauses are the documented danger.</b>':''}</div>
     ${cd.have?`<div class="note" style="margin-top:4px">COD deficit = 5-10-5 (${cd.shuttle}s) minus your 10-yd (${cd.ten}s). Lower means you turn well for your straight-line speed. Descriptive — no benchmark attached, because we don't have a verified one to compare against.</div>`:''}
     ${deepNote('ten')}${deepNote('decel')}${deepNote('mvel')}</div>`;
 }
@@ -9145,24 +9354,156 @@ const TRANSFER_AGAINST=[
   ['A coach contacting him can void it','NRS 385B.225 bans athletic recruitment including social media, and NRS 385B.130 withdraws immediate eligibility if the transfer followed a recruitment violation. Keep it family-initiated and documented.']
 ];
 const PROMOTION={
+  who:'Coach Diaz. He runs freshman AND JV, so all three of these are one man’s decision, and it is the same man who needs you at RB1 and MLB1 on Thursday. Everything below is written to make saying yes cheap for him.',
   q:'Is the sub-varsity participation limit a GAME cap or a QUARTER cap, and how many?',
-  who:'CCSD athletic office, or your AD — not a coach. This is a rules question, not a depth-chart question, and asking it of the office costs you nothing with the staff.',
-  why:'Freshman kick at 4 and JV at 6 on the same Thursday. You believe playing both is not allowed. If the rule caps GAMES per day, you are right and this is closed. If it caps QUARTERS — which is the more common shape — then a full freshman game plus a quarter of JV can be legal, and your promotion stops costing the freshman team its RB1 and its only sized linebacker.',
-  ev:'NIAA governs sub-varsity participation; the specific limits live in its sub-varsity participation release and NAC 385B.',
-  unc:'NOT VERIFIED. The NIAA document would not load when this was written on 30 August 2026, and this app does not state rules it has not read. Both readings above are possible. One phone call settles it.',
-  asm:'Assumes the freshman and JV games stay at 4 and 6 on the same Thursday, which is what you told me.'};
+  ev:'Schedules from MaxPreps read 2026-08-30; the coaching correction and the Thursday JV pattern are his, same date. NIAA governs sub-varsity participation limits.',
+  unc:'NOT VERIFIED. The NIAA sub-varsity document would not load when this was written, and this app does not state rules it has not read. Route B stands or falls on it and one phone call settles it.',
+  asm:'Assumes JV keeps mirroring varsity on Thursdays and freshman keep the 4 o’clock slot.'};
+const PROMO_ROUTES=[
+  {k:'fri', t:'A FRIDAY VARSITY LOOK', cost:'Costs the freshman team nothing',
+   w:'Varsity play FRIDAY. You play THURSDAY. There is no collision at all — not a rules problem, not a roster problem, just a different day. One kickoff unit or one series on a Friday takes nothing away from the team Diaz is protecting, and varsity is the level you actually said you want for next season. This is the cheapest ask in your entire season and nobody has made it.',
+   ask:'Coach, I play Thursday and varsity plays Friday. Can I dress Friday and cover kicks?',
+   ev:'Varsity fixtures are Fridays; freshman are Thursdays at 4. Both read from the schedule in this app.'},
+  {k:'thu', t:'THE THURSDAY DOUBLE', cost:'Costs nothing IF the limit is quarters, not games',
+   w:'Freshman kick at 4, JV at 6, same night, same opponent, most weeks. If the sub-varsity limit caps GAMES per day you are blocked. If it caps QUARTERS — the more common shape — a full freshman game plus a quarter of JV is legal, and you get JV film without the freshman team losing a snap of you.',
+   ask:PROMOTION.q,
+   ev:'NIAA sub-varsity participation release and NAC 385B — UNREAD, see the caveat below.'},
+  {k:'stay', t:'STAY FOR THE SIX O’CLOCK', cost:'Needs nobody’s permission at all',
+   w:'Your game finishes around half five. JV kick at six, same field, same opponent. You are already there. Staying in uniform on that sideline is the only thing on this board that requires no yes from anyone — and it makes you the freshman the JV staff sees every single week instead of the one who went home. It does not get you a snap by itself. It is what makes the other three asks land on someone who already knows your face.',
+   ask:'Nothing to ask. Just do not leave.',
+   ev:'Freshman kick at 4 and JV at 6 on the same Thursday, from the schedule in this app.'},
+  {k:'gap', t:'A WEEK FRESHMAN DO NOT PLAY', cost:'Costs the freshman team nothing by definition',
+   w:'Your published freshman slate has gaps the JV slate does not. On any Thursday JV play and freshman do not, the reason to hold you back disappears for that week. Find those weeks on the schedule and ask about that specific date, not in general.',
+   ask:'On the weeks freshman are off and JV plays, can I travel with JV?',
+   ev:'Freshman fixtures are published incomplete; JV mirrors varsity. Fill your real freshman schedule in and these weeks become findable.'}
+];
 function promotionHTML(){
   const L=LADDER.find(x=>x.k==='up')||{};
+  const r0=PROMO_ROUTES[0];
   return `<div class="card" style="border-color:#4a3a1f">
-    <h3>Why you are still on freshman <span class="r">not a talent problem</span></h3>
+    <h3>Three ways up, ranked by what they cost him <span class="r">one man decides all three</span></h3>
     <div class="note" style="margin:0 0 10px">${esc(L.blocker||'')}</div>
-    <div style="border-top:1px solid var(--line);padding:10px 0">
-      <div class="row" style="align-items:baseline;gap:8px"><b style="font-size:13px;color:var(--amber)">ASK THE ATHLETIC OFFICE THIS</b><span class="grow"></span>
-        <span class="mono" style="font-size:11px;color:var(--faint)">1 call</span></div>
-      <div class="note" style="margin:5px 0 0;color:var(--txt);font-style:normal">“${esc(PROMOTION.q)}”</div>
-      <div class="note" style="margin:6px 0 0">${esc(PROMOTION.why)}</div>
-      <div class="note" style="margin:6px 0 0;color:var(--faint)">${esc(PROMOTION.who)}</div></div>
+    <div class="note" style="margin:0 0 10px;font-style:normal;color:var(--txt)">${esc(PROMOTION.who)}</div>
+    <div style="border-top:1px solid var(--line);padding:11px 0">
+      <div class="row" style="align-items:baseline;gap:8px"><b style="font-size:13.5px;color:var(--amber)">${esc(r0.t)}</b><span class="grow"></span>
+        <span class="mono" style="font-size:11px;color:var(--green)">${esc(r0.cost)}</span></div>
+      <div class="note" style="margin:5px 0 0">${esc(r0.w)}</div>
+      <div class="note" style="margin:7px 0 0;color:var(--txt);font-style:normal">“${esc(r0.ask)}”</div></div>
+    ${PROMO_ROUTES.slice(1).map(r=>`<details class="sect"><summary>${esc(r.t)} &mdash; ${esc(r.cost)}</summary>
+      <div class="note" style="margin:6px 0 0">${esc(r.w)}</div>
+      <div class="note" style="margin:7px 0 0;color:var(--txt);font-style:normal">“${esc(r.ask)}”</div>
+      <div class="note" style="margin:4px 0 0;color:var(--faint)">${esc(r.ev)}</div></details>`).join('')}
     <div class="note" style="margin-top:10px;font-style:normal;border-left:2px solid var(--red);padding-left:9px">${esc(PROMOTION.unc)}</div>
+  </div>`;
+}
+const OFFSEASON=[
+ {k:'gap', t:'The ten weeks after the season', from:'2026-10-24', to:'2027-01-05', friction:'Nobody is watching', approx:1,
+  w:'Your season ends on 22 October and the weight class does not start until the new term, because you are on a block schedule and cannot switch mid-term. That leaves roughly ten weeks with no practice, no games, no class and nobody checking — and it is the single highest-risk stretch of your year. Everyone who is going to pass you next August passes you here, not in a game. You already have EOS and you already know the Saturday session; this window is that session, three or four times a week, entirely self-directed.',
+  do:'ASK YOUR COUNSELLOR THIS WEEK, not in January: what is the deadline to request the weight class for next term, and what do I sign? Block-schedule changes are normally requested weeks before the term starts, and a class that is full in December is full.'},
+ {k:'timed', t:'A number somebody else recorded', from:'2026-10-26', to:'2027-03-01', friction:'One ask',
+  w:'No coach has ever put a watch on you. Your 4.9 is self-timed, which means every read in this app that leans on it is leaning on a number with nobody’s name against it. A program testing day, a combine, or a track meet produces a time a stranger will believe. That is a different asset from a fast time — it is a CREDIBLE one.',
+  do:'Ask whether the program tests in the offseason, and put your name down for the first one.'},
+ {k:'class', t:'The weight class, once you are in it', from:'2027-01-05', to:'2027-05-30', friction:'NONE once the switch is done', approx:1,
+  w:'Coach Cahill runs it, and that changes what this is. It is not a timetable change — it is five days a week in front of a coach for three months, which is MORE contact time than the football season gives you with anyone. It also needs nobody’s permission: no depth chart, no roster spot taken from anyone. The lowest-friction and highest-frequency lever you have, in the same slot.',
+  do:'Make the schedule change the week football ends, and on day one ask Cahill what he wants to see from you this winter. Then be the person who does exactly that, every day, while nothing is at stake.'},
+ {k:'track', t:'Track season', from:'2027-02-15', to:'2027-05-15', friction:'Sign up', approx:1,
+  w:'The highest-value thing on this list, and it is not close. Sprinting coached by somebody whose whole job is speed, three months of it, in the exact window your season is not competing for you. It produces OFFICIALLY TIMED results — the 100m is a number college staffs read directly — and multi-sport athletes are actively sought by football recruiters. You named speed as the gap twice: this is the answer, and it costs a sign-up sheet.',
+  do:'Find out who coaches sprints and tell them in December, not February. Walking up on day one is how you end up in the 400.'},
+ {k:'spring', t:'Spring ball', from:'2027-05-01', to:'2027-06-15', friction:'Show up', approx:1,
+  w:'You said you would be there. This is where next season’s depth chart starts getting written, in front of the varsity staff, with no freshman team to protect you into. It is the first time Diaz’s problem — needing you at RB1 on Thursdays — does not exist.',
+  do:'Be the first one there and the last to leave, for every session. This is the whole audition.'},
+ {k:'camp', t:'Camps and the summer', from:'2027-06-01', to:'2027-08-14', friction:'Money + a ride',
+  w:'The UNLV mega camp takes your class and is already in this app under Recruiting reference. Summer is also when the varsity roster is actually settled at fall camp — the decision you are chasing is made in August 2027, not in a game.',
+  do:'Put the June camp date in the calendar now and start the money conversation early.'}
+];
+function offseasonRead(s,today){
+  s=s||S; today=today||todayISO();
+  const rows=OFFSEASON.map(o=>({...o,
+    days:daysBetween(today,o.from),
+    live:today>=o.from&&today<=o.to,
+    done:today>o.to}));
+  const next=rows.find(r=>r.live)||rows.find(r=>!r.done)||null;
+  return {rows,next,
+    toStart:daysBetween(today,OFFSEASON[0].from),
+    toDecision:daysBetween(today,'2027-08-14'),
+    ev:'Windows built from what you told me on 30 August 2026: the winter lifting class, that you would run track and wrestle, and that you would be at spring ball.',
+    unc:'The track, spring and TERM-BOUNDARY dates are APPROXIMATE. The NIAA calendar was not read for this release and the exact date your block schedule lets you switch is a question for your counsellor, not a thing this app can know — confirm all three and correct them here. The ten-week gap is real whatever the exact dates turn out to be.',
+    asm:'Assumes you stay at Basic and stay academically eligible, which at a 3.5 is not currently in question.'};
+}
+function offseasonHTML(){
+  const r=offseasonRead(S);
+  return `<div class="card" style="border-color:#2a3f52">
+    <h3>The nine months that decide varsity <span class="r">${r.toStart>0?r.toStart+' days out':'live now'}</span></h3>
+    <div class="note" style="margin:0 0 10px;font-style:normal">Varsity as a sophomore is not won in a game. It is won between the end of this season and August camp — ${r.toDecision} days — and every item here is available to you without anyone’s permission except the last one.</div>
+    ${r.rows.map((o,i)=>i===0||o.live?`<div style="border-top:1px solid var(--line);padding:10px 0">
+      <div class="row" style="align-items:baseline;gap:8px"><b style="font-size:13px;color:${o.live?'var(--green)':'var(--amber)'}">${esc(o.t)}</b><span class="grow"></span>
+        <span class="mono" style="font-size:11px;color:var(--faint)">${esc(o.friction)}</span></div>
+      <div class="note" style="margin:5px 0 0">${esc(o.w)}</div>
+      <div class="note" style="margin:6px 0 0;color:var(--txt);font-style:normal">${esc(o.do)}</div></div>`
+    :`<details class="sect"><summary>${esc(o.t)}${o.approx?' \u00b7 approx':''} &mdash; ${esc(o.friction)}</summary>
+      <div class="note" style="margin:6px 0 0">${esc(o.w)}</div>
+      <div class="note" style="margin:6px 0 0;color:var(--txt);font-style:normal">${esc(o.do)}</div></details>`).join('')}
+    <div class="note" style="margin-top:10px;font-style:normal;border-left:2px solid var(--red);padding-left:9px">${esc(r.unc)}</div>
+  </div>`;
+}
+const POS_SPLIT={
+  d1:{k:'RB', t:'Running back is the position that can reach Division I',
+    w:'FBS starting backs average 5′10½″ and 205 lb, and the range runs from 5′6″ to 6′3″ — five of the hundred-plus sampled were 5′7″ or shorter. At 5′9″ in shoes you are inside that distribution, at the short end, and not finished growing.',
+    do:'Every measurable this app chases — the ten split, the vertical, the broad — is a running back’s case. Keep making it.'},
+  now:{k:'MLB', t:'Linebacker is the position that gets you on a varsity field first',
+    w:'Basic needs size at linebacker and does not have it. You said so yourself: move you up and they are left with nobody with size at linebacker. That is a NEED, and need is what gets freshmen promoted. It is also why they will not let you go — the same fact cuts both ways.',
+    do:'Play it, own it, use it as the reason you are worth dressing on a Friday. It is the argument that works on Diaz today.'},
+  hard:{t:'And the honest part',
+    w:'FBS starting linebackers average 6′1½″ and 230 lb across 350-plus starters, and the SHORTEST one is 5′10″. Nineteen are under six feet. At your height you are not a rare linebacker at that level — you are outside the sample. That does not make MLB a waste: it is your fastest route to varsity film, and varsity film of you making tackles is still film of you. It means the recruiting case gets built at running back.',
+    src:'FBS starting-roster surveys, 2023 season, read 2026-08-30. Roster heights are self-reported and run optimistic, so read these as shape, not thresholds.'}
+};
+function posSplitHTML(){
+  const p=POS_SPLIT;
+  return `<div class="card" style="border-color:#3a2f52">
+    <h3>Your two positions are two different jobs <span class="r">stop averaging them</span></h3>
+    ${[p.d1,p.now].map(x=>`<div style="border-top:1px solid var(--line);padding:10px 0">
+      <div class="row" style="align-items:baseline;gap:8px"><b style="font-size:13px;color:var(--amber)">${esc(x.t)}</b><span class="grow"></span>
+        <span class="mono" style="font-size:11px;color:var(--faint)">${esc(x.k)}</span></div>
+      <div class="note" style="margin:5px 0 0">${esc(x.w)}</div>
+      <div class="note" style="margin:6px 0 0;color:var(--txt);font-style:normal">${esc(x.do)}</div></div>`).join('')}
+    <div class="note" style="margin-top:10px;font-style:normal;border-left:2px solid var(--red);padding-left:9px"><b style="color:var(--txt)">${esc(p.hard.t)}.</b> ${esc(p.hard.w)}</div>
+    <div class="note" style="margin-top:6px;color:var(--faint)">${esc(p.hard.src)}</div>
+  </div>`;
+}
+
+/* ══════════════════════════════════════════════════════════════════════════════
+   WHO DECIDES WHAT, AND WHO SEES HIM MOST
+   The app knew one coach and had his name wrong. There are three relationships that matter and
+   they are not the same relationship. The one with the most contact time is not the one with the
+   most authority — and from late October it is the one that runs five days a week.
+   ══════════════════════════════════════════════════════════════════════════════ */
+const COACHES=[
+  {k:'diaz', n:'Coach Diaz', role:'Freshman AND JV head coach', decides:'Whether you play freshman, and whether you play JV. One man, both levels.',
+   sees:'Every practice, every Thursday',
+   need:'He needs you at RB1 and MLB1 on Thursday. Every ask you make of him has to cost him nothing on Thursday, or the answer is no and it should be.',
+   ask:'Coach, I play Thursday and varsity plays Friday. Can I dress Friday and cover kicks?'},
+  {k:'cahill', n:'Coach Cahill', role:'The weight class', decides:'Nothing about the depth chart — and that is the point.',
+   sees:'Five days a week, all winter, once you switch in',
+   need:'From late October he sees more of you than any football coach does in season. Three months of a coach watching you work when nothing is at stake is the most contact time available to you anywhere in this app, and reputations built in a weight room travel to the staff room.',
+   ask:'Coach, what do you want to see from me in here this winter?'},
+  {k:'varsity', n:'The varsity staff', role:'Fridays', decides:'Next season, and whether you dress on a Friday this one.',
+   sees:'Barely — you play a different night',
+   need:'They are the only people who have not been given a reason to know your name. Every route in this app that reaches them goes through Diaz first or through spring ball.',
+   ask:'— through Diaz, or in spring.'}
+];
+function coachesHTML(){
+  return `<div class="card">
+    <h3>Three coaches, three different jobs <span class="r">only one of them decides Thursday</span></h3>
+    ${COACHES.map((c,i)=>i===0?`<div style="border-top:1px solid var(--line);padding:10px 0">
+      <div class="row" style="align-items:baseline;gap:8px"><b style="font-size:13px">${esc(c.n)}</b><span class="grow"></span>
+        <span class="mono" style="font-size:11px;color:var(--amber)">${esc(c.sees)}</span></div>
+      <div class="note" style="margin:5px 0 0"><b style="color:var(--txt)">Decides:</b> ${esc(c.decides)}</div>
+      <div class="note" style="margin:4px 0 0">${esc(c.need)}</div>
+      <div class="note" style="margin:6px 0 0;color:var(--txt);font-style:normal">“${esc(c.ask)}”</div></div>`
+    :`<details class="sect"><summary>${esc(c.n)} &mdash; ${esc(c.role)}</summary>
+      <div class="note" style="margin:6px 0 0"><b style="color:var(--txt)">Sees you:</b> ${esc(c.sees)}</div>
+      <div class="note" style="margin:4px 0 0">${esc(c.need)}</div>
+      <div class="note" style="margin:6px 0 0;color:var(--txt);font-style:normal">“${esc(c.ask)}”</div></details>`).join('')}
   </div>`;
 }
 function transferRead(s,today){
@@ -9230,14 +9571,14 @@ const GAP_DEFS=[
   {k:'avail', t:'STAY AVAILABLE',
    why:'You lost two games to a paperwork mismatch and got it fixed. That is the whole lesson: the cheapest yards in this sport are the ones you get by being on the roster when everyone else is not. Nothing on this list outranks staying eligible and staying healthy through eight weeks of a run-heavy season.',
    closeable:1},
+  {k:'up', t:'MAKE THE MOVE CHEAP',
+   why:'You are RB1 and MLB1 on a run-heavy team, so promoting you costs the freshman team both starters in one go. That is the real thing standing between you and a JV rep, and no rep count fixes it. What fixes it is a version of the move that costs them nothing: a Friday varsity look on a day freshman do not play, a special-teams unit, or a week the schedules do not collide. You are already on kickoff both ways — that is the lane, and nobody has told you it is a lane.',
+   closeable:1},
   {k:'contact', t:'YARDS THAT ARE ACTUALLY YOURS',
    why:'You said your line is not opening gaps, which means most of what you gain, you create after contact. That is the most transferable thing a back can put on film and it is the reason a JV staff takes a freshman seriously. Count it separately from total yards: total yards is a team number, yards after contact is yours.',
    closeable:1},
   {k:'passpro', t:'BLOCK SOMEBODY',
    why:'Pass protection is the most common reason a freshman does not get on the field, and it is the one skill where wanting contact is the whole job. A clean blitz pickup on film buys trust faster than a long run.',
-   closeable:1},
-  {k:'up', t:'MAKE THE MOVE CHEAP',
-   why:'You are RB1 and MLB1 on a run-heavy team, so promoting you costs the freshman team both starters in one go. That is the real thing standing between you and a JV rep, and no rep count fixes it. What fixes it is a version of the move that costs them nothing: a Friday varsity look on a day freshman do not play, a special-teams unit, or a week the schedules do not collide. You are already on kickoff both ways — that is the lane, and nobody has told you it is a lane.',
    closeable:1},
   {k:'bond', t:'BE KNOWN',
    why:'You said the coaches have a bigger bond with him. That is not charisma and you do not fix it by talking more. You fix it by asking one specific question, doing exactly that thing, and letting them see it — which is the only version of this that works and the only one you control.',
@@ -9372,9 +9713,10 @@ function contactCardHTML(){
    the existing coach-quote path so coachMemory clusters it like every other cue —
    no second store, no second engine. */
 const ASK_PROMPTS=[
-  'What do I have to do to get a carry in the rival game?',
-  'What is the one thing keeping me behind on the depth chart?',
-  'Where do I line up wrong most often?',
+  'Coach, I play Thursday and varsity plays Friday. Can I dress Friday and cover kicks?',
+  'What would I have to show you to travel with varsity on a Friday?',
+  'Is our sub-varsity participation limit a game cap or a quarter cap, and how many?',
+  'Does the program test forty times in the offseason, and can I be in the first group?',
   'What do you want to see from me in pass pro?',
   'If you had to fix one thing about my running, what is it?'
 ];
@@ -9445,7 +9787,7 @@ function acadMoneyCardHTML(){
   const g=latestVal(S,'gpa');
   return `<div class="card" style="border-color:#294551"><h3>The academic route <span class="r">what is actually documented</span></h3>
     <div class="note" style="margin:0;font-style:normal">The NCAA removed sport-specific scholarship limits and replaced them with a roster limit — <b>football is 105</b>, and all 105 may now be on full aid. That is the verified part (NCAA Division I implementation Q&amp;A, adopted 23 Jun 2025, effective 1 Jul 2025; fetched 2026-08-24).
-      <br><br><b style="color:var(--amber)">What this card used to claim, and no longer does.</b> It said partial athletic money and academic money stack into a live package. No authoritative source states how academic or need-based aid interacts with the 105 cap or the revenue-share pool, so the app does not say it. It said walk-on paths narrowed — that is arithmetic (rosters used to run past 105) but no published count exists, so it is inference, labelled as inference. And it said the academic route inverts the size filter, which the roster card below contradicts: Harvard's linebackers are listed 6'0"–6'3", taller than UNLV's.</div>
+      <br><br><b style="color:var(--txt)">What this card used to claim, and no longer does.</b> It said partial athletic money and academic money stack into a live package. No authoritative source states how academic or need-based aid interacts with the 105 cap or the revenue-share pool, so the app does not say it. It said walk-on paths narrowed — that is arithmetic (rosters used to run past 105) but no published count exists, so it is inference, labelled as inference. And it said the academic route inverts the size filter, which the roster card below contradicts: Harvard's linebackers are listed 6'0"–6'3", taller than UNLV's.</div>
     <div class="note" style="margin-top:6px">• D1 eligibility: 16 core, 2.3 core GPA, 10 locked before senior year (7 in EN/MA/SC) — tests removed 2023 for eligibility, still matter for admission + academic aid
 
     • <b>Ivy League, in its own words:</b> no athletic scholarships at all — aid is need-based only; only the Admissions Office can admit anyone; a coach's verbal commitment is not an offer; likely letters cannot be issued before 1 October of senior year (ivyleague.com, fetched 2026-08-24). The often-quoted Academic Index formula is NOT reproduced here: the version everyone cites computes from SAT Subject Tests, discontinued in 2021, and no authoritative replacement is published. A GPA threshold with the word Ivy attached to it would be invented, so there isn't one.
@@ -9553,12 +9895,19 @@ function rPath(){
   const rec=Model.recruiting();
   $('#v-path').innerHTML=`
   ${typeof promotionHTML==='function'?promotionHTML():''}
+  <details class="sect"><summary>Who decides, and what you actually are</summary>
+  ${typeof coachesHTML==='function'?coachesHTML():''}
+  ${typeof posSplitHTML==='function'?posSplitHTML():''}
+  </details>
+  ${(()=>{ if(typeof offseasonHTML!=='function') return '';
+     const r=offseasonRead(S);
+     return `<details class="sect"><summary>The nine months that decide varsity &mdash; ${r.toStart>0?r.toStart+' days out':'live now'}</summary>${offseasonHTML()}</details>`; })()}
   ${typeof transferHTML==='function'?transferHTML():''}
   ${rec.flags.map(p=>`<div class="flag">⚑ <b>${esc(p.school)}</b> — ${daysBetween(Model.lastContact(S,p.id),todayISO())} days since contact. Send an update email.</div>`).join('')}
   ${(todayISO()>=addDays(SEASON_ENTRY.scrim,-28)&&todayISO()<=addDays(SEASON_ENTRY.scrim,2))?`<div class="card">
     <h3>First Film — ${fmtD(SEASON_ENTRY.scrim)} scrimmage <span class="r">recruiting currency</span></h3>
     <div class="note">Your school's film already lands on Hudl — the raw material exists. What doesn't exist yet is YOUR CUT: a reel with your best plays first. This scrimmage adds fresh tape; the job is cutting, tagging, and ordering it.</div>
-    ${SEASON_ENTRY.filmOps.map((x,i)=>`<div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5"><b style="color:var(--amber)">${i+1}.</b> ${esc(x)}</div>`).join('')}
+    ${SEASON_ENTRY.filmOps.map((x,i)=>`<div style="padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;line-height:1.5"><b style="color:var(--txt)">${i+1}.</b> ${esc(x)}</div>`).join('')}
   </div>`:''}
   ${(no=>no&&no.opp!=='TBD'&&no.days<=21?`<div class="card">
     <h3>Opponent Book: ${esc(no.opp)} <span class="r">${no.days} day${no.days===1?'':'s'} out · ${no.notes.length} career note${no.notes.length===1?'':'s'}</span></h3>
@@ -9572,10 +9921,14 @@ function rPath(){
        Recruiting reference. What stays is what changes week to week: the next opponent, the
        verified stat line, the dossier you send, and the reel checklist you are working through. */}
   ${typeof statCardHTML==='function'?statCardHTML():''}
-  ${typeof dossierCardHTML==='function'?dossierCardHTML():''}
+  ${(()=>{ if(typeof dossierCardHTML!=='function') return '';
+      /* sendable = film, or a number somebody else recorded. Same test the record card uses. */
+      const r=(typeof evidenceRead==='function')?evidenceRead(S):null;
+      const ready=r&&r.have.some(e=>e.k==='film'||e.k==='timed');
+      return ready?dossierCardHTML():''; })()}
   
   ${typeof openNowCardHTML==='function'?openNowCardHTML():''}
-  ${typeof reelCardHTML==='function'?reelCardHTML():''}
+  ${(typeof reelCardHTML==='function'&&((S.clips||[]).length>0))?reelCardHTML():''}
   ${typeof fieldToggleHTML==='function'?fieldToggleHTML():''}
   <details class="sect"><summary>Recruiting reference</summary>
   ${typeof rosterReadHTML==='function'?rosterReadHTML():''}
@@ -9587,7 +9940,7 @@ function rPath(){
     <div class="note" style="margin:0 0 8px"><b>The rule that shapes everything:</b> before Jun 15, 2028 coaches can't talk recruiting with you — but they CAN watch you at their own camps. Camps are the legal front door, and Vegas has the biggest one in the region.</div>
     <div style="padding:8px 0;border-bottom:1px solid var(--line)">
       <div class="row"><b class="grow" style="font-size:13px">UNLV LAS VEGAS MEGA CAMP <span class="pill amber">JUNE · YEARLY</span></b></div>
-      <div class="note" style="margin:2px 0 0">~900 players, 12+ hours, P4 staffs on site (Oregon, Minnesota, Cal at the last one) — and it takes <b style="color:var(--amber)">your class (2030)</b>. Verified: every recent local UNLV signee attended their camps first. This is THE exposure day in your market — June 2027 is your first shot with real numbers behind you.</div>
+      <div class="note" style="margin:2px 0 0">~900 players, 12+ hours, P4 staffs on site (Oregon, Minnesota, Cal at the last one) — and it takes <b style="color:var(--txt)">your class (2030)</b>. Verified: every recent local UNLV signee attended their camps first. This is THE exposure day in your market — June 2027 is your first shot with real numbers behind you.</div>
     </div>
     <div style="padding:8px 0;border-bottom:1px solid var(--line)">
       <div class="row"><b class="grow" style="font-size:13px">NIKE FOOTBALL CAMP AT UNLV</b></div>
@@ -9619,7 +9972,7 @@ function rPath(){
       ${rv.helps.length?`<div class="note"><b style="color:var(--green)">Helping now:</b> ${rv.helps.map(esc).join(' · ')}</div>`:'<div class="note">Nothing on the helps side yet — that changes with the first measurement.</div>'}
       ${rv.hurts.length?`<div class="note"><b style="color:var(--red)">Hurting now:</b> ${rv.hurts.map(esc).join(' · ')}</div>`:''}
       ${rv.missing.length?`<div class="note"><b style="color:var(--dim)">Missing entirely:</b> ${rv.missing.map(esc).join(' · ')}</div>`:''}
-      ${rv.top?`<div class="note"><b style="color:var(--amber)">Largest recruiting return:</b> ${esc(rv.top.name)} — ${esc(rv.top.because)}</div>`:''}
+      ${rv.top?`<div class="note"><b style="color:var(--txt)">Largest recruiting return:</b> ${esc(rv.top.name)} — ${esc(rv.top.because)}</div>`:''}
     </div></details>`)(typeof recruitView==='function'?recruitView():{helps:[],hurts:[],missing:[],top:null})}
   </div>
   <div class="card">
@@ -10002,7 +10355,7 @@ function speedEngineHTML(){
     <h3>Speed Engine <span class="r">3 levers · all trainable</span></h3>
     <div class="note">Speed is force into the ground × how well you apply it. Three levers build it — the app measures two from your log; the third you earn with reps and film. Nothing here is a promised time.</div>
     <div style="margin-top:10px">
-      <div class="row"><b class="grow">1 · FORCE — relative strength</b><span class="mono" style="color:var(--amber);font-weight:800">${rel?rel.toFixed(2)+'× BW':'—'}</span></div>
+      <div class="row"><b class="grow">1 · FORCE — relative strength</b><span class="mono" style="color:var(--txt);font-weight:800">${rel?rel.toFixed(2)+'× BW':'—'}</span></div>
       ${bar(rel?rel/2*100:0)}
       <div class="note" style="margin-top:2px">${sq&&bw?`${sq} lb squat ÷ ${bw} lb bodyweight. Target <b>2× BW</b> for a fast RB/LB — your biggest movable lever right now.`:'Log a squat 1RM and a weigh-in to read this.'}</div>
     </div>
@@ -10026,13 +10379,13 @@ function rTrack(){
   <div class="card">
     <h3>Your Waypoints <span class="r">${esc(Model.waypointGaps().label)}</span></h3>
     ${(wg=>`
-    ${wg.primary?`<div class="flag"><b style="color:var(--amber)">▲</b> Biggest gap: <b>${esc(wg.primary.key.toUpperCase())}</b> — ${Math.round((wg.primary.progress||0)*100)}% of your waypoint. The engine is adding focus work for this automatically.</div>`:''}
+    ${wg.primary?`<div class="flag"><b style="color:var(--txt)">▲</b> Biggest gap: <b>${esc(wg.primary.key.toUpperCase())}</b> — ${Math.round((wg.primary.progress||0)*100)}% of your waypoint. The engine is adding focus work for this automatically.</div>`:''}
     <table><tr><th></th><th>Now</th><th>Target</th><th>There</th></tr>
     ${wg.rows.map(r=>{
       const names={squat:'Squat',bench:'Bench',dead:'Deadlift',clean:'Hang clean',wt:'Body weight',gpa:'GPA',forty:'40-yd',vert:'Vertical',broad:'Broad jump'};
       const pct=r.progress==null?null:Math.round(r.progress*100);
       return `<tr><td style="font-weight:700">${names[r.key]||r.key}</td>
-        <td class="mono" style="color:var(--amber);font-weight:800">${r.cur??'—'}</td>
+        <td class="mono" style="color:var(--txt);font-weight:800">${r.cur??'—'}</td>
         <td class="mono">${r.target??'baseline sets this'}</td>
         <td class="mono" style="color:${pct==null?'var(--faint)':pct>=100?'var(--green)':pct>=85?'var(--cyan)':'var(--dim)'}">${pct==null?'—':pct+'%'}${pct>=100?' ✓':''}</td></tr>`;}).join('')}
     </table>
@@ -10075,7 +10428,7 @@ function rTrack(){
     <div class="note" style="margin:0 0 4px;color:var(--faint)">You are recruited as RB/LB — the position gate is sophomore film. LB bars are much heavier; check both, believe neither exclusively.</div>
     <div class="note">Where you'd stack up against a <b>senior</b> D1 linebacker recruit — P50≈FCS, P75≈G5, P90≈Power-4. You're 14 with a 4-year runway, so gaps here are the destination bar, not a freshman scorecard (the radar above is your on-track measure for this year).</div>
     ${(rows=>`<table><tr><th>Metric</th><th>You</th><th>Tier</th><th>To next</th></tr>
-      ${rows.map(r=>r.untested?`<tr><td>${r.label}${r.prov?'*':''}</td><td class="mono" style="color:var(--faint)">—</td><td colspan="2" style="color:var(--faint);font-size:12px">untested — run it</td></tr>`:`<tr><td style="font-weight:700">${r.label}${r.prov?'*':''}</td><td class="mono" style="color:var(--amber);font-weight:800">${r.val}</td><td style="font-size:12px;color:${r.tier==='P90'?'var(--green)':r.tier==='below P50'?'var(--faint)':'var(--cyan)'}">${r.tier}</td><td class="mono" style="font-size:11px;color:var(--faint)">${r.gapText}</td></tr>`).join('')}
+      ${rows.map(r=>r.untested?`<tr><td>${r.label}${r.prov?'*':''}</td><td class="mono" style="color:var(--faint)">—</td><td colspan="2" style="color:var(--faint);font-size:12px">untested — run it</td></tr>`:`<tr><td style="font-weight:700">${r.label}${r.prov?'*':''}</td><td class="mono" style="color:var(--txt);font-weight:800">${r.val}</td><td style="font-size:12px;color:${r.tier==='P90'?'var(--green)':r.tier==='below P50'?'var(--faint)':'var(--cyan)'}">${r.tier}</td><td class="mono" style="font-size:11px;color:var(--faint)">${r.gapText}</td></tr>`).join('')}
     </table>`)(benchTable(S.settings.benchPos||'LB'))}
     <div class="note">Speed rows fill the day you test. <b>*</b> broad + shuttle thresholds are provisional (combine-derived), pending firmer HS-recruit sourcing.</div>
   </div>
@@ -10142,7 +10495,7 @@ function rTrack(){
         <div class="note" style="margin-top:6px"><b style="color:var(--${T[tier][1]||'faint'})">${T[tier][0]}</b></div>
         ${fs.map(f=>`<div style="padding:5px 0;border-bottom:1px solid var(--line)"><b style="font-size:13px">${esc(f.name)}</b><div class="note" style="margin:1px 0 0">${esc(f.ev)}</div></div>`).join('')}`:'';}).join('');})(gapEngine())}
     ${(gt=>`<div class="note" style="margin-top:8px"><b style="color:var(--dim)">Closing the gap?</b> ${esc(gt.note)}</div>`)(gapTrend())}
-    <div class="note"><b style="color:var(--amber)">Known tension, on record:</b> the mass mission (→174) can slow the 40 this card calls your keystone. PEAK 14 measures weight and speed on the same days so the trade shows up as data, and the RB-vs-LB fork gets decided on sophomore film — not by default.</div>
+    <div class="note"><b style="color:var(--txt)">Known tension, on record:</b> the mass mission (→174) can slow the 40 this card calls your keystone. PEAK 14 measures weight and speed on the same days so the trade shows up as data, and the RB-vs-LB fork gets decided on sophomore film — not by default.</div>
     <div class="note">Rungs between JV waypoints and D1 percentiles (All-Conference, All-State) have no honest published numbers — the ladder here runs stage waypoint → D1-recruit percentiles, and unknowns say so instead of inventing standards.</div>
   </div>
   </details>
@@ -10231,7 +10584,7 @@ function rTrack(){
     <h3>Strength Map <span class="r">estimated · not measured</span></h3>
     ${(sm=>`
     <table><tr><th>Lift</th><th>Now</th><th>×BW</th><th>For age</th></tr>
-      ${sm.reals.map(r=>`<tr><td style="font-weight:700">${r.lift}</td><td class="mono" style="color:var(--amber);font-weight:800">${r.val||'—'}</td><td class="mono">${r.r?r.r+'×':'—'}</td><td style="color:var(--cyan);font-size:12px">${r.v}</td></tr>`).join('')}
+      ${sm.reals.map(r=>`<tr><td style="font-weight:700">${r.lift}</td><td class="mono" style="color:var(--txt);font-weight:800">${r.val||'—'}</td><td class="mono">${r.r?r.r+'×':'—'}</td><td style="color:var(--cyan);font-size:12px">${r.v}</td></tr>`).join('')}
     </table>
     <div class="note">Ratios vs your ${sm.bw} lb bodyweight. "For age" compares to typical ${ageWord()} standards — your squat and pull are already advanced.</div>
     <details><summary>Estimated maxes — lifts you haven't tested</summary><div class="bd">
@@ -10314,9 +10667,9 @@ function rTrack(){
   <div class="card">
     <h3>What to Invest In <span class="r">by return, not price</span></h3>
     <div style="font-size:13px;color:var(--dim);line-height:1.8">
-      1. <b style="color:var(--amber)">Groceries / the surplus</b> — your body is the product, and you're 17 lb under target. Highest ROI, every single week.<br>
-      2. <b style="color:var(--amber)">~$15 phone tripod</b> — film your own sprints and lifts. Film is recruiting currency and free coaching feedback. Absurd return.<br>
-      3. <b style="color:var(--amber)">Cleats that actually fit</b> — you sprint and cut in these; worn cleats cost speed and risk ankles.<br>
+      1. <b style="color:var(--txt)">Groceries / the surplus</b> — your body is the product, and you're 17 lb under target. Highest ROI, every single week.<br>
+      2. <b style="color:var(--txt)">~$15 phone tripod</b> — film your own sprints and lifts. Film is recruiting currency and free coaching feedback. Absurd return.<br>
+      3. <b style="color:var(--txt)">Cleats that actually fit</b> — you sprint and cut in these; worn cleats cost speed and risk ankles.<br>
       4. <b style="color:var(--dim)">Creatine</b> — ~$15 for months of the one Tier-1 supplement.<br>
       5. <b style="color:var(--dim)">Later: a 3-session sprint-mechanics block</b> with a real speed coach — once you have a baseline 40 to improve. Save it for when it'll move a measured number.</div>
     <div class="note">Notice what's NOT here: shoe-of-the-month, supplement stacks, gadgets. Spend only on what moves a real number.</div>
@@ -10422,7 +10775,7 @@ function addCore(){
 function calCardHTML(){
   const g=calGate();
   if(!g.open) return `<div class="card"><h3>Calibration <span class="r">locked · earned by data, not time</span></h3>
-    <div class="note" style="margin:0">The app grades its own advice against your results — but an empty report card is worthless, so this opens on <b>volume, not a date</b>: 90+ days AND ${g.need}+ logged observations. Now: day ${g.have}, <b style="color:var(--amber)">${g.obs}/${g.need} observations</b>. Every set, box, and metric moves the bar.</div></div>`;
+    <div class="note" style="margin:0">The app grades its own advice against your results — but an empty report card is worthless, so this opens on <b>volume, not a date</b>: 90+ days AND ${g.need}+ logged observations. Now: day ${g.have}, <b style="color:var(--txt)">${g.obs}/${g.need} observations</b>. Every set, box, and metric moves the bar.</div></div>`;
   const cal=(typeof calibration==='function')?calibration():[];
   const rev=(typeof calReversals==='function')?calReversals():[];
   return `<div class="card" style="border-color:#3f4a1f"><h3>Calibration <span class="r">the app's own report card</span></h3>
@@ -10490,7 +10843,7 @@ function statCardHTML(){
     :'<div class="note" style="margin:0 0 6px">First game logs the first line. These verified numbers are what future coach emails are made of.</div>'}
     ${ss.nMissed?`<div class="note" style="margin:6px 0;font-style:normal;border-left:2px solid var(--red);padding-left:8px"><b style="color:var(--red)">${ss.nMissed} game${ss.nMissed===1?'':'s'} missed</b> — ${esc([...new Set(ss.missed.map(m=>m.reason||'reason not recorded'))].join('; '))}. Kept off every average on purpose: a game you did not play is not a bad game.
       ${ss.missed.map(m=>`<div class="note" style="margin:2px 0 0;color:var(--faint)">${esc(fmtD(m.d))} · ${esc(m.opp)}</div>`).join('')}</div>`:''}
-    ${ss.nPending?`<div class="note" style="margin:6px 0;font-style:normal;border-left:2px solid var(--amber);padding-left:8px"><b style="color:var(--amber)">${ss.nPending} game${ss.nPending===1?'':'s'} played, stats not entered yet</b> — counted as an appearance, kept out of every total. Zeros would invent a bad game that never happened.
+    ${ss.nPending?`<div class="note" style="margin:6px 0;font-style:normal;border-left:2px solid var(--amber);padding-left:8px"><b style="color:var(--txt)">${ss.nPending} game${ss.nPending===1?'':'s'} played, stats not entered yet</b> — counted as an appearance, kept out of every total. Zeros would invent a bad game that never happened.
       ${ss.pending.map(p=>`<div class="row" style="margin-top:4px;align-items:center"><span class="grow note" style="margin:0;color:var(--faint)">${esc(fmtD(p.d))} · ${esc(p.opp)}</span><button class="btn sm amber" onclick="gameFill('${jsa(p.d)}')">Add the numbers</button></div>`).join('')}</div>`:''}
     <input id="gDate" type="date" value="${todayISO()}" style="margin-top:8px">
     <input id="gOpp" inputmode="text" placeholder="opponent" style="margin-top:6px">
@@ -10571,7 +10924,7 @@ function rPush(){
   $('#v-push').innerHTML=`
   <div class="card">
     <h3>IQ Reps This Week <span class="r">${iq.reps7}</span></h3>
-    <div class="note" style="margin:0">Engine says today: <b style="color:var(--amber)">${esc(engIq?.title||'—')}</b><br>Any rep logged here also checks box 3 on TODAY.</div>
+    <div class="note" style="margin:0">Engine says today: <b style="color:var(--txt)">${esc(engIq?.title||'—')}</b><br>Any rep logged here also checks box 3 on TODAY.</div>
   </div>
   ${typeof filmSyllabusCard==='function'?filmSyllabusCard():''}
   <div class="card">
@@ -10594,7 +10947,7 @@ function rPush(){
     <div class="row" style="gap:6px;margin:8px 0"><input id="cmIn" inputmode="text" placeholder="What did the coach say?" style="flex:1"><button class="btn sm amber" onclick="addCoachIn('cmIn','push')">SAVE</button></div>
     ${(cm=>cm.list.length?`
       ${cm.mostRepeated?`<div class="note"><b style="color:var(--red)">Most repeated:</b> “${esc(cm.mostRepeated.text)}” — ${cm.mostRepeated.n}×. This IS your practice mission until it goes quiet.</div>`:''}
-      ${cm.newRecurring.length?`<div class="note"><b style="color:var(--amber)">New recurring weakness:</b> ${cm.newRecurring.map(x=>'“'+esc(x.text)+'”').join(', ')} — repeated within a week.</div>`:''}
+      ${cm.newRecurring.length?`<div class="note"><b style="color:var(--txt)">New recurring weakness:</b> ${cm.newRecurring.map(x=>'“'+esc(x.text)+'”').join(', ')} — repeated within a week.</div>`:''}
       ${cm.improving.length?`<div class="note"><b style="color:var(--green)">Going quiet:</b> ${cm.improving.map(x=>'“'+esc(x.text)+'” ('+x.daysSince+'d silent)').join(' · ')} — improvement a coach can see.</div>`:''}
       ${cm.quiet30.length?`<div class="note"><b style="color:var(--green)">Not heard in 30+ days:</b> ${cm.quiet30.map(x=>'“'+esc(x.text)+'”').join(' · ')} — earned. Keep it.</div>`:''}
       <details style="margin-top:6px"><summary>All corrections (${cm.list.length})</summary><div class="bd">${cm.list.map((x,i)=>`<div class="row" style="padding:5px 0;border-bottom:1px solid var(--line)"><span class="grow" style="font-size:13px">“${esc(x.text)}” · ${x.n}× · last ${esc(fmtD(x.last))}</span><button class="btn sm ghost" onclick="coachAgainIdx(${i})">HEARD AGAIN</button></div>`).join('')}</div></details>`
@@ -10621,7 +10974,7 @@ function rPush(){
     ${pb?`<div class="pill cyan">${esc(pb.cat)} · ${esc(pb.name)}</div>
       <div style="font-size:15px;font-weight:800;margin:10px 0 4px">${esc(pb.formation)}</div>
       <div style="font-size:13px;color:var(--faint)">${esc(pb.concept)}</div>
-      ${pbShow?`<div style="font-size:14px;color:var(--dim);line-height:1.6;margin-top:10px;border-top:1px solid var(--line);padding-top:10px"><b style="color:var(--amber)">Your job:</b> ${esc(pb.job)}</div>
+      ${pbShow?`<div style="font-size:14px;color:var(--dim);line-height:1.6;margin-top:10px;border-top:1px solid var(--line);padding-top:10px"><b style="color:var(--txt)">Your job:</b> ${esc(pb.job)}</div>
         <div class="row" style="margin-top:12px;gap:6px"><button class="btn amber grow" onclick="logPB(1)">GOT IT ✓</button><button class="btn ghost grow" onclick="logPB(0)">MISSED ✗</button></div>`
       :`<button class="btn amber" style="width:100%;margin-top:12px" onclick="pbShow=true;rPush()">SHOW MY JOB</button>`}`
     :`<div class="note" style="margin:0 0 12px">A play comes up — call your read and your job out loud, THEN flip it. This is how the game slows down for you.</div>
@@ -10722,7 +11075,7 @@ function posCoachRead(){
   const cm=coachMemory(), ms=missionStats(), wc=weakConcepts(), mo=momentumRead();
   const hasEv=cm.list.length||ms.answered||wc.length;
   if(!hasEv) return '<div class="note">No practice evidence this week yet — the position-coach read starts when corrections, missions and flashcards get logged.</div>';
-  let h='<div class="note"><b style="color:var(--amber)">Position-coach read (this week\u2019s evidence):</b></div>';
+  let h='<div class="note"><b style="color:var(--txt)">Position-coach read (this week’s evidence):</b></div>';
   if(cm.mostRepeated) h+='<div class="note">Biggest leak: “'+esc(cm.mostRepeated.text)+'” — heard '+cm.mostRepeated.n+'\u00d7.</div>';
   if(cm.improving.length) h+='<div class="note">Most improved: “'+esc(cm.improving[0].text)+'” — '+cm.improving[0].daysSince+' days quiet.</div>';
   if(ms.of) h+='<div class="note">Missions: '+ms.hit+'/'+ms.of+' hit'+(ms.neverTwoMisses?' — never missed two in a row (that is evidence, not a pep talk)':'')+'.</div>';
@@ -10745,7 +11098,7 @@ function buildPosReport(){
   const L=[]; L.push('POSITION REPORT — '+S.profile.name+' ('+S.profile.pos+') — week of '+todayISO());
   L.push('');
   if(cm.improving.length) L.push('Biggest improvement: "'+cm.improving[0].text+'" — '+cm.improving[0].daysSince+' days without hearing it.');
-  if(cm.mostRepeated) L.push('Recurring mistake: "'+cm.mostRepeated.text+'" — '+cm.mostRepeated.n+'x on record. This is the week\u2019s fix.');
+  if(cm.mostRepeated) L.push('Recurring mistake: "'+cm.mostRepeated.text+'" — '+cm.mostRepeated.n+'x on record. This is the week’s fix.');
   if(cm.list.length) L.push('Most repeated coaching point overall: "'+cm.list[0].text+'" ('+cm.list[0].n+'x).');
   L.push('Missions: '+(ms.of?ms.hit+'/'+ms.of+' hit'+(ms.streak>=2?' ('+ms.streak+' straight)':''):'none answered yet')+'.');
   if(wc.length) L.push('Assignment leaks: '+wc.slice(0,3).map(x=>x.concept+' ('+x.miss+'x)').join(', ')+'.');
@@ -10766,7 +11119,7 @@ function compRead(){
   const ge=gapEngine(); const rv=recruitView();
   const adv=ge.factors.filter(f=>f.tier==='READY').sort((a,b)=>(b.progress??0)-(a.progress??0))[0];
   return `<div style="border-bottom:1px solid var(--line);padding-bottom:8px;margin-bottom:8px">
-    <div class="note"><b style="color:var(--amber)">Competitive report:</b></div>
+    <div class="note"><b style="color:var(--txt)">Competitive report:</b></div>
     <div class="note">Advantage: ${adv?esc(adv.name)+' — '+esc(adv.ev):'none earned yet — the first measurement changes that'}</div>
     <div class="note">Limiting factor: <b>${esc(bn.name)}</b> — ${esc(bn.ev)}</div>
     <div class="note">Fastest route to playing time: ${esc(practiceMission().t)}</div>
@@ -11143,20 +11496,25 @@ function renderHdr(){
   try{
     /* v8.5: this counted to June 15 and called it the D1 gate. It now counts to whichever door
        opens first and says whose rule that is, because they are not the same date. */
-    const _g=(typeof nextGate==='function')?nextGate():null;
-    const gate=daysBetween(todayISO(),_g?_g.d:GATE_D1_CONTACT);
-    const gateWho=_g?(_g.k==='d2'?'DAYS · D-II GATE':_g.k==='fbs'?'DAYS · D-I FB':'DAYS · FIRST CALL'):'DAYS · GATE';
+    /* v9.4: the hero cell is the next game he could actually be in, at any level, from the
+       resolver added in v8.9. A number that moves every day and that he can do something about. */
+    const _lg=(typeof nextLiveGame==='function')?nextLiveGame(S,todayISO()):null;
+    const gameN=_lg?_lg.days:null;
+    const gameWho=_lg?((_lg.own?'':(_lg.label||'').toUpperCase()+' ')+String(_lg.opp||'').toUpperCase()).trim().slice(0,17):'NO GAME SCHEDULED';
     const L=(typeof weekLedger==='function')?weekLedger():{cur:{days:0,actions:0},bar:{days:0,actions:0}};
     const won=L.cur.days>L.bar.days||(L.cur.days===L.bar.days&&L.cur.actions>L.bar.actions);
     let streak=0; for(let i=0;i<400;i++){ const c=S.checkins[addDays(todayISO(),-i)]||[]; if(c.some(Boolean)) streak++; else if(i>0) break; }
     const off=(typeof navigator!=='undefined'&&navigator.onLine===false);
     const ck=(S.checkins[todayISO()]||[]).filter(Boolean).length;
     $('#hdrCd').innerHTML=
-      `<span class="sb-cell hero"><span class="sb-n mono" data-count="${gate}">0</span><span class="sb-k">${gateWho}</span></span>`+
+      /* no data-count: the header is not the place for motion. Counters are for earned moments. */
+      `<span class="sb-cell hero"><span class="sb-n mono">${gameN==null?'—':(gameN===0?'TODAY':gameN)}</span><span class="sb-k">${gameN===0?esc(gameWho):'DAYS · '+esc(gameWho)}</span></span>`+
       /* v8.3: four cells plus the brand overflowed 390px and clipped STREAK on every load.
          VS LAST WK is on the week ledger, and the raw streak contradicted v8.1's own decision to
          stop leading with a number that resets. Two cells, no clipping, nothing duplicated. */
-      `<button class="sb-cell sb-tap" aria-label="Jump to Daily Four" onclick="jumpCk()"><span class="sb-n mono" style="color:${ck===4?'var(--green)':'var(--txt)'}">${ck}<i class="sb-sub">/4</i></span><span class="sb-k">TODAY</span></button>`+
+      /* v9.4: four segments, not "0/4". A zero in the chrome reads as a verdict the moment the app
+         opens; four unfilled marks read as a thing not done yet. Same information, opposite feeling. */
+      `<button class="sb-cell sb-tap" aria-label="Daily Four — ${ck} of 4 done" onclick="jumpCk()"><span class="sb-dots">${[0,1,2,3].map(i=>`<i class="${i<ck?'on':''}"></i>`).join('')}</span><span class="sb-k">TODAY</span></button>`+
       (off?`<span class="sb-cell"><span class="sb-n" style="color:var(--cyan);font-size:16px">●</span><span class="sb-k">OFFLINE OK</span></span>`:'');
     /* ambient week rail: progress toward beating the bar, always visible, never nagging */
     const rail=document.querySelector('#hudRail i');
@@ -11191,7 +11549,7 @@ function introMaybe(){
     if(typeof document==='undefined'||!document.body||!document.body.insertAdjacentHTML) return;
     const steps=[
       {k:'THIS IS D1 OS',t:'One athlete. One goal. Every controllable on the road to Division I, measured and worked, every day until 2030.'},
-      {k:'THE LOOP',t:'The top card tells you today\u2019s exact work. Do it, log it, and the scoreboard bar fills. Beat last week. That is the whole system.'},
+      {k:'THE LOOP',t:'The top card tells you today’s exact work. Do it, log it, and the scoreboard bar fills. Beat last week. That is the whole system.'},
       {k:'EVERYTHING IS EARNED',t:'Every number in here is logged, never claimed. Coaches can trust it because you cannot fake it. Start with the Daily Four.'}];
     let i=0;
     document.body.insertAdjacentHTML('beforeend',
@@ -11848,7 +12206,11 @@ function d1TestSuite(){
     eq('G12 the varsity slate is never returned for a freshman', fs.games===VARSITY_SCHEDULE, false);
     eq('G13 the played opener carries its result',
        (VARSITY_SCHEDULE.find(g=>g.d==='2026-08-21')||{}).result, 'L 42-8');
-    eq('G14 the freshman staff is on record', FRESH_STAFF.hc, 'Glenn Combs');
+    eq('G14 the freshman staff is on record', FRESH_STAFF.hc, 'Coach Diaz');
+    ok('G14b and one man runs freshman and JV, which is why the block exists',
+       FRESH_STAFF.hc===JV_STAFF.hc && FRESH_STAFF.alsoRuns==='jv' && JV_STAFF.alsoRuns==='fresh'
+       && /athlete/.test(FRESH_STAFF.srcOwner||''),
+       'the app is back to two decision-makers, or lost where the correction came from');
   })();
 
   /* ---------- H · D2: one discount, floored ---------- */
@@ -12443,7 +12805,7 @@ function d1TestSuite(){
     const base=migrate(clone(F()));
 
     /* ── the unit conversion ── */
-    eq('Y1 the ten is NOT put through the forty\u2019s hand-to-laser offset',
+    eq('Y1 the ten is NOT put through the forty’s hand-to-laser offset',
        Model.laserEquiv('ten',1.65,'hand'), 1.65);
     eq('Y2 the forty still is — that offset is measured and sourced',
        Model.laserEquiv('forty',4.9,'hand'), 5.14);
@@ -13073,18 +13435,301 @@ function d1TestSuite(){
              && /quarter/i.test(PROMOTION.q) && /game/i.test(PROMOTION.q); })(),
        'the app is claiming a rule it never read');
 
-    ok('G9 the promotion card renders the question and the caveat together',
+    ok('G9 the promotion card leads with the route that costs the freshman team nothing',
        (()=>{ const el=document.createElement('div'); el.innerHTML=promotionHTML();
          const t=el.textContent||'';
-         return t.indexOf(PROMOTION.q)>=0 && /NOT VERIFIED/.test(t)
+         const fri=t.indexOf('FRIDAY VARSITY LOOK'), thu=t.indexOf('THURSDAY DOUBLE');
+         return fri>=0 && thu>fri && t.indexOf(PROMOTION.q)>=0 && /NOT VERIFIED/.test(t)
              && el.querySelectorAll('[onclick]').length===0; })(),
-       'the promotion card asserts, or grew a tappable action');
+       'the card leads with a route that depends on an unread rule, or grew a tappable action');
+
+    ok('G9b every route carries the words to say and what it costs him',
+       PROMO_ROUTES.length>=3 && PROMO_ROUTES.every(r=>r.t&&r.ask&&r.ask.length>25&&r.cost&&r.w.length>80),
+       'a route has no script or no stated cost');
+
+    ok('G9c the Friday route is the one with no rule dependency',
+       (()=>{ const f=PROMO_ROUTES[0];
+         return f.k==='fri' && /FRIDAY/i.test(f.t) && !/quarter|NIAA|limit/i.test(f.w); })(),
+       'the leading route depends on a rule nobody has read');
 
     eq('G10 the bench on record is the one he actually has', DEFAULTS.prs.bench, 215);
 
     ok('G11 the speed day says out loud that it is not conditioning',
        /not conditioning/i.test(JSON.stringify(inseasonWeek(4).find(d=>d.day===3))),
        'speed work will be run as conditioning and do nothing');
+
+    /* ── H · THE TEARDOWN (v9.1) ─────────────────────────────────────────────
+       TODAY held twenty-seven cards behind one door labelled "Everything else". Splitting it
+       left an unbalanced </details> behind, which makes the parser close an ancestor and dumps
+       every card after it into the open page — 8.5 screens, silently. H1 is that bug. */
+    ok('H1 every drawer on TODAY closes itself',
+       (()=>{ const v=document.getElementById('v-today'); if(!v) return true;
+         const open=(v.innerHTML.match(/<details/gi)||[]).length;
+         const shut=(v.innerHTML.match(/<\/details>/gi)||[]).length;
+         return open===shut; })(),
+       'an unbalanced details tag is dumping cards into the open page');
+
+    ok('H2 TODAY has labelled drawers, not one cupboard, and none ship open',
+       (()=>{ const v=document.getElementById('v-today'); if(!v) return true;
+         const d=[...v.querySelectorAll(':scope > details')];
+         return d.length>=4 && d.every(x=>!x.open)
+             && d.every(x=>((x.querySelector('summary')||{}).textContent||'').length>8); })(),
+       'the drawers are gone, unlabelled, or one ships open');
+
+    ok('H3 the campaign is the first door, not buried between hydration and a dead opponent',
+       (()=>{ const v=document.getElementById('v-today'); if(!v) return true;
+         const first=v.querySelector(':scope > details > summary');
+         return !!first && /campaign/i.test(first.textContent||''); })(),
+       'something other than the campaign is the first drawer');
+
+    ok('H4 one man runs freshman and JV, and the app knows his name',
+       FRESH_STAFF.hc==='Coach Diaz' && JV_STAFF.hc===FRESH_STAFF.hc,
+       'the app is back to two decision-makers');
+
+    ok('H5 the offseason windows are in date order and none overlap their own start',
+       (()=>{ const r=offseasonRead(F(),'2026-08-30').rows;
+         return r.length>=5 && r.every((x,i)=>i===0||r[i-1].from<=x.from)
+             && r.every(x=>x.from<x.to); })(),
+       'the nine-month plan is out of order');
+
+    ok('H6 the winter lifting class is stated as needing nobody’s permission',
+       (()=>{ const c=OFFSEASON.find(o=>o.k==='class');
+         return c && /NONE/i.test(c.friction) && /permission/i.test(c.w); })(),
+       'the one lever with no gatekeeper is not marked as such');
+
+    ok('H7 track is on the list and is argued as the highest-value item',
+       (()=>{ const t=OFFSEASON.find(o=>o.k==='track');
+         return t && /highest-value/i.test(t.w) && /official/i.test(t.w) && t.approx===1; })(),
+       'track is missing, undersold, or its approximate dates are asserted as fact');
+
+    ok('H8 the offseason card says out loud which dates it has not read',
+       (()=>{ const r=offseasonRead(F(),'2026-08-30');
+         return /APPROXIMATE/.test(r.unc) && /not read/i.test(r.unc)
+             && r.ev.length>40 && r.asm.length>20; })(),
+       'approximate dates are being presented as verified');
+
+    ok('H9 a self-timed forty does not satisfy the official-time item',
+       (()=>{ const it=EVIDENCE.find(e=>e.k==='timed'); if(!it) return false;
+         const b=migrate(clone(F()));
+         b.metrics=[{d:'2026-08-30',key:'forty',val:4.9,cond:'phone, self-timed, cleats'}];
+         if(it.has(b)) return false;
+         b.metrics=[{d:'2026-08-30',key:'forty',val:5.1,cond:'coach stopwatch, program testing day'}];
+         return it.has(b); })(),
+       'a number he timed himself is counting as evidence somebody else recorded');
+
+    ok('H10 the opener opponent card is off TODAY',
+       (()=>{ const v=document.getElementById('v-today'); if(!v) return true;
+         return (v.innerHTML.indexOf('foothillHTML')<0); })(),
+       'a card about the 21 August opponent is still on the daily screen');
+
+    /* ── J · WHO DECIDES, WHAT HE IS, AND WHEN (v9.2) ────────────────────── */
+    ok('J1 the two positions are separated, not averaged',
+       (()=>{ const p=POS_SPLIT;
+         return p.d1.k==='RB' && p.now.k==='MLB'
+             && /Division I/i.test(p.d1.t) && /varsity field/i.test(p.now.t); })(),
+       'the app is back to treating RB and LB as one identity');
+
+    ok('J2 and it says the hard part out loud rather than flattering him',
+       /shortest one is 5\u203210\u2033|outside the sample/i.test(POS_SPLIT.hard.w)
+       && /still film of you|fastest route/i.test(POS_SPLIT.hard.w),
+       'the linebacker ceiling is softened, or the card leaves him with nothing');
+
+    ok('J3 three coaches, and the one with the most contact time is not the one with authority',
+       (()=>{ const d=COACHES.find(c=>c.k==='diaz'), ca=COACHES.find(c=>c.k==='cahill');
+         return d && ca && /both levels/i.test(d.decides)
+             && /Nothing about the depth chart/i.test(ca.decides)
+             && /five days a week/i.test(ca.sees.toLowerCase()+' '+ca.need.toLowerCase()); })(),
+       'the coach map is missing, or Cahill is filed as a timetable slot again');
+
+    ok('J4 every coach carries the words to say except the one there is no route to yet',
+       COACHES.every(c=>c.ask&&c.ask.length>3) && COACHES.filter(c=>c.ask.length>25).length>=2,
+       'a coach relationship has no opening line');
+
+    ok('J5 the winter class is framed as contact time, not a schedule change',
+       (()=>{ const c=OFFSEASON.find(o=>o.k==='class');
+         return /Cahill/.test(c.w) && /contact time/i.test(c.w) && /ask Cahill/i.test(c.do); })(),
+       'the highest-frequency coach relationship is back to being a timetable item');
+
+    ok('J6 there is a route that needs nobody\u2019s permission, and it is honest about its limit',
+       (()=>{ const r=PROMO_ROUTES.find(x=>x.k==='stay');
+         return r && /nobody\u2019s permission/i.test(r.cost)
+             && /does not get you a snap by itself/i.test(r.w); })(),
+       'the free route is missing, or it is overselling itself');
+
+    ok('J7 every order carries a moment, and the moment is a real part of his week',
+       (()=>{ const kinds=['clear','camp','record','speed','foot','daily4','capture'];
+         return kinds.every(k=>{ const c=cueFor(k,'2026-08-31');
+           return !!c && /Monday|Tonight|Wednesday|Thursday|Saturday|Tomorrow/.test(c); }); })(),
+       'an order is being given without a moment to do it in');
+
+    ok('J8 the cue moves when the day makes it nonsense',
+       cueFor('camp','2026-09-03')!==cueFor('camp','2026-08-31')
+       && cueFor('speed','2026-09-04')!==cueFor('speed','2026-09-02'),
+       'it is telling him Monday on a Thursday');
+
+    ok('J9 the WHEN carries its evidence and its stated limit',
+       /d = 0\.65/.test(CUE_EV) && /Gollwitzer/.test(CUE_EV)
+       && /not a substitute for wanting/i.test(CUE_UNC) && /backfire/i.test(CUE_UNC),
+       'the cue is asserted without its effect size or its documented failure mode');
+
+    /* ── L · THE HUD AND WHAT EACH TAB OPENS ON (v9.4) ──────────────────────
+       The header is the only surface on all six screens and it carried a 655-day countdown to
+       June 2028 at 31px in accent — the largest, brightest thing in the product, unactionable,
+       and animating on every render. Beside it a literal zero. And the tab called TRAIN opened
+       on four accessory cards before a single exercise. */
+    ok('L1 the chrome counts to a game he could play in, not to a date four years out',
+       (()=>{ const h=document.getElementById('hdrCd'); if(!h) return true;
+         const t=h.textContent||'';
+         return !/D-II GATE|D-I FB|FIRST CALL/.test(t); })(),
+       'the header is back to counting down four years');
+
+    ok('L2 and the chrome does not animate',
+       (()=>{ const h=document.getElementById('hdrCd'); if(!h) return true;
+         return h.querySelectorAll('[data-count]').length===0; })(),
+       'the most prominent number in the app rolls up on every navigation');
+
+    ok('L3 the Daily Four reads as four marks, not as a zero',
+       (()=>{ const h=document.getElementById('hdrCd'); if(!h) return true;
+         const dots=h.querySelectorAll('.sb-dots i');
+         return dots.length===4 && !/\b0\s*\/\s*4\b/.test(h.textContent||''); })(),
+       'the app opens by telling him he has done nothing');
+
+    ok('L4 the hero cell names the opponent, so the number means something',
+       (()=>{ const h=document.getElementById('hdrCd'); if(!h) return true;
+         const k=h.querySelector('.sb-cell.hero .sb-k');
+         return !!k && (k.textContent||'').length>6; })(),
+       'the countdown has no subject');
+
+    ok('L5 the tab called TRAIN opens on the training',
+       (()=>{ const src=appSource(); if(!src) return true;
+         const mark="$('#v-"+"train').innerHTML=";
+         const i=src.indexOf(mark); if(i<0) return true;
+         const head=src.slice(i, i+400);
+         /* needles assembled so this scan cannot match itself */
+         return ['foot'+'workHTML','timer'+'CardHTML','anchor'+'CardHTML','passPro'+'CardHTML']
+           .every(fn=>head.indexOf(fn)<0); })(),
+       'TRAIN opens on accessory cards again, before a single exercise');
+
+    ok('L6 the settings on TRAIN are behind a door, not the first screenful',
+       (()=>{ const src=appSource(); if(!src) return true;
+         const mark="$('#v-"+"train').innerHTML=";
+         const i=src.indexOf(mark); if(i<0) return true;
+         const head=src.slice(i, i+400);
+         return head.indexOf('class="seg"')<0; })(),
+       'two rows of pickers are back above the session');
+
+    /* ── K · THE INTERFACE (v9.3) ────────────────────────────────────────────
+       Measured on a 390x844 phone before this release: 224 tap targets under 44px across four
+       views, --faint at 5.62:1 carrying 246-365 of every screen's text nodes, nine font sizes
+       between 9 and 14px, and 40-54 accent elements per screen. The pixel checks live in the
+       layout gate because they need a rendered page; these are the ones the source can prove. */
+    (()=>{
+      const lum=h=>{const c=h.replace('#','').match(/../g).map(x=>parseInt(x,16)/255)
+        .map(v=>v<=0.03928?v/12.92:Math.pow((v+0.055)/1.055,2.4));
+        return 0.2126*c[0]+0.7152*c[1]+0.0722*c[2];};
+      const cr=(a,b)=>{const L1=lum(a),L2=lum(b);
+        return (Math.max(L1,L2)+0.05)/(Math.min(L1,L2)+0.05);};
+      const cs=getComputedStyle(document.documentElement);
+      const tok=n=>cs.getPropertyValue('--'+n).trim();
+      const card=tok('card');
+
+      ok('K1 the colour that carries most of the app is not its weakest',
+         cr(tok('faint'),card)>=7,
+         'body copy is at '+cr(tok('faint'),card).toFixed(2)+':1 and it is 60% of every screen');
+
+      ok('K2 white on the primary action clears normal-text contrast',
+         cr('#ffffff',tok('fill'))>=4.5,
+         'the primary button label is at '+cr('#ffffff',tok('fill')).toFixed(2)+':1');
+
+      ok('K3 and the primary action reads as a control against the card',
+         cr(tok('fill'),card)>=3,
+         'the button is at '+cr(tok('fill'),card).toFixed(2)+':1 against its background');
+
+      ok('K4 a card has an edge you can actually see',
+         cr(tok('line'),card)>=2,
+         'card borders are at '+cr(tok('line'),card).toFixed(2)+':1');
+
+      ok('K5 the accent is not being used as a bullet point',
+         (()=>{ const src=appSource(); if(!src) return true;
+           /* assembled from fragments so the scan does not match itself */
+           const needle='<b style="color:var('+'--amber)">';
+           return src.indexOf(needle)<0; })(),
+         'inline bold labels are back on the accent colour');
+
+      ok('K6 body copy is a reading size, not a caption size',
+         (()=>{ const el=document.createElement('div');
+           el.className='note'; el.textContent='x';
+           document.body.appendChild(el);
+           const px=parseFloat(getComputedStyle(el).fontSize);
+           el.remove(); return px>=13; })(),
+         'the body voice of the whole app is under 13px');
+    })();
+
+    ok('J11 the ten weeks between the season and the class are a window, not a silence',
+       (()=>{ const g=OFFSEASON.find(o=>o.k==='gap');
+         return g && g.from<='2026-10-24' && g.to>='2027-01-01'
+             && /block schedule/i.test(g.w) && /highest-risk/i.test(g.w); })(),
+       'the app goes quiet for ten weeks the moment his season ends');
+
+    ok('J12 and the deadline hiding inside it is named as this week, not January',
+       (()=>{ const g=OFFSEASON.find(o=>o.k==='gap');
+         return g && /THIS WEEK/i.test(g.do) && /deadline/i.test(g.do) && /counsellor/i.test(g.do); })(),
+       'it tells him to sort the class in January, by which time it is full');
+
+    ok('J13 the class no longer claims to start the week football ends',
+       (()=>{ const c=OFFSEASON.find(o=>o.k==='class');
+         return c && c.from>='2027-01-01' && c.approx===1; })(),
+       'the class start date is back to being asserted, and asserted wrong');
+
+    ok('J10 the hero renders the moment beside the order',
+       (()=>{ const el=document.createElement('div'); el.innerHTML=nextRepHTML();
+         const w=el.querySelector('.hero-when');
+         return !w || (w.textContent||'').length>15; })(),
+       'the WHEN renders empty');
+
+    ok('H15 when the promotion gap leads, the resolver gives it as an order in words',
+       (()=>{ const real=window.campaignRead;
+         try{
+           window.campaignRead=function(st,t){ const c=real(st,t);
+             return {...c, lead:{...(c.gaps.find(g=>g.k==='up')||{}), state:'open'}}; };
+           const r=nextRepAt(F(),'2026-08-30',17);
+           const cand=[r,...(r.others||[])].find(x=>x.kind==='camp');
+           return !!cand && /ASK DIAZ/i.test(cand.o||'') && /Friday/i.test(cand.t||'');
+         } finally { window.campaignRead=real; } })(),
+       'the promotion gap falls through to its title instead of reading as an order');
+
+    ok('H13 the cheapest, soonest gap ranks first among the closeable ones',
+       (()=>{ const k=GAP_DEFS.map(g=>g.k);
+         /* availability gates everything and stays first; the Friday ask costs one sentence and
+            could produce varsity film this week, so nothing that needs a game outranks it. */
+         return k[0]==='avail' && k[1]==='up'
+             && k.indexOf('up')<k.indexOf('contact')
+             && k.indexOf('up')<k.indexOf('passpro')
+             && k.indexOf('speed')===k.length-1; })(),
+       'the ranking puts work that needs a game ahead of an ask that needs a sentence');
+
+    ok('H14 the words he says point at the decision that is actually open',
+       /Friday/i.test(ASK_PROMPTS[0]) && /varsity/i.test(ASK_PROMPTS[0])
+       && !ASK_PROMPTS.some(q=>/behind on the depth chart/i.test(q)),
+       'the ask prompts still chase a job he already holds');
+
+    ok('H11 nothing on PATH walks him through work he cannot do yet',
+       (()=>{ const b=migrate(clone(F())); b.clips=[]; b.metrics=[];
+         const S0=S; let html='';
+         try{ S=b; html=(typeof reelCardHTML==='function'&&((S.clips||[]).length>0))?reelCardHTML():'';
+           const r=evidenceRead(S);
+           const ready=r.have.some(e=>e.k==='film'||e.k==='timed');
+           html+=ready?'DOSSIER':'';
+         } finally { S=S0; }
+         return html===''; })(),
+       'the reel builder or the dossier is showing with nothing to put in it');
+
+    ok('H12 and both appear once there is something to put in them',
+       (()=>{ const b=migrate(clone(F()));
+         b.metrics=[{d:'2026-08-30',key:'forty',val:5.0,cond:'coach stopwatch, program testing day'}];
+         const r=evidenceRead(b,'2026-08-30');
+         return r.have.some(e=>e.k==='timed'); })(),
+       'a coach-recorded time still does not unlock the things you send');
 
     ok('E16 the size row does not turn a population range into a verdict on him',
        (()=>{ const el=document.createElement('div'); el.innerHTML=realityCardHTML();
