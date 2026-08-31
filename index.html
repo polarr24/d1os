@@ -1,4 +1,46 @@
-<!DOCTYPE html><!-- d1os v9.4 -->
+<!DOCTYPE html><!-- d1os v10.0 -->
+<!-- CHANGELOG
+     v10.0 — WAR ROOM. And the correction that mattered more than the whole revamp.
+     HE HAS NOT PLAYED A GAME. On 30 August he answered "cleared, and I've played" and four
+     releases were built on it. On 31 August, asked what happened against Sierra Vista, he answered
+     "not eligiable" — and under direct questioning: cleared for PRACTICE only, zero games played,
+     one scrimmage of three plays a month ago, TWO freshman games already gone, the IC/RMA address
+     mismatch still the blocker, his mum going into the office in person on Tuesday, and if it
+     lands he starts Thursday against Green Valley both ways. First real game of his career.
+     v8.9 had softened this gate from asserting to asking, precisely because I believed he was
+     cleared. That was the wrong call made from the wrong fact and it weakened the single most
+     important thing in the product. It asserts again, the eyebrow says NOT CLEARED TO PLAY
+     instead of the opposite, and the copy names Tuesday and the exact thing to ask: whether it
+     will be ACTIVE before Thursday, not merely submitted. E17 encoded the false belief and now
+     encodes the true one; ELIGIBILITY is a first-class fact rather than a sentence in a card.
+     FOUR TABS. WORK · HULK · FIELD · PATH, opening on WORK — the session, which is the one screen
+     he said he would keep. PATH and PUSH were words he had to learn; these are not. go('today')
+     and go('plan') survive as aliases because handlers all over this file call them.
+     THE PALETTE. Asked what it should feel like he said a war room; asked about colour, black
+     with one violent accent and green for Hulk. Blue is wrong for that and was always wrong for
+     the other reason: it is the first thing to disappear in Las Vegas glare. Sodium #FFB020 at
+     10.48:1 with BLACK labels at 11.48:1 — the pairing every instrument panel converged on, and
+     measurably better than white-on-blue at 4.51:1.
+     PROJECT HULK. He said the target was "bigger than humanly possible". At 5'9" that would cost
+     him the thing he is chasing, so the app says so and gives him the real one: carry the most
+     mass you can without losing a step. Graded on THREE numbers — bodyweight climbing, squat÷
+     bodyweight holding, vertical holding — because the literature gives a mechanism and not a
+     threshold, and bodyweight alone is the least informative of the three. 0.34 lb/week gets him
+     to 178 by next August, inside the 0.4–0.8 lean band, so nothing has to be forced.
+     SPEED, CORRECTED. Hand timing reads 0.22–0.26s fast against electronic (Mann et al., JSCR
+     2015, n=81) and self-timing is worse; his 4.9 was self-timed, so a laser most likely shows
+     5.15–5.30. laserEquiv now knows three timing states instead of two, and sprintMoved refuses
+     to call anything under 0.14s progress. The speed day stopped citing "three runs a week" as
+     evidence — it is a coaching heuristic, and one rested session moved a 30m time 0.18s in ten
+     weeks. Sled load is prescribed with a stopwatch, not plates.
+     DELETED: the academic-money card, because he said he would never miss it.
+     Suite 636/636 (was 628). Layout PASS on four views. 72 mutation probes.
+     THREE BUGS I MADE AND THE GATES CAUGHT: a slice edit that would have deleted 25KB of
+     unrelated file; a moved block that referenced eight locals from the view it left, found one
+     ReferenceError at a time until I read the original declaration list instead; and M3, which
+     scanned the source for a string its own regex contained — the self-matching bug for the third
+     time in this file's history.
+-->
 <!-- CHANGELOG
      v9.4 — THE HUD SAID "WAIT 655 DAYS". v9.3 fixed tokens; this fixes what the product SAYS.
      THE HEADER IS THE ONLY SURFACE ON ALL SIX SCREENS, and it carried a countdown to 15 June 2028
@@ -509,16 +551,22 @@
   /* v7.50 — BLUE / BLACK. Palette verified with computed WCAG ratios, not by eye:
      accent text #60A5FA 7.3:1 on card · primary fill #2563EB carries white at 5.2:1
      · faint 5.6:1 · dim 8.3:1. One hue, one neutral ramp, nothing decorative. */
-  --bg:#08090C; --bg2:#0C0F14; --card:#101319; --card2:#161A22;
-  --line:#464E5E; --line2:#5A6373;   /* v9.3: 1.20 -> 2.22:1 — card edges were invisible */
-  --txt:#F4F6F8; --dim:#A7AEB8; --faint:#9BA3AF;   /* v9.3: faint 5.62 -> 7.31:1 — it is 60% of every screen */
-  --amber:#60A5FA;         /* accent (name kept for API stability across 4 years of code) */
-  --amber-dim:#1E3A5F;
-  --fill:#2F6FF0;          /* v9.3: white text 4.51:1 AND 4.12:1 against the card, so the primary
-                              action reads as a control rather than a coloured rectangle (WCAG 1.4.11) */
-  --cyan:#94A3B8;          /* steel: targets + secondary data */
+  --bg:#08090A; --bg2:#0B0C0F; --card:#0E0F12; --card2:#141619;
+  --line:#464C56; --line2:#5A616D;   /* 2.22 · 2.94:1 — clears the 2:1 bar the gate sets */
+  --txt:#F2F4F6; --dim:#A8AEB6; --faint:#9AA1AA;   /* 17.38 · 8.57 · 7.35:1 on the card */
+  --amber:#FFB020;         /* SODIUM. The one violent accent. Name kept: it has meant "the
+                              accent" since v7 and renaming it would touch a thousand lines. */
+  --amber-dim:#4A3208;
+  --hulk:#3DDC5C;          /* v10.0 · reserved for the size campaign and nothing else, so that
+                              green in this app always means exactly one thing */
+  --hulk-dim:#12301B;
+  --on-fill:#08090A;       /* black on sodium: 11.48:1, the strongest pairing in the palette */
+  --fill:#FFB020;          /* primary action. Black on it is 11.48:1 and the fill is 10.48:1
+                              against the card, so it reads as a control from across a field. */
+  --cyan:#8E9AA8;          /* steel: targets + secondary data. Deliberately colourless — in a
+                              war room the only saturated things are the ones that need you. */
   --cyan-dim:#2B3948;
-  --green:#4ADE80; --red:#F87171; --radius:14px; --glow:none;
+  --green:#3DDC5C; --red:#FF453A; --radius:12px; --glow:none;
 }
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 html{font-size:100%}  /* v7.57: was 16px — that silently overrode the user's text-size
@@ -587,7 +635,7 @@ main{padding:18px 16px 8px;max-width:560px;margin:0 auto}
   border:1px solid var(--line2);color:var(--txt);border-radius:10px;
   padding:11px 14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;
   transition:transform .12s,box-shadow .12s,border-color .12s}
-.btn.amber{background:var(--fill);border-color:var(--fill);color:#fff;
+.btn.amber{background:var(--fill);border-color:var(--fill);color:var(--on-fill);font-weight:900;
   box-shadow:none;text-shadow:none}
 .btn.ghost{background:transparent}
 .btn.sm{padding:7px 10px;font-size:12px;border-radius:9px}
@@ -695,7 +743,7 @@ details .bd{padding:10px 0 4px;font-size:13px;color:var(--dim);line-height:1.55}
 .hero-rec{position:relative;display:flex;gap:6px;margin-top:10px}
 .hero-rec .btn{flex:1;min-height:40px;font-size:12px;background:transparent;
   border-color:rgba(255,255,255,.10);color:var(--faint)}
-.hero-rec .btn.amber{background:var(--fill);border-color:var(--fill);color:#fff}
+.hero-rec .btn.amber{background:var(--fill);border-color:var(--fill);color:var(--on-fill);font-weight:900}
 /* the open-items rail — one line instead of nine cards */
 /* v8.3 · the daily four. Four taps is the single most repeated interaction in the app and it
    rendered as four small outlined rectangles with a hairline circle in them. Big targets, a real
@@ -903,6 +951,17 @@ main{padding:26px 20px 12px}
 /* v9.3 · the tertiary voice, for sources, timestamps and provenance — the things you read once.
    Everything else uses .note, which is now a reading size. */
 .note.q{font-size:12px;color:var(--faint);opacity:.82}
+/* v10.0 · PROJECT HULK. The only green in the app, so green always means one thing: size. */
+.card.hulk{border-color:var(--hulk-dim)}
+.card.hulk h3{color:var(--hulk)}
+.card.hulk .r{color:var(--hulk)}
+.hulk-gates{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:4px}
+.hulk-gate{border:1px solid var(--line);border-radius:10px;padding:11px 8px;text-align:center;background:var(--card2)}
+.hulk-gate.on{border-color:var(--hulk-dim);background:linear-gradient(180deg,rgba(61,220,92,.07),transparent)}
+.hg-v{font-family:var(--disp);font-weight:400;font-size:26px;letter-spacing:.02em;color:var(--txt);line-height:1}
+.hulk-gate.on .hg-v{color:var(--hulk)}
+.hg-k{font-size:10.5px;font-weight:800;letter-spacing:.09em;color:var(--dim);margin-top:5px;text-transform:uppercase}
+.hg-w{font-size:10px;color:var(--faint);margin-top:2px}
 details{border-top:1px solid var(--line);padding:14px 0}
 details summary{font-size:13px;letter-spacing:.01em}
 table{font-size:12.5px}
@@ -923,7 +982,10 @@ body{padding-bottom:calc(112px + env(safe-area-inset-bottom))!important}
 .seg button{min-height:44px}
 .pill{min-height:28px;display:inline-flex;align-items:center}
 .btn.sm{min-height:36px}
-.setdot{width:30px;height:30px}
+.setdot{width:44px;height:44px;box-sizing:border-box;padding:7px;
+  background-clip:content-box;background-origin:content-box;border:none;
+  box-shadow:inset 0 0 0 2px var(--line2);border-radius:15px}
+.setdot.on{box-shadow:inset 0 0 0 2px var(--amber)}
 #nav button{min-height:56px}
 /* 4 · keyboard + switch-control users had no visible focus anywhere (a11y gap) */
 :focus-visible{outline:2px solid var(--amber);outline-offset:2px;border-radius:6px}
@@ -1076,7 +1138,7 @@ body.field{--bg:#f5f6f7;--card:#ffffff;--txt:#0a0d12;--dim:#3a4250;--faint:#5b64
   --line:#c7ccd4;--cyan:#1D4ED8;--amber:#2563EB;--green:#1c6b3a;--red:#a01b1b}
 body.field .card{box-shadow:0 1px 3px rgba(0,0,0,.12)}
 body.field .btn{border-width:2px;font-weight:800}
-body.field .btn.amber{background:#2563EB;color:#fff;border-color:#1D4ED8}
+body.field .btn.amber{background:var(--fill);color:var(--on-fill);border-color:var(--fill)}
 body.field .note{color:#3a4250}
 body.field .mono{color:#0a0d12}
 body.field #hdr,body.field nav{background:#ffffff;border-color:#c7ccd4}
@@ -1200,7 +1262,7 @@ body.field details.sect .card{background:#fbfbfc}
 .pc-c{aspect-ratio:1;min-width:44px;min-height:44px;border:1px solid var(--line);border-radius:8px;background:var(--bg2);color:var(--dim);font-size:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;padding:0;font-family:inherit}
 .pc-c.empty{border:none;background:none;cursor:default}
 .pc-c.has{color:var(--txt)}
-.pc-c.today{border-color:var(--amber);color:var(--amber);font-weight:800}
+.pc-c.today{border-color:var(--amber);color:var(--txt);font-weight:800}
 .pc-c.sel{background:var(--amber-dim);border-color:var(--amber);color:var(--txt)}
 .pc-dots{display:flex;gap:2px;height:5px;align-items:center}
 .pc-dots i{width:5px;height:5px;border-radius:99px;display:inline-block}
@@ -1235,14 +1297,7 @@ body.field details.sect .card{background:#fbfbfc}
   <section class="view" id="v-push"></section>
   <section class="view" id="v-plan"></section>
 </main>
-<nav id="nav" aria-label="Main">
-  <button data-v="today" aria-label="Today"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="2.5" fill="currentColor"/></svg></span>TODAY</button>
-  <button data-v="train" aria-label="Train"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg></span>TRAIN</button>
-  <button data-v="path" aria-label="Path — recruiting"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4l9 3-3 4 8 2"/></svg></span>PATH</button>
-  <button data-v="track" aria-label="Track — data"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span>TRACK</button>
-  <button data-v="push" aria-label="Push — football IQ"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 6.2L21 12l-6.8 2.8L12 21l-2.2-6.2L3 12l6.8-2.8z"/></svg></span>PUSH</button>
-  <button data-v="plan" aria-label="Plan — calendar"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4.5" width="18" height="16.5" rx="2"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg></span>PLAN</button>
-</nav>
+<nav id="nav" aria-label="Main"><button data-v="train" aria-label="WORK"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h7l-1 8 10-12h-7z"/></svg></span>WORK</button><button data-v="track" aria-label="HULK"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg></span>HULK</button><button data-v="push" aria-label="FIELD"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.2 6.2L21 12l-6.8 2.8L12 21l-2.2-6.2L3 12l6.8-2.8z"/></svg></span>FIELD</button><button data-v="path" aria-label="PATH"><span class="ic"><svg aria-hidden="true" focusable="false" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 21V4M5 4l9 3-3 4 8 2"/></svg></span>PATH</button></nav>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 const PLAYBOOK = [
@@ -2267,6 +2322,23 @@ const MED_ITEMS=[
    semesters from Grade 9; 180 days of continuous enrollment avoids transfer status.
    NOT VERIFIED and therefore rendered as unverified: the physical's validity window, fees, and
    any Basic-Academy-specific step (the school page blocks automated fetch). Confirm at the office. */
+/* v10.0 · THE DATE EVERYTHING IS DOWNSTREAM OF. He has played no games. Two are gone. The fix is
+   one appointment his mum is making in person, and if it lands he starts Thursday. */
+const ELIGIBILITY={
+  state:'practice-only',
+  blocker:'The address on Infinite Campus does not match the address on RMA, so Aktivate will not clear you for games.',
+  fix:'Your mum goes into the school office in person on Tuesday.',
+  fixDate:'2026-09-01',
+  gamesLost:2, gamesPlayed:0,
+  ifItWorks:'You start Thursday against Green Valley, both ways. First real game of your career.',
+  ev:'From you, 31 August 2026.',
+  unc:'Nobody has told you whether clearance is same-day. If it is not, Thursday is at risk — which makes the ask on Tuesday "will this be active before Thursday", not just "please fix it".'};
+function eligibilityRead(s,today){
+  today=today||todayISO();
+  const d=daysBetween(today,ELIGIBILITY.fixDate);
+  return {...ELIGIBILITY, toFix:d, fixToday:d===0, fixPast:d<0,
+    headline:ELIGIBILITY.gamesPlayed===0?'You have not played a game this season':'Clearance is still open'};
+}
 const CLEARANCE_ITEMS=[
   {k:'aktivate',label:'Aktivate registration submitted',hard:1,opts:['done','not yet'],
    why:'Registration runs through Aktivate — nothing else starts until this exists.',verified:1},
@@ -2791,7 +2863,7 @@ const DEEP={
   asym:{t:'Your plant foot is a training target',
     b:'You plant LEFT to cut right, which means your left leg is your braking leg on that cut and your right side does less of that work. Braking force has to be built on BOTH limbs — asymmetry costs change-of-direction performance and raises injury risk. Practically: do single-leg landings, sprint-to-stops and lateral decelerations leading with your weaker side first, and do one extra set on it.'},
   doms:{t:'Your soreness peaks on day TWO',
-    b:'You said the first day is mediocre and the second is worse. That is textbook delayed-onset soreness, which peaks roughly 24\u201348 hours after the session. The practical consequence: a heavy lower-body day placed two days before a game lands its worst soreness ON game day. Heavy legs go early in the week or right after a game — never 48 hours before one.'},
+    b:'You said the first day is mediocre and the second is worse. That is textbook delayed-onset soreness, which peaks roughly 24–48 hours after the session. The practical consequence: a heavy lower-body day placed two days before a game lands its worst soreness ON game day. Heavy legs go early in the week or right after a game — never 48 hours before one.'},
   venue:{t:'Your training venues, and what each is for',
     b:'Apartment gym any time, a park five minutes away, plus a commercial gym. That is more access than most athletes have, so access is not your limiter — starting is. Use it like this: the apartment gym is for anything loaded and weather-proof, the park is for sprint, deceleration and jump work when it is not dangerous outside, and in Vegas that means before 9am or after sundown. Heat is a medical risk, not a toughness test.'},
   recog:{t:'"I saw it late" is the fastest thing you can fix',
@@ -3849,7 +3921,7 @@ function icsBuild(st,today){
   st=st||S; today=today||todayISO();
   const E=icsEntries(st,today);
   const stamp=icsAt(today,12*60)+'Z';
-  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//D1 OS//v9.4//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH',
+  const L=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//D1 OS//v10.0//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH',
     'X-WR-CALNAME:'+icsEsc(ICS_CAL),
     'X-WR-CALDESC:'+icsEsc('Generated by D1 OS on '+today+'. To refresh: delete the "'+ICS_CAL+'" calendar, then import the new file.')];
   for(const e of E){
@@ -4984,7 +5056,7 @@ const EVIDENCE=[
   kk:'NO SPEED NUMBER EXISTS',
   cost:'A running back is sorted on speed before anyone opens his film. You have none on record, so the benchmark engine in this app — built exactly for this — has nothing to compare.',
   act:'Use the tap timer in TRAIN — MARK START, MARK FINISH. It logs the forty and the ten with their conditions, and applies the hand-timing correction itself. Three runs, keep the best.',
-  ev:'The TNS position guide puts D1 running backs at a 4.4\u20134.6 forty.',
+  ev:'The TNS position guide puts D1 running backs at a 4.4–4.6 forty.',
   unc:'Hand timing is roughly a quarter-second fast, which is why this app converts it rather than taking it at face value.',
   asm:'Assumes a measured slow number beats no number. It does — you cannot aim training at a gap you have not measured.'},
 
@@ -6744,6 +6816,8 @@ function playerCardHTML(){
   </div>`;
 }
 
+/* v10.0 · hoisted out of rToday: a constant lookup table used by the drawers that moved to WORK. */
+const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊',prep:'🔥',earn:'🏈',film:'🎬',coach:'📣'};
 function rToday(){
   const plan=decide(), ck=ckToday(), done=ck.filter(Boolean).length, con=Model.consistency();
   const o1=oneThing(plan);
@@ -6766,7 +6840,8 @@ function rToday(){
     const n=c.filter(Boolean).length;
     dots+=`<i class="${n===4?'hit':n>0?'part':''}"></i>`;
   }
-  const taskIc={iq:'✦',recruit:'➤',academic:'🎓',setup:'⚙',test:'⏱',backup:'⬇',fuel:'🍽',dispatch:'📨',report:'📊',prep:'🔥',earn:'🏈',film:'🎬',coach:'📣'};
+
+
   /* v7.85 — TODAY IS THREE THINGS.
      The ledger shipped as a 26th card stacked on the 25 it was meant to replace, so the screen
      said "do this one thing" and "do these five things" at once — worse than before it existed.
@@ -6795,7 +6870,161 @@ function rToday(){
   ${typeof railHTML==='function'?railHTML():''}
   ${typeof gainStripHTML==='function'?gainStripHTML():''}
 
-  <details class="sect" id="todayCampaign"><summary>The campaign &mdash; what decides whether you play above freshman</summary>
+  `;
+}
+function addNote(){ const t=($('#dailyNote').value||'').trim(); if(!t){toast('Write one line first');return;} (S.notes=S.notes||[]).push({d:todayISO(),text:t}); save(); rToday(); toast('Note saved ✓'); }
+function delNote(i){ if(!S.notes||i<0||i>=S.notes.length) return; S.notes.splice(i,1); save(); rToday(); }
+/* Weekly Dispatch — receipts + asks, generated from live state (the changelog #4) */
+function buildDispatch(){
+  const con=Model.consistency(), mom=Model.momentum(), wtr=Model.weightTrend(), plan=decide();
+  const prs=S.events.filter(e=>e.type==='pr'&&e.meta&&daysBetween(e.d,todayISO())<7);
+  const asks=[];
+  if(plan.tasks.some(t=>t.kind==='fuel')) asks.push('Mom: weight stalled — extra PB + whole milk in the rotation this week');
+  if(!taskDone('env:film')&&phaseFor(todayISO())!=='offseason') asks.push('Cousin: confirm who films this week\'s game');
+  if(!Model.baselineDone()) asks.push('Cousin: 20 min Saturday — time my 40 + measure vert/broad');
+  if(!taskDone('setup:verify')) asks.push('Me: get game day + film + coach answers at practice');
+  if(!asks.length) asks.push('Nothing needed this week — machine is running');
+  return `ZAYDEN · WEEK OF ${fmtD(todayISO())}
+━━━━━━━━━━━━━━
+DONE: Daily Four ${Math.round(con.rate7*100)}% · ${mom.sets7} sets logged${prs.length?' · PR: '+prs.map(e=>e.meta.ex+' '+e.meta.val).join(', '):''}${wtr.latest?` · weight ${wtr.latest}`:''}
+PHASE: ${plan.phase.toUpperCase()}${wtr.enough?` · 3wk trend ${wtr.delta>=0?'+':''}${wtr.delta} lb`:''}
+THIS WEEK: ${plan.workout.title} + the plan runs itself
+NEEDS:
+${asks.map(a=>'• '+a).join('\n')}
+━━━━━━━━━━━━━━
+2030 · RB/LB · the gap is the plan`;
+}
+function copyDispatch(){
+  const txt=buildDispatch();
+  completeTask('dispatch:'+todayISO());
+  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(()=>toast('Dispatch copied — paste it in the chat'));
+  else toast('Copy manually:'), console.log(txt);
+  rToday();
+}
+function saveReview(){
+  S.reviews.push({d:todayISO(),worked:$('#rvW').value.trim(),broke:$('#rvB').value.trim(),fix:$('#rvF').value.trim()});
+  save(); rToday(); toast('Logged. Next week starts informed.');
+}
+function tglCk(i){
+  const c=ckToday(); const was=c.every(Boolean);
+  c[i]=!c[i]; save(); rToday();
+  if(c.every(Boolean)&&!was){
+    const st=(typeof Model!=='undefined'&&Model.consistency)?(Model.consistency().streak||0):0;
+    celebrate(st>1?st+' DAYS. UNBROKEN.':'DAILY FOUR. CLEAN SHEET.', st>=7);
+  } else haptic('tap');
+}
+function doneTask(id,apply){
+  completeTask(id);
+  if(apply==='kcal300'){ S.params.kcalAdj.v+=300; S.params.kcalAdj.basis='stall response '+todayISO(); save();
+    toast('Done ✓ — daily target is now '+fuelPlan(Model.gaps().latest('wt')||160,S.params.kcalAdj.v).cal+' kcal'); }
+  else toast('Done ✓');
+  rToday();
+}
+
+/* ---- TRAIN ---- */
+let trainDay=null;
+function plates(t){ let s=(t-45)/2; if(s<=0) return 'bar only';
+  const o=[]; for(const p of [45,25,10,5,2.5]){ while(s>=p){o.push(p);s-=p;} } return o.join(' + ')+' /side'; }
+let gymMode='full';
+function setGym(m){gymMode=m;rTrain();}
+function aptSession(w){
+  const t=(w&&w.title)||'', D=w?w.day:new Date().getDay();
+  const mk=(title,why,blocks)=>({title,why,blocks,day:D});
+  if(/UPPER|BENCH/.test(t)) return mk('APARTMENT · UPPER','No barbell needed — DB + bodyweight hits the same qualities. Move with intent.',[
+    {n:'A · Explosive push-ups',s:'5×5 — hands leave the floor, reset each rep'},
+    {n:'A · DB floor press (or loaded backpack)',s:'4×8 — controlled down, drive up'},
+    {n:'B · Feet-elevated / pike push-ups',s:'3×8-12 — your overhead-press swap'},
+    {n:'B · Inverted rows (under a sturdy table) or DB row',s:'4×10 — pull elbows past the ribs'},
+    {n:'C · Chin-ups if you have a bar, else backpack curls',s:'3×AMRAP'},
+    {n:'D · Neck 4-way + plank',s:'2×15 · 3×30s'}]);
+  if(/LOWER|CONTRAST|40|VERT|SPEED/.test(t)) return mk('APARTMENT · LOWER + SPEED','Take it outside — the speed and power work barely needs a gym.',[
+    {n:'A · Sprint mechanics + accel (grass, cleats)',s:'Wall drill 3×5 · 6×20yd from a 2-point, full walk-back'},
+    {n:'A · Jump progression',s:'Pogos 3×10 · broad jumps 4×3 (stick it) · depth-to-broad if legs are fresh'},
+    {n:'B · DB/goblet Bulgarian split squat',s:'3×8/leg — hold anything heavy'},
+    {n:'B · Single-leg DB hip thrust',s:'3×10/leg — sprint power lives here'},
+    {n:'C · Nordic curl (anchor your feet) + calf raises',s:'3×6 · 3×20'},
+    {n:'D · Ball security + hard cuts (your football)',s:'5 points of pressure · 10 cuts each way'}]);
+  if(/ATHLETICISM|POSITION/.test(t)) return mk('APARTMENT · ATHLETICISM','Field day. Football, gloves, cleats — compete against yourself.',[
+    {n:'A · 5-10-5 shuttle (cousin/phone times it)',s:'4 reps, full recovery'},
+    {n:'A · Approach + broad jumps',s:'5×3 each'},
+    {n:'B · Position drills with your ball',s:'Cuts, ball security, tracking — 15 min quality'},
+    {n:'C · Easy strides',s:'4×20yd smooth'}]);
+  return {...TEMPLATES.recoveryTemplate,day:D};
+}
+function rTrain(){
+  const plan=decide();
+  /* v10.0 · WORK absorbed TODAY's drawers, which were written against these render-time locals.
+     One declaration site beats six ReferenceErrors found one page-load at a time. */
+  const o1=(typeof oneThing==='function')?oneThing(plan):{kind:null};
+  const hero=(typeof nextRep==='function')?nextRep(S):null;
+  const heroKind=hero?hero.kind:o1.kind;
+  const o1rec=(typeof todayRec==='function')?todayRec(heroKind):null;
+  const o1eff=(typeof recEffFor==='function')?recEffFor(heroKind):null;
+  const ck=(typeof ckToday==='function')?ckToday():(S.checkins[todayISO()]||[false,false,false,false]);
+  const done=ck.filter(Boolean).length;
+  const con=(typeof Model!=='undefined'&&Model.consistency)?Model.consistency():null;
+  const sil=(typeof silentDays==='function')?silentDays():0;
+  const week=weekFor(S,todayISO());
+  let w=trainDay===null?plan.workout:(week.find(x=>x.day===trainDay)||TEMPLATES.restDay);
+  if(gymMode==='sore') w={...TEMPLATES.recoveryTemplate,day:w.day,title:'TOO SORE · RECOVERY',why:'Listen to the body — mobility, easy movement, food, sleep. Back hard tomorrow.'};
+  else if(gymMode==='apt') w=aptSession(w);
+  const recent=S.lifts.slice(-5).reverse();
+  const dl=plan.deload;
+  /* v8.0: footwork leads TRAIN. It is the named weak point, it is dosed, and it is the block most
+     likely to be skipped if it sits below a lifting session. */
+  $('#v-train').innerHTML=`
+
+  ${typeof nextRepHTML==='function'?nextRepHTML():''}
+  ${typeof captureStripHTML==='function'?captureStripHTML():''}
+  ${typeof railHTML==='function'?railHTML():''}
+  ${typeof gainStripHTML==='function'?gainStripHTML():''}
+
+<div class="card">
+    <h3>${esc(w.title)} ${w.day===new Date().getDay()?'<span class="r" style="color:var(--amber)">TODAY</span>':''}</h3>
+    ${w.recovery?'':`<details style="border-top:none;border-bottom:1px solid var(--line)"><summary style="color:var(--cyan)">WARM-UP FIRST <span class="pill cyan">6-8 min · cuts injuries 30-46%</span></summary>
+      <div class="bd">${WARMUP[/SPEED|ATHLETICISM|TEMPO/.test(w.title)?'field':'lift'].map(x=>'• '+esc(x)).join('<br>')}</div></details>`}
+    ${(()=>{const isToday=w.day===new Date().getDay();const sess=isToday?(S.sessions[todayISO()]||(S.sessions[todayISO()]=w.blocks.map(()=>false))):null;
+    return w.blocks.map((b,i)=>{
+      let load='';
+      /* v7.79: the bar weight now comes from the PROGRESSION engine — training max (evidence-led)
+         x block% x this week's wave x any comeback deload. Loads climb inside a cycle and the
+         cycle restarts higher, instead of sitting on a static PR forever. */
+      if(b.pct&&b.lift&&typeof prescribe==='function'){
+        const px=prescribe(S,b.lift,b.pct);
+        if(px){ const wv=px.cycle&&px.cycle.have?px.cycle:null;
+          load=`<div class="note mono">→ <b style="color:var(--cyan)">${px.lb} lb</b> (${Math.round(b.pct*100)}% of ${px.tm} TM${wv&&wv.mult!==1?' · '+wv.label+' ×'+wv.mult:''}${px.dl<1?' ×'+Math.round(px.dl*100)+'%':''}) · ${plates(px.lb)}</div>`; }
+      }
+      const done=sess&&sess[i];
+      /* v7.44 GYM MODE: the screen a strength coach and a product designer would build together.
+         Sets are DOTS you tap one at a time (not one checkbox for a whole exercise), the
+         prescribed weight is the biggest thing on the row, and completing a set auto-starts
+         rest. Reading a wall of text mid-workout is how sessions decay. */
+      const nSets=(m=>m?+m[1]:0)(String(b.s).match(/^(\d+)\s*[×x]/));
+      const doneSets=(typeof setDotsGet==='function')?setDotsGet(todayISO(),i):0;
+      const dots=nSets?Array.from({length:nSets},(_,k)=>`<i class="setdot ${k<doneSets?'on':''}" onclick="event.stopPropagation();tapSet(${i},${nSets})"></i>`).join(''):'';
+      const wt=(b.pct&&b.lift&&typeof prescribe==='function')?((px=>px?px.lb:null)(prescribe(S,b.lift,b.pct))):null;
+      return `<div class="exrow ${done?'is-done':''} ${(!done&&isToday&&doneSets>0&&doneSets<nSets)?'is-live':''}" ${isToday?`onclick="tglBlock(${i})"`:''}>
+        <div class="row" style="align-items:flex-start">
+          <div class="grow">
+            <div class="exname">${done?'✓ ':''}${esc(b.n)}</div>
+            <div class="exsets">${esc(b.s)}</div>
+            ${(w2=>w2?`<div class="note" style="margin-top:3px;color:var(--faint)">⚡ ${esc(w2)}</div>`:'')(liftWhy(b.n))}
+            ${dots?`<div class="setrow">${dots}<span class="setct mono">${doneSets}/${nSets}</span></div>`:''}
+          </div>
+          ${wt!=null?`<div class="exwt"><div class="exwt-n mono">${wt}</div><div class="exwt-k">LB · ${Math.round(b.pct*100)}%${dl<1?' ×'+Math.round(dl*100)+'%':''}</div><div class="exwt-p">${plates(wt)}</div></div>`:''}
+          ${isToday?`<div class="box" style="width:22px;height:22px;border:2px solid ${done?'var(--amber)':'var(--line)'};border-radius:6px;background:${done?'var(--amber)':'transparent'};flex-shrink:0;margin-left:8px"></div>`:''}
+        </div></div>`;}).join('');})()}
+    ${!w.recovery?`<div class="row" style="margin-top:12px">
+      <button class="btn grow" id="restBtn" onclick="restTimer(150)">⏱ REST 2:30</button>
+      <button class="btn ghost" onclick="restTimer(15)">CONTRAST 0:15</button>
+    </div><div class="note">Contrast pairs: jump within ~15s of racking. Between full sets: 2–3 min. The timing IS the method.<br>Solo at the apartment gym today? Skip anything marked SPOTTER/EOS — swap in the pause variant or DB work. Max attempts happen at EOS only, cousin present.</div>`:''}
+    <div class="note"><b style="color:var(--cyan)">2026 dosing:</b> work sets end at 1–3 reps in reserve — grind the last rep speed, never the form. On accessory lifts, the last set can extend with lengthened partials (bottom-half reps after full-ROM failure): 2025 meta-analysis shows a small real edge for growth at long muscle lengths. Small edge, not magic — the surplus and sleep still outrank it.</div>
+  </div>
+    ${''/* v8.4: everything from the cycle read down to the plyo counter used to render here —
+       4,502px measured, five and a half phone screens of reference below the work. It is all still
+       one tap away in the drawer below. What stays above it is what you act on with a bar in your
+       hands: the footwork block, the timer, the anchors, the day pickers and today's session. */}
+<details class="sect" id="todayCampaign"><summary>The campaign &mdash; what decides whether you play above freshman</summary>
   ${typeof ladderHTML==='function'?ladderHTML():''}
   ${typeof campaignHTML==='function'?campaignHTML():''}
   ${typeof askCardHTML==='function'?askCardHTML():''}
@@ -6824,13 +7053,13 @@ function rToday(){
   ${typeof playerCardHTML==='function'?playerCardHTML():''}
   </details>
 
-  <details class="sect" id="todayHouse"><summary>Housekeeping</summary>
+  <details class="sect" id="todayHouse"><summary>Housekeeping and reference</summary>
   ${(typeof clearanceRead==='function'&&typeof clearanceCardHTML==='function'&&!clearanceRead(S).clear)?clearanceCardHTML():''}
   ${typeof cutRiskCardHTML==='function'?cutRiskCardHTML():''}
   ${typeof statusCardHTML==='function'?statusCardHTML():''}
   ${typeof returnCardHTML==='function'?returnCardHTML():''}
   ${typeof installCardHTML==='function'?installCardHTML():''}
-  ${typeof closeoutCardHTML==='function'?closeoutCardHTML(o1rec):''}
+  ${typeof closeoutCardHTML==='function'?closeoutCardHTML((typeof todayRec==='function'&&typeof nextRep==='function')?todayRec(nextRep(S).kind):null):''}
   ${typeof assignHTML==='function'?assignHTML():''}
   ${typeof sundayNudgeHTML==='function'?sundayNudgeHTML():''}
   ${(sil=>sil>=5?`<div class="card" style="border-color:#294551">
@@ -6927,7 +7156,7 @@ function rToday(){
         <div class="note" style="margin-top:3px">${esc(t.why)}</div></div>
       ${t.kind!=='iq'?`<button class="btn sm" onclick="doneTask('${jsa(t.id)}','${jsa(t.apply||'')}')">DONE</button>`:''}</div></div>`).join('')}</div>`:''}
   <div class="card">
-    <h3 id="ckAnchor">Daily Four <span class="r">${done}/4</span></h3>
+    <h3 id="ckAnchor">Daily Four <span class="r">${(S.checkins[todayISO()]||[]).filter(Boolean).length}/4</span></h3>
     ${CHECKS.map((c,i)=>`<div class="chk ${ck[i]?'done':''}" onclick="tglCk(${i})">
       <div class="box">${ck[i]?'✓':''}</div>
       <div><div class="t">${c.t}</div><div class="s">${c.s}</div></div></div>`).join('')}
@@ -6954,7 +7183,9 @@ function rToday(){
       <div class="grow" style="font-size:13px;color:var(--dim)">full day${won===1?'':'s'} won in the last 30.<br>
         <span style="color:var(--faint)">${con.streak>0?con.streak+' in a row right now — but a day you could not log never takes one of these away.':'A day you cannot log never takes one of these away.'}</span></div>
     </div>`;})()}
-    <div class="dots">${dots}</div>
+    <div class="dots">${(()=>{ let d=''; for(let k=27;k>=0;k--){
+      const cc=S.checkins[addDays(todayISO(),-k)]||[], nn=cc.filter(Boolean).length;
+      d+='<i class="'+(nn>=4?'hit':nn>0?'part':'')+'"></i>'; } return d; })()}</div>
   </div>
   ${(ms=>`<div class="card"><h3>Milestones <span class="r">${ms.filter(b=>b.earned).length}/${ms.length} earned</span></h3>
     <div style="display:flex;flex-wrap:wrap;gap:6px">${ms.map(b=>`<span class="pill ${b.earned?'green':''}" style="${b.earned?'':'opacity:.45'}">${b.earned?'✓ ':''}${b.label}</span>`).join('')}</div>
@@ -6975,144 +7206,9 @@ function rToday(){
        card issuing a priority. The screen had three things telling him what to do and two ways to
        tap the same four boxes. Nothing is removed; the door simply closes after them instead of
        before. */}
-  </details>`;
-}
-function addNote(){ const t=($('#dailyNote').value||'').trim(); if(!t){toast('Write one line first');return;} (S.notes=S.notes||[]).push({d:todayISO(),text:t}); save(); rToday(); toast('Note saved ✓'); }
-function delNote(i){ if(!S.notes||i<0||i>=S.notes.length) return; S.notes.splice(i,1); save(); rToday(); }
-/* Weekly Dispatch — receipts + asks, generated from live state (the changelog #4) */
-function buildDispatch(){
-  const con=Model.consistency(), mom=Model.momentum(), wtr=Model.weightTrend(), plan=decide();
-  const prs=S.events.filter(e=>e.type==='pr'&&e.meta&&daysBetween(e.d,todayISO())<7);
-  const asks=[];
-  if(plan.tasks.some(t=>t.kind==='fuel')) asks.push('Mom: weight stalled — extra PB + whole milk in the rotation this week');
-  if(!taskDone('env:film')&&phaseFor(todayISO())!=='offseason') asks.push('Cousin: confirm who films this week\'s game');
-  if(!Model.baselineDone()) asks.push('Cousin: 20 min Saturday — time my 40 + measure vert/broad');
-  if(!taskDone('setup:verify')) asks.push('Me: get game day + film + coach answers at practice');
-  if(!asks.length) asks.push('Nothing needed this week — machine is running');
-  return `ZAYDEN · WEEK OF ${fmtD(todayISO())}
-━━━━━━━━━━━━━━
-DONE: Daily Four ${Math.round(con.rate7*100)}% · ${mom.sets7} sets logged${prs.length?' · PR: '+prs.map(e=>e.meta.ex+' '+e.meta.val).join(', '):''}${wtr.latest?` · weight ${wtr.latest}`:''}
-PHASE: ${plan.phase.toUpperCase()}${wtr.enough?` · 3wk trend ${wtr.delta>=0?'+':''}${wtr.delta} lb`:''}
-THIS WEEK: ${plan.workout.title} + the plan runs itself
-NEEDS:
-${asks.map(a=>'• '+a).join('\n')}
-━━━━━━━━━━━━━━
-2030 · RB/LB · the gap is the plan`;
-}
-function copyDispatch(){
-  const txt=buildDispatch();
-  completeTask('dispatch:'+todayISO());
-  if(navigator.clipboard&&navigator.clipboard.writeText) navigator.clipboard.writeText(txt).then(()=>toast('Dispatch copied — paste it in the chat'));
-  else toast('Copy manually:'), console.log(txt);
-  rToday();
-}
-function saveReview(){
-  S.reviews.push({d:todayISO(),worked:$('#rvW').value.trim(),broke:$('#rvB').value.trim(),fix:$('#rvF').value.trim()});
-  save(); rToday(); toast('Logged. Next week starts informed.');
-}
-function tglCk(i){
-  const c=ckToday(); const was=c.every(Boolean);
-  c[i]=!c[i]; save(); rToday();
-  if(c.every(Boolean)&&!was){
-    const st=(typeof Model!=='undefined'&&Model.consistency)?(Model.consistency().streak||0):0;
-    celebrate(st>1?st+' DAYS. UNBROKEN.':'DAILY FOUR. CLEAN SHEET.', st>=7);
-  } else haptic('tap');
-}
-function doneTask(id,apply){
-  completeTask(id);
-  if(apply==='kcal300'){ S.params.kcalAdj.v+=300; S.params.kcalAdj.basis='stall response '+todayISO(); save();
-    toast('Done ✓ — daily target is now '+fuelPlan(Model.gaps().latest('wt')||160,S.params.kcalAdj.v).cal+' kcal'); }
-  else toast('Done ✓');
-  rToday();
-}
+  </details>
+  <details class="sect"><summary>Drills, timer, and the day you are looking at</summary>
 
-/* ---- TRAIN ---- */
-let trainDay=null;
-function plates(t){ let s=(t-45)/2; if(s<=0) return 'bar only';
-  const o=[]; for(const p of [45,25,10,5,2.5]){ while(s>=p){o.push(p);s-=p;} } return o.join(' + ')+' /side'; }
-let gymMode='full';
-function setGym(m){gymMode=m;rTrain();}
-function aptSession(w){
-  const t=(w&&w.title)||'', D=w?w.day:new Date().getDay();
-  const mk=(title,why,blocks)=>({title,why,blocks,day:D});
-  if(/UPPER|BENCH/.test(t)) return mk('APARTMENT · UPPER','No barbell needed — DB + bodyweight hits the same qualities. Move with intent.',[
-    {n:'A · Explosive push-ups',s:'5×5 — hands leave the floor, reset each rep'},
-    {n:'A · DB floor press (or loaded backpack)',s:'4×8 — controlled down, drive up'},
-    {n:'B · Feet-elevated / pike push-ups',s:'3×8-12 — your overhead-press swap'},
-    {n:'B · Inverted rows (under a sturdy table) or DB row',s:'4×10 — pull elbows past the ribs'},
-    {n:'C · Chin-ups if you have a bar, else backpack curls',s:'3×AMRAP'},
-    {n:'D · Neck 4-way + plank',s:'2×15 · 3×30s'}]);
-  if(/LOWER|CONTRAST|40|VERT|SPEED/.test(t)) return mk('APARTMENT · LOWER + SPEED','Take it outside — the speed and power work barely needs a gym.',[
-    {n:'A · Sprint mechanics + accel (grass, cleats)',s:'Wall drill 3×5 · 6×20yd from a 2-point, full walk-back'},
-    {n:'A · Jump progression',s:'Pogos 3×10 · broad jumps 4×3 (stick it) · depth-to-broad if legs are fresh'},
-    {n:'B · DB/goblet Bulgarian split squat',s:'3×8/leg — hold anything heavy'},
-    {n:'B · Single-leg DB hip thrust',s:'3×10/leg — sprint power lives here'},
-    {n:'C · Nordic curl (anchor your feet) + calf raises',s:'3×6 · 3×20'},
-    {n:'D · Ball security + hard cuts (your football)',s:'5 points of pressure · 10 cuts each way'}]);
-  if(/ATHLETICISM|POSITION/.test(t)) return mk('APARTMENT · ATHLETICISM','Field day. Football, gloves, cleats — compete against yourself.',[
-    {n:'A · 5-10-5 shuttle (cousin/phone times it)',s:'4 reps, full recovery'},
-    {n:'A · Approach + broad jumps',s:'5×3 each'},
-    {n:'B · Position drills with your ball',s:'Cuts, ball security, tracking — 15 min quality'},
-    {n:'C · Easy strides',s:'4×20yd smooth'}]);
-  return {...TEMPLATES.recoveryTemplate,day:D};
-}
-function rTrain(){
-  const plan=decide();
-  const week=weekFor(S,todayISO());
-  let w=trainDay===null?plan.workout:(week.find(x=>x.day===trainDay)||TEMPLATES.restDay);
-  if(gymMode==='sore') w={...TEMPLATES.recoveryTemplate,day:w.day,title:'TOO SORE · RECOVERY',why:'Listen to the body — mobility, easy movement, food, sleep. Back hard tomorrow.'};
-  else if(gymMode==='apt') w=aptSession(w);
-  const recent=S.lifts.slice(-5).reverse();
-  const dl=plan.deload;
-  /* v8.0: footwork leads TRAIN. It is the named weak point, it is dosed, and it is the block most
-     likely to be skipped if it sits below a lifting session. */
-  $('#v-train').innerHTML=`
-<div class="card">
-    <h3>${esc(w.title)} ${w.day===new Date().getDay()?'<span class="r" style="color:var(--amber)">TODAY</span>':''}</h3>
-    ${w.recovery?'':`<details style="border-top:none;border-bottom:1px solid var(--line)"><summary style="color:var(--cyan)">WARM-UP FIRST <span class="pill cyan">6-8 min · cuts injuries 30-46%</span></summary>
-      <div class="bd">${WARMUP[/SPEED|ATHLETICISM|TEMPO/.test(w.title)?'field':'lift'].map(x=>'• '+esc(x)).join('<br>')}</div></details>`}
-    ${(()=>{const isToday=w.day===new Date().getDay();const sess=isToday?(S.sessions[todayISO()]||(S.sessions[todayISO()]=w.blocks.map(()=>false))):null;
-    return w.blocks.map((b,i)=>{
-      let load='';
-      /* v7.79: the bar weight now comes from the PROGRESSION engine — training max (evidence-led)
-         x block% x this week's wave x any comeback deload. Loads climb inside a cycle and the
-         cycle restarts higher, instead of sitting on a static PR forever. */
-      if(b.pct&&b.lift&&typeof prescribe==='function'){
-        const px=prescribe(S,b.lift,b.pct);
-        if(px){ const wv=px.cycle&&px.cycle.have?px.cycle:null;
-          load=`<div class="note mono">→ <b style="color:var(--cyan)">${px.lb} lb</b> (${Math.round(b.pct*100)}% of ${px.tm} TM${wv&&wv.mult!==1?' · '+wv.label+' ×'+wv.mult:''}${px.dl<1?' ×'+Math.round(px.dl*100)+'%':''}) · ${plates(px.lb)}</div>`; }
-      }
-      const done=sess&&sess[i];
-      /* v7.44 GYM MODE: the screen a strength coach and a product designer would build together.
-         Sets are DOTS you tap one at a time (not one checkbox for a whole exercise), the
-         prescribed weight is the biggest thing on the row, and completing a set auto-starts
-         rest. Reading a wall of text mid-workout is how sessions decay. */
-      const nSets=(m=>m?+m[1]:0)(String(b.s).match(/^(\d+)\s*[×x]/));
-      const doneSets=(typeof setDotsGet==='function')?setDotsGet(todayISO(),i):0;
-      const dots=nSets?Array.from({length:nSets},(_,k)=>`<i class="setdot ${k<doneSets?'on':''}" onclick="event.stopPropagation();tapSet(${i},${nSets})"></i>`).join(''):'';
-      const wt=(b.pct&&b.lift&&typeof prescribe==='function')?((px=>px?px.lb:null)(prescribe(S,b.lift,b.pct))):null;
-      return `<div class="exrow ${done?'is-done':''} ${(!done&&isToday&&doneSets>0&&doneSets<nSets)?'is-live':''}" ${isToday?`onclick="tglBlock(${i})"`:''}>
-        <div class="row" style="align-items:flex-start">
-          <div class="grow">
-            <div class="exname">${done?'✓ ':''}${esc(b.n)}</div>
-            <div class="exsets">${esc(b.s)}</div>
-            ${(w2=>w2?`<div class="note" style="margin-top:3px;color:var(--faint)">⚡ ${esc(w2)}</div>`:'')(liftWhy(b.n))}
-            ${dots?`<div class="setrow">${dots}<span class="setct mono">${doneSets}/${nSets}</span></div>`:''}
-          </div>
-          ${wt!=null?`<div class="exwt"><div class="exwt-n mono">${wt}</div><div class="exwt-k">LB · ${Math.round(b.pct*100)}%${dl<1?' ×'+Math.round(dl*100)+'%':''}</div><div class="exwt-p">${plates(wt)}</div></div>`:''}
-          ${isToday?`<div class="box" style="width:22px;height:22px;border:2px solid ${done?'var(--amber)':'var(--line)'};border-radius:6px;background:${done?'var(--amber)':'transparent'};flex-shrink:0;margin-left:8px"></div>`:''}
-        </div></div>`;}).join('');})()}
-    ${!w.recovery?`<div class="row" style="margin-top:12px">
-      <button class="btn grow" id="restBtn" onclick="restTimer(150)">⏱ REST 2:30</button>
-      <button class="btn ghost" onclick="restTimer(15)">CONTRAST 0:15</button>
-    </div><div class="note">Contrast pairs: jump within ~15s of racking. Between full sets: 2–3 min. The timing IS the method.<br>Solo at the apartment gym today? Skip anything marked SPOTTER/EOS — swap in the pause variant or DB work. Max attempts happen at EOS only, cousin present.</div>`:''}
-    <div class="note"><b style="color:var(--cyan)">2026 dosing:</b> work sets end at 1–3 reps in reserve — grind the last rep speed, never the form. On accessory lifts, the last set can extend with lengthened partials (bottom-half reps after full-ROM failure): 2025 meta-analysis shows a small real edge for growth at long muscle lengths. Small edge, not magic — the surplus and sleep still outrank it.</div>
-  </div>
-    ${''/* v8.4: everything from the cycle read down to the plyo counter used to render here —
-       4,502px measured, five and a half phone screens of reference below the work. It is all still
-       one tap away in the drawer below. What stays above it is what you act on with a bar in your
-       hands: the footwork block, the timer, the anchors, the day pickers and today's session. */}
-<details class="sect"><summary>Library &amp; reference</summary>
 <details class="sect"><summary>Change the day, the gym, or the game day</summary>
 <div class="seg">${[1,2,3,4,5,6,0].map(d=>`<button class="${w.day===d?'on':''}" onclick="trainDay=${d};rTrain()">${['S','M','T','W','T','F','S'][d]}</button>`).join('')}</div>
   <div class="seg" style="margin-top:-6px"><button class="${gymMode==='full'?'on':''}" onclick="setGym('full')">EOS + cousin</button><button class="${gymMode==='apt'?'on':''}" onclick="setGym('apt')">Apartment</button><button class="${gymMode==='sore'?'on':''}" onclick="setGym('sore')">Too sore</button></div>
@@ -8633,14 +8729,12 @@ function nextRep(s,today){
   const _costly=(_inSeason||_missed>0||(clr.daysToGame!=null&&clr.daysToGame<=2));
   if(!clr.clear&&(_inSeason||_missed>0||(clr.daysToGame!=null&&clr.daysToGame<=10)))
     C.push({kind:'clear',nowOK:_costly?true:!afterHours,tone:'gate',
-    rule:REP_RULES.gate, o:(_missed>0?'GET CLEARED. '+_missed+' GAME'+(_missed===1?'':'S')+' ALREADY GONE.':'GET CLEARED THIS WEEK.'), k:'CLEARED TO PLAY'+(_missed>0?' · '+_missed+' GAME'+(_missed===1?'':'S')+' GONE':(clr.daysToGame!=null?' · '+clr.daysToGame+' DAYS OUT':'')),
+    rule:REP_RULES.gate, o:(_missed>0?'GET CLEARED. '+_missed+' GAME'+(_missed===1?'':'S')+' ALREADY GONE.':'GET CLEARED THIS WEEK.'), k:'NOT CLEARED TO PLAY'+(_missed>0?' · '+_missed+' GAME'+(_missed===1?'':'S')+' GONE':(clr.daysToGame!=null?' · '+clr.daysToGame+' DAYS OUT':'')),
     t:clr.open.length+' thing'+(clr.open.length===1?'':'s')+' between you and the field',
-    w:'You already missed the opener over this. '+clr.open[0].label+' is the first one, and none of the rest start until it does.',
+    w:'You have not played a game this season. Two are gone and a scrimmage is the only football on your record. '+clr.open[0].label+' is the first item, and none of the rest start until it does. Your mum is going into the office on Tuesday — the thing to ask her to confirm is whether it is ACTIVE before Thursday, not just submitted.',
     ev:clr.ev,
-    unc:(()=>{ const g=(s.games||[]).filter(x=>x&&x.played!==false&&(x.car>0||x.tkl>0||x.d))
-                 .sort((a,b)=>a.d<b.d?1:a.d>b.d?-1:0)[0];
-      return g?'Your record has a game on '+fmtD(g.d)+'. If you played in it, this gate is already shut and the app has not been told — tick the items off and it will stop asking.'
-              :'This stays open until you tick the items off. The app cannot see Aktivate.'; })(),
+    unc:'You are cleared to PRACTISE, not to play. Two freshman games are gone and you have never been in a real one. The app cannot see Aktivate, so it will keep saying this until you tick the items off — and it should.',
+    asm:'Assumes what you told me on 31 August: the IC/RMA address mismatch is still the blocker, and your mum goes into the office in person on Tuesday.',
     act:[{l:'Open clearance',f:"go('path')",p:1}]});
   /* 2 · GAME DAY. */
   if(gameToday) C.push({kind:'gameday',tone:'gate',rule:REP_RULES.gate, o:'PLAY. LOG IT TONIGHT.', k:'GAME DAY',
@@ -8709,7 +8803,7 @@ function nextRep(s,today){
     act:[{l:'Test day',f:"go('track')",p:1}]});
   /* 8 · FOOTWORK, at the dose and no more. */
   const fw=(typeof footworkRead==='function')?footworkRead(s,today):{due:false};
-  if(fw.due) C.push({kind:'foot',nowOK:!afterHours,tone:'owed',rule:REP_RULES.dose, o:FOOT_MIN+'\u2013'+FOOT_MAX+' MINUTES OF FOOTWORK.', k:'FOOTWORK · '+fw.thisWk+'/'+FOOT_WK_TARGET+' THIS WEEK',
+  if(fw.due) C.push({kind:'foot',nowOK:!afterHours,tone:'owed',rule:REP_RULES.dose, o:FOOT_MIN+'–'+FOOT_MAX+' MINUTES OF FOOTWORK.', k:'FOOTWORK · '+fw.thisWk+'/'+FOOT_WK_TARGET+' THIS WEEK',
     t:(typeof footworkSession==='function'?footworkSession(s,today).t:'Footwork'),
     w:FOOT_MIN+'–'+FOOT_MAX+' minutes. At two a week that is about half the lower-body injury rate; at three, about 40%. Longer sessions buy nothing.',
     ev:fw.ev,act:[{l:'Open footwork',f:"go('train')",p:1}]});
@@ -9440,7 +9534,7 @@ function offseasonHTML(){
         <span class="mono" style="font-size:11px;color:var(--faint)">${esc(o.friction)}</span></div>
       <div class="note" style="margin:5px 0 0">${esc(o.w)}</div>
       <div class="note" style="margin:6px 0 0;color:var(--txt);font-style:normal">${esc(o.do)}</div></div>`
-    :`<details class="sect"><summary>${esc(o.t)}${o.approx?' \u00b7 approx':''} &mdash; ${esc(o.friction)}</summary>
+    :`<details class="sect"><summary>${esc(o.t)}${o.approx?' · approx':''} &mdash; ${esc(o.friction)}</summary>
       <div class="note" style="margin:6px 0 0">${esc(o.w)}</div>
       <div class="note" style="margin:6px 0 0;color:var(--txt);font-style:normal">${esc(o.do)}</div></details>`).join('')}
     <div class="note" style="margin-top:10px;font-style:normal;border-left:2px solid var(--red);padding-left:9px">${esc(r.unc)}</div>
@@ -9457,6 +9551,70 @@ const POS_SPLIT={
     w:'FBS starting linebackers average 6′1½″ and 230 lb across 350-plus starters, and the SHORTEST one is 5′10″. Nineteen are under six feet. At your height you are not a rare linebacker at that level — you are outside the sample. That does not make MLB a waste: it is your fastest route to varsity film, and varsity film of you making tackles is still film of you. It means the recruiting case gets built at running back.',
     src:'FBS starting-roster surveys, 2023 season, read 2026-08-30. Roster heights are self-reported and run optimistic, so read these as shape, not thresholds.'}
 };
+const HULK={
+  startLb:165, startDate:'2026-08-30',
+  bandLo:0.4, bandHi:0.8,               /* lb per week that stays lean */
+  aim:{by:'2027-08-14', lo:178, hi:185},
+  ceiling:'There is no weight at which you suddenly get slow — I looked, and no study reports one. What exists is a mechanism: mass is free if it is lean, sits on your hips and thighs, and comes with proportional strength. It costs you the moment relative strength falls.',
+  why:'Sprint momentum — mass times velocity — is what separates senior players from junior ones in the research; raw speed does not. At 5′9″ that is your case. This is not vanity, it is the argument for your position.',
+  ev:'FBS starting running backs average 205 lb at 5′10½″ as grown men. Lean-gain rate for a training adolescent is 0.4–0.8 lb/week. Sansone et al. 2025 (three seasons, elite rugby): no significant effect of mass change on sprint speed.',
+  unc:'The 178–185 target is reasoned from position economics and your frame, not measured. Nobody has run the study on fifteen-year-old running backs.'};
+const HULK_GATES=[
+  {k:'bw',    t:'Bodyweight',        want:'up',   how:'Same scale, first thing in the morning, after the toilet, before food, same day each week. You said you weigh yourself "sometimes, whenever" — that number is noise and it is the easiest one to fix.'},
+  {k:'ratio', t:'Squat ÷ bodyweight',want:'hold', how:'You are at 1.67–1.91x. Under about 2x, strength still buys speed. If the bar does not outrun the scale this ratio falls and the mass stops being free.'},
+  {k:'vert',  t:'Vertical',          want:'hold', how:'The cheapest lie-detector you own. If the scale climbs and the vertical does not move, the mass is useful. If the vertical drops, it is not.'}
+];
+function hulkRead(s,today){
+  s=s||S; today=today||todayISO();
+  const wt=(typeof measureProv==='function')?measureProv('wt',s,today):null;
+  const now=(wt&&wt.val!=null)?wt.val:HULK.startLb;
+  const weeks=Math.max(0,Math.round(daysBetween(HULK.startDate,today)/7));
+  const paceLo=+(HULK.startLb+weeks*HULK.bandLo).toFixed(1);
+  const paceHi=+(HULK.startLb+weeks*HULK.bandHi).toFixed(1);
+  const toAim=Math.max(0,+(HULK.aim.lo-now).toFixed(1));
+  const wksLeft=Math.max(1,Math.round(daysBetween(today,HULK.aim.by)/7));
+  const needed=+(toAim/wksLeft).toFixed(2);
+  const sq=(s.prs&&s.prs.squat)||null;
+  const ratio=(sq&&now)?+(sq/now).toFixed(2):null;
+  const vert=(typeof measureProv==='function')?measureProv('vert',s,today):null;
+  return {now, weeks, paceLo, paceHi,
+    onPace: now>=paceLo,
+    ahead: now>paceHi,
+    ratio, ratioOK: ratio!=null&&ratio>=1.6,
+    vert: vert&&vert.val!=null?vert.val:null, vertProv:vert,
+    toAim, wksLeft, needed,
+    /* needed is the honest number: what per week gets him there, checked against what is lean */
+    neededSafe: needed<=HULK.bandHi,
+    ev:HULK.ev, unc:HULK.unc};
+}
+function hulkHTML(){
+  const h=hulkRead(S);
+  return `<div class="card hulk">
+    <h3>Project Hulk <span class="r">${h.now} lb · week ${h.weeks}</span></h3>
+    <div class="note" style="margin:0 0 12px;font-style:normal">You said bigger than humanly possible. At 5′9″ that target would cost you the thing you are chasing — so this is the real one: <b style="color:var(--txt)">carry the most mass you can without losing a step.</b></div>
+    <div class="hulk-gates">
+      ${HULK_GATES.map(g=>{
+        const val=g.k==='bw'?h.now+' lb':g.k==='ratio'?(h.ratio==null?'—':h.ratio+'×'):(h.vert==null?'—':h.vert+'″');
+        const ok=g.k==='bw'?h.onPace:g.k==='ratio'?h.ratioOK:h.vert!=null;
+        return `<div class="hulk-gate ${ok?'on':''}">
+          <div class="hg-v">${esc(String(val))}</div>
+          <div class="hg-k">${esc(g.t)}</div>
+          <div class="hg-w">${g.want==='up'?'must climb':'must hold'}</div></div>`;}).join('')}
+    </div>
+    <div class="note" style="margin:12px 0 0">All three, or the weight is the wrong weight. Bodyweight on its own tells you nothing — it is the other two that say whether what you added is muscle you can move.</div>
+    <div style="border-top:1px solid var(--line);margin-top:12px;padding:11px 0">
+      <div class="row" style="align-items:baseline;gap:8px"><b style="font-size:13px">The pace</b><span class="grow"></span>
+        <span class="mono" style="font-size:12px;color:var(--hulk)">${h.needed} lb/week</span></div>
+      <div class="note" style="margin:5px 0 0">${h.toAim>0?`${h.toAim} lb to ${HULK.aim.lo} by next August, across ${h.wksLeft} weeks — that is <b style="color:var(--txt)">${h.needed} lb a week</b>.`:'You are at the target band.'} Lean gain runs ${HULK.bandLo}–${HULK.bandHi} lb a week; ${h.neededSafe?'the pace you need is inside that, so nothing has to be forced.':'the pace you would need is ABOVE that band, which means the honest move is a later date, not a faster gain.'}</div>
+    </div>
+    ${HULK_GATES.map(g=>`<details class="sect"><summary>${esc(g.t)} &mdash; ${g.want==='up'?'must climb':'must hold'}</summary>
+      <div class="note" style="margin:6px 0 0">${esc(g.how)}</div></details>`).join('')}
+    <details class="sect"><summary>Why this is a D1 argument and not vanity</summary>
+      <div class="note" style="margin:6px 0 0">${esc(HULK.why)}</div>
+      <div class="note" style="margin:6px 0 0">${esc(HULK.ceiling)}</div></details>
+    <div class="note q" style="margin-top:10px">${esc(HULK.ev)} ${esc(HULK.unc)}</div>
+  </div>`;
+}
 function posSplitHTML(){
   const p=POS_SPLIT;
   return `<div class="card" style="border-color:#3a2f52">
@@ -9544,7 +9702,7 @@ function ladderHTML(){
       <div class="row" style="align-items:baseline;gap:8px">
         <b class="mono" style="font-size:15px;color:var(--faint)">${i+1}</b>
         <b style="font-size:14px">${esc(r.t)}</b><span class="grow"></span>
-        ${r.days!=null?`<span class="mono" style="font-size:12px;color:${r.days<30?'var(--amber)':'var(--faint)'}">${r.days}d</span>`:'<span class="pill" style="border-color:var(--amber);color:var(--amber)">now</span>'}</div>
+        ${r.days!=null?`<span class="mono" style="font-size:12px;color:${r.days<30?'var(--amber)':'var(--faint)'}">${r.days}d</span>`:'<span class="pill" style="border-color:var(--line2);color:var(--cyan)">now</span>'}</div>
       <div class="note" style="margin:5px 0 0">${esc(r.why)}</div>
     </div>`).join('')}
     <div class="note" style="margin-top:10px;color:var(--faint)">${esc(L.ev)}</div>
@@ -9762,7 +9920,7 @@ function campaignHTML(){
   const badge=x=>x.state==='closed'?'<span class="pill green">done</span>'
     :x.state==='measured'?'<span class="pill green">measured</span>'
     :x.state==='working'?'<span class="pill cyan">moving</span>'
-    :x.closeable?'<span class="pill" style="border-color:var(--amber);color:var(--amber)">open</span>'
+    :x.closeable?'<span class="pill" style="border-color:var(--line2);color:var(--cyan)">open</span>'
     :'<span class="pill" style="border-color:var(--faint);color:var(--faint)">not by then</span>';
   return `<div class="card" style="border-color:#3f4a1f">
     <h3>RB1 <span class="r">${c.days!=null?(c.days<=0?'today':c.days+' day'+(c.days===1?'':'s')+' to '+esc(c.target.opp||'the game')):''}</span></h3>
@@ -9932,7 +10090,6 @@ function rPath(){
   ${typeof fieldToggleHTML==='function'?fieldToggleHTML():''}
   <details class="sect"><summary>Recruiting reference</summary>
   ${typeof rosterReadHTML==='function'?rosterReadHTML():''}
-  ${typeof acadMoneyCardHTML==='function'?acadMoneyCardHTML():''}
   ${typeof freshman10HTML==='function'?freshman10HTML():''}
   ${typeof realityCardHTML==='function'?realityCardHTML():''}
   <div class="card" style="border-color:#3f4a1f">
@@ -10375,7 +10532,10 @@ function rTrack(){
   const g=Model.gaps(), sr=Model.systemRead(), DOWN=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const xp=experiments(), knownN=intel().filter(d=>d.known).length;
   $('#v-track').innerHTML=`
+  ${typeof hulkHTML==='function'?hulkHTML():''}
+  <details class="sect"><summary>The record of you &mdash; what proof exists</summary>
   ${typeof evidenceHTML==='function'?evidenceHTML():''}
+  </details>
   <div class="card">
     <h3>Your Waypoints <span class="r">${esc(Model.waypointGaps().label)}</span></h3>
     ${(wg=>`
@@ -10922,6 +11082,7 @@ function rPush(){
   const iq=Model.iq(), plan=decide(), dr=drIdx===null?null:DARK_ROOM[drIdx], pb=pbIdx===null?null:PLAYBOOK[pbIdx];
   const engIq=plan.tasks.find(t=>t.kind==='iq');
   $('#v-push').innerHTML=`
+  ${typeof calCardHTML==='function'?calCardHTML():''}
   <div class="card">
     <h3>IQ Reps This Week <span class="r">${iq.reps7}</span></h3>
     <div class="note" style="margin:0">Engine says today: <b style="color:var(--txt)">${esc(engIq?.title||'—')}</b><br>Any rep logged here also checks box 3 on TODAY.</div>
@@ -11076,10 +11237,10 @@ function posCoachRead(){
   const hasEv=cm.list.length||ms.answered||wc.length;
   if(!hasEv) return '<div class="note">No practice evidence this week yet — the position-coach read starts when corrections, missions and flashcards get logged.</div>';
   let h='<div class="note"><b style="color:var(--txt)">Position-coach read (this week’s evidence):</b></div>';
-  if(cm.mostRepeated) h+='<div class="note">Biggest leak: “'+esc(cm.mostRepeated.text)+'” — heard '+cm.mostRepeated.n+'\u00d7.</div>';
+  if(cm.mostRepeated) h+='<div class="note">Biggest leak: “'+esc(cm.mostRepeated.text)+'” — heard '+cm.mostRepeated.n+'×.</div>';
   if(cm.improving.length) h+='<div class="note">Most improved: “'+esc(cm.improving[0].text)+'” — '+cm.improving[0].daysSince+' days quiet.</div>';
   if(ms.of) h+='<div class="note">Missions: '+ms.hit+'/'+ms.of+' hit'+(ms.neverTwoMisses?' — never missed two in a row (that is evidence, not a pep talk)':'')+'.</div>';
-  if(wc.length) h+='<div class="note">Concept leaks: '+wc.slice(0,2).map(x=>esc(x.concept)+' ('+x.miss+'\u00d7)').join(', ')+'.</div>';
+  if(wc.length) h+='<div class="note">Concept leaks: '+wc.slice(0,2).map(x=>esc(x.concept)+' ('+x.miss+'×)').join(', ')+'.</div>';
   mo.forEach(m=>{ h+='<div class="note">'+(m.dir==='up'?'<span style="color:var(--green)">\u25b2</span> ':'<span style="color:var(--red)">\u25bc</span> ')+esc(m.t)+'</div>'; });
   const fr=filmRead();
   if(fr.trend) h+='<div class="note">Film check: '+esc(fr.trend.note)+'</div>';
@@ -11469,8 +11630,11 @@ function rPlan(){
   </div>`;
 }
 const RENDER={today:rToday,train:rTrain,path:rPath,track:rTrack,push:rPush,plan:rPlan};
-let curView='today';
+let curView='train';   /* v10.0 · the app opens on the work, which is the one screen he said he would keep */
+const VIEW_ALIAS={today:'train',plan:'push'};   /* v10.0 · six tabs became four; these two names
+   are called from handlers all over this file and breaking them to save two lines would be vandalism */
 function go(v,fromPop){
+  v=VIEW_ALIAS[v]||v;
   try{ if(typeof rememberScroll==='function') rememberScroll(); }catch(e){}
   curView=v;
   document.querySelectorAll('.view').forEach(x=>x.classList.remove('on'));
@@ -13381,13 +13545,21 @@ function d1TestSuite(){
          return /hudl/i.test(f.o+' '+f.act) && f.mins<=60; })(),
        'it is still telling him to solve a filming problem he does not have');
 
-    ok('E17 the clearance gate asks rather than asserts once a game is on record',
+    ok('E17 the clearance gate asserts, because he is cleared to practise and not to play',
        (()=>{ const b=migrate(clone(F()));
          b.games=[{d:'2026-08-27',opp:'Sierra Vista',car:6,yds:21,td:0,tkl:2}];
          const r=nextRepAt(b,'2026-08-30',15);
          const c=[r,...(r.others||[])].find(x=>x.kind==='clear');
-         return !c || /already shut|has not been told/i.test(c.unc||''); })(),
-       'it still asserts he is uncleared while his own record holds a game he played in');
+         /* a fixture row is not evidence he was in it. v8.9 inferred that it was and softened the
+            most important gate in the app on the strength of it. He has played zero games. */
+         return !c || (/PRACTISE, not to play/i.test(c.unc||'') && !/already shut/i.test(c.unc||'')); })(),
+       'the gate is inferring that he played from the existence of a fixture');
+
+    ok('E17b and the app holds the eligibility facts he actually gave',
+       (()=>{ const e=eligibilityRead(F(),'2026-08-30');
+         return e.gamesPlayed===0 && e.gamesLost===2 && e.state==='practice-only'
+             && e.toFix===2 && /same-day/i.test(e.unc); })(),
+       'the eligibility state is wrong or the Tuesday date has drifted');
 
     /* ── G · THE SEASON HE IS ACTUALLY IN (v9.0) ─────────────────────────────
        The week the app prescribed was not the week he has, and the job it told him to win was
@@ -13463,21 +13635,21 @@ function d1TestSuite(){
        left an unbalanced </details> behind, which makes the parser close an ancestor and dumps
        every card after it into the open page — 8.5 screens, silently. H1 is that bug. */
     ok('H1 every drawer on TODAY closes itself',
-       (()=>{ const v=document.getElementById('v-today'); if(!v) return true;
+       (()=>{ const v=document.getElementById('v-train'); if(!v||!v.children.length) return true;
          const open=(v.innerHTML.match(/<details/gi)||[]).length;
          const shut=(v.innerHTML.match(/<\/details>/gi)||[]).length;
          return open===shut; })(),
        'an unbalanced details tag is dumping cards into the open page');
 
-    ok('H2 TODAY has labelled drawers, not one cupboard, and none ship open',
-       (()=>{ const v=document.getElementById('v-today'); if(!v) return true;
+    ok('H2 WORK has labelled drawers, not one cupboard, and none ship open',
+       (()=>{ const v=document.getElementById('v-train'); if(!v||!v.children.length) return true;
          const d=[...v.querySelectorAll(':scope > details')];
          return d.length>=4 && d.every(x=>!x.open)
              && d.every(x=>((x.querySelector('summary')||{}).textContent||'').length>8); })(),
        'the drawers are gone, unlabelled, or one ships open');
 
     ok('H3 the campaign is the first door, not buried between hydration and a dead opponent',
-       (()=>{ const v=document.getElementById('v-today'); if(!v) return true;
+       (()=>{ const v=document.getElementById('v-train'); if(!v||!v.children.length) return true;
          const first=v.querySelector(':scope > details > summary');
          return !!first && /campaign/i.test(first.textContent||''); })(),
        'something other than the campaign is the first drawer');
@@ -13518,7 +13690,7 @@ function d1TestSuite(){
        'a number he timed himself is counting as evidence somebody else recorded');
 
     ok('H10 the opener opponent card is off TODAY',
-       (()=>{ const v=document.getElementById('v-today'); if(!v) return true;
+       (()=>{ const v=document.getElementById('v-train'); if(!v||!v.children.length) return true;
          return (v.innerHTML.indexOf('foothillHTML')<0); })(),
        'a card about the 21 August opponent is still on the daily screen');
 
@@ -13530,7 +13702,7 @@ function d1TestSuite(){
        'the app is back to treating RB and LB as one identity');
 
     ok('J2 and it says the hard part out loud rather than flattering him',
-       /shortest one is 5\u203210\u2033|outside the sample/i.test(POS_SPLIT.hard.w)
+       /shortest one is 5′10″|outside the sample/i.test(POS_SPLIT.hard.w)
        && /still film of you|fastest route/i.test(POS_SPLIT.hard.w),
        'the linebacker ceiling is softened, or the card leaves him with nothing');
 
@@ -13571,6 +13743,55 @@ function d1TestSuite(){
        /d = 0\.65/.test(CUE_EV) && /Gollwitzer/.test(CUE_EV)
        && /not a substitute for wanting/i.test(CUE_UNC) && /backfire/i.test(CUE_UNC),
        'the cue is asserted without its effect size or its documented failure mode');
+
+    /* ── M · WAR ROOM (v10.0) ────────────────────────────────────────────────
+       Four tabs, a sodium palette, Project Hulk, and the correction that mattered most: he is
+       cleared to PRACTISE, has played zero games, and two are already gone. */
+    ok('M1 four destinations, not six',
+       (()=>{ const n=document.querySelectorAll('#nav button'); if(!n.length) return true;
+         const names=[...n].map(b=>(b.textContent||'').trim());
+         return names.length===4 && names.join('/')==='WORK/HULK/FIELD/PATH'; })(),
+       'the navigation is back to six, or the four are misnamed');
+
+    ok('M2 the old view names still route, because handlers everywhere call them',
+       VIEW_ALIAS.today==='train' && VIEW_ALIAS.plan==='push',
+       'go(\'today\') or go(\'plan\') would now throw');
+
+    ok('M3 the app opens on the work',
+       (()=>{ const src=appSource(); if(!src) return true;
+         const needle='let '+'curView='+String.fromCharCode(39)+'train'+String.fromCharCode(39);
+         return src.indexOf(needle)>=0; })(),
+       'it opens somewhere other than the session');
+
+    ok('M4 green means one thing and one thing only',
+       (()=>{ const src=appSource(); if(!src) return true;
+         const el=document.createElement('div'); el.innerHTML=hulkHTML();
+         return el.querySelector('.card.hulk')!==null; })(),
+       'the Hulk card lost its own identity');
+
+    ok('M5 Hulk refuses the target he asked for and says why',
+       (()=>{ const el=document.createElement('div'); el.innerHTML=hulkHTML();
+         const t=el.textContent||'';
+         return /bigger than humanly possible/i.test(t)
+             && /without losing a step/i.test(t); })(),
+       'it either dropped the pushback or dropped the honest alternative');
+
+    ok('M6 and it grades mass on three numbers, not on the scale',
+       (()=>{ const g=HULK_GATES.map(x=>x.k);
+         return g.length===3 && g.indexOf('bw')>=0 && g.indexOf('ratio')>=0 && g.indexOf('vert')>=0
+             && HULK_GATES.find(x=>x.k==='ratio').want==='hold'; })(),
+       'bodyweight is being treated as the signal on its own');
+
+    ok('M7 the pace it asks for is inside the lean-gain band',
+       (()=>{ const h=hulkRead(F(),'2026-08-31');
+         return h.needed<=HULK.bandHi && h.toAim===+h.toAim.toFixed(1); })(),
+       'it is asking for a rate that cannot stay lean, or printing a float');
+
+    ok('M8 the primary action takes black on sodium, not white',
+       (()=>{ const cs=getComputedStyle(document.documentElement);
+         const on=cs.getPropertyValue('--on-fill').trim();
+         return /^#0/.test(on); })(),
+       'the button label is back to white on a light fill');
 
     /* ── L · THE HUD AND WHAT EACH TAB OPENS ON (v9.4) ──────────────────────
        The header is the only surface on all six screens and it carried a 655-day countdown to
@@ -13637,9 +13858,9 @@ function d1TestSuite(){
          cr(tok('faint'),card)>=7,
          'body copy is at '+cr(tok('faint'),card).toFixed(2)+':1 and it is 60% of every screen');
 
-      ok('K2 white on the primary action clears normal-text contrast',
-         cr('#ffffff',tok('fill'))>=4.5,
-         'the primary button label is at '+cr('#ffffff',tok('fill')).toFixed(2)+':1');
+      ok('K2 the primary action label clears normal-text contrast',
+         cr(tok('on-fill')||'#ffffff',tok('fill'))>=4.5,
+         'the primary button label is at '+cr(tok('on-fill')||'#ffffff',tok('fill')).toFixed(2)+':1');
 
       ok('K3 and the primary action reads as a control against the card',
          cr(tok('fill'),card)>=3,
