@@ -1,16 +1,56 @@
-/* D1 OS service worker — network-first for the app shell so updates appear immediately; cache fallback keeps it working offline. */
-const C='d1os-v10-1';
-self.addEventListener('install',e=>{e.waitUntil(caches.open(C).then(c=>c.addAll(['./index.html','./manifest.json'])).then(()=>self.skipWaiting()))});
-self.addEventListener('activate',e=>{e.waitUntil(caches.keys().then(ks=>Promise.all(ks.filter(k=>k!==C).map(k=>caches.delete(k)))).then(()=>self.clients.claim()))});
-self.addEventListener('fetch',e=>{
-  const req=e.request;
-  if(req.method!=='GET') return;
-  const doc=req.mode==='navigate'||req.destination==='document';
-  if(doc){
-    // fresh HTML every online load; fall back to the cached shell when offline
-    e.respondWith(fetch(req).then(r=>{if(r&&r.ok)caches.open(C).then(c=>c.put('./index.html',r.clone()));return r;}).catch(()=>caches.match('./index.html',{ignoreSearch:true})));
+/* Versioned app shell: matching HTML, CSS and JS are installed atomically. */
+const C = "d1os-v12-0";
+const SHELL = [
+  "./index.html",
+  "./performance.css?v=12",
+  "./src/curriculum.js?v=12",
+  "./src/development.js?v=12",
+  "./performance.js?v=12",
+  "./manifest.json",
+  "./icon-180.png",
+  "./icon-512.png",
+];
+self.addEventListener("install", (e) => {
+  e.waitUntil(
+    caches
+      .open(C)
+      .then((c) => c.addAll(SHELL))
+      .then(() => self.skipWaiting()),
+  );
+});
+self.addEventListener("activate", (e) => {
+  e.waitUntil(
+    caches
+      .keys()
+      .then((keys) =>
+        Promise.all(
+          keys
+            .filter((k) => k.startsWith("d1os-") && k !== C)
+            .map((k) => caches.delete(k)),
+        ),
+      )
+      .then(() => self.clients.claim()),
+  );
+});
+self.addEventListener("fetch", (e) => {
+  const req = e.request,
+    u = new URL(req.url);
+  if (req.method !== "GET" || u.origin !== self.location.origin) return;
+  const relative = u.href.replace(new URL("./", self.location.href).href, "./");
+  if (req.mode === "navigate") {
+    e.respondWith(
+      caches
+        .open(C)
+        .then((c) => c.match("./index.html"))
+        .then((hit) => hit || fetch(req)),
+    );
     return;
   }
-  // static assets: cache-first for instant, offline-safe loads
-  e.respondWith(caches.match(req,{ignoreSearch:true}).then(hit=>hit||fetch(req).then(r=>{if(r&&r.ok)caches.open(C).then(c=>c.put(req,r.clone()));return r;})));
+  if (!SHELL.includes(relative)) return; // Do not cache cloud/auth/API data or arbitrary external requests.
+  e.respondWith(
+    caches
+      .open(C)
+      .then((c) => c.match(req))
+      .then((hit) => hit || fetch(req)),
+  );
 });

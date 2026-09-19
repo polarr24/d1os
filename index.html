@@ -1,4 +1,5 @@
-<!DOCTYPE html><!-- d1os v10.1 -->
+<!DOCTYPE html><!-- d1os v12.0 -->
+<!-- v12: evidence-led football development, workload-aware planning, and a unified season loop. See docs/V12-REBUILD.md. -->
 <!-- CHANGELOG
      v10.1 — THE CHEAPEST INJURY CHECK HE OWNS IS ON THE BOTTOM OF HIS SHOE.
      He plays AND practises on artificial turf, which matters more than it sounds: grass tears and
@@ -1285,6 +1286,7 @@ body.field details.sect .card{background:#fbfbfc}
 .pc-legend span{display:flex;align-items:center;gap:4px}
 .pc-legend i{width:8px;height:8px;border-radius:99px;display:inline-block}
 </style>
+<link rel="stylesheet" href="performance.css?v=12">
 </head>
 <body>
 <header id="hdr" role="banner">
@@ -1436,7 +1438,7 @@ const DARK_ROOM = [
   {"n": 9, "cat": "INJURY", "title": "You get subbed out mid-drive.", "do": "Helmet stays ON. Walk to sideline with shoulders BACK. Stand near position coach. Watch the field, NOT the bench. When the kid who replaced you makes a play: CHEER for him. Visibly. When position coach is free: 'Coach, what do I need to do better?' Get the answer. Memorize. Execute on next snap. Body language coaches notice: kid who pouts gets pulled LONGER. Kid who supports gets put back in FASTER.", "why": "The bench is a visible test. Your teammates are watching. The coach is watching."},
   {"n": 10, "cat": "HEAT", "title": "It's 100F and two-a-days week 1.", "do": "Pre (T-3hr): 24oz water + real meal (chicken rice greens). Pre (T-1hr): 16oz water + electrolytes (LMNT or quarter tsp salt + lemon + Gatorade). During: sip 6-8oz every 15-20 min. Between (2hr break): 32oz water + protein shake + real meal. Lie down in AC for 20 min. After PM: weigh yourself. 16-24oz water per lb lost. Heat exhaustion signs: cold/clammy skin, weak pulse, dizziness, cramps means TELL TRAINER NOW. Heat stroke: hot DRY skin, confusion, body temp 104+ means CALL 911 + cold immersion immediately.", "why": "Heat illness kills HS players every summer. Henderson NV gets 100-115F. This isn't Texas, this is dry heat that masks dehydration until it's too late."},
   {"n": 11, "cat": "HEAT", "title": "Friday night 1-3 record mid-season.", "do": "Mental: season is NOT over. Reset weekly. Each game is its own season. Team meeting: stand up. Be vocal. 'We're 1-3 because of X, Y, Z. Here's what we fix this week.' Even as a freshman. Practice: show up Monday like it's game day. Energy fixes a losing locker room faster than scheme changes. Game time: play for the LB next to you, not the scoreboard. Effort + execution equals your only job.", "why": "Half the league goes through this every year. Teams that recover equals playoff teams. Teams that don't equals season's over by Week 6."},
-  {"n": 12, "cat": "INJURY", "title": "You sprain an ankle week 3.", "do": "Day 1: RICE protocol. Ice 20 min on / 20 min off. Compression wrap. Elevation above heart. Tell trainer. Day 2-3: continue RICE. Alphabet drill 3x daily (trace letters with big toe). Calf raises (seated) 3x15. Day 4-7: single-leg balance 30s x 5. Resistance band 4-directions (inversion, eversion, dorsi, plantar) 2x15 each. Week 2: return to running. Tape ankle for first 2 weeks back. Re-sprain rate equals 3x if you skip tape. Communication: stay engaged with team. Sit in on film. Help younger LBs with reads.", "why": "Ankle sprains are the most common football injury. Re-sprain rate is 3x without tape. Easy prevention."},
+  {"n": 12, "cat": "INJURY", "title": "You sprain an ankle week 3.", "do": "Stop and tell your athletic trainer and parent. Get assessed and follow the rehabilitation and return plan you are given. Stay involved with the team in ways the trainer permits.", "why": "A generic app cannot determine injury severity or when you should run again."},
   {"n": 13, "cat": "HEAT", "title": "Wrestling season starts and football peers pressure you to quit it.", "do": "Reality check: wrestling IS your football superpower. Hand-fighting. Leverage. Mat awareness. Contact comfort. You do NOT quit wrestling for football. Multi-sport athletes get recruited at HIGHER rates than single-sport. College coaches prefer them. Adjust football maintenance: 1 lift/wk during wrestling season. 3x3 squat + bench at 80%. Hip mobility daily (wrestling shortens hips). Tell football coach: 'I will be on the mat Dec-Feb. I will do football maintenance lifts on Sundays. I will be back at 100% for spring ball.' That's a pro answer.", "why": "D1 coaches LOVE multi-sport athletes. Walking away from wrestling equals walking away from your recruiting advantage."},
   {"n": 14, "cat": "PEER", "title": "Teammate offers you weed at a party.", "do": "Answer: 'Nah I'm good.' Then walk away. Don't lecture. Don't moralize. Don't make a scene. Just decline and leave. Truth: THC degrades REM sleep by 30-40% for 24+ hours after use. REM is when growth hormone releases. One weekend of weed equals a week of stunted recovery. Compounds over a season. NCAA testing: THC IS tested. Positive equals suspension at most programs. Your D1 dream ends. Bigger truth: the kids who say no consistently end up at the parties of the kids who said yes, except they're celebrating signing day.", "why": "Single moment. Permanent consequence. Don't risk 1,500 days of work for one weekend."},
   {"n": 15, "cat": "PEER", "title": "Girlfriend drama is destroying your focus.", "do": "Direct truth: any relationship that drains your focus during HS football season costs you reps coaches notice. Decision matrix: Does she support your training schedule? Keep. Does she complain when you can't hang out 6 days/week? Talk it out. Does drama from her affect your sleep/film/lifting? Reset boundaries. Does it require you to skip workouts/film/camps? End it. This is not romantic advice. This is PERFORMANCE advice. The right partner accelerates your path. The wrong one ends it.", "why": "Distraction compounds. A bad week of sleep + missed film + missed lift session equals measurable performance drop. Coaches grade it."},
@@ -1449,7 +1451,7 @@ const DARK_ROOM = [
   {"n": 22, "cat": "PEER", "title": "Coach says you're not ready for varsity.", "do": "Ask 'What do I need to work on to be ready?' Get specific. 'You need to add 10 lb, drop your 40 by 0.2s, and learn the full LB playbook.' That's actionable. Work it. Re-ask in 4 weeks. Show progress. Earn the spot. JV is a TEMPORARY stop, not a permanent label. Most multi-year D1 starters spent JV time. Don't sulk, train.", "why": "JV year builds depth. Many D1 LBs were 2-way starters who spent freshman year on JV."},
   {"n": 23, "cat": "PEER", "title": "Negative press / drama at school.", "do": "Stay off social media for 48 hours. Talk to parents. Wait it out. Don't post anything until calm. Coaches notice who handles public attention with maturity. One bad social post equals lost offers. This is not the moment to defend yourself publicly. Let it die.", "why": "Every D1 program monitors social media. One bad post equals lost offer."},
   {"n": 24, "cat": "RECRUIT", "title": "You get an offer from a D1 school you didn't expect.", "do": "Don't commit on the spot. Thank coach. Tell parents + sponsor + head coach. Take 1 week to decide. Visit campus first. Ask 5-7 of the questions from Coach Interview Q&A. Talk to current players. Sleep on it. The offer is real. But a rushed decision at 15 on something you will live with for 4 years equals bad idea.", "why": "Decisions made in 24 hours are decisions you will regret for 4 years."},
-  {"n": 25, "cat": "INJURY", "title": "Concussion symptoms after a hit.", "do": "Tell coach + parents IMMEDIATELY. See doctor within 48 hrs. NEVER play through suspected concussion. RICE protocol + sponsor-paid PT if needed. Use SCAT6 checklist (in SAFETY tab). 6-step Return-to-Play protocol. No same-day return. Period.", "why": "Second-impact syndrome equals catastrophic. CTE is real. One game isn't worth your brain."},
+  {"n": 25, "cat": "INJURY", "title": "Concussion symptoms after a hit.", "do": "Stop playing immediately and tell your coach, athletic trainer, and parent. A healthcare provider must assess suspected concussion. No same-day return. Emergency danger signs require emergency care; never use an app checklist to clear yourself.", "why": "Second-impact syndrome equals catastrophic. CTE is real. One game isn't worth your brain."},
   {"n": 26, "cat": "HEAT", "title": "Cramping in summer practice.", "do": "Stop. Sit. Stretch the cramped muscle. Sip water with electrolytes (NOT plain water, need Na). Tell trainer. 5-10 min rest. If cramping is severe equals day off. Cramping is your body saying sodium is low + you pushed too hard. Tomorrow: salt-load breakfast (eggs + LMNT).", "why": "Cramping is preventable. Coaches grade who manages it."},
   {"n": 27, "cat": "START", "title": "You score your first varsity TD.", "do": "Celebrate with your teammates. Spike the ball sparingly. Hand it to the ref. Run back to the huddle. Don't draw attention. Coaches grade who celebrates the team vs who celebrates themselves. The team that scores often is the team that prepares quietly. After game: 'Thanks to the OL who blocked for me.' Credit them every single time.", "why": "First TD equals memorable moment. How you celebrate equals grades your character."},
   {"n": 28, "cat": "RECRUIT", "title": "Coach Cahill praises you in front of the team.", "do": "Say 'Thank you coach.' Keep working. Don't get comfortable. Praise from your HC means: he's noticed. Now he expects consistency. The trap is reading your own press. Same thing NFL rookies fall into. Stay the same person. Same work. Next day.", "why": "Praise is feedback. The response determines whether more comes."},
@@ -1580,7 +1582,7 @@ const EMAIL_TEMPLATES = {"first_intro": {"subject": "2030 RB/LB Zayden Bowen —
 
 const FILM_SYSTEM = {"5_question_framework": ["1. WHAT IS THE FRONT? (4-3, 3-4, Bear, Tite, etc.) — read pre-snap OL count + DL alignment", "2. WHAT IS THE COVERAGE? (Cover 1, 2, 3, 4, 0) — count safeties pre-snap + depth", "3. WHERE IS THE MIKE LB? — always identify pre-snap — QB points at him", "4. WHAT IS THE PLAY DESIGN? (run, pass, RPO, screen) — read backfield + WR splits", "5. WHAT DID THE WINNING PLAY DEPEND ON? (block, read, missed tackle) — pause the play"], "weekly_play_to_study": [{"week_range": "1-12", "play": "Bijan Robinson outside zone cut", "where": "YouTube: Bijan Robinson vs Texas Tech 2022", "why": "Master the 3-window read"}, {"week_range": "13-24", "play": "CMC wheel route", "where": "YouTube: CMC highlights 2022", "why": "Modern 3-down back skill"}, {"week_range": "25-40", "play": "Derrick Henry stiff arm", "where": "YouTube: Derrick Henry stiff arm comp", "why": "Pad level + leverage"}, {"week_range": "41-50", "play": "Bucky Irving contact balance", "where": "YouTube: Bucky Irving broken tackles", "why": "Wrestler-style finish"}, {"week_range": "51-100", "play": "Devon Achane jump cut", "where": "YouTube: Devon Achane jump cut", "why": "Speed + cutting"}, {"week_range": "101-150", "play": "Marshawn Lynch Beast Quake", "where": "YouTube: Beast Quake run", "why": "Wrestling mentality"}, {"week_range": "151-200", "play": "Warrick Dunn 12-year career", "where": "YouTube: Warrick Dunn highlights", "why": "Longevity + consistency"}], "opponent_scout_template": {"team": "[Opponent name]", "date": "[Game date]", "formation_base": "4-3 / 3-4 / Bear / Tite (their base look)", "run_tendency": "% run vs pass · favorite plays · run direction tendencies", "pass_tendency": "favorite concepts · QB tendencies · WR splits", "blitz_package": "which LB/S blitzes most · favorite timing", "weak_gap": "smallest DL · slowest LB · 1v1 mismatch", "best_player": "their #1 player · avoid him on key plays", "cb_matchups": "which WR vs which CB · exploit mismatches", "our_gameplan": "attack weak side · exploit blitz gaps · protect vs best rusher"}};
 
-const INJURY_PROTOCOLS = [{"n": 1, "name": "Hamstring Strain", "grade": "1-3", "signs": "Sharp pain in back of thigh", "rehab": "RICE · isometric contractions · progressive eccentric loading", "rtn": "2-6 weeks", "prevention": "Nordic curls 3×6 daily · hamstring strengthening"}, {"n": 2, "name": "ACL Tear", "grade": "Full or Partial", "signs": "Pop + immediate swelling + instability", "rehab": "Surgery + 9-12 mo PT", "rtn": "9-12 months post-op", "prevention": "Nordic curls · single-leg squats · proprioception work"}, {"n": 3, "name": "MCL Sprain", "grade": "1-3", "signs": "Inner knee pain after lateral hit", "rehab": "RICE · brace · quad strengthening", "rtn": "2-6 weeks", "prevention": "Hip strengthening · proper footwork on cuts"}, {"n": 4, "name": "Ankle Sprain", "grade": "1-3", "signs": "Roll + lateral pain + swelling", "rehab": "RICE · alphabet drill · balance training", "rtn": "1-4 weeks", "prevention": "Single-leg balance · ankle proprioception · tape ankles"}, {"n": 5, "name": "Shoulder Dislocation", "grade": "Acute", "signs": "Pop + visible deformity", "rehab": "Reduction + sling + PT", "rtn": "6-12 weeks", "prevention": "Rotator cuff strengthening · tackling technique"}, {"n": 6, "name": "AC Joint Sprain", "grade": "1-6", "signs": "Top of shoulder pain after contact", "rehab": "Ice + rest + progressive loading", "rtn": "2-8 weeks", "prevention": "Shoulder pad fit · tackling technique"}, {"n": 7, "name": "Concussion", "grade": "Mild-Moderate-Severe", "signs": "Dizzy · foggy · nausea · memory blank", "rehab": "SCAT6 → 6-step RTP", "rtn": "24-hr steps × 6 days minimum", "prevention": "Neck strengthening · Hawk tackle · report ALL hits"}, {"n": 8, "name": "Concussion - Second Impact", "grade": "CRITICAL", "signs": "Second head injury before first heals", "rehab": "EMERGENCY - 911", "rtn": "Months - season over", "prevention": "Never return before cleared"}, {"n": 9, "name": "AC Sprain (Shoulder Separation)", "grade": "1-6", "signs": "Step deformity · pain at AC joint", "rehab": "Sling + PT for grade 4-6", "rtn": "2-12 weeks", "prevention": "Strengthen deltoid + trap"}, {"n": 10, "name": "High Ankle Sprain", "grade": "1-3", "signs": "Syndesmotic pain · between tibia/fibula", "rehab": "Boot + progressive loading", "rtn": "4-8 weeks", "prevention": "Strengthen calf + peroneals"}, {"n": 11, "name": "Quad Strain", "grade": "1-3", "signs": "Front of thigh pain after sprint", "rehab": "RICE · progressive loading", "rtn": "2-6 weeks", "prevention": "Eccentric quad work · proper warm-up"}, {"n": 12, "name": "Hip Flexor Strain", "grade": "1-3", "signs": "Groin/hip pain with sprinting", "rehab": "RICE + stretching + strengthening", "rtn": "2-6 weeks", "prevention": "Hip mobility daily · 90/90 holds"}, {"n": 13, "name": "Adductor Strain", "grade": "1-3", "signs": "Inner groin pain", "rehab": "RICE + adductor strengthening", "rtn": "2-6 weeks", "prevention": "Adductor squeezes · Copenhagen planks"}, {"n": 14, "name": "Lower Back Strain", "grade": "1-3", "signs": "Lower back pain after lift", "rehab": "RICE + core work", "rtn": "1-4 weeks", "prevention": "Dead bug · glute bridge · proper hip hinge"}, {"n": 15, "name": "Neck Strain", "grade": "1-3", "signs": "Neck pain after head hit", "rehab": "RICE + gentle ROM", "rtn": "1-2 weeks", "prevention": "Neck strengthening (4-way) · Hawk tackle"}, {"n": 16, "name": "Wrist Sprain", "grade": "1-3", "signs": "Wrist pain after fall", "rehab": "RICE + brace", "rtn": "1-3 weeks", "prevention": "Wrist taping · break-fall technique"}, {"n": 17, "name": "Thumb Sprain (UCL)", "grade": "1-3", "signs": "Thumb pain after grip", "rehab": "RICE + taping", "rtn": "2-6 weeks", "prevention": "Thumb taping during contact"}, {"n": 18, "name": "Rib Contusion", "grade": "Mild-Severe", "signs": "Rib pain after direct hit", "rehab": "RICE + rest", "rtn": "1-6 weeks", "prevention": "Rib pads · proper tackling"}, {"n": 19, "name": "Pneumothorax (collapsed lung)", "grade": "CRITICAL", "signs": "Sharp chest pain + breathing trouble", "rehab": "EMERGENCY - 911", "rtn": "Weeks - months", "prevention": "Avoid direct chest contact"}, {"n": 20, "name": "Heat Exhaustion", "grade": "Mild-Moderate", "signs": "Cold/clammy skin · weak pulse · cramps", "rehab": "Cool + hydrate + electrolytes", "rtn": "24-48 hours", "prevention": "Hydrate 24oz/2hr pre · electrolytes"}, {"n": 21, "name": "Heat Stroke", "grade": "CRITICAL - DEADLY", "signs": "Hot DRY skin · confusion · 104+ temp", "rehab": "EMERGENCY - 911 - cold immersion", "rtn": "Weeks if survive", "prevention": "Heat acclim · hydration · rest breaks"}, {"n": 22, "name": "Rhabdo (Rhabdomyolysis)", "grade": "CRITICAL", "signs": "Severe muscle pain + cola urine", "rehab": "EMERGENCY - IV fluids", "rtn": "Weeks - months", "prevention": "Gradual volume · hydration · avoid max-effort layoff"}, {"n": 23, "name": "Tennis Elbow", "grade": "Mild-Severe", "signs": "Lateral elbow pain", "rehab": "Rest + eccentric strengthening", "rtn": "2-12 weeks", "prevention": "Forearm strengthening"}, {"n": 24, "name": "Shin Splints", "grade": "Mild-Moderate", "signs": "Shin pain during/after running", "rehab": "RICE + calf raises + gradual volume", "rtn": "2-6 weeks", "prevention": "Calf strengthening · gradual mileage increase"}, {"n": 25, "name": "Stress Fracture (Tibia)", "grade": "CRITICAL", "signs": "Localized bone pain · worsens with run", "rehab": "Boot + 6-8 wk no-impact", "rtn": "6-12 weeks", "prevention": "Gradual mileage · adequate calcium + D3"}, {"n": 26, "name": "Plantar Fasciitis", "grade": "Mild-Severe", "signs": "Heel pain worst first step", "rehab": "Stretch + ice + supportive shoes", "rtn": "2-12 weeks", "prevention": "Calf stretch · supportive footwear"}, {"n": 27, "name": "Achilles Tendonitis", "grade": "Mild-Severe", "signs": "Heel cord pain · stiffness", "rehab": "Eccentric heel drops + rest", "rtn": "2-12 weeks", "prevention": "Eccentric calf strengthening"}, {"n": 28, "name": "Stinger (Burner)", "grade": "Mild-Severe", "signs": "Neck/shoulder/arm burning · temporary", "rehab": "RICE + return protocol", "rtn": "Minutes to days", "prevention": "Neck strengthening · Hawk tackle"}, {"n": 29, "name": "Patellar Tendonitis", "grade": "Mild-Severe", "signs": "Knee pain below kneecap", "rehab": "Eccentric squats + rest", "rtn": "2-12 weeks", "prevention": "Eccentric quad work · gradual volume"}, {"n": 30, "name": "IT Band Syndrome", "grade": "Mild-Severe", "signs": "Lateral knee pain during run", "rehab": "Foam roll + hip strengthening", "rtn": "2-6 weeks", "prevention": "Hip abduction strengthening"}, {"n": 31, "name": "Calf Strain", "grade": "1-3", "signs": "Sudden calf pain during sprint", "rehab": "RICE + progressive loading", "rtn": "2-6 weeks", "prevention": "Calf eccentric work"}, {"n": 32, "name": "Finger Dislocation", "grade": "Acute", "signs": "Visible deformity", "rehab": "Reduction + buddy tape", "rtn": "1-4 weeks", "prevention": "Finger taping during ball-handling"}, {"n": 33, "name": "Knee Contusion", "grade": "Mild-Severe", "signs": "Knee pain after direct hit", "rehab": "RICE + gentle ROM", "rtn": "1-3 weeks", "prevention": "Knee braces during contact"}, {"n": 34, "name": "Cervical Strain", "grade": "Mild-Severe", "signs": "Neck pain + ROM loss", "rehab": "RICE + gentle ROM + PT", "rtn": "1-4 weeks", "prevention": "Neck strengthening + Hawk tackle"}, {"n": 35, "name": "Eye Contusion (Black Eye)", "grade": "Mild-Severe", "signs": "Periorbital swelling/bruising", "rehab": "Cold + vision check + ophthalmology if vision changes", "rtn": "1-2 weeks", "prevention": "Proper visor use"}, {"n": 36, "name": "Cardiac Arrest (Commotio Cordis)", "grade": "CRITICAL - DEADLY", "signs": "Sudden collapse after chest impact", "rehab": "EMERGENCY - CPR + AED", "rtn": "N/A - prevent", "prevention": "Avoid direct chest impact · proper technique"}];
+const INJURY_PROTOCOLS = [{"n": 1, "name": "Hamstring Strain", "grade": "1-3", "signs": "Sharp pain in back of thigh", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Coach-supervised strength and workload planning"}, {"n": 2, "name": "ACL Tear", "grade": "Full or Partial", "signs": "Pop + immediate swelling + instability", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Nordic curls · single-leg squats · proprioception work"}, {"n": 3, "name": "MCL Sprain", "grade": "1-3", "signs": "Inner knee pain after lateral hit", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Hip strengthening · proper footwork on cuts"}, {"n": 4, "name": "Ankle Sprain", "grade": "1-3", "signs": "Roll + lateral pain + swelling", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Single-leg balance · ankle proprioception · tape ankles"}, {"n": 5, "name": "Shoulder Dislocation", "grade": "Acute", "signs": "Pop + visible deformity", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Rotator cuff strengthening · tackling technique"}, {"n": 6, "name": "AC Joint Sprain", "grade": "1-6", "signs": "Top of shoulder pain after contact", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Shoulder pad fit · tackling technique"}, {"n": 7, "name": "Concussion", "grade": "Requires medical assessment", "signs": "Dizzy · foggy · nausea · memory blank", "rehab": "Stop play immediately. Tell your coach, athletic trainer, and parent. No same-day return; healthcare-provider clearance is required.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Report symptoms; no equipment or exercise makes concussion impossible."}, {"n": 8, "name": "Concussion - Second Impact", "grade": "CRITICAL", "signs": "Second head injury before first heals", "rehab": "EMERGENCY - 911", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Never return before cleared"}, {"n": 9, "name": "AC Sprain (Shoulder Separation)", "grade": "1-6", "signs": "Step deformity · pain at AC joint", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Strengthen deltoid + trap"}, {"n": 10, "name": "High Ankle Sprain", "grade": "1-3", "signs": "Syndesmotic pain · between tibia/fibula", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Strengthen calf + peroneals"}, {"n": 11, "name": "Quad Strain", "grade": "1-3", "signs": "Front of thigh pain after sprint", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Eccentric quad work · proper warm-up"}, {"n": 12, "name": "Hip Flexor Strain", "grade": "1-3", "signs": "Groin/hip pain with sprinting", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Hip mobility daily · 90/90 holds"}, {"n": 13, "name": "Adductor Strain", "grade": "1-3", "signs": "Inner groin pain", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Adductor squeezes · Copenhagen planks"}, {"n": 14, "name": "Lower Back Strain", "grade": "1-3", "signs": "Lower back pain after lift", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Dead bug · glute bridge · proper hip hinge"}, {"n": 15, "name": "Neck Strain", "grade": "1-3", "signs": "Neck pain after head hit", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Neck strengthening (4-way) · Hawk tackle"}, {"n": 16, "name": "Wrist Sprain", "grade": "1-3", "signs": "Wrist pain after fall", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Wrist taping · break-fall technique"}, {"n": 17, "name": "Thumb Sprain (UCL)", "grade": "1-3", "signs": "Thumb pain after grip", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Thumb taping during contact"}, {"n": 18, "name": "Rib Contusion", "grade": "Mild-Severe", "signs": "Rib pain after direct hit", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Rib pads · proper tackling"}, {"n": 19, "name": "Pneumothorax (collapsed lung)", "grade": "CRITICAL", "signs": "Sharp chest pain + breathing trouble", "rehab": "EMERGENCY - 911", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Avoid direct chest contact"}, {"n": 20, "name": "Heat Exhaustion", "grade": "Mild-Moderate", "signs": "Cold/clammy skin · weak pulse · cramps", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Hydrate 24oz/2hr pre · electrolytes"}, {"n": 21, "name": "Heat Stroke", "grade": "CRITICAL - DEADLY", "signs": "Confusion or collapse in heat; skin may be sweaty or dry", "rehab": "EMERGENCY - 911 - cold immersion", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Heat acclim · hydration · rest breaks"}, {"n": 22, "name": "Rhabdo (Rhabdomyolysis)", "grade": "CRITICAL", "signs": "Severe muscle pain + cola urine", "rehab": "EMERGENCY - IV fluids", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Gradual volume · hydration · avoid max-effort layoff"}, {"n": 23, "name": "Tennis Elbow", "grade": "Mild-Severe", "signs": "Lateral elbow pain", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Forearm strengthening"}, {"n": 24, "name": "Shin Splints", "grade": "Mild-Moderate", "signs": "Shin pain during/after running", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Calf strengthening · gradual mileage increase"}, {"n": 25, "name": "Stress Fracture (Tibia)", "grade": "CRITICAL", "signs": "Localized bone pain · worsens with run", "rehab": "Boot + 6-8 wk no-impact", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Gradual mileage · adequate calcium + D3"}, {"n": 26, "name": "Plantar Fasciitis", "grade": "Mild-Severe", "signs": "Heel pain worst first step", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Calf stretch · supportive footwear"}, {"n": 27, "name": "Achilles Tendonitis", "grade": "Mild-Severe", "signs": "Heel cord pain · stiffness", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Eccentric calf strengthening"}, {"n": 28, "name": "Stinger (Burner)", "grade": "Mild-Severe", "signs": "Neck/shoulder/arm burning · temporary", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Neck strengthening · Hawk tackle"}, {"n": 29, "name": "Patellar Tendonitis", "grade": "Mild-Severe", "signs": "Knee pain below kneecap", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Eccentric quad work · gradual volume"}, {"n": 30, "name": "IT Band Syndrome", "grade": "Mild-Severe", "signs": "Lateral knee pain during run", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Hip abduction strengthening"}, {"n": 31, "name": "Calf Strain", "grade": "1-3", "signs": "Sudden calf pain during sprint", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Calf eccentric work"}, {"n": 32, "name": "Finger Dislocation", "grade": "Acute", "signs": "Visible deformity", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Finger taping during ball-handling"}, {"n": 33, "name": "Knee Contusion", "grade": "Mild-Severe", "signs": "Knee pain after direct hit", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Knee braces during contact"}, {"n": 34, "name": "Cervical Strain", "grade": "Mild-Severe", "signs": "Neck pain + ROM loss", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Neck strengthening + Hawk tackle"}, {"n": 35, "name": "Eye Contusion (Black Eye)", "grade": "Mild-Severe", "signs": "Periorbital swelling/bruising", "rehab": "Stop the activity and tell your athletic trainer and parent. Follow your clinician’s individual plan.", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Proper visor use"}, {"n": 36, "name": "Cardiac Arrest (Commotio Cordis)", "grade": "CRITICAL - DEADLY", "signs": "Sudden collapse after chest impact", "rehab": "EMERGENCY - CPR + AED", "rtn": "Individual clearance by a qualified healthcare professional", "prevention": "Avoid direct chest impact · proper technique"}];
 
 const VISUALIZATION = {"pre_snap_15s": {"duration": "15 seconds", "use": "Before every snap in-game", "script": "1. Eyes closed. One breath. In 4. Out 4.\n2. See YOUR stance. See YOUR eyes on the MIKE.\n3. See the play. ONE CUT. GET NORTH.\n4. Eyes open. Snap. EXECUTE."}, "pre_game_5min": {"duration": "5 minutes", "use": "In the locker room before kickoff", "script": "1. (1 min) Close eyes. Visualize the stadium. Hear the crowd. Feel the pads.\n2. (1 min) Run the first 5 plays of YOUR script. First-person. Feel the ball. See the hole.\n3. (1 min) Visualize the bad play. How you fix it. Next play.\n4. (1 min) See yourself making the big play. Touchdown. Big hit. Big stop.\n5. (1 min) Cue word: FINISH. One breath. Open eyes. Locked in."}, "pre_bed_5min": {"duration": "5 minutes", "use": "Before sleep (10:00 PM)", "script": "1. (1 min) Body scan. Toes to head. Release tension.\n2. (1 min) Replay today's BEST rep. In your body. Feel it.\n3. (1 min) See tomorrow's morning. Wake up. Stretch. Fuel. Train.\n4. (1 min) Visualize 3 plays you'll execute tomorrow. First-person.\n5. (1 min) Gratitude. 3 specific. Sleep."}, "audio_guide_text": "Welcome to visualization. Close your eyes. Breathe in... 4... hold... 7... out... 8. Again. Good. Now see yourself in stance. Hear the cadence. Feel the handoff. See the hole open. Hit it at full speed. Break the arm tackle. Fall forward. Extra 4 yards. Again -- second play -- different look -- you read it instantly -- cut back -- explode. Third play. You feel strong. You feel fast. You built this. You own this. Breathe. Open your eyes when ready."};
 
@@ -1667,6 +1669,10 @@ const FRESH_SCHEDULE=[
   {d:'2026-08-27',opp:'Sierra Vista',home:true,time:'4:00pm',result:'L 6-27'},
   /* from him, 30 Aug 2026, not from MaxPreps — freshman play Green Valley at 4, JV at 6. */
   {d:'2026-09-03',opp:'Green Valley',home:true,time:'4:00pm',src:'athlete'},
+  {d:'2026-09-09',opp:'Virgin Valley',home:false,time:'4:00pm',src:'school'},
+  {d:'2026-09-17',opp:'Canyon Springs',home:false,time:null,src:'school'},
+  {d:'2026-09-24',opp:'Durango',home:true,time:null,src:'school',eventWindow:'3–9pm combined JV/B event; kickoff unconfirmed'},
+  {d:'2026-10-01',opp:'Palo Verde',home:false,time:null,src:'school'},
   {d:'2026-10-15',opp:'Arbor View',home:true,time:'4:00pm'},
   {d:'2026-10-22',opp:'Legacy',home:true,time:'4:00pm'}
 ];
@@ -1675,7 +1681,7 @@ const FRESH_COMPLETE=false;  // MaxPreps shows 3 fixtures only — the rest are 
    D. Coleman on JV; both were wrong, and the error mattered more than any other in this file. */
 const FRESH_STAFF={hc:'Coach Diaz',asst:null,alsoRuns:'jv',srcOwner:'athlete, 2026-08-30',
   src:'https://www.maxpreps.com/nv/henderson/basic-wolves/football/freshman/',fetched:'2026-08-30'};
-const FRESH_SRC=FRESH_STAFF.src, FRESH_FETCHED=FRESH_STAFF.fetched;
+const FRESH_SRC=FRESH_STAFF.src, FRESH_FETCHED='2026-09-18';
 /* VARSITY — team data only. Feeds opponent scouting and likely-opponent hints. It must NEVER
    render as his game day. Result carried for the games already played.
    SOURCE: https://www.maxpreps.com/nv/henderson/basic-wolves/football/schedule/ fetched 2026-08-22. */
@@ -1744,7 +1750,15 @@ function levelSchedule(s,lvlOverride){
   const base=L==='varsity'?{games:VARSITY_SCHEDULE,complete:true,src:VARSITY_SRC,fetched:VARSITY_FETCHED}
     :L==='jv'?{games:JV_CONFIRMED,complete:false,src:JV_STAFF.src,fetched:JV_STAFF.fetched}
     :{games:FRESH_SCHEDULE,complete:FRESH_COMPLETE,src:FRESH_SRC,fetched:FRESH_FETCHED};
-  const games=mergeFixtures(base.games,own);
+  let games=mergeFixtures(base.games,own);
+  const corrections=(s.events||[]).filter(e=>e.type==='fixture_override'&&e.meta&&e.meta.lvl===L)
+    .slice().sort((a,b)=>a.d.localeCompare(b.d)||(a.t||0)-(b.t||0)||String(a.id).localeCompare(String(b.id)));
+  for(const e of corrections){const m=e.meta;
+    if(!/^\d{4}-\d{2}-\d{2}$/.test(m.date||'')||!m.opp) continue;
+    games=games.filter(g=>g.d!==m.original&&g.d!==m.date);
+    games.push({d:m.date,opp:m.opp,home:m.home!==false,time:m.time||null,src:'owner',source:m.source,id:e.id});
+  }
+  games.sort((a,b)=>a.d.localeCompare(b.d));
   return {level:L,games,complete:base.complete,src:base.src,fetched:base.fetched,
     published:(base.games||[]).length, added:games.length-(base.games||[]).length,
     /* the nag stops once he has answered it — asking again after he has told you is nagging,
@@ -2347,8 +2361,21 @@ const ELIGIBILITY={
   ifItWorks:'You start Thursday against Green Valley, both ways. First real game of your career.',
   ev:'From you, 31 August 2026.',
   unc:'Nobody has told you whether clearance is same-day. If it is not, Thursday is at risk — which makes the ask on Tuesday "will this be active before Thursday", not just "please fix it".'};
+const SEASON_CLEARANCE={d:'2026-09-18',until:'2026-12-31',state:'cleared',src:'Athlete report, September 18, 2026'};
+function seasonClearance(s,today=todayISO()){
+  const recent=(s.events||[]).filter(e=>e.type==='clear'&&e.meta&&e.meta.k==='cleared'&&e.d<=today)
+    .sort((a,b)=>a.d.localeCompare(b.d)||(a.t||0)-(b.t||0)).at(-1);
+  if(recent && recent.d>=SEASON_CLEARANCE.d && recent.d.slice(0,4)===today.slice(0,4))
+    return {clear:recent.meta.v==='yes',src:'Your clearance update',d:recent.d};
+  if(today>=SEASON_CLEARANCE.d&&today<=SEASON_CLEARANCE.until)
+    return {clear:true,src:SEASON_CLEARANCE.src,d:SEASON_CLEARANCE.d};
+  return null;
+}
 function eligibilityRead(s,today){
   today=today||todayISO();
+  const current=seasonClearance(s||S,today);
+  if(current) return {state:current.clear?'cleared':'not-cleared',gamesPlayed:(s.games||[]).filter(g=>g.played!==false&&g.d<=today).length,
+    headline:current.clear?'Cleared for the 2026 season':'Clearance needs attention',ev:current.src,unc:'Athlete-reported status; not a live school-system check.'};
   const d=daysBetween(today,ELIGIBILITY.fixDate);
   return {...ELIGIBILITY, toFix:d, fixToday:d===0, fixPast:d<0,
     headline:ELIGIBILITY.gamesPlayed===0?'You have not played a game this season':'Clearance is still open'};
@@ -2401,13 +2428,15 @@ function clearanceRead(s=S,today=todayISO()){
     const a=last[it.k]||null;
     return {...it,answer:a?a.v:null,d:a?a.d:null,ok:!!(a&&(CLEARANCE_DONE[it.k]||[]).includes(a.v))};
   });
-  const open=items.filter(x=>x.hard&&!x.ok);
+  const season=seasonClearance(s,today);
+  const open=season&&season.clear?[]:items.filter(x=>x.hard&&!x.ok);
+  if(season&&!season.clear&&!open.length) open.push(items.find(x=>x.k==='cleared'));
   const nextGame=(()=>{ const own=levelSchedule(s); const g=(own.games||[]).find(x=>x.d>=today); return g||null; })();
-  return {items,open,clear:open.length===0,
+  return {items,open,clear:season?season.clear:open.length===0,season,
     answered:items.filter(x=>x.answer!=null).length,total:items.length,
     nextGame,daysToGame:nextGame?daysBetween(today,nextGame.d):null,
     src:CLEARANCE_SRC,fetched:CLEARANCE_FETCHED,
-    ev:items.filter(x=>x.answer!=null).length+' of '+items.length+' clearance items answered in your own log.',
+    ev:season?season.src:items.filter(x=>x.answer!=null).length+' of '+items.length+' clearance items answered in your own log.',
     unc:'The app records what you tell it. It cannot see the school\'s system — only the office can confirm you are actually on the list.',
     asm:'The requirements above are the CCSD/NIAA published set as of '+CLEARANCE_FETCHED+'.'};
 }
@@ -2424,7 +2453,7 @@ function clearanceCardHTML(){
   </div>`).join('');
   return `<div class="card" style="border-color:${c.clear?'#2c4a35':'#5a2a2a'}">
     <h3>Eligibility clearance <span class="r" style="color:${tone}">${c.clear?'CLEAR':c.open.length+' open'}</span></h3>
-    ${c.clear?'<div class="note" style="margin:0">Every item you can control is answered and done. Re-confirm with the office if anything changes.</div>'
+    ${c.clear?'<div class="note" style="margin:0">Cleared for the season, as you reported. Individual paperwork answers below remain your original record.</div>'
       :`<div class="note" style="margin:0;font-style:normal;color:var(--red)"><b>You missed the 2026 opener over this.</b> Clearance is not a formality — it is the gate in front of everything else in this app.${c.nextGame?` Next game: <b>${esc(fmtD(c.nextGame.d))} vs ${esc(c.nextGame.opp)}</b> — ${c.daysToGame} day${c.daysToGame===1?'':'s'} out.`:''}</div>`}
     ${rows}
     <div class="note" style="margin-top:8px;color:var(--faint)"><b>Evidence:</b> ${esc(c.ev)}<br><b>Unknown:</b> ${esc(c.unc)}<br><b>Assumed:</b> ${esc(c.asm)}<br>Source: ${esc(c.src)} · fetched ${esc(c.fetched)}</div>
@@ -3277,7 +3306,7 @@ function normIds(s){
    copy of it anywhere in this file. If you need this question answered, call this function. */
 function stateNonDegenerate(p){
   if(!p||typeof p!=='object') return false;
-  return !!((p.metrics||[]).length || (p.lifts||[]).length || Object.keys(p.checkins||{}).length);
+  return !!((p.metrics||[]).length || (p.lifts||[]).length || Object.keys(p.checkins||{}).length || ['coach','clips','notes','games','depth','core'].some(k=>Array.isArray(p[k])&&p[k].length) || (Array.isArray(p.events)&&p.events.some(e=>e&&e.meta&&['development_evidence','evidence_revision','daily_ready','skill_rep','postgame','assignment','opponent_study','practice_review','daily_plan','task_state','game_details','game_prep','athlete_role','week_rhythm','knowledge_attempt','mental_reset','fixture_override','clear'].includes(e.type))));
 }
 /* var, not const/let: loadS() runs at the `let S=` line below and these must already exist. */
 var _loadErr=null;      // the exception, when the read threw
@@ -3483,6 +3512,8 @@ function save(st){
     }catch(_){}
   }
   if(_sb){ save.ok=ok; return ok; }   // sandbox stops here — nothing beyond this line is storage
+  if(!ok){ save.ok=false; return false; } // Never mirror, snapshot, or sync an uncommitted write.
+  try{ document.querySelector('#saveFail')?.remove(); }catch(_){}
   /* v7.97 · 0.1: a failed localStorage.setItem used to fall straight through to idbMirror(), so a
      write the disk refused still reached the mirror. Both are behind the halt now, and the mirror
      is additionally gated on the record actually holding something. */
@@ -3599,8 +3630,10 @@ function idbSnapRestore(key,cb,guard){
       if(guard&&!writeBlocked()&&typeof exportS==='function') exportS();  // normal path keeps its escape hatch
       const m=migrate(p);
       if(!stateNonDegenerate(m)) return cb(false);
-      S=m; _degraded=null; _loadErr=null; loadS.ok=true;  // the halt lifts only on a validated restore
-      save(); cb(true);
+      const before=S, degradedBefore=_degraded, errorBefore=_loadErr;
+      S=m; _degraded=null; _loadErr=null; loadS.ok=true;
+      if(!save()){ S=before; _degraded=degradedBefore; _loadErr=errorBefore; loadS.ok=!_degraded; return cb(false); }
+      cb(true);
     }catch(e){ logErr('restore',e); cb(false); } };
     rq.onerror=()=>cb(false);
   }catch(e){ logErr('restore',e); cb(false); } });
@@ -3766,7 +3799,7 @@ function idbRestoreCheck(cb){
          one definition, three callers. */
       if(stateNonDegenerate(p)){
         const m=migrate(p);
-        if(stateNonDegenerate(m)){ S=m; save(); toast('Recovered your data from the mirror ✓'); fin(true); }
+        if(stateNonDegenerate(m)){ const before=S; S=m; if(!save()){ S=before; fin(false); return; } toast('Recovered your data from the mirror ✓'); fin(true); }
         else fin(false);
       } else fin(false); }catch(e){ fin(false); } };
     rq.onerror=()=>fin(false);
@@ -6982,20 +7015,20 @@ function rTrain(){
   let w=trainDay===null?plan.workout:(week.find(x=>x.day===trainDay)||TEMPLATES.restDay);
   if(gymMode==='sore') w={...TEMPLATES.recoveryTemplate,day:w.day,title:'TOO SORE · RECOVERY',why:'Listen to the body — mobility, easy movement, food, sleep. Back hard tomorrow.'};
   else if(gymMode==='apt') w=aptSession(w);
+  if(window.D1 && trainDay===null){ const p=D1.model.prescription(S);
+    if(['support','game','walk','check'].includes(p.mode)) w={day:new Date().getDay(),recovery:true,title:p.mode==='game'?'TEAM GAME DAY':p.mode==='check'?'CHECK IN BEFORE EXTRA WORK':p.mode==='support'?'TRAINER CHECK-IN':'LIGHT DAY',why:p.reason,blocks:[{n:p.title,s:p.reason}]};
+  }
   const recent=S.lifts.slice(-5).reverse();
   const dl=plan.deload;
   /* v8.0: footwork leads TRAIN. It is the named weak point, it is dosed, and it is the block most
      likely to be skipped if it sits below a lifting session. */
   $('#v-train').innerHTML=`
 
-  ${typeof nextRepHTML==='function'?nextRepHTML():''}
-  ${typeof captureStripHTML==='function'?captureStripHTML():''}
-  ${typeof railHTML==='function'?railHTML():''}
-  ${typeof gainStripHTML==='function'?gainStripHTML():''}
+  ${window.D1?D1.trainHeader():''}
 
 <div class="card">
     <h3>${esc(w.title)} ${w.day===new Date().getDay()?'<span class="r" style="color:var(--amber)">TODAY</span>':''}</h3>
-    ${w.recovery?'':`<details style="border-top:none;border-bottom:1px solid var(--line)"><summary style="color:var(--cyan)">WARM-UP FIRST <span class="pill cyan">6-8 min · cuts injuries 30-46%</span></summary>
+    ${w.recovery?'':`<details style="border-top:none;border-bottom:1px solid var(--line)"><summary style="color:var(--cyan)">WARM-UP FIRST <span class="pill cyan">6-8 min · movement preparation</span></summary>
       <div class="bd">${WARMUP[/SPEED|ATHLETICISM|TEMPO/.test(w.title)?'field':'lift'].map(x=>'• '+esc(x)).join('<br>')}</div></details>`}
     ${(()=>{const isToday=w.day===new Date().getDay();const sess=isToday?(S.sessions[todayISO()]||(S.sessions[todayISO()]=w.blocks.map(()=>false))):null;
     return w.blocks.map((b,i)=>{
@@ -7032,7 +7065,7 @@ function rTrain(){
       <button class="btn grow" id="restBtn" onclick="restTimer(150)">⏱ REST 2:30</button>
       <button class="btn ghost" onclick="restTimer(15)">CONTRAST 0:15</button>
     </div><div class="note">Contrast pairs: jump within ~15s of racking. Between full sets: 2–3 min. The timing IS the method.<br>Solo at the apartment gym today? Skip anything marked SPOTTER/EOS — swap in the pause variant or DB work. Max attempts happen at EOS only, cousin present.</div>`:''}
-    <div class="note"><b style="color:var(--cyan)">2026 dosing:</b> work sets end at 1–3 reps in reserve — grind the last rep speed, never the form. On accessory lifts, the last set can extend with lengthened partials (bottom-half reps after full-ROM failure): 2025 meta-analysis shows a small real edge for growth at long muscle lengths. Small edge, not magic — the surplus and sleep still outrank it.</div>
+    <div class="note">Follow your team strength coach’s session and technique. These are optional planning templates, not extra work to stack on top of team lifting. No max attempts prescribed here.</div>
   </div>
     ${''/* v8.4: everything from the cycle read down to the plyo counter used to render here —
        4,502px measured, five and a half phone screens of reference below the work. It is all still
@@ -8745,10 +8778,10 @@ function nextRep(s,today){
     C.push({kind:'clear',nowOK:_costly?true:!afterHours,tone:'gate',
     rule:REP_RULES.gate, o:(_missed>0?'GET CLEARED. '+_missed+' GAME'+(_missed===1?'':'S')+' ALREADY GONE.':'GET CLEARED THIS WEEK.'), k:'NOT CLEARED TO PLAY'+(_missed>0?' · '+_missed+' GAME'+(_missed===1?'':'S')+' GONE':(clr.daysToGame!=null?' · '+clr.daysToGame+' DAYS OUT':'')),
     t:clr.open.length+' thing'+(clr.open.length===1?'':'s')+' between you and the field',
-    w:'You have not played a game this season. Two are gone and a scrimmage is the only football on your record. '+clr.open[0].label+' is the first item, and none of the rest start until it does. Your mum is going into the office on Tuesday — the thing to ask her to confirm is whether it is ACTIVE before Thursday, not just submitted.',
+    w:'Your clearance record needs an update: '+clr.open[0].label+'. Confirm the current status with the athletic office.',
     ev:clr.ev,
-    unc:'You are cleared to PRACTISE, not to play. Two freshman games are gone and you have never been in a real one. The app cannot see Aktivate, so it will keep saying this until you tick the items off — and it should.',
-    asm:'Assumes what you told me on 31 August: the IC/RMA address mismatch is still the blocker, and your mum goes into the office in person on Tuesday.',
+    unc:today<'2026-09-18'?'Historical report: cleared to PRACTISE, not to play.':'The app cannot see Aktivate. This is based on your latest recorded status.',
+    asm:'Uses dated athlete reports and later clearance updates; never infers eligibility from a stat line.',
     act:[{l:'Open clearance',f:"go('path')",p:1}]});
   /* 2 · GAME DAY. */
   if(gameToday) C.push({kind:'gameday',tone:'gate',rule:REP_RULES.gate, o:'PLAY. LOG IT TONIGHT.', k:'GAME DAY',
@@ -11211,7 +11244,7 @@ function rPush(){
   <div class="card">
     <h3>Injury Red Flags <span class="r">know these cold</span></h3>
     <div class="note" style="color:var(--faint)">Reference, not medical advice. Your athletic trainer and physician make every return-to-play call — always tell them, always.</div>
-    <div class="note" style="margin:0 0 8px">🚨 911 now: heat stroke (hot DRY skin + confusion) · second-impact concussion · collapse after chest hit · cola-colored urine. Never hide a head hit.</div>
+    <div class="note" style="margin:0 0 8px">🚨 911 now: heat stroke (confusion or collapse in heat, even while sweating) · second-impact concussion · collapse after chest hit · cola-colored urine. Never hide a head hit.</div>
     <details><summary>Full protocol reference <span class="pill">${INJURY_PROTOCOLS.length}</span></summary><div class="bd">
       ${INJURY_PROTOCOLS.map(p=>`<b style="color:${/CRITICAL/.test(p.grade)?'var(--red)':'var(--txt)'}">${esc(p.name)}</b> — ${esc(p.signs)}<br><span style="color:var(--faint)">RTP ${esc(p.rtn)} · Prevent: ${esc(p.prevention)}</span><br><br>`).join('')}
     </div></details>
@@ -11840,6 +11873,11 @@ function bootD1(){ killSkeleton();
      wired, and no code path behind it can reach save(). */
   if(writeBlocked()){ try{ showDegraded(); }catch(e){ try{ document.body.innerHTML='<pre style="padding:20px;color:#ff8b7a;white-space:pre-wrap">D1 OS stopped: '+String((_degraded||{}).reason||'read failure')+'\nYour record was not overwritten.</pre>'; }catch(_){} } return; }
   try{ navInit(); }catch(e){} try{ applyField(); }catch(e){} if(!_wm) introMaybe(); if(_wm){ rWidget(); if(typeof cloudBoot==='function') cloudBoot(); return; } go('today'); try{ deepLink(); }catch(e){} try{ badgeSync(); }catch(e){} if(typeof cloudBoot==='function') cloudBoot(); } // sync starts only after the mirror verdict — cloud merges with real local state, never with a placeholder
+</script>
+<script src="src/curriculum.js?v=12"></script>
+<script src="src/development.js?v=12"></script>
+<script src="performance.js?v=12"></script>
+<script>
 idbRestoreCheck(bootD1);
 if(_wm&&typeof setInterval!=='undefined'){ setInterval(()=>{ try{ rWidget(); }catch(e){} },60000); } // widget stays fresh
 
@@ -12233,11 +12271,11 @@ function d1TestSuite(){
     eq('X3 and the app is still asking for the rest', pub.needsMore, true);
     /* he adds one his coach gave him */
     const one=clone(base);
-    one.cal.push({id:'f1',d:'2026-09-17',type:'game',title:'vs Chaparral',opp:'Chaparral',home:false,time:'4:00pm',lvl:'fresh'});
+    one.cal.push({id:'f1',d:'2026-09-15',type:'game',title:'vs Chaparral',opp:'Chaparral',home:false,time:'4:00pm',lvl:'fresh'});
     const m=levelSchedule(one);
     eq('X4 an added fixture joins the schedule', m.games.length, FRESH_SCHEDULE.length+1);
     eq('X5 it is counted separately from the published ones', m.added, 1);
-    eq('X6 and marked as his', (m.games.find(g=>g.d==='2026-09-17')||{}).src, 'owner');
+    eq('X6 and marked as his', (m.games.find(g=>g.d==='2026-09-15')||{}).src, 'owner');
     ok('X7 the merged list stays in date order',
        m.games.every((g,i)=>i===0||m.games[i-1].d<=g.d), J(m.games.map(g=>g.d)));
     eq('X8 the app stops asking once he has answered', m.needsMore, false);
@@ -12258,23 +12296,23 @@ function d1TestSuite(){
     eq('X12 a row with no usable date is ignored', levelSchedule(junk).games.length, FRESH_SCHEDULE.length);
     /* a title-only row still yields an opponent */
     const titled=clone(base);
-    titled.cal.push({id:'f6',d:'2026-09-24',type:'game',title:'vs Silverado',lvl:'fresh'});
+    titled.cal.push({id:'f6',d:'2026-09-22',type:'game',title:'vs Silverado',lvl:'fresh'});
     eq('X13 an opponent is recovered from the title when no field was set',
-       (levelSchedule(titled).games.find(g=>g.d==='2026-09-24')||{}).opp, 'Silverado');
+       (levelSchedule(titled).games.find(g=>g.d==='2026-09-22')||{}).opp, 'Silverado');
     /* and it flows all the way through to everything downstream */
     const flow=clone(base);
-    flow.cal.push({id:'f7',d:'2026-09-17',type:'game',opp:'Chaparral',home:false,time:'4:00pm',lvl:'fresh'});
+    flow.cal.push({id:'f7',d:'2026-09-15',type:'game',opp:'Chaparral',home:false,time:'4:00pm',lvl:'fresh'});
     const E=icsEntries(flow,'2026-09-01');
-    ok('X14 an added fixture produces a game alarm', E.some(e=>e.uid.indexOf('d1os-game-20260917')===0), '');
-    ok('X15 and its own post-game capture', E.some(e=>e.uid.indexOf('d1os-gamecap-20260917')===0), '');
+    ok('X14 an added fixture produces a game alarm', E.some(e=>e.uid.indexOf('d1os-game-20260915')===0), '');
+    ok('X15 and its own post-game capture', E.some(e=>e.uid.indexOf('d1os-gamecap-20260915')===0), '');
     eq('X16 and it becomes the next opponent when it is next',
        (nextOpponent(flow,'2026-09-10')||{}).opp, 'Chaparral');
     eq('X17 and the morning after, it is the capture question',
-       (openCaptures(flow,'2026-09-18')[0]||{}).kind, 'game');
+       (openCaptures(flow,'2026-09-16')[0]||{}).kind, 'game');
     /* the calendar hub must not render it twice */
     const both=calItems('2026-09-01','2026-09-30');
     ok('X18 the PLAN hub renders a fixture once, not twice',
-       both.filter(x=>x.type==='game'&&x.d==='2026-09-17').length<=1, J(both.filter(x=>x.d==='2026-09-17')));
+       both.filter(x=>x.type==='game'&&x.d==='2026-09-15').length<=1, J(both.filter(x=>x.d==='2026-09-15')));
   })();
 
   /* ---------- A · MIGRATION: additive, idempotent, backward-compatible ---------- */
@@ -12406,8 +12444,8 @@ function d1TestSuite(){
     eq('G7 the freshman slate is his', fs.games.length, FRESH_SCHEDULE.length);
     eq('G8 the freshman slate is declared incomplete', fs.complete, false);
     eq('G9 the freshman slate carries a source and a fetch date', !!(fs.src&&fs.fetched), true);
-    eq('G10 every published freshman game is a Thursday',
-       FRESH_SCHEDULE.every(g=>new Date(g.d+'T12:00').getDay()===4), true);
+    eq('G10 the school-confirmed Wednesday exception is preserved',
+       FRESH_SCHEDULE.some(g=>g.d==='2026-09-09'&&g.opp==='Virgin Valley'&&g.src==='school'), true);
     eq('G11 the varsity slate is complete team data', levelSchedule({settings:{level:'varsity'}}).complete, true);
     eq('G12 the varsity slate is never returned for a freshman', fs.games===VARSITY_SCHEDULE, false);
     eq('G13 the played opener carries its result',
@@ -13069,13 +13107,13 @@ function d1TestSuite(){
        single-file app with no external runtime dependency can simply assert that it has none.
        Note the path is deliberately NOT written out anywhere in this file: Y16 scans the app
        source, so spelling the needle in prose makes the test match itself. It did, first run. */
-    ok('Y14 exactly one inline script, and it is the app',
+    ok('Y14 only the two intentional inline app sections exist',
        (()=>{ try{ const sc=document.scripts||[];
          let inline=0; for(let i=0;i<sc.length;i++){ if(!sc[i].src) inline++; }
-         return inline===1; }catch(e){ return true; } })(),'more than one inline script is present');
-    ok('Y15 no script is loaded from anywhere else',
+         return inline===2; }catch(e){ return true; } })(),'more than one inline script is present');
+    ok('Y15 only the same-origin versioned interface script is loaded',
        (()=>{ try{ const sc=document.scripts||[];
-         for(let i=0;i<sc.length;i++){ if(sc[i].src) return false; } return true; }catch(e){ return true; } })(),
+         for(let i=0;i<sc.length;i++){ if(sc[i].src && (new URL(sc[i].src).origin!==location.origin || !['/performance.js','/src/development.js','/src/curriculum.js'].some(p=>new URL(sc[i].src).pathname.endsWith(p)))) return false; } return true; }catch(e){ return true; } })(),
        'an external script tag is present');
     ok('Y16 no challenge, analytics or CDN hook anywhere in the source',
        (()=>{ const src=appSource();
@@ -13478,18 +13516,18 @@ function d1TestSuite(){
 
     /* T1 = a date where his own level's next fixture is genuinely further off than another
        level's, which is the condition the resolver exists for. */
-    const T1='2026-09-05';
+    const T1='2026-09-18';
 
     ok('E1 the nearest game at ANY level wins, not just his own',
        (()=>{ const n=nextLiveGame(F(),T1);
-         return !!n && n.d==='2026-09-10' && n.lvl==='varsity' && n.own===false; })(),
+         return !!n && n.d==='2026-09-18' && n.lvl==='varsity' && n.own===false; })(),
        'the resolver still only reads his own level');
 
     eq('E2 and his own level is still reported, with the distance',
-       (()=>{ const n=nextLiveGame(F(),T1); return n&&n.ownNext&&n.ownNext.d; })(), '2026-10-15');
+       (()=>{ const n=nextLiveGame(F(),T1); return n&&n.ownNext&&n.ownNext.d; })(), '2026-09-24');
 
     eq('E3 the gap it would otherwise have pointed past, in days',
-       (()=>nextLiveGame(F(),T1).aheadOfOwn)(), 35);
+       (()=>nextLiveGame(F(),T1).aheadOfOwn)(), 6);
 
     ok('E3b and today the nearest game is his own, four days out',
        (()=>{ const n=nextLiveGame(F(),T0);
@@ -13805,14 +13843,14 @@ function d1TestSuite(){
     /* ── M · WAR ROOM (v10.0) ────────────────────────────────────────────────
        Four tabs, a sodium palette, Project Hulk, and the correction that mattered most: he is
        cleared to PRACTISE, has played zero games, and two are already gone. */
-    ok('M1 four destinations, not six',
+    ok('M1 five named destinations for the athlete workflow',
        (()=>{ const n=document.querySelectorAll('#nav button'); if(!n.length) return true;
          const names=[...n].map(b=>(b.textContent||'').trim());
-         return names.length===4 && names.join('/')==='WORK/HULK/FIELD/PATH'; })(),
+         return names.length===5 && names.join('/')==='Today/Develop/Film/Season/Progress'; })(),
        'the navigation is back to six, or the four are misnamed');
 
     ok('M2 the old view names still route, because handlers everywhere call them',
-       VIEW_ALIAS.today==='train' && VIEW_ALIAS.plan==='push',
+       typeof RENDER.today==='function' && typeof RENDER.plan==='function',
        'go(\'today\') or go(\'plan\') would now throw');
 
     ok('M3 the app opens on the work',
@@ -13867,16 +13905,16 @@ function d1TestSuite(){
          return h.querySelectorAll('[data-count]').length===0; })(),
        'the most prominent number in the app rolls up on every navigation');
 
-    ok('L3 the Daily Four reads as four marks, not as a zero',
+    ok('L3 the header does not grade an unstarted day',
        (()=>{ const h=document.getElementById('hdrCd'); if(!h) return true;
          const dots=h.querySelectorAll('.sb-dots i');
-         return dots.length===4 && !/\b0\s*\/\s*4\b/.test(h.textContent||''); })(),
+         return !/\b0\s*\/\s*4\b/.test(h.textContent||'') && /on this device|Offline/.test(h.textContent||''); })(),
        'the app opens by telling him he has done nothing');
 
-    ok('L4 the hero cell names the opponent, so the number means something',
+    ok('L4 the athlete-facing resolver uses the next freshman fixture',
        (()=>{ const h=document.getElementById('hdrCd'); if(!h) return true;
-         const k=h.querySelector('.sb-cell.hero .sb-k');
-         return !!k && (k.textContent||'').length>6; })(),
+         const g=D1.model.nextGame(F(),'2026-09-18');
+         return g && g.opp==='Durango' && g.d==='2026-09-24'; })(),
        'the countdown has no subject');
 
     ok('L5 the tab called TRAIN opens on the training',

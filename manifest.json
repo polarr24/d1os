@@ -1,10 +1,10 @@
 {
-  "name": "ZAYDEN D1 OS",
-  "short_name": "ZAYDEN D1",
+  "name": "D1OS \u2014 Zayden",
+  "short_name": "D1OS",
   "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0a0e14",
-  "theme_color": "#0a0e14",
+  "background_color": "#0b0e10",
+  "theme_color": "#0b0e10",
   "icons": [
     {
       "src": "icon-180.png",
@@ -19,64 +19,20 @@
   ],
   "shortcuts": [
     {
-      "name": "Log a game",
-      "short_name": "Game",
-      "description": "Carries, yards, TD, tackles — or did not play",
-      "url": "./?a=game#path",
-      "icons": [
-        {
-          "src": "icon-180.png",
-          "sizes": "180x180"
-        }
-      ]
+      "name": "Today",
+      "url": "./#today"
     },
     {
-      "name": "Quick log",
-      "short_name": "Log",
-      "description": "Weight, sleep, energy — one tap",
-      "url": "./?a=quick#track",
-      "icons": [
-        {
-          "src": "icon-180.png",
-          "sizes": "180x180"
-        }
-      ]
+      "name": "Development",
+      "url": "./#development"
     },
     {
-      "name": "Log a lift",
-      "short_name": "Lift",
-      "description": "Straight to the session",
-      "url": "./?a=lift#train",
-      "icons": [
-        {
-          "src": "icon-180.png",
-          "sizes": "180x180"
-        }
-      ]
+      "name": "Season",
+      "url": "./#season"
     },
     {
-      "name": "Practice log",
-      "short_name": "Practice",
-      "description": "15 seconds after practice",
-      "url": "./?a=practice#today",
-      "icons": [
-        {
-          "src": "icon-180.png",
-          "sizes": "180x180"
-        }
-      ]
-    },
-    {
-      "name": "Sweat check",
-      "short_name": "Sweat",
-      "description": "Weigh in and out",
-      "url": "./?a=hydrate#today",
-      "icons": [
-        {
-          "src": "icon-180.png",
-          "sizes": "180x180"
-        }
-      ]
+      "name": "Film",
+      "url": "./#film"
     }
   ]
 }
