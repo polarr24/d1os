@@ -1,0 +1,13 @@
+{
+  "version": "21.0.0",
+  "commit": "7bbf38231179b822afd2451949a5041fd3fb43db",
+  "status": "REVIEW CANDIDATE \u2014 NOT DEPLOYED",
+  "aiInference": "NOT RUN",
+  "browserVerification": "NOT RUN",
+  "physicalIPhone": "NOT RUN",
+  "liveVersion": "19.0.0",
+  "currentTests": 187,
+  "historicalFailuresRetained": 42,
+  "rollback20Tag": "rollback-20.0-local",
+  "servedBaseline": "e815505d35d9bff367298eef138f6a131788bac9"
+}
